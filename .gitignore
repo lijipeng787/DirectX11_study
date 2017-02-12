@@ -6,6 +6,12 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.log
+*.obj
+*.txt
+*.dds
+*.db
+Data/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -243,3 +249,5 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+*.diagsession
+*.lib

@@ -1,0 +1,228 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="application">
+      <UniqueIdentifier>{0d1c5e1d-2ae9-420f-b6c1-9ecfc9ccd48b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\header">
+      <UniqueIdentifier>{17a76e44-7927-4f63-a9e8-da225b06ba6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\source">
+      <UniqueIdentifier>{257626b3-81ab-4797-90a9-9461a31b35bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics">
+      <UniqueIdentifier>{5120c05d-e32a-4673-b193-ecaa09193d65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\header">
+      <UniqueIdentifier>{30caa824-1a89-4595-9b05-fdb878822c1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\source">
+      <UniqueIdentifier>{f98a570c-bbc0-4961-9ef9-fab465b779c0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="timer.h">
+      <Filter>application\header</Filter>
+    </ClInclude>
+    <ClInclude Include="input.h">
+      <Filter>application\header</Filter>
+    </ClInclude>
+    <ClInclude Include="fps.h">
+      <Filter>application\header</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>application\header</Filter>
+    </ClInclude>
+    <ClInclude Include="position.h">
+      <Filter>application\header</Filter>
+    </ClInclude>
+    <ClInclude Include="color_shader.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="rendeable.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="light.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="light_shader.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="font.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="font_shader.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="texture_shader.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain_cell.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain_shader.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="skybox.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="skybox_shader.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="shader_manager.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="user_interface.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="text.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="zone.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="application.h">
+      <Filter>application\header</Filter>
+    </ClInclude>
+    <ClInclude Include="system.h">
+      <Filter>application\header</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="texture_manager.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="buffer_config.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="application_common.h">
+      <Filter>application\header</Filter>
+    </ClInclude>
+    <ClInclude Include="input_layout.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="sampler_state.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="slice.h">
+      <Filter>application\header</Filter>
+    </ClInclude>
+    <ClInclude Include="status.h">
+      <Filter>application\header</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="d3d12device.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+    <ClInclude Include="d3d11device.h">
+      <Filter>graphics\header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="timer.cpp">
+      <Filter>application\source</Filter>
+    </ClCompile>
+    <ClCompile Include="input.cpp">
+      <Filter>application\source</Filter>
+    </ClCompile>
+    <ClCompile Include="fps.cpp">
+      <Filter>application\source</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>application\source</Filter>
+    </ClCompile>
+    <ClCompile Include="position.cpp">
+      <Filter>application\source</Filter>
+    </ClCompile>
+    <ClCompile Include="color_shader.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="rendeable.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="light.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="light_shader.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="font.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="font_shader.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="texture_shader.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain_cell.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain_shader.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="skybox.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="skybox_shader.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="text.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="shader_manager.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="user_interface.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="zone.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="application.cpp">
+      <Filter>application\source</Filter>
+    </ClCompile>
+    <ClCompile Include="system.cpp">
+      <Filter>application\source</Filter>
+    </ClCompile>
+    <ClCompile Include="winmain.cpp">
+      <Filter>application\source</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="texture_manager.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="buffer_config.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="input_layout.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="sampler_state.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="status.cpp">
+      <Filter>application\source</Filter>
+    </ClCompile>
+    <ClCompile Include="shader.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d11device.cpp">
+      <Filter>graphics\source</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
