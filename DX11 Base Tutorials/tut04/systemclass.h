@@ -1,70 +1,29 @@
-////////////////////////////////////////////////////////////////////////////////
-// Filename: systemclass.h
-////////////////////////////////////////////////////////////////////////////////
 #ifndef _SYSTEMCLASS_H_
 #define _SYSTEMCLASS_H_
 
+#include "../Common/SystemBase.h"
 
-///////////////////////////////
-// PRE-PROCESSING DIRECTIVES //
-///////////////////////////////
-#define WIN32_LEAN_AND_MEAN
-
-
-//////////////
-// INCLUDES //
-//////////////
-#include <windows.h>
-
-
-///////////////////////
-// MY CLASS INCLUDES //
-///////////////////////
-#include "inputclass.h"
-#include "graphicsclass.h"
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Class name: SystemClass
-////////////////////////////////////////////////////////////////////////////////
-class SystemClass
-{
+class System:public SystemBase{
 public:
-	SystemClass();
-	SystemClass(const SystemClass&);
-	~SystemClass();
+	System();
+	
+	System(const System& rhs) = delete;
 
-	bool Initialize();
-	void Shutdown();
-	void Run();
+	System& operator=(const System& rhs) = delete;
+	
+	virtual ~System();
+public:
+	virtual bool Initialize()override;
 
-	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
+	virtual void Shutdown()override;
+	
+	virtual void Run()override;
 
-private:
-	bool Frame();
-	void InitializeWindows(int&, int&);
-	void ShutdownWindows();
-
-private:
-	LPCWSTR m_applicationName;
-	HINSTANCE m_hinstance;
-	HWND m_hwnd;
-
-	InputClass* m_Input;
-	GraphicsClass* m_Graphics;
+	virtual bool Frame()override;
 };
 
-
-/////////////////////////
-// FUNCTION PROTOTYPES //
-/////////////////////////
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-
-/////////////
-// GLOBALS //
-/////////////
-static SystemClass* ApplicationHandle = 0;
-
+static System* ApplicationHandle = 0;
 
 #endif

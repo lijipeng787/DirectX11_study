@@ -1,27 +1,24 @@
-////////////////////////////////////////////////////////////////////////////////
-// Filename: systemclass.cpp
-////////////////////////////////////////////////////////////////////////////////
 #include "systemclass.h"
 
 
-SystemClass::SystemClass()
+System::System()
 {
 	m_Input = 0;
 	m_Graphics = 0;
 }
 
 
-SystemClass::SystemClass(const SystemClass& other)
+System::System(const System& other)
 {
 }
 
 
-SystemClass::~SystemClass()
+System::~System()
 {
 }
 
 
-bool SystemClass::Initialize()
+bool System::Initialize()
 {
 	int screenWidth, screenHeight;
 	bool result;
@@ -62,7 +59,7 @@ bool SystemClass::Initialize()
 }
 
 
-void SystemClass::Shutdown()
+void System::Shutdown()
 {
 	// Release the graphics object.
 	if(m_Graphics)
@@ -86,7 +83,7 @@ void SystemClass::Shutdown()
 }
 
 
-void SystemClass::Run()
+void System::Run()
 {
 	MSG msg;
 	bool done, result;
@@ -127,7 +124,7 @@ void SystemClass::Run()
 }
 
 
-bool SystemClass::Frame()
+bool System::Frame()
 {
 	bool result;
 
@@ -149,7 +146,7 @@ bool SystemClass::Frame()
 }
 
 
-LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
+LRESULT CALLBACK System::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 {
 	switch(umsg)
 	{
@@ -178,7 +175,7 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 }
 
 
-void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
+void System::InitializeWindows(int& screenWidth, int& screenHeight)
 {
 	WNDCLASSEX wc;
 	DEVMODE dmScreenSettings;
@@ -260,7 +257,7 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 }
 
 
-void SystemClass::ShutdownWindows()
+void System::ShutdownWindows()
 {
 	// Show the mouse cursor.
 	ShowCursor(true);

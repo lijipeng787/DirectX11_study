@@ -1,49 +1,40 @@
-////////////////////////////////////////////////////////////////////////////////
-// Filename: graphicsclass.h
-////////////////////////////////////////////////////////////////////////////////
 #ifndef _GRAPHICSCLASS_H_
 #define _GRAPHICSCLASS_H_
 
+#include "../Common/GraphicsBase.h"
 
-///////////////////////
-// MY CLASS INCLUDES //
-///////////////////////
-#include "d3dclass.h"
-#include "cameraclass.h"
-#include "modelclass.h"
-#include "colorshaderclass.h"
+constexpr bool FULL_SCREEN = false;
+constexpr bool VSYNC_ENABLED = true;
+constexpr float SCREEN_DEPTH = 1000.0f;
+constexpr float SCREEN_NEAR = 0.1f;
 
+class DirectX11Device;
+class Camera;
+class ModelClass;
+class ColorShaderClass;
 
-/////////////
-// GLOBALS //
-/////////////
-const bool FULL_SCREEN = false;
-const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 1000.0f;
-const float SCREEN_NEAR = 0.1f;
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Class name: GraphicsClass
-////////////////////////////////////////////////////////////////////////////////
-class GraphicsClass
-{
+class GraphicsClass :public GraphicsBase {
 public:
 	GraphicsClass();
-	GraphicsClass(const GraphicsClass&);
-	~GraphicsClass();
 
-	bool Initialize(int, int, HWND);
-	void Shutdown();
-	bool Frame();
+	GraphicsClass(const GraphicsClass& rhs) = delete;
 
+	GraphicsClass& operator=(const GraphicsClass& rhs) = delete;
+	
+	virtual ~GraphicsClass();
+public:
+	virtual bool Initialize(int, int, HWND)override;
+	
+	virtual void Shutdown()override;
+	
+	virtual bool Frame()override;
+
+	virtual bool Render()override;
 private:
-	bool Render();
+	Camera* m_Camera;
 
-private:
-	D3DClass* m_D3D;
-	CameraClass* m_Camera;
 	ModelClass* m_Model;
+
 	ColorShaderClass* m_ColorShader;
 };
 

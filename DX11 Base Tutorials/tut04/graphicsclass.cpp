@@ -5,24 +5,9 @@
 #include <new>
 
 
-GraphicsClass::GraphicsClass()
-{
-	m_D3D = 0;
-	m_Camera = 0;
-	m_Model = 0;
-	m_ColorShader = 0;
-}
+GraphicsClass::GraphicsClass() {}
 
-
-GraphicsClass::GraphicsClass(const GraphicsClass& other)
-{
-}
-
-
-GraphicsClass::~GraphicsClass()
-{
-}
-
+GraphicsClass::~GraphicsClass() {}
 
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
@@ -46,8 +31,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Create the camera object.
-	m_Camera = ( CameraClass* )_aligned_malloc( sizeof( CameraClass ), 16 );
-	new ( m_Camera )CameraClass();
+	m_Camera = ( Camera* )_aligned_malloc( sizeof( Camera ), 16 );
+	new ( m_Camera )Camera();
 	if(!m_Camera)
 	{
 		return false;
@@ -113,7 +98,7 @@ void GraphicsClass::Shutdown()
 	// Release the camera object.
 	if(m_Camera)
 	{
-		m_Camera->~CameraClass();
+		m_Camera->~Camera();
 		_aligned_free( m_Camera );
 		m_Camera = 0;
 	}

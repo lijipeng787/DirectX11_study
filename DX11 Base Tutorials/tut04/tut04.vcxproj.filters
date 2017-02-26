@@ -30,10 +30,10 @@
     <ClInclude Include="systemclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cameraclass.h">
+    <ClInclude Include="colorshaderclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="colorshaderclass.h">
+    <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -56,18 +56,18 @@
     <ClCompile Include="systemclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cameraclass.cpp">
+    <ClCompile Include="colorshaderclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="colorshaderclass.cpp">
+    <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="color.vs">
+    <None Include="color_ps.hlsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="color.ps">
+    <None Include="color_vs.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

@@ -98,13 +98,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StructMemberAlignment>16Bytes</StructMemberAlignment>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\DirectXTK\Bin\Desktop_2013\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\DirectXTK\</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dinput8.lib;DirectXTK.lib;dsound.lib;dxgi.lib;dxguid.lib;pdh.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -148,7 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="cameraclass.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="colorshaderclass.h" />
     <ClInclude Include="d3dclass.h" />
     <ClInclude Include="graphicsclass.h" />
@@ -157,7 +157,7 @@
     <ClInclude Include="systemclass.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cameraclass.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="colorshaderclass.cpp" />
     <ClCompile Include="d3dclass.cpp" />
     <ClCompile Include="graphicsclass.cpp" />
@@ -167,8 +167,8 @@
     <ClCompile Include="systemclass.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="color.ps" />
-    <None Include="color.vs" />
+    <None Include="color_ps.hlsl" />
+    <None Include="color_vs.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

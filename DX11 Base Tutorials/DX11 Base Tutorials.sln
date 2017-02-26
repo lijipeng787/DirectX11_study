@@ -1,12 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tut02", "tut02\tut02.vcxproj", "{D965075D-4861-4BC0-8D34-C87720D23D65}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tut03", "tut03\tut03.vcxproj", "{939CE468-9A9A-428B-9BCE-AE36EC2D0D16}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tut04", "tut04\tut04.vcxproj", "{D36D235F-C167-40C4-9665-574154B32FD9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tut05", "tut05\tut05.vcxproj", "{98487793-B73C-4411-8EEB-26524EEE47CB}"
@@ -101,6 +97,20 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tut49", "tut49\tut49.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tut50", "tut50\tut50.vcxproj", "{C50A67AF-F97F-44E0-B3A9-25446F9C3154}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{27B19A35-6594-47D7-803C-7454E75B2F66}"
+	ProjectSection(SolutionItems) = preProject
+		Common\Camera.cpp = Common\Camera.cpp
+		Common\Camera.h = Common\Camera.h
+		Common\DirectX11Device.cpp = Common\DirectX11Device.cpp
+		Common\DirectX11Device.h = Common\DirectX11Device.h
+		Common\GraphicsBase.cpp = Common\GraphicsBase.cpp
+		Common\GraphicsBase.h = Common\GraphicsBase.h
+		Common\Input.cpp = Common\Input.cpp
+		Common\Input.h = Common\Input.h
+		Common\SystemBase.cpp = Common\SystemBase.cpp
+		Common\SystemBase.h = Common\SystemBase.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -109,22 +119,6 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D965075D-4861-4BC0-8D34-C87720D23D65}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D965075D-4861-4BC0-8D34-C87720D23D65}.Debug|Win32.Build.0 = Debug|Win32
-		{D965075D-4861-4BC0-8D34-C87720D23D65}.Debug|x64.ActiveCfg = Debug|x64
-		{D965075D-4861-4BC0-8D34-C87720D23D65}.Debug|x64.Build.0 = Debug|x64
-		{D965075D-4861-4BC0-8D34-C87720D23D65}.Release|Win32.ActiveCfg = Release|Win32
-		{D965075D-4861-4BC0-8D34-C87720D23D65}.Release|Win32.Build.0 = Release|Win32
-		{D965075D-4861-4BC0-8D34-C87720D23D65}.Release|x64.ActiveCfg = Release|x64
-		{D965075D-4861-4BC0-8D34-C87720D23D65}.Release|x64.Build.0 = Release|x64
-		{939CE468-9A9A-428B-9BCE-AE36EC2D0D16}.Debug|Win32.ActiveCfg = Debug|Win32
-		{939CE468-9A9A-428B-9BCE-AE36EC2D0D16}.Debug|Win32.Build.0 = Debug|Win32
-		{939CE468-9A9A-428B-9BCE-AE36EC2D0D16}.Debug|x64.ActiveCfg = Debug|x64
-		{939CE468-9A9A-428B-9BCE-AE36EC2D0D16}.Debug|x64.Build.0 = Debug|x64
-		{939CE468-9A9A-428B-9BCE-AE36EC2D0D16}.Release|Win32.ActiveCfg = Release|Win32
-		{939CE468-9A9A-428B-9BCE-AE36EC2D0D16}.Release|Win32.Build.0 = Release|Win32
-		{939CE468-9A9A-428B-9BCE-AE36EC2D0D16}.Release|x64.ActiveCfg = Release|x64
-		{939CE468-9A9A-428B-9BCE-AE36EC2D0D16}.Release|x64.Build.0 = Release|x64
 		{D36D235F-C167-40C4-9665-574154B32FD9}.Debug|Win32.ActiveCfg = Debug|Win32
 		{D36D235F-C167-40C4-9665-574154B32FD9}.Debug|Win32.Build.0 = Debug|Win32
 		{D36D235F-C167-40C4-9665-574154B32FD9}.Debug|x64.ActiveCfg = Debug|x64

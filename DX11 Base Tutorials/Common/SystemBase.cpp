@@ -1,10 +1,12 @@
-#include "System.h"
+#include "SystemBase.h"
+#include "Input.h"
+#include "GraphicsBase.h"
 
-System::System() {}
+SystemBase::SystemBase() {}
 
-System::~System(){}
+SystemBase::~SystemBase(){}
 
-bool System::Initialize() {
+bool SystemBase::Initialize() {
 
 	int screenWidth, screenHeight;
 	bool result;
@@ -23,7 +25,7 @@ bool System::Initialize() {
 	}
 
 	{
-		m_Graphics = new Graphics();
+		m_Graphics = new GraphicsBase();
 		if (!m_Graphics) {
 			return false;
 		}
@@ -36,7 +38,7 @@ bool System::Initialize() {
 	return true;
 }
 
-void System::Shutdown() {
+void SystemBase::Shutdown() {
 
 	if (m_Graphics) {
 		m_Graphics->Shutdown();
@@ -55,7 +57,7 @@ void System::Shutdown() {
 }
 
 
-void System::Run() {
+void SystemBase::Run() {
 
 	MSG msg;
 	bool done, result;
@@ -83,7 +85,7 @@ void System::Run() {
 	}
 }
 
-bool System::Frame() {
+bool SystemBase::Frame() {
 
 	bool result;
 
@@ -100,7 +102,7 @@ bool System::Frame() {
 }
 
 
-LRESULT CALLBACK System::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
+LRESULT CALLBACK SystemBase::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 
 	switch (umsg)
 	{
@@ -124,7 +126,7 @@ LRESULT CALLBACK System::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPA
 }
 
 
-void System::InitializeWindows(int& screenWidth, int& screenHeight) {
+void SystemBase::InitializeWindows(int& screenWidth, int& screenHeight) {
 
 	WNDCLASSEX wc;
 	DEVMODE dmScreenSettings;
@@ -134,7 +136,7 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight) {
 
 	m_hinstance = GetModuleHandle(NULL);
 
-	m_applicationName = L"Engine";
+	m_applicationName = "Engine";
 
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.lpfnWndProc = WndProc;
@@ -187,7 +189,7 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight) {
 }
 
 
-void System::ShutdownWindows() {
+void SystemBase::ShutdownWindows() {
 
 	ShowCursor(true);
 
