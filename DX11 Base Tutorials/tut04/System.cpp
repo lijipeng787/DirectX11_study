@@ -1,11 +1,13 @@
-#include "systemclass.h"
-#include "graphicsclass.h"
+#include "System.h"
+#include "Graphics.h"
 
 System::System() {}
 
 System::~System(){}
 
 bool System::Initialize() {
+
+	ApplicationInstance = this;
 
 	SetWindProc(WndProc);
 

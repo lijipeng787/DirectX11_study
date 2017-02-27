@@ -21,6 +21,8 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D36D235F-C167-40C4-9665-574154B32FD9}</ProjectGuid>
     <RootNamespace>tut04</RootNamespace>
+    <ProjectName>simple_triangle</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -149,16 +151,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="colorshaderclass.h" />
-    <ClInclude Include="graphicsclass.h" />
+    <ClInclude Include="Graphics.h" />
     <ClInclude Include="modelclass.h" />
-    <ClInclude Include="systemclass.h" />
+    <ClInclude Include="System.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="colorshaderclass.cpp" />
-    <ClCompile Include="graphicsclass.cpp" />
+    <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="modelclass.cpp" />
-    <ClCompile Include="systemclass.cpp" />
+    <ClCompile Include="System.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="color_ps.hlsl" />

@@ -1,4 +1,4 @@
-#include "graphicsclass.h"
+#include "Graphics.h"
 #include <new>
 
 #include "../CommonFramework/TypeDefine.h"
