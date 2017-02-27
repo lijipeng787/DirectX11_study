@@ -2,18 +2,18 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow) {
 
-	System *System = new System();
-	if (!System) {
+	System *system = new System;
+	if (!system) {
 		return 0;
 	}
-	bool result = System->Initialize();
+	bool result = system->Initialize();
 	if (result) {
-		System->Run();
+		system->Run();
 	}
 
-	System->Shutdown();
-	delete System;
-	System = 0;
+	system->Shutdown();
+	delete system;
+	system = nullptr;
 
 	return 0;
 }

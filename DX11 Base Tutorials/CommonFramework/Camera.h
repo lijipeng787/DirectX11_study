@@ -23,7 +23,7 @@ public:
 
 	void Render();
 	
-	void GetViewMatrix(XMMATRIX& );
+	void GetViewMatrix(DirectX::XMMATRIX& );
 private:
 	float m_positionX = 0.0f, m_positionY = 0.0f, m_positionZ = 0.0f;
 	

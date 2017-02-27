@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "DirectX11Device.h"
 
 using namespace DirectX;

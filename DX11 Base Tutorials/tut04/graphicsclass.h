@@ -1,12 +1,7 @@
 #ifndef _GRAPHICSCLASS_H_
 #define _GRAPHICSCLASS_H_
 
-#include "../Common/GraphicsBase.h"
-
-constexpr bool FULL_SCREEN = false;
-constexpr bool VSYNC_ENABLED = true;
-constexpr float SCREEN_DEPTH = 1000.0f;
-constexpr float SCREEN_NEAR = 0.1f;
+#include "../CommonFramework/GraphicsBase.h"
 
 class DirectX11Device;
 class Camera;
@@ -31,11 +26,13 @@ public:
 
 	virtual bool Render()override;
 private:
-	Camera* m_Camera;
+	DirectX11Device *m_D3D;
 
-	ModelClass* m_Model;
+	Camera *m_Camera;
 
-	ColorShaderClass* m_ColorShader;
+	ModelClass *m_Model;
+
+	ColorShaderClass *m_ColorShader;
 };
 
 #endif

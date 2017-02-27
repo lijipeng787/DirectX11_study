@@ -1,29 +1,31 @@
 #ifndef _SYSTEMCLASS_H_
 #define _SYSTEMCLASS_H_
 
-#include "../Common/SystemBase.h"
+#include "../CommonFramework/SystemBase.h"
 
-class System:public SystemBase{
+class GraphicsClass;
+
+class System :public SystemBase {
 public:
 	System();
-	
+
 	System(const System& rhs) = delete;
 
 	System& operator=(const System& rhs) = delete;
-	
+
 	virtual ~System();
 public:
 	virtual bool Initialize()override;
 
 	virtual void Shutdown()override;
-	
-	virtual void Run()override;
 
 	virtual bool Frame()override;
+private:
+	GraphicsClass *m_Graphics;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-static System* ApplicationHandle = 0;
+static System* ApplicationInstance = nullptr;
 
 #endif

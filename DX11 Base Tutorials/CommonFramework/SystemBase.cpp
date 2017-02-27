@@ -1,4 +1,6 @@
+#include "stdafx.h"
 #include "SystemBase.h"
+#include "TypeDefine.h"
 #include "Input.h"
 #include "GraphicsBase.h"
 
@@ -9,7 +11,6 @@ SystemBase::~SystemBase(){}
 bool SystemBase::Initialize() {
 
 	int screenWidth, screenHeight;
-	bool result;
 
 	screenWidth = 0;
 	screenHeight = 0;
@@ -24,27 +25,10 @@ bool SystemBase::Initialize() {
 		m_Input->Initialize();
 	}
 
-	{
-		m_Graphics = new GraphicsBase();
-		if (!m_Graphics) {
-			return false;
-		}
-		result = m_Graphics->Initialize(screenWidth, screenHeight, m_hwnd);
-		if (!result) {
-			return false;
-		}
-	}
-
 	return true;
 }
 
 void SystemBase::Shutdown() {
-
-	if (m_Graphics) {
-		m_Graphics->Shutdown();
-		delete m_Graphics;
-		m_Graphics = 0;
-	}
 
 	if (m_Input) {
 		delete m_Input;
@@ -55,7 +39,6 @@ void SystemBase::Shutdown() {
 
 	return;
 }
-
 
 void SystemBase::Run() {
 
@@ -87,20 +70,37 @@ void SystemBase::Run() {
 
 bool SystemBase::Frame() {
 
-	bool result;
-
 	if (m_Input->IsKeyDown(VK_ESCAPE)) {
-		return false;
-	}
-
-	result = m_Graphics->Frame();
-	if (!result) {
 		return false;
 	}
 
 	return true;
 }
 
+void SystemBase::SetWindProc(LRESULT(CALLBACK *WindProc)(HWND, UINT, WPARAM, LPARAM)){
+	windd_proc_ = WindProc;
+}
+
+void SystemBase::GetScreenWidthAndHeight(unsigned int & width, unsigned int & height) const{
+	width = screen_width_;
+	height = screen_height_;
+}
+
+LPCWSTR SystemBase::GetApplicationName() const{
+	return m_applicationName;
+}
+
+HINSTANCE SystemBase::GetApplicationInstance() const{
+	return m_hinstance;
+}
+
+HWND SystemBase::GetApplicationHandle() const{
+	return m_hwnd;
+}
+
+const Input & SystemBase::GetInputComponent() const{
+	return *m_Input;
+}
 
 LRESULT CALLBACK SystemBase::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 
@@ -125,21 +125,18 @@ LRESULT CALLBACK SystemBase::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam,
 	}
 }
 
-
 void SystemBase::InitializeWindows(int& screenWidth, int& screenHeight) {
 
 	WNDCLASSEX wc;
 	DEVMODE dmScreenSettings;
 	int posX, posY;
 
-	ApplicationHandle = this;
-
 	m_hinstance = GetModuleHandle(NULL);
 
-	m_applicationName = "Engine";
+	m_applicationName = L"Engine";
 
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	wc.lpfnWndProc = WndProc;
+	wc.lpfnWndProc = *windd_proc_;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = m_hinstance;
@@ -186,8 +183,10 @@ void SystemBase::InitializeWindows(int& screenWidth, int& screenHeight) {
 	SetFocus(m_hwnd);
 
 	ShowCursor(false);
-}
 
+	screen_height_ = screenHeight;
+	screen_width_ = screenWidth;
+}
 
 void SystemBase::ShutdownWindows() {
 
@@ -202,30 +201,4 @@ void SystemBase::ShutdownWindows() {
 
 	UnregisterClass(m_applicationName, m_hinstance);
 	m_hinstance = NULL;
-
-	ApplicationHandle = NULL;
-}
-
-
-LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam) {
-
-	switch (umessage)
-	{
-	case WM_DESTROY:
-	{
-		PostQuitMessage(0);
-		return 0;
-	}
-
-	case WM_CLOSE:
-	{
-		PostQuitMessage(0);
-		return 0;
-	}
-
-	default:
-	{
-		return ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
-	}
-	}
 }
