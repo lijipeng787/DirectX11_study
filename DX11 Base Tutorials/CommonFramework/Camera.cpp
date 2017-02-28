@@ -9,24 +9,24 @@ Camera::~Camera(){}
 
 void Camera::SetPosition(float x, float y, float z) {
 	
-	m_positionX = x;
-	m_positionY = y;
-	m_positionZ = z;
+	position_x_ = x;
+	position_y_ = y;
+	position_z_ = z;
 }
 
 void Camera::SetRotation(float x, float y, float z) {
 
-	m_rotationX = x;
-	m_rotationY = y;
-	m_rotationZ = z;
+	rotation_x_ = x;
+	rotation_y_ = y;
+	rotation_z_ = z;
 }
 
 XMFLOAT3 Camera::GetPosition() {
-	return XMFLOAT3(m_positionX, m_positionY, m_positionZ);
+	return XMFLOAT3(position_x_, position_y_, position_z_);
 }
 
 XMFLOAT3 Camera::GetRotation() {
-	return XMFLOAT3(m_rotationX, m_rotationY, m_rotationZ);
+	return XMFLOAT3(rotation_x_, rotation_y_, rotation_z_);
 }
 
 void Camera::Render() {
@@ -42,9 +42,9 @@ void Camera::Render() {
 	up.m128_f32[3] = 1.0f;
 
 	// Setup the position of the camera in the world.
-	position.m128_f32[0] = m_positionX;
-	position.m128_f32[1] = m_positionY;
-	position.m128_f32[2] = m_positionZ;
+	position.m128_f32[0] = position_x_;
+	position.m128_f32[1] = position_y_;
+	position.m128_f32[2] = position_z_;
 	position.m128_f32[3] = 1.0f;
 
 	// Setup where the camera is looking by default.
@@ -54,9 +54,9 @@ void Camera::Render() {
 	lookAt.m128_f32[3] = 1.0f;
 
 	// Set the yaw (Y axis), pitch (X axis), and roll (Z axis) rotations in radians.
-	pitch = m_rotationX * 0.0174532925f;
-	yaw = m_rotationY * 0.0174532925f;
-	roll = m_rotationZ * 0.0174532925f;
+	pitch = rotation_x_ * 0.0174532925f;
+	yaw = rotation_y_ * 0.0174532925f;
+	roll = rotation_z_ * 0.0174532925f;
 
 	// Create the rotation matrix from the yaw, pitch, and roll values.
 	rotationMatrix = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
@@ -69,9 +69,9 @@ void Camera::Render() {
 	lookAt = position + lookAt;
 
 	// Finally create the view matrix from the three updated vectors.
-	m_viewMatrix = XMMatrixLookAtLH(position, lookAt, up);
+	view_matrix_ = XMMatrixLookAtLH(position, lookAt, up);
 }
 
 void Camera::GetViewMatrix(XMMATRIX& viewMatrix) {
-	viewMatrix = m_viewMatrix;
+	viewMatrix = view_matrix_;
 }

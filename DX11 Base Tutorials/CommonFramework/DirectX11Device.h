@@ -28,41 +28,41 @@ public:
 
 	ID3D11DeviceContext* GetDeviceContext();
 
-	void GetProjectionMatrix(DirectX::XMMATRIX&);
+	void GetProjectionMatrix(DirectX::XMMATRIX& projection_matrix);
 
-	void GetWorldMatrix(DirectX::XMMATRIX&);
+	void GetWorldMatrix(DirectX::XMMATRIX& world_matrix);
 
-	void GetOrthoMatrix(DirectX::XMMATRIX&);
+	void GetOrthoMatrix(DirectX::XMMATRIX& orthonality_matrix);
 
 	void GetVideoCardInfo(char*, int&);
 private:
-	bool m_vsync_enabled = false;
+	bool vsync_enabled_ = false;
 
-	int m_videoCardMemory = 0;
+	unsigned int videocard_Memory_ = 0;
 
-	char m_videoCardDescription[128] = {};
+	char videocard_description_[128] = {};
 
-	IDXGISwapChain* m_swapChain = nullptr;
+	IDXGISwapChain* swap_chain_ = nullptr;
 
-	ID3D11Device* m_device = nullptr;
+	ID3D11Device* device_ = nullptr;
 
-	ID3D11DeviceContext* m_deviceContext = nullptr;
+	ID3D11DeviceContext* device_context_ = nullptr;
 
-	ID3D11RenderTargetView* m_renderTargetView = nullptr;
+	ID3D11RenderTargetView* render_target_view_ = nullptr;
 
-	ID3D11Texture2D* m_depthStencilBuffer = nullptr;
+	ID3D11Texture2D* depth_stencil_buffer_ = nullptr;
 
-	ID3D11DepthStencilState* m_depthStencilState = nullptr;
+	ID3D11DepthStencilState* depth_stencil_state_ = nullptr;
 
-	ID3D11DepthStencilView* m_depthStencilView = nullptr;
+	ID3D11DepthStencilView* depth_stencil_view_ = nullptr;
 
-	ID3D11RasterizerState* m_rasterState = nullptr;
+	ID3D11RasterizerState* raster_state_ = nullptr;
 
-	DirectX::XMMATRIX m_projectionMatrix = {};
+	DirectX::XMMATRIX projection_matrix_ = {};
 
-	DirectX::XMMATRIX m_worldMatrix = {};
+	DirectX::XMMATRIX world_matrix_ = {};
 
-	DirectX::XMMATRIX m_orthoMatrix = {};
+	DirectX::XMMATRIX orthonality_matrix_ = {};
 };
 
 #endif

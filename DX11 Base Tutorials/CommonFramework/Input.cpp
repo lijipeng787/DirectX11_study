@@ -9,22 +9,22 @@ void Input::Initialize() {
 	int i;
 
 	for (i = 0; i < 256; i++) {
-		m_keys[i] = false;
+		keys_[i] = false;
 	}
 }
 
 
 void Input::KeyDown(unsigned int input) {
 
-	m_keys[input] = true;
+	keys_[input] = true;
 }
 
 
 void Input::KeyUp(unsigned int input) {
-	m_keys[input] = false;
+	keys_[input] = false;
 }
 
 
 bool Input::IsKeyDown(unsigned int key) {
-	return m_keys[key];
+	return keys_[key];
 }

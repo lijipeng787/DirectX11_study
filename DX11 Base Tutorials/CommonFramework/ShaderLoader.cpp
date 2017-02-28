@@ -133,7 +133,7 @@ BlobPtr ShaderLoader::GetPixelShaderBlobByFileName(WCHAR* filename) const {
 	unsigned int index = ps_index_container_.find(s)->second;
 	return GetPixelShaderBlobByIndex(index);
 }
-// TODO: finish these functions
+// TODO: finish these two functions
 BlobPtr ShaderLoader::GetVertexShaderBlobByEntryName(WCHAR* entry_name) const {
 	return BlobPtr();
 }

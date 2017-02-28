@@ -25,11 +25,11 @@ public:
 	
 	void GetViewMatrix(DirectX::XMMATRIX& );
 private:
-	float m_positionX = 0.0f, m_positionY = 0.0f, m_positionZ = 0.0f;
+	float position_x_ = 0.0f, position_y_ = 0.0f, position_z_ = 0.0f;
 	
-	float m_rotationX = 0.0f, m_rotationY = 0.0f, m_rotationZ = 0.0f;
+	float rotation_x_ = 0.0f, rotation_y_ = 0.0f, rotation_z_ = 0.0f;
 	
-	DirectX::XMMATRIX m_viewMatrix;
+	DirectX::XMMATRIX view_matrix_ = {};
 };
 
 #endif

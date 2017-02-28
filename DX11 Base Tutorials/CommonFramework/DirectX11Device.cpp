@@ -32,7 +32,7 @@ bool DirectX11Device::Initialize(
 	D3D11_VIEWPORT viewport;
 	float fieldOfView, screenAspect;
 
-	m_vsync_enabled = vsync;
+	vsync_enabled_ = vsync;
 
 	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 	if (FAILED(result)) {
@@ -80,9 +80,9 @@ bool DirectX11Device::Initialize(
 		return false;
 	}
 
-	m_videoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
+	videocard_Memory_ = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
 
-	error = wcstombs_s(&stringLength, m_videoCardDescription, 128, adapterDesc.Description, 128);
+	error = wcstombs_s(&stringLength, videocard_description_, 128, adapterDesc.Description, 128);
 	if (error != 0) {
 		return false;
 	}
@@ -106,7 +106,7 @@ bool DirectX11Device::Initialize(
 	swapChainDesc.BufferDesc.Height = screenHeight;
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-	if (m_vsync_enabled) {
+	if (vsync_enabled_) {
 		swapChainDesc.BufferDesc.RefreshRate.Numerator = numerator;
 		swapChainDesc.BufferDesc.RefreshRate.Denominator = denominator;
 	}
@@ -135,17 +135,17 @@ bool DirectX11Device::Initialize(
 	featureLevel = D3D_FEATURE_LEVEL_11_0;
 
 	result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &featureLevel, 1,
-		D3D11_SDK_VERSION, &swapChainDesc, &m_swapChain, &m_device, NULL, &m_deviceContext);
+		D3D11_SDK_VERSION, &swapChainDesc, &swap_chain_, &device_, NULL, &device_context_);
 	if (FAILED(result)) {
 		return false;
 	}
 
-	result = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
+	result = swap_chain_->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
 	if (FAILED(result)) {
 		return false;
 	}
 
-	result = m_device->CreateRenderTargetView(backBufferPtr, NULL, &m_renderTargetView);
+	result = device_->CreateRenderTargetView(backBufferPtr, NULL, &render_target_view_);
 	if (FAILED(result)) {
 		return false;
 	}
@@ -167,7 +167,7 @@ bool DirectX11Device::Initialize(
 	depthBufferDesc.CPUAccessFlags = 0;
 	depthBufferDesc.MiscFlags = 0;
 
-	result = m_device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer);
+	result = device_->CreateTexture2D(&depthBufferDesc, NULL, &depth_stencil_buffer_);
 	if (FAILED(result)) {
 		return false;
 	}
@@ -192,24 +192,24 @@ bool DirectX11Device::Initialize(
 	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-	result = m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilState);
+	result = device_->CreateDepthStencilState(&depthStencilDesc, &depth_stencil_state_);
 	if (FAILED(result)) {
 		return false;
 	}
 
-	m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
+	device_context_->OMSetDepthStencilState(depth_stencil_state_, 1);
 
 	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
 	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 
-	result = m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView);
+	result = device_->CreateDepthStencilView(depth_stencil_buffer_, &depthStencilViewDesc, &depth_stencil_view_);
 	if (FAILED(result)) {
 		return false;
 	}
 
-	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
+	device_context_->OMSetRenderTargets(1, &render_target_view_, depth_stencil_view_);
 
 	rasterDesc.AntialiasedLineEnable = false;
 	rasterDesc.CullMode = D3D11_CULL_BACK;
@@ -222,12 +222,12 @@ bool DirectX11Device::Initialize(
 	rasterDesc.ScissorEnable = false;
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
-	result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterState);
+	result = device_->CreateRasterizerState(&rasterDesc, &raster_state_);
 	if (FAILED(result)) {
 		return false;
 	}
 
-	m_deviceContext->RSSetState(m_rasterState);
+	device_context_->RSSetState(raster_state_);
 
 	viewport.Width = (float)screenWidth;
 	viewport.Height = (float)screenHeight;
@@ -236,64 +236,64 @@ bool DirectX11Device::Initialize(
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
 
-	m_deviceContext->RSSetViewports(1, &viewport);
+	device_context_->RSSetViewports(1, &viewport);
 
 	fieldOfView = (float)XM_PI / 4.0f;
 	screenAspect = (float)screenWidth / (float)screenHeight;
 
-	m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
+	projection_matrix_ = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
 
-	m_worldMatrix = XMMatrixIdentity();
+	world_matrix_ = XMMatrixIdentity();
 
-	m_orthoMatrix = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
+	orthonality_matrix_ = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
 
 	return true;
 }
 
 void DirectX11Device::Shutdown() {
 
-	if (m_swapChain) {
-		m_swapChain->SetFullscreenState(false, NULL);
+	if (swap_chain_) {
+		swap_chain_->SetFullscreenState(false, NULL);
 	}
 
-	if (m_rasterState) {
-		m_rasterState->Release();
-		m_rasterState = 0;
+	if (raster_state_) {
+		raster_state_->Release();
+		raster_state_ = 0;
 	}
 
-	if (m_depthStencilView) {
-		m_depthStencilView->Release();
-		m_depthStencilView = 0;
+	if (depth_stencil_view_) {
+		depth_stencil_view_->Release();
+		depth_stencil_view_ = 0;
 	}
 
-	if (m_depthStencilState) {
-		m_depthStencilState->Release();
-		m_depthStencilState = 0;
+	if (depth_stencil_state_) {
+		depth_stencil_state_->Release();
+		depth_stencil_state_ = 0;
 	}
 
-	if (m_depthStencilBuffer) {
-		m_depthStencilBuffer->Release();
-		m_depthStencilBuffer = 0;
+	if (depth_stencil_buffer_) {
+		depth_stencil_buffer_->Release();
+		depth_stencil_buffer_ = 0;
 	}
 
-	if (m_renderTargetView) {
-		m_renderTargetView->Release();
-		m_renderTargetView = 0;
+	if (render_target_view_) {
+		render_target_view_->Release();
+		render_target_view_ = 0;
 	}
 
-	if (m_deviceContext) {
-		m_deviceContext->Release();
-		m_deviceContext = 0;
+	if (device_context_) {
+		device_context_->Release();
+		device_context_ = 0;
 	}
 
-	if (m_device) {
-		m_device->Release();
-		m_device = 0;
+	if (device_) {
+		device_->Release();
+		device_ = 0;
 	}
 
-	if (m_swapChain) {
-		m_swapChain->Release();
-		m_swapChain = 0;
+	if (swap_chain_) {
+		swap_chain_->Release();
+		swap_chain_ = 0;
 	}
 }
 
@@ -306,42 +306,42 @@ void DirectX11Device::BeginScene(float red, float green, float blue, float alpha
 	color[2] = blue;
 	color[3] = alpha;
 
-	m_deviceContext->ClearRenderTargetView(m_renderTargetView, color);
+	device_context_->ClearRenderTargetView(render_target_view_, color);
 
-	m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	device_context_->ClearDepthStencilView(depth_stencil_view_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 void DirectX11Device::EndScene() {
 
-	if (m_vsync_enabled) {
-		m_swapChain->Present(1, 0);
+	if (vsync_enabled_) {
+		swap_chain_->Present(1, 0);
 	}
 	else {
-		m_swapChain->Present(0, 0);
+		swap_chain_->Present(0, 0);
 	}
 }
 
 ID3D11Device* DirectX11Device::GetDevice(){
-	return m_device;
+	return device_;
 }
 
 ID3D11DeviceContext* DirectX11Device::GetDeviceContext(){
-	return m_deviceContext;
+	return device_context_;
 }
 
 void DirectX11Device::GetProjectionMatrix(XMMATRIX& projectionMatrix) {
-	projectionMatrix = m_projectionMatrix;
+	projectionMatrix = projection_matrix_;
 }
 
 void DirectX11Device::GetWorldMatrix(XMMATRIX& worldMatrix) {
-	worldMatrix = m_worldMatrix;
+	worldMatrix = world_matrix_;
 }
 
 void DirectX11Device::GetOrthoMatrix(XMMATRIX& orthoMatrix) {
-	orthoMatrix = m_orthoMatrix;
+	orthoMatrix = orthonality_matrix_;
 }
 
 void DirectX11Device::GetVideoCardInfo(char* cardName, int& memory) {
-	strcpy_s(cardName, 128, m_videoCardDescription);
-	memory = m_videoCardMemory;
+	strcpy_s(cardName, 128, videocard_description_);
+	memory = videocard_Memory_;
 }

@@ -18,11 +18,11 @@ bool SystemBase::Initialize() {
 	InitializeWindows(screenWidth, screenHeight);
 
 	{
-		m_Input = new Input();
-		if (!m_Input) {
+		Input_ = new Input();
+		if (!Input_) {
 			return false;
 		}
-		m_Input->Initialize();
+		Input_->Initialize();
 	}
 
 	return true;
@@ -30,9 +30,9 @@ bool SystemBase::Initialize() {
 
 void SystemBase::Shutdown() {
 
-	if (m_Input) {
-		delete m_Input;
-		m_Input = 0;
+	if (Input_) {
+		delete Input_;
+		Input_ = 0;
 	}
 
 	ShutdownWindows();
@@ -70,7 +70,7 @@ void SystemBase::Run() {
 
 bool SystemBase::Frame() {
 
-	if (m_Input->IsKeyDown(VK_ESCAPE)) {
+	if (Input_->IsKeyDown(VK_ESCAPE)) {
 		return false;
 	}
 
@@ -87,19 +87,19 @@ void SystemBase::GetScreenWidthAndHeight(unsigned int & width, unsigned int & he
 }
 
 LPCWSTR SystemBase::GetApplicationName() const{
-	return m_applicationName;
+	return application_name_;
 }
 
 HINSTANCE SystemBase::GetApplicationInstance() const{
-	return m_hinstance;
+	return hinstance_;
 }
 
 HWND SystemBase::GetApplicationHandle() const{
-	return m_hwnd;
+	return hwnd_;
 }
 
 const Input & SystemBase::GetInputComponent() const{
-	return *m_Input;
+	return *Input_;
 }
 
 LRESULT CALLBACK SystemBase::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
@@ -108,13 +108,13 @@ LRESULT CALLBACK SystemBase::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam,
 	{
 	case WM_KEYDOWN:
 	{
-		m_Input->KeyDown((unsigned int)wparam);
+		Input_->KeyDown((unsigned int)wparam);
 		return 0;
 	}
 
 	case WM_KEYUP:
 	{
-		m_Input->KeyUp((unsigned int)wparam);
+		Input_->KeyUp((unsigned int)wparam);
 		return 0;
 	}
 
@@ -131,21 +131,21 @@ void SystemBase::InitializeWindows(int& screenWidth, int& screenHeight) {
 	DEVMODE dmScreenSettings;
 	int posX, posY;
 
-	m_hinstance = GetModuleHandle(NULL);
+	hinstance_ = GetModuleHandle(NULL);
 
-	m_applicationName = L"Engine";
+	application_name_ = L"Engine";
 
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.lpfnWndProc = *windd_proc_;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
-	wc.hInstance = m_hinstance;
+	wc.hInstance = hinstance_;
 	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
 	wc.hIconSm = wc.hIcon;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	wc.lpszMenuName = NULL;
-	wc.lpszClassName = m_applicationName;
+	wc.lpszClassName = application_name_;
 	wc.cbSize = sizeof(WNDCLASSEX);
 
 	RegisterClassEx(&wc);
@@ -174,13 +174,13 @@ void SystemBase::InitializeWindows(int& screenWidth, int& screenHeight) {
 		posY = (GetSystemMetrics(SM_CYSCREEN) - screenHeight) / 2;
 	}
 
-	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
+	hwnd_ = CreateWindowEx(WS_EX_APPWINDOW, application_name_, application_name_,
 		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
-		posX, posY, screenWidth, screenHeight, NULL, NULL, m_hinstance, NULL);
+		posX, posY, screenWidth, screenHeight, NULL, NULL, hinstance_, NULL);
 
-	ShowWindow(m_hwnd, SW_SHOW);
-	SetForegroundWindow(m_hwnd);
-	SetFocus(m_hwnd);
+	ShowWindow(hwnd_, SW_SHOW);
+	SetForegroundWindow(hwnd_);
+	SetFocus(hwnd_);
 
 	ShowCursor(false);
 
@@ -196,9 +196,9 @@ void SystemBase::ShutdownWindows() {
 		ChangeDisplaySettings(NULL, 0);
 	}
 
-	DestroyWindow(m_hwnd);
-	m_hwnd = NULL;
+	DestroyWindow(hwnd_);
+	hwnd_ = NULL;
 
-	UnregisterClass(m_applicationName, m_hinstance);
-	m_hinstance = NULL;
+	UnregisterClass(application_name_, hinstance_);
+	hinstance_ = NULL;
 }

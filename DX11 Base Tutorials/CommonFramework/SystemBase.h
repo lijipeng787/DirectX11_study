@@ -45,19 +45,15 @@ public:
 private:
 	unsigned int screen_width_ = 0, screen_height_ = 0;
 
-	LPCWSTR m_applicationName = {};
+	LPCWSTR application_name_ = {};
 
-	HINSTANCE m_hinstance = {};
+	HINSTANCE hinstance_ = {};
 
-	HWND m_hwnd = {};
+	HWND hwnd_ = {};
 
-	Input* m_Input = nullptr;
+	Input* Input_ = nullptr;
 
 	LRESULT(CALLBACK *windd_proc_)(HWND, UINT, WPARAM, LPARAM);
 };
-
-//static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-
-//static SystemBase* ApplicationHandle = 0;
 
 #endif
