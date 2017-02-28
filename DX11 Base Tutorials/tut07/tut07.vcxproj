@@ -21,6 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F4E4B210-76E7-453E-91B4-9B4EB3E74F8B}</ProjectGuid>
     <RootNamespace>tut07</RootNamespace>
+    <ProjectName>box_with_texture_rotation</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -98,14 +99,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StructMemberAlignment>16Bytes</StructMemberAlignment>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\DirectXTK\Bin\Desktop_2013\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dinput8.lib;DirectXTK.lib;dsound.lib;dxgi.lib;dxguid.lib;pdh.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\Code\local_git\DirectX11\DX11 Base Tutorials\x64\Debug;..\..\DirectXTK\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>CommonFramework.lib;d3d11.lib;d3dcompiler.lib;dinput8.lib;DirectXTK.lib;dsound.lib;dxgi.lib;dxguid.lib;pdh.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -148,37 +149,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="light.ps" />
-    <None Include="light.vs" />
+    <None Include="light_ps.hlsl" />
+    <None Include="light_vs.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cameraclass.cpp" />
-    <ClCompile Include="d3dclass.cpp" />
-    <ClCompile Include="graphicsclass.cpp" />
-    <ClCompile Include="inputclass.cpp" />
+    <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="lightclass.cpp" />
     <ClCompile Include="lightshaderclass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="modelclass.cpp" />
-    <ClCompile Include="systemclass.cpp" />
+    <ClCompile Include="System.cpp" />
     <ClCompile Include="textureclass.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cameraclass.h" />
-    <ClInclude Include="d3dclass.h" />
-    <ClInclude Include="graphicsclass.h" />
-    <ClInclude Include="inputclass.h" />
+    <ClInclude Include="Graphics.h" />
     <ClInclude Include="lightclass.h" />
     <ClInclude Include="lightshaderclass.h" />
     <ClInclude Include="modelclass.h" />
-    <ClInclude Include="systemclass.h" />
+    <ClInclude Include="System.h" />
     <ClInclude Include="textureclass.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="data\seafloor.dds" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="data\cube.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -31,7 +31,7 @@ bool LightShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 
 
 	// Initialize the vertex and pixel shaders.
-	result = InitializeShader(device, hwnd, L"../../tut09/light.vs", L"../../tut09/light.ps");
+	result = InitializeShader(device, hwnd, L"../../tut09/light_vs.hlsl", L"../../tut09/light_ps.hlsl");
 	if(!result)
 	{
 		return false;

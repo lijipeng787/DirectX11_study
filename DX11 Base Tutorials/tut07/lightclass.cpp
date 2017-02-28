@@ -1,45 +1,23 @@
-////////////////////////////////////////////////////////////////////////////////
-// Filename: lightclass.cpp
-////////////////////////////////////////////////////////////////////////////////
 #include "lightclass.h"
 
+using namespace DirectX;
 
-LightClass::LightClass()
-{
+LightClass::LightClass(){}
+
+LightClass::~LightClass(){}
+
+void LightClass::SetDiffuseColor(float red, float green, float blue, float alpha) {
+	diffuse_color_ = XMFLOAT4(red, green, blue, alpha);
 }
 
-
-LightClass::LightClass(const LightClass& other)
-{
+void LightClass::SetDirection(float x, float y, float z) {
+	light_direction_ = XMFLOAT3(x, y, z);
 }
 
-
-LightClass::~LightClass()
-{
+XMFLOAT4 LightClass::GetDiffuseColor() {
+	return diffuse_color_;
 }
 
-
-void LightClass::SetDiffuseColor(float red, float green, float blue, float alpha)
-{
-	m_diffuseColor = XMFLOAT4(red, green, blue, alpha);
-	return;
-}
-
-
-void LightClass::SetDirection(float x, float y, float z)
-{
-	m_direction = XMFLOAT3(x, y, z);
-	return;
-}
-
-
-XMFLOAT4 LightClass::GetDiffuseColor()
-{
-	return m_diffuseColor;
-}
-
-
-XMFLOAT3 LightClass::GetDirection()
-{
-	return m_direction;
+XMFLOAT3 LightClass::GetDirection() {
+	return light_direction_;
 }

@@ -24,6 +24,14 @@ public:
 
 	void EndScene();
 
+	void TurnZBufferOn();
+
+	void TurnZBufferOff();
+
+	void TurnOnAlphaBlending();
+
+	void TurnOffAlphaBlending();
+
 	ID3D11Device* GetDevice();
 
 	ID3D11DeviceContext* GetDeviceContext();
@@ -63,6 +71,12 @@ private:
 	DirectX::XMMATRIX world_matrix_ = {};
 
 	DirectX::XMMATRIX orthonality_matrix_ = {};
+
+	ID3D11DepthStencilState* m_depthDisabledStencilState;
+
+	ID3D11BlendState* m_alphaEnableBlendingState;
+
+	ID3D11BlendState* m_alphaDisableBlendingState;
 };
 
 #endif

@@ -237,20 +237,82 @@ bool DirectX11Device::Initialize(
 	viewport.TopLeftY = 0.0f;
 
 	device_context_->RSSetViewports(1, &viewport);
+	
+	{
+		fieldOfView = (float)XM_PI / 4.0f;
+		screenAspect = (float)screenWidth / (float)screenHeight;
 
-	fieldOfView = (float)XM_PI / 4.0f;
-	screenAspect = (float)screenWidth / (float)screenHeight;
+		projection_matrix_ = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
 
-	projection_matrix_ = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
+		world_matrix_ = XMMatrixIdentity();
 
-	world_matrix_ = XMMatrixIdentity();
+		orthonality_matrix_ = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
+	}
 
-	orthonality_matrix_ = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
+	D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
+	ZeroMemory(&depthDisabledStencilDesc, sizeof(m_depthDisabledStencilState));
+	depthDisabledStencilDesc.DepthEnable = false;
+	depthDisabledStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthDisabledStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	depthDisabledStencilDesc.StencilEnable = true;
+	depthDisabledStencilDesc.StencilReadMask = 0xFF;
+	depthDisabledStencilDesc.StencilWriteMask = 0xFF;
+	depthDisabledStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthDisabledStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	depthDisabledStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	depthDisabledStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	result = device_->CreateDepthStencilState(&depthDisabledStencilDesc, &m_depthDisabledStencilState);
+	if (FAILED(result)){
+		return false;
+	}
+
+	D3D11_BLEND_DESC blendStateDescription = {};
+	ZeroMemory(&blendStateDescription, sizeof(D3D11_BLEND_DESC));
+	blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
+	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+
+	result = device_->CreateBlendState(&blendStateDescription, &m_alphaEnableBlendingState);
+	if (FAILED(result)){
+		return false;
+	}
+
+	blendStateDescription.RenderTarget[0].BlendEnable = FALSE;
+	result = device_->CreateBlendState(&blendStateDescription, &m_alphaDisableBlendingState);
+	if (FAILED(result)){
+		return false;
+	}
 
 	return true;
 }
 
 void DirectX11Device::Shutdown() {
+
+	if (m_depthDisabledStencilState) {
+		m_depthDisabledStencilState->Release();
+		m_depthDisabledStencilState = nullptr;
+	}
+
+
+	if (m_alphaEnableBlendingState) {
+		m_alphaEnableBlendingState->Release();
+		m_alphaEnableBlendingState = nullptr;
+	}
+
+	if (m_alphaDisableBlendingState) {
+		m_alphaDisableBlendingState->Release();
+		m_alphaDisableBlendingState = nullptr;
+	}
 
 	if (swap_chain_) {
 		swap_chain_->SetFullscreenState(false, NULL);
@@ -319,6 +381,39 @@ void DirectX11Device::EndScene() {
 	else {
 		swap_chain_->Present(0, 0);
 	}
+}
+
+void DirectX11Device::TurnZBufferOn() {
+	device_context_->OMSetDepthStencilState(depth_stencil_state_, 1);
+}
+
+
+void DirectX11Device::TurnZBufferOff() {
+	device_context_->OMSetDepthStencilState(m_depthDisabledStencilState, 1);
+}
+
+void DirectX11Device::TurnOnAlphaBlending() {
+	
+	float blendFactor[4];
+
+	blendFactor[0] = 0.0f;
+	blendFactor[1] = 0.0f;
+	blendFactor[2] = 0.0f;
+	blendFactor[3] = 0.0f;
+
+	device_context_->OMSetBlendState(m_alphaEnableBlendingState, blendFactor, 0xffffffff);
+}
+
+void DirectX11Device::TurnOffAlphaBlending() {
+
+	float blendFactor[4];
+
+	blendFactor[0] = 0.0f;
+	blendFactor[1] = 0.0f;
+	blendFactor[2] = 0.0f;
+	blendFactor[3] = 0.0f;
+
+	device_context_->OMSetBlendState(m_alphaDisableBlendingState, blendFactor, 0xffffffff);
 }
 
 ID3D11Device* DirectX11Device::GetDevice(){

@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1D52B0C1-E53B-4486-B670-155F2782BD7B}</ProjectGuid>
     <RootNamespace>tut06</RootNamespace>
-    <ProjectName>triangle_with_rotation</ProjectName>
+    <ProjectName>triangle_with_diffuse_light</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
