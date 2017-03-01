@@ -184,3 +184,22 @@ void Input::KeyUp(unsigned int input) {
 bool Input::IsKeyDown(unsigned int key)const {
 	return keys_[key];
 }
+
+bool Input::IsLeftArrowPressed() {
+
+	if (m_keyboardState[DIK_LEFT] & 0x80) {
+		return true;
+	}
+
+	return false;
+}
+
+bool Input::IsRightArrowPressed() {
+
+	if (m_keyboardState[DIK_RIGHT] & 0x80) {
+		return true;
+	}
+
+	return false;
+}
+

@@ -3,10 +3,15 @@
 #include "TypeDefine.h"
 #include "Input.h"
 #include "GraphicsBase.h"
+#include "Timer.h"
 
 SystemBase::SystemBase() {}
 
 SystemBase::~SystemBase(){}
+
+bool SystemBase::PreInitialize(){
+	return true;
+}
 
 bool SystemBase::Initialize() {
 
@@ -18,33 +23,52 @@ bool SystemBase::Initialize() {
 	InitializeWindows(screenWidth, screenHeight);
 
 	{
-		Input_ = new Input();
-		if (!Input_) {
+		input_ = new Input();
+		if (!input_) {
 			return false;
 		}
-		Input_->Initialize();
+		input_->Initialize(hinstance_, hwnd_, screenWidth, screenHeight);
+	}
+
+	{
+		timer_ = new Timer();
+		if (!timer_) {
+			return false;
+		}
+		bool result = timer_->Initialize();
+		if (!result)
+		{
+			MessageBox(hwnd_, L"Could not initialize the Timer object.", L"Error", MB_OK);
+			return false;
+		}
 	}
 
 	return true;
 }
 
+bool SystemBase::PostInitialize(){
+	return false;
+}
+
 void SystemBase::Shutdown() {
 
-	if (Input_) {
-		delete Input_;
-		Input_ = 0;
+	if (input_) {
+		delete input_;
+		input_ = nullptr;
+	}
+
+	if (timer_) {
+		delete timer_;
+		timer_ = nullptr;
 	}
 
 	ShutdownWindows();
-
-	return;
 }
 
 void SystemBase::Run() {
 
-	MSG msg;
 	bool done, result;
-
+	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
 
 	done = false;
@@ -61,8 +85,13 @@ void SystemBase::Run() {
 		else {
 			result = Frame();
 			if (!result) {
+				MessageBox(hwnd_, L"Frame Processing Failed", L"Error", MB_OK);
 				done = true;
 			}
+		}
+
+		if (GetInputComponent().IsEscapePressed() == true) {
+			done = true;
 		}
 
 	}
@@ -70,9 +99,11 @@ void SystemBase::Run() {
 
 bool SystemBase::Frame() {
 
-	if (Input_->IsKeyDown(VK_ESCAPE)) {
+	if (input_->IsKeyDown(VK_ESCAPE)) {
 		return false;
 	}
+
+	timer_->Update();
 
 	return true;
 }
@@ -86,20 +117,24 @@ void SystemBase::GetScreenWidthAndHeight(unsigned int & width, unsigned int & he
 	height = screen_height_;
 }
 
-LPCWSTR SystemBase::GetApplicationName() const{
+LPCWSTR SystemBase::GetApplicationName() {
 	return application_name_;
 }
 
-HINSTANCE SystemBase::GetApplicationInstance() const{
+HINSTANCE SystemBase::GetApplicationInstance() {
 	return hinstance_;
 }
 
-HWND SystemBase::GetApplicationHandle() const{
+HWND SystemBase::GetApplicationHandle() {
 	return hwnd_;
 }
 
-const Input & SystemBase::GetInputComponent() const{
-	return *Input_;
+Input& SystemBase::GetInputComponent()const {
+	return *input_;
+}
+
+Timer& SystemBase::GetTimerComponent()const {
+	return *timer_;
 }
 
 LRESULT CALLBACK SystemBase::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
@@ -108,13 +143,13 @@ LRESULT CALLBACK SystemBase::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam,
 	{
 	case WM_KEYDOWN:
 	{
-		Input_->KeyDown((unsigned int)wparam);
+		input_->KeyDown((unsigned int)wparam);
 		return 0;
 	}
 
 	case WM_KEYUP:
 	{
-		Input_->KeyUp((unsigned int)wparam);
+		input_->KeyUp((unsigned int)wparam);
 		return 0;
 	}
 

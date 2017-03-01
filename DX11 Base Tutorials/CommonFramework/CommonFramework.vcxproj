@@ -131,7 +131,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Cpu.h" />
     <ClInclude Include="DirectX11Device.h" />
+    <ClInclude Include="Fps.h" />
+    <ClInclude Include="Frustum.h" />
     <ClInclude Include="GraphicsBase.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Light.h" />
@@ -140,11 +143,15 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SystemBase.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="TypeDefine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Cpu.cpp" />
     <ClCompile Include="DirectX11Device.cpp" />
+    <ClCompile Include="Fps.cpp" />
+    <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GraphicsBase.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -157,6 +164,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SystemBase.cpp" />
+    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -6,6 +6,7 @@
 
 class GraphicsBase;
 class Input;
+class Timer;
 
 class SystemBase{
 public:
@@ -17,7 +18,11 @@ public:
 	
 	virtual ~SystemBase();
 public:
+	virtual bool PreInitialize();
+
 	virtual bool Initialize();
+
+	virtual bool PostInitialize();
 	
 	virtual void Shutdown();
 	
@@ -29,13 +34,15 @@ public:
 public:
 	void GetScreenWidthAndHeight(unsigned int& width, unsigned int& height)const;
 
-	LPCWSTR GetApplicationName()const;
+	LPCWSTR GetApplicationName();
 
-	HINSTANCE GetApplicationInstance()const;
+	HINSTANCE GetApplicationInstance();
 
-	HWND GetApplicationHandle()const;
+	HWND GetApplicationHandle();
 
-	const Input& GetInputComponent()const;
+	Input& GetInputComponent()const;
+
+	Timer& GetTimerComponent()const;
 
 	void InitializeWindows(int& output_width, int& output_height);
 	
@@ -51,7 +58,9 @@ private:
 
 	HWND hwnd_ = {};
 
-	Input* Input_ = nullptr;
+	Input *input_ = nullptr;
+
+	Timer *timer_ = nullptr;
 
 	LRESULT(CALLBACK *windd_proc_)(HWND, UINT, WPARAM, LPARAM);
 };

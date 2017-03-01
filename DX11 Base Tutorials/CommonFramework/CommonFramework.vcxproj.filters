@@ -51,6 +51,18 @@
     <ClInclude Include="Sound.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Cpu.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Fps.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Frustum.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -78,6 +90,18 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sound.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Cpu.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Fps.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Frustum.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

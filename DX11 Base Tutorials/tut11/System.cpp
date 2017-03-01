@@ -33,6 +33,8 @@ bool System::Initialize() {
 
 void System::Shutdown() {
 
+	SystemBase::Shutdown();
+
 	if (m_Graphics) {
 		m_Graphics->Shutdown();
 		delete m_Graphics;
