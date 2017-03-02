@@ -43,6 +43,10 @@ public:
 	void GetOrthoMatrix(DirectX::XMMATRIX& orthonality_matrix);
 
 	void GetVideoCardInfo(char*, int&);
+
+	ID3D11DepthStencilView* GetDepthStencilView()const;
+
+	void SetBackBufferRenderTarget();
 private:
 	bool vsync_enabled_ = false;
 

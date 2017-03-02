@@ -9,29 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Shader Files">
       <UniqueIdentifier>{0822f766-14c5-480c-afb6-5a03fda73def}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="data\stone02.dds">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="data\bump02.dds">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="data\spec02.dds">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="data\cube.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="modelclass.h">
@@ -40,32 +20,20 @@
     <ClInclude Include="specmapshaderclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="systemclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="texturearrayclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cameraclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="d3dclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="graphicsclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inputclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lightclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="inputclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="lightclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -78,19 +46,13 @@
     <ClCompile Include="specmapshaderclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="systemclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="texturearrayclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cameraclass.cpp">
+    <ClCompile Include="System.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="d3dclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="graphicsclass.cpp">
+    <ClCompile Include="Graphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

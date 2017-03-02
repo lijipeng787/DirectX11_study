@@ -440,3 +440,11 @@ void DirectX11Device::GetVideoCardInfo(char* cardName, int& memory) {
 	strcpy_s(cardName, 128, videocard_description_);
 	memory = videocard_Memory_;
 }
+
+ID3D11DepthStencilView* DirectX11Device::GetDepthStencilView()const{
+	return depth_stencil_view_;
+}
+
+void DirectX11Device::SetBackBufferRenderTarget() {
+	device_context_->OMSetRenderTargets(1, &render_target_view_, depth_stencil_view_);
+}
