@@ -9,38 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Shader Files">
       <UniqueIdentifier>{770aad8e-9bab-4826-bf5e-7e1a2f64fcb6}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="data\square.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="data\cube.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="data\bump03.dds">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="data\glass01.dds">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="data\ice01.dds">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="data\icebump01.dds">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="data\seafloor.dds">
-      <Filter>Resource Files</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="graphicsclass.h">

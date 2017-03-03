@@ -42,17 +42,21 @@ private:
 	
 	void ShutdownDirectSound();
 
-	bool LoadWaveFile(char*, IDirectSoundBuffer8**);
-	
-	void ShutdownWaveFile(IDirectSoundBuffer8**);
+	bool LoadWaveFile(char*, IDirectSoundBuffer8**, IDirectSound3DBuffer8**);
+
+	void ShutdownWaveFile(IDirectSoundBuffer8**, IDirectSound3DBuffer8**);
 
 	bool PlayWaveFile();
 private:
-	IDirectSound8* m_DirectSound;
-	
-	IDirectSoundBuffer* m_primaryBuffer;
-	
-	IDirectSoundBuffer8* m_secondaryBuffer1;
+	IDirectSound8* m_DirectSound = nullptr;
+
+	IDirectSoundBuffer* m_primaryBuffer = nullptr;
+
+	IDirectSound3DListener8* m_listener = nullptr;
+
+	IDirectSoundBuffer8* m_secondaryBuffer1 = nullptr;
+
+	IDirectSound3DBuffer8* m_secondary3DBuffer1 = nullptr;
 };
 
 #endif

@@ -21,6 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{328BC987-971E-434A-86C2-E1CA5E5B8326}</ProjectGuid>
     <RootNamespace>tut25</RootNamespace>
+    <ProjectName>texture_translation</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -143,17 +144,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="graphicsclass.h" />
+    <ClInclude Include="Graphics.h" />
     <ClInclude Include="modelclass.h" />
-    <ClInclude Include="systemclass.h" />
+    <ClInclude Include="System.h" />
     <ClInclude Include="textureclass.h" />
     <ClInclude Include="translateshaderclass.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="graphicsclass.cpp" />
+    <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="modelclass.cpp" />
-    <ClCompile Include="systemclass.cpp" />
+    <ClCompile Include="System.cpp" />
     <ClCompile Include="textureclass.cpp" />
     <ClCompile Include="translateshaderclass.cpp" />
   </ItemGroup>
