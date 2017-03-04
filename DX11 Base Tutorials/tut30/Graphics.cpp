@@ -174,6 +174,10 @@ bool GraphicsClass::Frame() {
 	return true;
 }
 
+void GraphicsClass::SetFameTime(float frame_time) {
+	frame_time_ = frame_time;
+}
+
 bool GraphicsClass::Render() {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;

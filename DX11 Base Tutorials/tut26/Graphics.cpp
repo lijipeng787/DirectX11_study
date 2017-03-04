@@ -38,7 +38,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Camera) {
 			return false;
 		}
-		m_Camera->SetPosition(0.0f, 0.0f, -1.0f);
+		m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
 		m_Camera->Render();
 		m_Camera->GetViewMatrix(baseViewMatrix);
 	}
@@ -169,7 +169,6 @@ bool GraphicsClass::Render() {
 
 	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
 	m_Camera->Render();
 
 	m_D3D->GetWorldMatrix(worldMatrix);
