@@ -27,6 +27,22 @@ public:
 	bool IsLeftArrowPressed();
 	
 	bool IsRightArrowPressed();
+
+	bool IsLeftPressed();
+	
+	bool IsRightPressed();
+	
+	bool IsUpPressed();
+	
+	bool IsDownPressed();
+	
+	bool IsAPressed();
+	
+	bool IsZPressed();
+	
+	bool IsPgUpPressed();
+	
+	bool IsPgDownPressed();
 private:
 	bool ReadKeyboard();
 

@@ -203,3 +203,74 @@ bool Input::IsRightArrowPressed() {
 	return false;
 }
 
+bool Input::IsLeftPressed() {
+
+	if (m_keyboardState[DIK_LEFT] & 0x80) {
+		return true;
+	}
+
+	return false;
+}
+
+bool Input::IsRightPressed() {
+
+	if (m_keyboardState[DIK_RIGHT] & 0x80) {
+		return true;
+	}
+
+	return false;
+}
+
+bool Input::IsUpPressed() {
+
+	if (m_keyboardState[DIK_UP] & 0x80) {
+		return true;
+	}
+
+	return false;
+}
+
+bool Input::IsDownPressed() {
+
+	if (m_keyboardState[DIK_DOWN] & 0x80) {
+		return true;
+	}
+
+	return false;
+}
+
+bool Input::IsAPressed() {
+
+	if (m_keyboardState[DIK_A] & 0x80) {
+		return true;
+	}
+
+	return false;
+}
+
+bool Input::IsZPressed() {
+
+	if (m_keyboardState[DIK_Z] & 0x80) {
+		return true;
+	}
+
+	return false;
+}
+
+bool Input::IsPgUpPressed() {
+
+	if (m_keyboardState[DIK_PGUP] & 0x80) {
+		return true;
+	}
+
+	return false;
+}
+
+bool Input::IsPgDownPressed() {
+
+	if (m_keyboardState[DIK_PGDN] & 0x80) {
+		return true;
+	}
+
+	return false;
+}
