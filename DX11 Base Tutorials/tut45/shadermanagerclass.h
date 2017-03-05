@@ -8,7 +8,6 @@
 ///////////////////////
 // MY CLASS INCLUDES //
 ///////////////////////
-#include "d3dclass.h"
 #include "textureshaderclass.h"
 #include "lightshaderclass.h"
 #include "bumpmapshaderclass.h"

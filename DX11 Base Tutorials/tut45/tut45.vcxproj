@@ -21,6 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D6C5D5D8-485B-4B50-87E4-D8EF45E8A5A5}</ProjectGuid>
     <RootNamespace>tut45</RootNamespace>
+    <ProjectName>multiple_shaders</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -104,8 +105,8 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\DirectXTK\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dinput8.lib;DirectXTK.lib;dsound.lib;dxgi.lib;dxguid.lib;pdh.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\Code\local_git\DirectX11\DX11 Base Tutorials\x64\Debug;..\..\DirectXTK\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>CommonFramework.lib;d3d11.lib;d3dcompiler.lib;dinput8.lib;DirectXTK.lib;dsound.lib;dxgi.lib;dxguid.lib;pdh.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -148,26 +149,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Image Include="data\marble.dds" />
-    <Image Include="data\metal.dds" />
-    <Image Include="data\normal.dds" />
-    <Image Include="data\stone.dds" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="data\cube.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="bumpmapshaderclass.h" />
     <ClInclude Include="bumpmodelclass.h" />
-    <ClInclude Include="cameraclass.h" />
-    <ClInclude Include="d3dclass.h" />
-    <ClInclude Include="graphicsclass.h" />
-    <ClInclude Include="inputclass.h" />
+    <ClInclude Include="Graphics.h" />
     <ClInclude Include="lightclass.h" />
     <ClInclude Include="lightshaderclass.h" />
     <ClInclude Include="modelclass.h" />
     <ClInclude Include="shadermanagerclass.h" />
-    <ClInclude Include="systemclass.h" />
+    <ClInclude Include="System.h" />
     <ClInclude Include="textureclass.h" />
     <ClInclude Include="textureshaderclass.h" />
   </ItemGroup>
@@ -182,16 +171,13 @@
   <ItemGroup>
     <ClCompile Include="bumpmapshaderclass.cpp" />
     <ClCompile Include="bumpmodelclass.cpp" />
-    <ClCompile Include="cameraclass.cpp" />
-    <ClCompile Include="d3dclass.cpp" />
-    <ClCompile Include="graphicsclass.cpp" />
-    <ClCompile Include="inputclass.cpp" />
+    <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="lightclass.cpp" />
     <ClCompile Include="lightshaderclass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="modelclass.cpp" />
     <ClCompile Include="shadermanagerclass.cpp" />
-    <ClCompile Include="systemclass.cpp" />
+    <ClCompile Include="System.cpp" />
     <ClCompile Include="textureclass.cpp" />
     <ClCompile Include="textureshaderclass.cpp" />
   </ItemGroup>
