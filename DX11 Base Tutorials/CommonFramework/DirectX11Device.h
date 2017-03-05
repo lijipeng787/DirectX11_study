@@ -32,6 +32,10 @@ public:
 
 	void TurnOffAlphaBlending();
 
+	void SetBackBufferRenderTarget();
+
+	void ResetViewport();
+
 	ID3D11Device* GetDevice();
 
 	ID3D11DeviceContext* GetDeviceContext();
@@ -45,8 +49,6 @@ public:
 	void GetVideoCardInfo(char*, int&);
 
 	ID3D11DepthStencilView* GetDepthStencilView()const;
-
-	void SetBackBufferRenderTarget();
 private:
 	bool vsync_enabled_ = false;
 
@@ -81,6 +83,8 @@ private:
 	ID3D11BlendState* m_alphaEnableBlendingState;
 
 	ID3D11BlendState* m_alphaDisableBlendingState;
+
+	D3D11_VIEWPORT viewport_ = {};
 };
 
 #endif

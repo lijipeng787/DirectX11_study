@@ -29,7 +29,6 @@ bool DirectX11Device::Initialize(
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 	D3D11_RASTERIZER_DESC rasterDesc;
-	D3D11_VIEWPORT viewport;
 	float fieldOfView, screenAspect;
 
 	vsync_enabled_ = vsync;
@@ -229,14 +228,14 @@ bool DirectX11Device::Initialize(
 
 	device_context_->RSSetState(raster_state_);
 
-	viewport.Width = (float)screenWidth;
-	viewport.Height = (float)screenHeight;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	viewport.TopLeftX = 0.0f;
-	viewport.TopLeftY = 0.0f;
+	viewport_.Width = (float)screenWidth;
+	viewport_.Height = (float)screenHeight;
+	viewport_.MinDepth = 0.0f;
+	viewport_.MaxDepth = 1.0f;
+	viewport_.TopLeftX = 0.0f;
+	viewport_.TopLeftY = 0.0f;
 
-	device_context_->RSSetViewports(1, &viewport);
+	device_context_->RSSetViewports(1, &viewport_);
 	
 	{
 		fieldOfView = (float)XM_PI / 4.0f;
@@ -447,4 +446,8 @@ ID3D11DepthStencilView* DirectX11Device::GetDepthStencilView()const{
 
 void DirectX11Device::SetBackBufferRenderTarget() {
 	device_context_->OMSetRenderTargets(1, &render_target_view_, depth_stencil_view_);
+}
+
+void DirectX11Device::ResetViewport() {
+	device_context_->RSSetViewports(1, &viewport_);
 }

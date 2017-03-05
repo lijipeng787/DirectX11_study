@@ -254,6 +254,3 @@ bool GraphicsClass::Render() {
 	return true;
 }
 
-void GraphicsClass::SetRotation(float rotation){
-	rotationY = rotation;
-}
