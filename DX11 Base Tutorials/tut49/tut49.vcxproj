@@ -56,6 +56,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{44492D23-E9E6-4795-AFB8-1A714008E6A6}</ProjectGuid>
     <RootNamespace>tut49</RootNamespace>
+    <ProjectName>shadow_mapping_with_transparency</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
