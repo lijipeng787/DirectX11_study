@@ -101,8 +101,8 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\DirectXTK</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dinput8.lib;DirectXTK.lib;dsound.lib;dxgi.lib;dxguid.lib;pdh.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\Code\local_git\DirectX11\DX11 Base Tutorials\x64\Debug;..\..\DirectXTK\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>CommonFramework.lib;d3d11.lib;d3dcompiler.lib;dinput8.lib;DirectXTK.lib;dsound.lib;dxgi.lib;dxguid.lib;pdh.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -146,11 +146,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="applicationclass.h" />
-    <ClInclude Include="cameraclass.h" />
     <ClInclude Include="d3dclass.h" />
     <ClInclude Include="deferredbuffersclass.h" />
     <ClInclude Include="deferredshaderclass.h" />
-    <ClInclude Include="inputclass.h" />
     <ClInclude Include="lightclass.h" />
     <ClInclude Include="lightshaderclass.h" />
     <ClInclude Include="modelclass.h" />
@@ -160,11 +158,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="applicationclass.cpp" />
-    <ClCompile Include="cameraclass.cpp" />
     <ClCompile Include="d3dclass.cpp" />
     <ClCompile Include="deferredbuffersclass.cpp" />
     <ClCompile Include="deferredshaderclass.cpp" />
-    <ClCompile Include="inputclass.cpp" />
     <ClCompile Include="lightclass.cpp" />
     <ClCompile Include="lightshaderclass.cpp" />
     <ClCompile Include="main.cpp" />
@@ -172,12 +168,6 @@
     <ClCompile Include="orthowindowclass.cpp" />
     <ClCompile Include="systemclass.cpp" />
     <ClCompile Include="textureclass.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="data\cube.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="data\seafloor.dds" />
   </ItemGroup>
   <ItemGroup>
     <None Include="deferred.ps" />

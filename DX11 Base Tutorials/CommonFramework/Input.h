@@ -43,6 +43,8 @@ public:
 	bool IsPgUpPressed();
 	
 	bool IsPgDownPressed();
+
+	bool IsLeftMouseButtonDown();
 private:
 	bool ReadKeyboard();
 

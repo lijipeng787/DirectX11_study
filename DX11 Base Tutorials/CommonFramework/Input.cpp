@@ -274,3 +274,12 @@ bool Input::IsPgDownPressed() {
 
 	return false;
 }
+
+bool Input::IsLeftMouseButtonDown() {
+
+	if (m_mouseState.rgbButtons[0] & 0x80) {
+		return true;
+	}
+
+	return false;
+}

@@ -228,6 +228,24 @@ bool DirectX11Device::Initialize(
 		return false;
 	}
 
+	// Setup a raster description which turns off back face culling.
+	rasterDesc.AntialiasedLineEnable = false;
+	rasterDesc.CullMode = D3D11_CULL_NONE;
+	rasterDesc.DepthBias = 0;
+	rasterDesc.DepthBiasClamp = 0.0f;
+	rasterDesc.DepthClipEnable = true;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FrontCounterClockwise = false;
+	rasterDesc.MultisampleEnable = false;
+	rasterDesc.ScissorEnable = false;
+	rasterDesc.SlopeScaledDepthBias = 0.0f;
+
+	// Create the no culling rasterizer state.
+	result = device_->CreateRasterizerState(&rasterDesc, &m_rasterStateNoCulling);
+	if (FAILED(result)) {
+		return false;
+	}
+
 	device_context_->RSSetState(raster_state_);
 
 	viewport_.Width = (float)screenWidth;
@@ -274,6 +292,7 @@ bool DirectX11Device::Initialize(
 
 	D3D11_BLEND_DESC blendStateDescription = {};
 	ZeroMemory(&blendStateDescription, sizeof(D3D11_BLEND_DESC));
+	// Normal
 	blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
 	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 	blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
@@ -284,9 +303,21 @@ bool DirectX11Device::Initialize(
 	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
 
 	// For particle effect
+	//blendStateDescription.AlphaToCoverageEnable = TRUE;
 	//blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
 	//blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
 	//blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	//blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	//blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	//blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	//blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	//blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+
+	// For transparency
+	//blendStateDescription.AlphaToCoverageEnable = TRUE;
+	//blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
+	//blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	//blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 	//blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 	//blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
 	//blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
@@ -462,4 +493,12 @@ void DirectX11Device::SetBackBufferRenderTarget() {
 
 void DirectX11Device::ResetViewport() {
 	device_context_->RSSetViewports(1, &viewport_);
+}
+
+void DirectX11Device::TurnOnCulling() {
+	device_context_->RSSetState(raster_state_);
+}
+
+void DirectX11Device::TurnOffCulling() {
+	device_context_->RSSetState(m_rasterStateNoCulling);
 }

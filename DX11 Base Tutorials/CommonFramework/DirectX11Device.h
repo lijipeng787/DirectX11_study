@@ -32,6 +32,10 @@ public:
 
 	void TurnOffAlphaBlending();
 
+	void TurnOnCulling();
+		 
+	void TurnOffCulling();
+
 	void SetBackBufferRenderTarget();
 
 	void ResetViewport();
@@ -71,6 +75,8 @@ private:
 	ID3D11DepthStencilView* depth_stencil_view_ = nullptr;
 
 	ID3D11RasterizerState* raster_state_ = nullptr;
+
+	ID3D11RasterizerState* m_rasterStateNoCulling = nullptr;
 
 	DirectX::XMMATRIX projection_matrix_ = {};
 
