@@ -8,8 +8,11 @@
 #include "../CommonFramework/Camera.h"
 
 #include "modelclass.h"
+#include "lightclass.h"
 #include "texturearrayclass.h"
 #include "bumpmapshaderclass.h"
+
+using namespace DirectX;
 
 GraphicsClass::GraphicsClass() {}
 
@@ -88,7 +91,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	return true;
 }
 
-
 void GraphicsClass::Shutdown(){
 
 	if(m_Light)
@@ -127,7 +129,6 @@ void GraphicsClass::Shutdown(){
 	return;
 }
 
-
 bool GraphicsClass::Frame() {
 
 	bool result;
@@ -140,8 +141,8 @@ bool GraphicsClass::Frame() {
 	return true;
 }
 
-
 bool GraphicsClass::Render() {
+
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 	static float rotation = 0.0f;
 

@@ -30,7 +30,9 @@ public:
 
 	virtual bool Render()override;
 public:
-	void SetRotation(float rotation);
+	void SetRotation(float rotation) {
+		rotationY = rotation;
+	}
 private:
 	DirectX11Device *m_D3D = nullptr;
 
