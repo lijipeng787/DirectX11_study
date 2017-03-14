@@ -1,6 +1,6 @@
 # DirectX11Study
 Based on RasterTek.com. More detailes: http://www.rastertek.com/tutdx11.html
-Here are some screenshots:
+
 ![Blur](https://github.com/lijipeng787/DirectX11Study/raw/master/Screenshots/blur.png)
 
 ![Bump mapping](https://github.com/lijipeng787/DirectX11Study/raw/master/Screenshots/bump_map.png)
