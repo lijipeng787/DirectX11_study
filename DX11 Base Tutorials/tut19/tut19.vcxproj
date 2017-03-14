@@ -22,6 +22,7 @@
     <ProjectGuid>{270CCB35-6B9D-42C5-82F8-D92BE5A68427}</ProjectGuid>
     <RootNamespace>tut19</RootNamespace>
     <ProjectName>alpha_map</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
