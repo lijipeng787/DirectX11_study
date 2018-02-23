@@ -4,7 +4,7 @@
 #include "bitmapclass.h"
 
 
-BitmapClass::BitmapClass()
+SimpleMoveableBitmap::SimpleMoveableBitmap()
 {
 	m_vertexBuffer = 0;
 	m_indexBuffer = 0;
@@ -12,17 +12,17 @@ BitmapClass::BitmapClass()
 }
 
 
-BitmapClass::BitmapClass(const BitmapClass& other)
+SimpleMoveableBitmap::SimpleMoveableBitmap(const SimpleMoveableBitmap& other)
 {
 }
 
 
-BitmapClass::~BitmapClass()
+SimpleMoveableBitmap::~SimpleMoveableBitmap()
 {
 }
 
 
-bool BitmapClass::Initialize(ID3D11Device* device, int screenWidth, int screenHeight, WCHAR* textureFilename, int bitmapWidth, int bitmapHeight)
+bool SimpleMoveableBitmap::Initialize(ID3D11Device* device, int screenWidth, int screenHeight, WCHAR* textureFilename, int bitmapWidth, int bitmapHeight)
 {
 	bool result;
 
@@ -57,7 +57,7 @@ bool BitmapClass::Initialize(ID3D11Device* device, int screenWidth, int screenHe
 }
 
 
-void BitmapClass::Shutdown()
+void SimpleMoveableBitmap::Shutdown()
 {
 	// Release the bitmap texture.
 	ReleaseTexture();
@@ -69,7 +69,7 @@ void BitmapClass::Shutdown()
 }
 
 
-bool BitmapClass::Render(ID3D11DeviceContext* deviceContext, int positionX, int positionY)
+bool SimpleMoveableBitmap::Render(ID3D11DeviceContext* deviceContext, int positionX, int positionY)
 {
 	bool result;
 
@@ -88,19 +88,19 @@ bool BitmapClass::Render(ID3D11DeviceContext* deviceContext, int positionX, int 
 }
 
 
-int BitmapClass::GetIndexCount()
+int SimpleMoveableBitmap::GetIndexCount()
 {
 	return m_indexCount;
 }
 
 
-ID3D11ShaderResourceView* BitmapClass::GetTexture()
+ID3D11ShaderResourceView* SimpleMoveableBitmap::GetTexture()
 {
 	return m_Texture->GetTexture();
 }
 
 
-bool BitmapClass::InitializeBuffers(ID3D11Device* device)
+bool SimpleMoveableBitmap::InitializeBuffers(ID3D11Device* device)
 {
 	VertexType* vertices;
 	unsigned long* indices;
@@ -190,7 +190,7 @@ bool BitmapClass::InitializeBuffers(ID3D11Device* device)
 }
 
 
-void BitmapClass::ShutdownBuffers()
+void SimpleMoveableBitmap::ShutdownBuffers()
 {
 	// Release the index buffer.
 	if(m_indexBuffer)
@@ -210,7 +210,7 @@ void BitmapClass::ShutdownBuffers()
 }
 
 
-bool BitmapClass::UpdateBuffers(ID3D11DeviceContext* deviceContext, int positionX, int positionY)
+bool SimpleMoveableBitmap::UpdateBuffers(ID3D11DeviceContext* deviceContext, int positionX, int positionY)
 {
 	float left, right, top, bottom;
 	VertexType* vertices;
@@ -294,7 +294,7 @@ bool BitmapClass::UpdateBuffers(ID3D11DeviceContext* deviceContext, int position
 }
 
 
-void BitmapClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
+void SimpleMoveableBitmap::RenderBuffers(ID3D11DeviceContext* deviceContext)
 {
 	unsigned int stride;
 	unsigned int offset;
@@ -317,7 +317,7 @@ void BitmapClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 }
 
 
-bool BitmapClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
+bool SimpleMoveableBitmap::LoadTexture(ID3D11Device* device, WCHAR* filename)
 {
 	bool result;
 
@@ -340,7 +340,7 @@ bool BitmapClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
 }
 
 
-void BitmapClass::ReleaseTexture()
+void SimpleMoveableBitmap::ReleaseTexture()
 {
 	// Release the texture object.
 	if(m_Texture)

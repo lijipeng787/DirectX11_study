@@ -6,8 +6,8 @@
 class DirectX11Device;
 class Camera;
 class ModelClass;
-class TextureShaderClass;
-class BitmapClass;
+class TextureShader;
+class SimpleMoveableBitmap;
 
 class GraphicsClass :public GraphicsBase {
 public:
@@ -27,15 +27,13 @@ public:
 
 	virtual bool Render()override;
 private:
-	DirectX11Device *m_D3D = nullptr;
+	Camera *camera_ = nullptr;
 
-	Camera *m_Camera = nullptr;
-
-	ModelClass *m_Model = nullptr;
+	ModelClass *model_ = nullptr;
 	
-	TextureShaderClass* m_TextureShader;
+	TextureShader* texture_shader_;
 	
-	BitmapClass* m_Bitmap;
+	SimpleMoveableBitmap* bitmap_;
 };
 
 #endif

@@ -1,35 +1,27 @@
-////////////////////////////////////////////////////////////////////////////////
-// Filename: textureclass.h
-////////////////////////////////////////////////////////////////////////////////
 #ifndef _TEXTURECLASS_H_
 #define _TEXTURECLASS_H_
 
-
-//////////////
-// INCLUDES //
-//////////////
 #include <d3d11.h>
-#include <DDSTextureLoader.h>
+
 using namespace DirectX;
 
-
-////////////////////////////////////////////////////////////////////////////////
-// Class name: TextureClass
-////////////////////////////////////////////////////////////////////////////////
-class TextureClass
-{
+class SimpleTexture {
 public:
-	TextureClass();
-	TextureClass(const TextureClass&);
-	~TextureClass();
+	SimpleTexture() {}
 
-	bool Initialize(ID3D11Device*, WCHAR*);
-	void Shutdown();
+	SimpleTexture(const SimpleTexture& rhs) = delete;
+
+	SimpleTexture& operator=(const SimpleTexture& rhs) = delete;
+
+	~SimpleTexture() {}
+public:
+	bool LoadDDSTextureFromFile(WCHAR *ddsFilename);
 
 	ID3D11ShaderResourceView* GetTexture();
 
+	void Release();
 private:
-	ID3D11ShaderResourceView* m_texture;
+	ID3D11ShaderResourceView * texture_srv_;
 };
 
 #endif

@@ -37,10 +37,6 @@ private:
 private:
 	float frame_time_ = 0.0f;
 
-	float m_fadeInTime = 0.0f, m_accumulatedTime = 0.0f, m_fadePercentage = 0.0f;
-
-	bool m_fadeDone = false;
-
 	DirectX11Device *m_D3D = nullptr;
 
 	Camera *m_Camera = nullptr;

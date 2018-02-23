@@ -22,7 +22,7 @@
     <ProjectGuid>{270CCB35-6B9D-42C5-82F8-D92BE5A68427}</ProjectGuid>
     <RootNamespace>tut19</RootNamespace>
     <ProjectName>alpha_map</ProjectName>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -106,7 +106,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>E:\Code\local_git\DirectX11\DX11 Base Tutorials\x64\Debug;..\..\DirectXTK\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\x64\Debug;..\..\DirectXTK\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>CommonFramework.lib;d3d11.lib;d3dcompiler.lib;dinput8.lib;DirectXTK.lib;dsound.lib;dxgi.lib;dxguid.lib;pdh.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

@@ -8,7 +8,7 @@ class Camera;
 class ModelClass;
 class TextureShaderClass;
 class RenderTextureClass;
-class BitmapClass;
+class SimpleMoveableBitmap;
 class FadeShaderClass;
 
 class GraphicsClass :public GraphicsBase {
@@ -55,7 +55,7 @@ private:
 
 	RenderTextureClass* m_RenderTexture = nullptr;
 
-	BitmapClass* m_Bitmap = nullptr;
+	SimpleMoveableBitmap* m_Bitmap = nullptr;
 
 	FadeShaderClass* m_FadeShader = nullptr;
 };

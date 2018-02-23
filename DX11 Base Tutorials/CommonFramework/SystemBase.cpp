@@ -15,10 +15,7 @@ bool SystemBase::PreInitialize(){
 
 bool SystemBase::Initialize() {
 
-	int screenWidth, screenHeight;
-
-	screenWidth = 0;
-	screenHeight = 0;
+	int screenWidth = 0, screenHeight = 0;
 
 	InitializeWindows(screenWidth, screenHeight);
 

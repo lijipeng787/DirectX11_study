@@ -17,13 +17,10 @@ GraphicsClass::~GraphicsClass() {}
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 	bool result;
+	auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
 	{
-		m_D3D = new DirectX11Device;
-		if (!m_D3D) {
-			return false;
-		}
-		result = m_D3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -31,22 +28,22 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Camera = (Camera*)_aligned_malloc(sizeof(Camera), 16);
-		new (m_Camera)Camera();
-		if (!m_Camera) {
+		camera_ = (Camera*)_aligned_malloc(sizeof(Camera), 16);
+		new (camera_)Camera();
+		if (!camera_) {
 			return false;
 		}
-		m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+		camera_->SetPosition(0.0f, 0.0f, -10.0f);
 	}
 
 	{
-		m_TextureShader = (TextureShaderClass*)_aligned_malloc(sizeof(TextureShaderClass), 16);
-		new (m_TextureShader)TextureShaderClass();
-		if (!m_TextureShader) {
+		texture_shader_ = (TextureShader*)_aligned_malloc(sizeof(TextureShader), 16);
+		new (texture_shader_)TextureShader();
+		if (!texture_shader_) {
 			return false;
 		}
 
-		result = m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = texture_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -55,13 +52,26 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Bitmap = new BitmapClass();
-		if (!m_Bitmap) {
+		bitmap_ = new SimpleMoveableBitmap();
+		if (!bitmap_) {
 			return false;
 		}
-		result = m_Bitmap->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../../tut11/data/seafloor.dds", 256, 256);
+
+		result = bitmap_->Initialize(screenWidth, screenHeight, 256, 256);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+			return false;
+		}
+
+		result = bitmap_->InitializeVertexAndIndexBuffers();
+		if (!result) {
+			MessageBox(hwnd, L"Could not initialize the bitmap buffers.", L"Error", MB_OK);
+			return false;
+		}
+
+		result = bitmap_->LoadTextureFromFile(L"../../tut11/data/seafloor.dds");
+		if (!result) {
+			MessageBox(hwnd, L"Could not initialize the bitmap texture.", L"Error", MB_OK);
 			return false;
 		}
 	}
@@ -71,30 +81,23 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 void GraphicsClass::Shutdown() {
 
-	if (m_Bitmap) {
-		m_Bitmap->Shutdown();
-		delete m_Bitmap;
-		m_Bitmap = 0;
+	if (bitmap_) {
+		bitmap_->Release();
+		delete bitmap_;
+		bitmap_ = 0;
 	}
 
-	if (m_TextureShader) {
-		m_TextureShader->Shutdown();
-		m_TextureShader->~TextureShaderClass();
-		_aligned_free(m_TextureShader);
-		m_TextureShader = 0;
+	if (texture_shader_) {
+		texture_shader_->Shutdown();
+		texture_shader_->~TextureShader();
+		_aligned_free(texture_shader_);
+		texture_shader_ = 0;
 	}
 
-	if (m_Camera) {
-		m_Camera->~Camera();
-		_aligned_free(m_Camera);
-		m_Camera = nullptr;
-	}
-
-	if (m_D3D) {
-		m_D3D->Shutdown();
-		m_D3D->~DirectX11Device();
-		delete m_D3D;
-		m_D3D = nullptr;
+	if (camera_) {
+		camera_->~Camera();
+		_aligned_free(camera_);
+		camera_ = nullptr;
 	}
 }
 
@@ -110,32 +113,33 @@ bool GraphicsClass::Frame() {
 
 bool GraphicsClass::Render() {
 
+	auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+	directx11_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+
+	camera_->Render();
+
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
-	bool result;
 
-	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	camera_->GetViewMatrix(viewMatrix);
+	directx11_device_->GetWorldMatrix(worldMatrix);
+	directx11_device_->GetOrthoMatrix(orthoMatrix);
 
-	m_Camera->Render();
+	directx11_device_->TurnZBufferOff();
 
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_D3D->GetOrthoMatrix(orthoMatrix);
-
-	m_D3D->TurnZBufferOff();
-
-	result = m_Bitmap->Render(m_D3D->GetDeviceContext(), 100, 100);
+	auto result = bitmap_->Render(100, 100);
 	if (!result) {
 		return false;
 	}
 
-	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
+	result = texture_shader_->Render(bitmap_->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, bitmap_->GetTexture());
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->TurnZBufferOn();
+	directx11_device_->TurnZBufferOn();
 
-	m_D3D->EndScene();
+	directx11_device_->EndScene();
 
 	return true;
 }

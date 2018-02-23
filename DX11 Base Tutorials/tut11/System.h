@@ -7,13 +7,13 @@ class GraphicsClass;
 
 class System :public SystemBase {
 public:
-	System();
+	System() {}
 
 	System(const System& rhs) = delete;
 
 	System& operator=(const System& rhs) = delete;
 
-	virtual ~System();
+	virtual ~System() {}
 public:
 	virtual bool Initialize()override;
 
@@ -21,7 +21,7 @@ public:
 
 	virtual bool Frame()override;
 private:
-	GraphicsClass *m_Graphics;
+	GraphicsClass *Graphics_;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

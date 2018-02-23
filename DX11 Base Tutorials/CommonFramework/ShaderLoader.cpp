@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
 #include <d3dcompiler.h>
-
 #include "ShaderLoader.h"
 
 void WCHARToString(WCHAR * wchar, std::string & s) {

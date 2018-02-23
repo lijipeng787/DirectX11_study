@@ -3,9 +3,15 @@
 
 using namespace DirectX;
 
-DirectX11Device::DirectX11Device() {}
+DirectX11Device* DirectX11Device::device_instance_ = nullptr;
 
-DirectX11Device::~DirectX11Device(){}
+DirectX11Device* DirectX11Device::GetD3d11DeviceInstance() {
+	
+	if (nullptr == device_instance_) {
+		device_instance_ = new DirectX11Device;
+	}
+	return device_instance_;
+}
 
 bool DirectX11Device::Initialize(
 	int screenWidth, int screenHeight,

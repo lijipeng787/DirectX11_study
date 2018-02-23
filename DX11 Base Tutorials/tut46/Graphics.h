@@ -6,7 +6,7 @@
 class DirectX11Device;
 class Camera;
 class ModelClass;
-class BitmapClass;
+class SimpleMoveableBitmap;
 class TextureShaderClass;
 class RenderTextureClass;
 class OrthoWindowClass;
@@ -53,7 +53,7 @@ private:
 
 	TextureShaderClass* m_TextureShader;
 
-	BitmapClass* m_Bitmap;
+	SimpleMoveableBitmap* m_Bitmap;
 
 	RenderTextureClass
 		*m_RenderTexture = nullptr,

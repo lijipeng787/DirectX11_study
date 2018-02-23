@@ -8,13 +8,15 @@
 
 class DirectX11Device {
 public:
-	DirectX11Device();
+	DirectX11Device() {}
 
 	DirectX11Device(const DirectX11Device& rhs) = delete;
 
 	DirectX11Device& operator=(const DirectX11Device& rhs) = delete;
 
-	~DirectX11Device();
+	~DirectX11Device() {}
+public:
+	static DirectX11Device* GetD3d11DeviceInstance();
 public:
 	bool Initialize(int, int, bool, HWND, bool, float, float);
 
@@ -62,7 +64,9 @@ private:
 
 	IDXGISwapChain* swap_chain_ = nullptr;
 
-	ID3D11Device* device_ = nullptr;
+	ID3D11Device *device_ = nullptr;
+
+	static DirectX11Device* device_instance_;
 
 	ID3D11DeviceContext* device_context_ = nullptr;
 

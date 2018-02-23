@@ -11,7 +11,7 @@ class TextClass;
 class LightShaderClass;
 class TextureShaderClass;
 class LightClass;
-class BitmapClass;
+class SimpleMoveableBitmap;
 
 class GraphicsClass :public GraphicsBase {
 public:
@@ -54,7 +54,7 @@ private:
 
 	TextClass* m_Text;
 
-	BitmapClass* m_Bitmap;
+	SimpleMoveableBitmap* m_Bitmap;
 
 	int m_screenWidth = 0, m_screenHeight = 0;
 

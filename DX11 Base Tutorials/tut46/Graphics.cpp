@@ -60,7 +60,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Bitmap = new BitmapClass();
+		m_Bitmap = new SimpleMoveableBitmap();
 		if (!m_Bitmap) {
 			return false;
 		}

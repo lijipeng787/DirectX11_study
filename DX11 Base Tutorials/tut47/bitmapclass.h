@@ -22,7 +22,7 @@ using namespace DirectX;
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: BitmapClass
 ////////////////////////////////////////////////////////////////////////////////
-class BitmapClass
+class SimpleMoveableBitmap
 {
 private:
 	struct VertexType
@@ -32,9 +32,9 @@ private:
 	};
 
 public:
-	BitmapClass();
-	BitmapClass(const BitmapClass&);
-	~BitmapClass();
+	SimpleMoveableBitmap();
+	SimpleMoveableBitmap(const SimpleMoveableBitmap&);
+	~SimpleMoveableBitmap();
 
 	bool Initialize(ID3D11Device*, int, int, WCHAR*, int, int);
 	void Shutdown();

@@ -1,11 +1,6 @@
 #include "System.h"
-
 #include "../CommonFramework/Input.h"
 #include "Graphics.h"
-
-System::System() {}
-
-System::~System() {}
 
 bool System::Initialize() {
 
@@ -19,11 +14,12 @@ bool System::Initialize() {
 
 	//GetScreenWidthAndHeight(screenWidth, screenHeight);
 
-	m_Graphics = new GraphicsClass();
-	if (!m_Graphics) {
+	Graphics_ = new GraphicsClass();
+	if (!Graphics_) {
 		return false;
 	}
-	bool result = m_Graphics->Initialize(screenWidth, screenHeight, GetApplicationHandle());
+
+	bool result = Graphics_->Initialize(screenWidth, screenHeight, GetApplicationHandle());
 	if (!result) {
 		return false;
 	}
@@ -35,10 +31,10 @@ void System::Shutdown() {
 
 	SystemBase::Shutdown();
 
-	if (m_Graphics) {
-		m_Graphics->Shutdown();
-		delete m_Graphics;
-		m_Graphics = 0;
+	if (Graphics_) {
+		Graphics_->Shutdown();
+		delete Graphics_;
+		Graphics_ = nullptr;
 	}
 }
 
@@ -46,14 +42,11 @@ bool System::Frame() {
 
 	SystemBase::Frame();
 
-	if (GetInputComponent().IsKeyDown(VK_ESCAPE))
-	{
+	if (GetInputComponent().IsKeyDown(VK_ESCAPE)) {
 		return false;
 	}
 
-	bool result;
-
-	result = m_Graphics->Frame();
+	auto result = Graphics_->Frame();
 	if (!result) {
 		return false;
 	}
@@ -63,22 +56,18 @@ bool System::Frame() {
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam) {
 
-	switch (umessage)
-	{
-	case WM_DESTROY:
-	{
+	switch (umessage) {
+	case WM_DESTROY: {
 		PostQuitMessage(0);
 		return 0;
 	}
 
-	case WM_CLOSE:
-	{
+	case WM_CLOSE: {
 		PostQuitMessage(0);
 		return 0;
 	}
 
-	default:
-	{
+	default: {
 		return ApplicationInstance->MessageHandler(hwnd, umessage, wparam, lparam);
 	}
 	}

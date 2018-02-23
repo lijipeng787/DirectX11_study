@@ -40,27 +40,29 @@ private:
 private:
 	float frame_time_ = 0.0f;
 
-	float m_fadeInTime = 0.0f, m_accumulatedTime = 0.0f, m_fadePercentage = 0.0f;
+	float water_height_ = 0.0f, water_translation_ = 0.0f;
 
-	bool m_fadeDone = false;
+	DirectX11Device *directx_device_ = nullptr;
 
-	DirectX11Device *m_D3D = nullptr;
+	Camera *camera_ = nullptr;
 
-	Camera *m_Camera = nullptr;
+	ModelClass
+		*ground_model_ = nullptr,
+		*wall_model_ = nullptr,
+		*bath_model_ = nullptr,
+		*water_model_ = nullptr;
 
-	ModelClass *m_GroundModel, *m_WallModel, *m_BathModel, *m_WaterModel;
+	LightClass* light_ = nullptr;
 
-	LightClass* m_Light;
+	RenderTextureClass
+		*refraction_texture_ = nullptr,
+		*reflection_texture_ = nullptr;
 
-	RenderTextureClass *m_RefractionTexture, *m_ReflectionTexture;
+	LightShaderClass* light_shader_ = nullptr;
 
-	LightShaderClass* m_LightShader;
+	RefractionShaderClass* refraction_shader_ = nullptr;
 
-	RefractionShaderClass* m_RefractionShader;
-
-	WaterShaderClass* m_WaterShader;
-
-	float m_waterHeight, m_waterTranslation;
+	WaterShaderClass* water_shader_ = nullptr;
 };
 
 #endif

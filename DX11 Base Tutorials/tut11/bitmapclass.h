@@ -2,58 +2,52 @@
 #define _BITMAPCLASS_H_
 
 #include <d3d11.h>
-#include <DirectXMath.h>
 
-class TextureClass;
+class SimpleTexture;
 
-class BitmapClass{
+class SimpleMoveableBitmap{
 public:
-	BitmapClass() {}
+	SimpleMoveableBitmap() {}
 	
-	BitmapClass(const BitmapClass& rhs) = delete;
+	SimpleMoveableBitmap(const SimpleMoveableBitmap& rhs) = delete;
 
-	BitmapClass& operator=(const BitmapClass& rhs) = delete;
+	SimpleMoveableBitmap& operator=(const SimpleMoveableBitmap& rhs) = delete;
 	
-	~BitmapClass() {}
-private:
-	struct VertexType{
-		DirectX::XMFLOAT3 position;
-		DirectX::XMFLOAT2 texture;
-	};
+	~SimpleMoveableBitmap() {}
 public:
-	bool Initialize(ID3D11Device*, int, int, WCHAR*, int, int);
+	bool Initialize(int screenWidth, int screenHeight, int bitmapHeight, int bitmapWidth);
 
-	void Shutdown();
+	bool LoadTextureFromFile(WCHAR *fileName);
+
+	bool InitializeVertexAndIndexBuffers();
+
+	void Release();
 	
-	bool Render(ID3D11DeviceContext*, int, int);
+	bool Render(int, int);
 
 	int GetIndexCount();
 	
 	ID3D11ShaderResourceView* GetTexture();
 private:
-	bool InitializeBuffers(ID3D11Device*);
-
-	void ShutdownBuffers();
+	void ReleaseBuffers();
 	
-	bool UpdateBuffers(ID3D11DeviceContext*, int, int);
+	bool UpdateBuffers(int positionX, int positionY);
 	
-	void RenderBuffers(ID3D11DeviceContext*);
-
-	bool LoadTexture(ID3D11Device*, WCHAR*);
+	void SubmitBuffers();
 	
 	void ReleaseTexture();
 private:
-	ID3D11Buffer *m_vertexBuffer = nullptr, *m_indexBuffer = nullptr;
+	ID3D11Buffer *vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
 
-	int m_vertexCount = 0, m_indexCount = 0;
+	int vertex_count_ = 0, index_count_ = 0;
 	
-	TextureClass* m_Texture = nullptr;
+	SimpleTexture* texture_ = nullptr;
 	
-	int m_screenWidth = 0, m_screenHeight = 0;
+	int screen_width_ = 0, screen_height_ = 0;
 	
-	int m_bitmapWidth = 0, m_bitmapHeight = 0;
+	int bitmap_width_ = 0, bitmap_height_ = 0;
 	
-	int m_previousPosX = 0, m_previousPosY = 0;
+	int previous_posititon_x_ = 0, previous_posititon_y_ = 0;
 };
 
 #endif

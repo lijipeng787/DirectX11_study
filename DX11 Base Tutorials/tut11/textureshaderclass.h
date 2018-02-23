@@ -1,57 +1,46 @@
-////////////////////////////////////////////////////////////////////////////////
-// Filename: textureshaderclass.h
-////////////////////////////////////////////////////////////////////////////////
 #ifndef _TEXTURESHADERCLASS_H_
 #define _TEXTURESHADERCLASS_H_
 
-
-//////////////
-// INCLUDES //
-//////////////
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
-#include <fstream>
+
 using namespace std;
 using namespace DirectX;
 
-
-////////////////////////////////////////////////////////////////////////////////
-// Class name: TextureShaderClass
-////////////////////////////////////////////////////////////////////////////////
-class TextureShaderClass
-{
-private:
-	struct MatrixBufferType
-	{
-		XMMATRIX world;
-		XMMATRIX view;
-		XMMATRIX projection;
-	};
-
+class TextureShader{
 public:
-	TextureShaderClass();
-	TextureShaderClass(const TextureShaderClass&);
-	~TextureShaderClass();
-
-	bool Initialize(ID3D11Device*, HWND);
+	TextureShader() {}
+	
+	TextureShader(const TextureShader& rhs) = delete;
+	
+	~TextureShader() {}
+public:
+	bool Initialize(HWND hWnd);
+	
 	void Shutdown();
-	bool Render(ID3D11DeviceContext*, int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*);
 
+	bool Render(int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&, ID3D11ShaderResourceView*);
 private:
-	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
+	bool InitializeShader(HWND, WCHAR*, WCHAR*);
+
 	void ShutdownShader();
+	
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(ID3D11DeviceContext*, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*);
-	void RenderShader(ID3D11DeviceContext*, int);
-
+	bool SetShaderParameters(const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*);
+	
+	void RenderShader(int);
 private:
-	ID3D11VertexShader* m_vertexShader;
-	ID3D11PixelShader* m_pixelShader;
-	ID3D11InputLayout* m_layout;
-	ID3D11Buffer* m_matrixBuffer;
-	ID3D11SamplerState* m_sampleState;
+	ID3D11VertexShader * vertex_shader_ = nullptr;
+	
+	ID3D11PixelShader* pixel_shader_ = nullptr;
+	
+	ID3D11InputLayout* input_layout_ = nullptr;
+	
+	ID3D11Buffer* matrix_buffer_ = nullptr;
+	
+	ID3D11SamplerState* sample_state_ = nullptr;
 };
 
 #endif

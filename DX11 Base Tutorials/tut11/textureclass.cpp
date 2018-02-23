@@ -1,55 +1,27 @@
-////////////////////////////////////////////////////////////////////////////////
-// Filename: textureclass.cpp
-////////////////////////////////////////////////////////////////////////////////
+#include <DDSTextureLoader.h>
+#include "../CommonFramework/DirectX11Device.h"
 #include "textureclass.h"
 
-
-TextureClass::TextureClass()
-{
-	m_texture = 0;
+void SimpleTexture::Release() {
+	if (texture_srv_) {
+		texture_srv_->Release();
+		texture_srv_ = nullptr;
+	}
 }
 
+bool SimpleTexture::LoadDDSTextureFromFile(WCHAR * ddsFilename) {
 
-TextureClass::TextureClass(const TextureClass& other)
-{
-}
+	auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
+	HRESULT result = CreateDDSTextureFromFile(device, ddsFilename, NULL, &texture_srv_);
 
-TextureClass::~TextureClass()
-{
-}
-
-
-bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename)
-{
-	HRESULT result;
-
-
-	// Load the texture in.
-	result = CreateDDSTextureFromFile( device, filename, NULL, &m_texture );
-	if(FAILED(result))
-	{
+	if (FAILED(result)) {
 		return false;
 	}
 
 	return true;
 }
 
-
-void TextureClass::Shutdown()
-{
-	// Release the texture resource.
-	if(m_texture)
-	{
-		m_texture->Release();
-		m_texture = 0;
-	}
-
-	return;
-}
-
-
-ID3D11ShaderResourceView* TextureClass::GetTexture()
-{
-	return m_texture;
+ID3D11ShaderResourceView* SimpleTexture::GetTexture(){
+	return texture_srv_;
 }
