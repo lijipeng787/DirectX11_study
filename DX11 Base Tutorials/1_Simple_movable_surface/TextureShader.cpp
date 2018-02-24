@@ -1,6 +1,6 @@
 #include <fstream>
 #include "../CommonFramework/DirectX11Device.h"
-#include "textureshaderclass.h"
+#include "TextureShader.h"
 
 struct MatrixBufferType {
 	XMMATRIX world;

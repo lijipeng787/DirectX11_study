@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simple_triangle", "tut04\tut04.vcxproj", "{D36D235F-C167-40C4-9665-574154B32FD9}"
 EndProject
@@ -16,8 +16,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "box_with_ambient_light", "tut09\tut09.vcxproj", "{62D0C605-FB17-4178-9427-4765ED968AA9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cube_with_specular_light", "tut10\tut10.vcxproj", "{A939E50A-94EF-40D0-939B-0069485436A4}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "2d_image", "tut11\tut11.vcxproj", "{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "font", "tut12\tut12.vcxproj", "{1D29997F-58B4-4F4E-B1F4-62C5D8AB97BA}"
 EndProject
@@ -85,11 +83,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "intersection_test", "tut47\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "directional_shadow_map", "tut48\tut48.vcxproj", "{7074D536-4235-4AE7-B63A-B5892B7A3018}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tut50", "tut50\tut50.vcxproj", "{C50A67AF-F97F-44E0-B3A9-25446F9C3154}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "deferred_rendering", "tut50\tut50.vcxproj", "{C50A67AF-F97F-44E0-B3A9-25446F9C3154}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CommonFramework", "CommonFramework\CommonFramework.vcxproj", "{6FCB998B-4E37-4CAC-8C7B-55D73F23E155}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "0_Common_framework", "CommonFramework\CommonFramework.vcxproj", "{6FCB998B-4E37-4CAC-8C7B-55D73F23E155}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tut49", "tut49\tut49.vcxproj", "{44492D23-E9E6-4795-AFB8-1A714008E6A6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shadow_mapping_with_transparency", "tut49\tut49.vcxproj", "{44492D23-E9E6-4795-AFB8-1A714008E6A6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "1_Simple_movable_2d_image", "1_Simple_movable_surface\tut11.vcxproj", "{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -155,14 +155,6 @@ Global
 		{A939E50A-94EF-40D0-939B-0069485436A4}.Release|Win32.Build.0 = Release|Win32
 		{A939E50A-94EF-40D0-939B-0069485436A4}.Release|x64.ActiveCfg = Release|x64
 		{A939E50A-94EF-40D0-939B-0069485436A4}.Release|x64.Build.0 = Release|x64
-		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Debug|Win32.ActiveCfg = Debug|Win32
-		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Debug|Win32.Build.0 = Debug|Win32
-		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Debug|x64.ActiveCfg = Debug|x64
-		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Debug|x64.Build.0 = Debug|x64
-		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Release|Win32.ActiveCfg = Release|Win32
-		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Release|Win32.Build.0 = Release|Win32
-		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Release|x64.ActiveCfg = Release|x64
-		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Release|x64.Build.0 = Release|x64
 		{1D29997F-58B4-4F4E-B1F4-62C5D8AB97BA}.Debug|Win32.ActiveCfg = Debug|Win32
 		{1D29997F-58B4-4F4E-B1F4-62C5D8AB97BA}.Debug|Win32.Build.0 = Debug|Win32
 		{1D29997F-58B4-4F4E-B1F4-62C5D8AB97BA}.Debug|x64.ActiveCfg = Debug|x64
@@ -451,8 +443,19 @@ Global
 		{44492D23-E9E6-4795-AFB8-1A714008E6A6}.Release|Win32.Build.0 = Release|Win32
 		{44492D23-E9E6-4795-AFB8-1A714008E6A6}.Release|x64.ActiveCfg = Release|x64
 		{44492D23-E9E6-4795-AFB8-1A714008E6A6}.Release|x64.Build.0 = Release|x64
+		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Debug|Win32.Build.0 = Debug|Win32
+		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Debug|x64.ActiveCfg = Debug|x64
+		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Debug|x64.Build.0 = Debug|x64
+		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Release|Win32.ActiveCfg = Release|Win32
+		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Release|Win32.Build.0 = Release|Win32
+		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Release|x64.ActiveCfg = Release|x64
+		{4236459E-0B68-4C13-B8EA-A0B9892BAEFF}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8D86EAAA-4911-4293-B1EC-CB22B168D03B}
 	EndGlobalSection
 EndGlobal

@@ -7,19 +7,19 @@ class DirectX11Device;
 class Camera;
 class ModelClass;
 class TextureShader;
-class SimpleMoveableBitmap;
+class SimpleMoveableSurface;
 
-class GraphicsClass :public GraphicsBase {
+class GraphicsModule :public GraphicsBase {
 public:
-	GraphicsClass();
+	GraphicsModule();
 
-	GraphicsClass(const GraphicsClass& rhs) = delete;
+	GraphicsModule(const GraphicsModule& rhs) = delete;
 
-	GraphicsClass& operator=(const GraphicsClass& rhs) = delete;
+	GraphicsModule& operator=(const GraphicsModule& rhs) = delete;
 
-	virtual ~GraphicsClass();
+	virtual ~GraphicsModule();
 public:
-	virtual bool Initialize(int, int, HWND)override;
+	virtual bool Initialize(int screenWidth, int screenHeight, HWND hwnd)override;
 
 	virtual void Shutdown()override;
 
@@ -33,7 +33,7 @@ private:
 	
 	TextureShader* texture_shader_;
 	
-	SimpleMoveableBitmap* bitmap_;
+	SimpleMoveableSurface* bitmap_;
 };
 
 #endif

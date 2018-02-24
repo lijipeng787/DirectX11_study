@@ -1,6 +1,6 @@
 #include <DDSTextureLoader.h>
 #include "../CommonFramework/DirectX11Device.h"
-#include "textureclass.h"
+#include "SimpleTexture.h"
 
 void SimpleTexture::Release() {
 	if (texture_srv_) {

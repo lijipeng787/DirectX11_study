@@ -7,6 +7,24 @@ Camera::Camera() {}
 
 Camera::~Camera(){}
 
+void Camera::GetWorldPosition(DirectX::XMMATRIX & wordMatrix) {
+}
+
+void Camera::SetMoveStep(int step) {
+}
+
+void Camera::MoveTowardLeft2D(int units) {
+}
+
+void Camera::MoveTowardRight2D(int units) {
+}
+
+void Camera::MoveTowardTop2D(int units) {
+}
+
+void Camera::MoveTowardBottom2D(int units) {
+}
+
 void Camera::SetPosition(float x, float y, float z) {
 	
 	position_x_ = x;

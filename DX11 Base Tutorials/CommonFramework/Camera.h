@@ -13,6 +13,18 @@ public:
 	
 	~Camera();
 public:
+	void GetWorldPosition(DirectX::XMMATRIX& wordMatrix);
+
+	void SetMoveStep(int step);
+
+	void MoveTowardLeft2D(int units);
+
+	void MoveTowardRight2D(int units);
+
+	void MoveTowardTop2D(int units);
+
+	void MoveTowardBottom2D(int units);
+
 	void SetPosition(float, float, float);
 	
 	void SetRotation(float, float, float);

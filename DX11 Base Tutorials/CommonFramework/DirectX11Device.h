@@ -16,13 +16,28 @@ public:
 
 	~DirectX11Device() {}
 public:
-	static DirectX11Device* GetD3d11DeviceInstance();
+	inline static DirectX11Device* GetD3d11DeviceInstance(){
+
+		if (nullptr == device_instance_) {
+			device_instance_ = new DirectX11Device;
+		}
+
+		return device_instance_;
+	}
 public:
-	bool Initialize(int, int, bool, HWND, bool, float, float);
+	inline unsigned int GetScreenWidth() { return screen_width_; }
+
+	inline unsigned int GetScreenHeight() { return screen_height_; }
+public:
+	bool Initialize(
+		unsigned int screenWidth, unsigned int screenHeight, 
+		bool vsync, HWND hwnd, bool fullscreen,
+		float screenDepth, float screenNear
+	);
 
 	void Shutdown();
 
-	void BeginScene(float, float, float, float);
+	void BeginScene(float red, float green, float blue, float alpha);
 
 	void EndScene();
 
@@ -95,6 +110,9 @@ private:
 	ID3D11BlendState* m_alphaDisableBlendingState;
 
 	D3D11_VIEWPORT viewport_ = {};
+
+	unsigned int screen_width_ = 0;
+	unsigned int screen_height_ = 0;
 };
 
 #endif

@@ -3,7 +3,7 @@
 
 #include "../CommonFramework/SystemBase.h"
 
-class GraphicsClass;
+class GraphicsModule;
 
 class System :public SystemBase {
 public:
@@ -21,7 +21,7 @@ public:
 
 	virtual bool Frame()override;
 private:
-	GraphicsClass *Graphics_;
+	GraphicsModule *Graphics_;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

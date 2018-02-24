@@ -1,6 +1,6 @@
 #include "System.h"
 #include "../CommonFramework/Input.h"
-#include "Graphics.h"
+#include "GraphicsModule.h"
 
 bool System::Initialize() {
 
@@ -14,7 +14,7 @@ bool System::Initialize() {
 
 	//GetScreenWidthAndHeight(screenWidth, screenHeight);
 
-	Graphics_ = new GraphicsClass();
+	Graphics_ = new GraphicsModule();
 	if (!Graphics_) {
 		return false;
 	}

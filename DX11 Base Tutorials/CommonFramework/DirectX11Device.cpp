@@ -5,60 +5,40 @@ using namespace DirectX;
 
 DirectX11Device* DirectX11Device::device_instance_ = nullptr;
 
-DirectX11Device* DirectX11Device::GetD3d11DeviceInstance() {
-	
-	if (nullptr == device_instance_) {
-		device_instance_ = new DirectX11Device;
-	}
-	return device_instance_;
-}
-
 bool DirectX11Device::Initialize(
-	int screenWidth, int screenHeight,
+	unsigned int screenWidth, unsigned int screenHeight,
 	bool vsync, HWND hwnd, bool fullscreen,
 	float screenDepth, float screenNear
 ) {
-
-	HRESULT result;
-	IDXGIFactory* factory;
-	IDXGIAdapter* adapter;
-	IDXGIOutput* adapterOutput;
-	unsigned int numModes, i, numerator, denominator;
-	size_t stringLength;
-	DXGI_MODE_DESC* displayModeList;
-	DXGI_ADAPTER_DESC adapterDesc;
-	int error;
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
-	D3D_FEATURE_LEVEL featureLevel;
-	ID3D11Texture2D* backBufferPtr;
-	D3D11_TEXTURE2D_DESC depthBufferDesc;
-	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-	D3D11_RASTERIZER_DESC rasterDesc;
-	float fieldOfView, screenAspect;
-
+	screen_width_ = screenWidth;
+	screen_height_ = screenHeight;
 	vsync_enabled_ = vsync;
 
-	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
+	IDXGIFactory* factory = nullptr;
+	auto result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 	if (FAILED(result)) {
 		return false;
 	}
 
+	IDXGIAdapter* adapter = nullptr;
 	result = factory->EnumAdapters(0, &adapter);
 	if (FAILED(result)) {
 		return false;
 	}
 
+	IDXGIOutput* adapterOutput = nullptr;
 	result = adapter->EnumOutputs(0, &adapterOutput);
 	if (FAILED(result)) {
 		return false;
 	}
 
+	unsigned int numModes = 0, i = 0, numerator = 0, denominator = 0;
 	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
 	if (FAILED(result)) {
 		return false;
 	}
-
+	
+	DXGI_MODE_DESC* displayModeList = nullptr;
 	displayModeList = new DXGI_MODE_DESC[numModes];
 	if (!displayModeList) {
 		return false;
@@ -80,6 +60,8 @@ bool DirectX11Device::Initialize(
 		}
 	}
 
+	DXGI_ADAPTER_DESC adapterDesc;
+	ZeroMemory(&adapterDesc, sizeof(DXGI_ADAPTER_DESC));
 	result = adapter->GetDesc(&adapterDesc);
 	if (FAILED(result)) {
 		return false;
@@ -87,23 +69,25 @@ bool DirectX11Device::Initialize(
 
 	videocard_Memory_ = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
 
-	error = wcstombs_s(&stringLength, videocard_description_, 128, adapterDesc.Description, 128);
+	size_t stringLength = 0;
+	auto error = wcstombs_s(&stringLength, videocard_description_, 128, adapterDesc.Description, 128);
 	if (error != 0) {
 		return false;
 	}
 
 	delete[] displayModeList;
-	displayModeList = 0;
+	displayModeList = nullptr;
 
 	adapterOutput->Release();
-	adapterOutput = 0;
+	adapterOutput = nullptr;
 
 	adapter->Release();
-	adapter = 0;
+	adapter = nullptr;
 
 	factory->Release();
-	factory = 0;
+	factory = nullptr;
 
+	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 
 	swapChainDesc.BufferCount = 1;
@@ -137,6 +121,8 @@ bool DirectX11Device::Initialize(
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	swapChainDesc.Flags = 0;
 
+	D3D_FEATURE_LEVEL featureLevel;
+	ZeroMemory(&featureLevel, sizeof(featureLevel));
 	featureLevel = D3D_FEATURE_LEVEL_11_0;
 
 	result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &featureLevel, 1,
@@ -145,6 +131,7 @@ bool DirectX11Device::Initialize(
 		return false;
 	}
 
+	ID3D11Texture2D* backBufferPtr = nullptr;
 	result = swap_chain_->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
 	if (FAILED(result)) {
 		return false;
@@ -158,7 +145,8 @@ bool DirectX11Device::Initialize(
 	backBufferPtr->Release();
 	backBufferPtr = 0;
 
-	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
+	D3D11_TEXTURE2D_DESC depthBufferDesc;
+	ZeroMemory(&depthBufferDesc, sizeof(D3D11_TEXTURE2D_DESC));
 
 	depthBufferDesc.Width = screenWidth;
 	depthBufferDesc.Height = screenHeight;
@@ -177,7 +165,8 @@ bool DirectX11Device::Initialize(
 		return false;
 	}
 
-	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+	ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
 
 	depthStencilDesc.DepthEnable = true;
 	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -204,7 +193,9 @@ bool DirectX11Device::Initialize(
 
 	device_context_->OMSetDepthStencilState(depth_stencil_state_, 1);
 
-	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+	ZeroMemory(&depthStencilViewDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+
 	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
@@ -215,6 +206,9 @@ bool DirectX11Device::Initialize(
 	}
 
 	device_context_->OMSetRenderTargets(1, &render_target_view_, depth_stencil_view_);
+
+	D3D11_RASTERIZER_DESC rasterDesc;
+	ZeroMemory(&rasterDesc, sizeof(D3D11_RASTERIZER_DESC));
 
 	rasterDesc.AntialiasedLineEnable = false;
 	rasterDesc.CullMode = D3D11_CULL_BACK;
@@ -263,6 +257,7 @@ bool DirectX11Device::Initialize(
 
 	device_context_->RSSetViewports(1, &viewport_);
 	
+	float fieldOfView = 0.0f, screenAspect = 0.0f;
 	{
 		fieldOfView = (float)XM_PI / 4.0f;
 		screenAspect = (float)screenWidth / (float)screenHeight;
@@ -368,48 +363,48 @@ void DirectX11Device::Shutdown() {
 
 	if (raster_state_) {
 		raster_state_->Release();
-		raster_state_ = 0;
+		raster_state_ = nullptr;
 	}
 
 	if (depth_stencil_view_) {
 		depth_stencil_view_->Release();
-		depth_stencil_view_ = 0;
+		depth_stencil_view_ = nullptr;
 	}
 
 	if (depth_stencil_state_) {
 		depth_stencil_state_->Release();
-		depth_stencil_state_ = 0;
+		depth_stencil_state_ = nullptr;
 	}
 
 	if (depth_stencil_buffer_) {
 		depth_stencil_buffer_->Release();
-		depth_stencil_buffer_ = 0;
+		depth_stencil_buffer_ = nullptr;
 	}
 
 	if (render_target_view_) {
 		render_target_view_->Release();
-		render_target_view_ = 0;
+		render_target_view_ = nullptr;
 	}
 
 	if (device_context_) {
 		device_context_->Release();
-		device_context_ = 0;
+		device_context_ = nullptr;
 	}
 
 	if (device_) {
 		device_->Release();
-		device_ = 0;
+		device_ = nullptr;
 	}
 
 	if (swap_chain_) {
 		swap_chain_->Release();
-		swap_chain_ = 0;
+		swap_chain_ = nullptr;
 	}
 }
 
 void DirectX11Device::BeginScene(float red, float green, float blue, float alpha) {
 
-	float color[4];
+	float color[4] = { 0 };
 
 	color[0] = red;
 	color[1] = green;

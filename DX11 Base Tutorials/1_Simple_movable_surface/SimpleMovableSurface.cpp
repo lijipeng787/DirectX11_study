@@ -1,7 +1,7 @@
 #include <DirectXMath.h>
 #include "../CommonFramework/DirectX11Device.h"
-#include "bitmapclass.h"
-#include "textureclass.h"
+#include "SimpleMovableSurface.h"
+#include "SimpleTexture.h"
 
 using namespace DirectX;
 
@@ -10,30 +10,48 @@ struct VertexType {
 	DirectX::XMFLOAT2 texture;
 };
 
-bool SimpleMoveableBitmap::Initialize(int screenWidth, int screenHeight,int bitmapWidth, int bitmapHeight){
-	
-	screen_width_ = screenWidth;
-	screen_height_ = screenHeight;
+void SimpleMoveableSurface::MoveTowardTop2D(int units) {
+}
+
+void SimpleMoveableSurface::MoveTowardBottom2D(int units) {
+}
+
+void SimpleMoveableSurface::SetPosition(float, float, float) {
+}
+
+void SimpleMoveableSurface::SetRotation(float, float, float) {
+}
+
+void SimpleMoveableSurface::SetPosition2D(float x, float y) {
+	position_x_ = x;
+	position_y_ = y;
+}
+
+void SimpleMoveableSurface::SetRotation2D(float x, float y) {
+}
+
+void SimpleMoveableSurface::InitializeWithSurfaceSize(int bitmapWidth, int bitmapHeight) {
+
+	screen_width_ = DirectX11Device::GetD3d11DeviceInstance()->GetScreenWidth();
+	screen_height_ = ::DirectX11Device::GetD3d11DeviceInstance()->GetScreenHeight();
 
 	bitmap_width_ = bitmapWidth;
 	bitmap_height_ = bitmapHeight;
 
 	previous_posititon_x_ = -1;
 	previous_posititon_y_ = -1;
-
-	return true;
 }
 
-void SimpleMoveableBitmap::Release() {
+void SimpleMoveableSurface::Release() {
 	
 	ReleaseTexture();
 
 	ReleaseBuffers();
 }
 
-bool SimpleMoveableBitmap::Render(int positionX, int positionY) {
+bool SimpleMoveableSurface::Render() {
 
-	auto result = UpdateBuffers(positionX, positionY);
+	auto result = UpdateBuffers();
 	if (!result) {
 		return false;
 	}
@@ -43,15 +61,15 @@ bool SimpleMoveableBitmap::Render(int positionX, int positionY) {
 	return true;
 }
 
-int SimpleMoveableBitmap::GetIndexCount() {
+int SimpleMoveableSurface::GetIndexCount() {
 	return index_count_;
 }
 
-ID3D11ShaderResourceView* SimpleMoveableBitmap::GetTexture() {
+ID3D11ShaderResourceView* SimpleMoveableSurface::GetTexture() {
 	return texture_->GetTexture();
 }
 
-bool SimpleMoveableBitmap::InitializeVertexAndIndexBuffers() {
+bool SimpleMoveableSurface::InitializeVertexAndIndexBuffers() {
 
 	index_count_ = vertex_count_ = 6;
 
@@ -126,7 +144,7 @@ bool SimpleMoveableBitmap::InitializeVertexAndIndexBuffers() {
 	return true;
 }
 
-void SimpleMoveableBitmap::ReleaseBuffers() {
+void SimpleMoveableSurface::ReleaseBuffers() {
 
 	if (index_buffer_) {
 		index_buffer_->Release();
@@ -139,15 +157,15 @@ void SimpleMoveableBitmap::ReleaseBuffers() {
 	}
 }
 
-bool SimpleMoveableBitmap::UpdateBuffers(int positionX, int positionY) {
+bool SimpleMoveableSurface::UpdateBuffers() {
 
-	if ((positionX == previous_posititon_x_) && (positionY == previous_posititon_y_)) {
+	if ((position_x_ == previous_posititon_x_) && (position_y_ == previous_posititon_y_)) {
 		return true;
 	}
 
 	// If it has changed then update the position it is being rendered to.
-	previous_posititon_x_ = positionX;
-	previous_posititon_y_ = positionY;
+	previous_posititon_x_ = position_x_;
+	previous_posititon_y_ = position_y_;
 
 	// for example,the screen resolution is 800*600,
 	// the screen coordinate just like as follow:
@@ -162,13 +180,13 @@ bool SimpleMoveableBitmap::UpdateBuffers(int positionX, int positionY) {
 	//						-300
 	
 	// Calculate the screen coordinates of the left side of the bitmap.
-	auto left = (float)((screen_width_ / 2) * -1) + (float)positionX;
+	auto left = (float)((screen_width_ / 2) * -1) + (float)position_x_;
 
 	// Calculate the screen coordinates of the right side of the bitmap.
 	auto right = left + (float)bitmap_width_;
 
 	// Calculate the screen coordinates of the top of the bitmap.
-	auto top = (float)(screen_height_ / 2) - (float)positionY;
+	auto top = (float)(screen_height_ / 2) - (float)position_y_;
 
 	// Calculate the screen coordinates of the bottom of the bitmap.
 	auto bottom = top - (float)bitmap_height_;
@@ -222,7 +240,7 @@ bool SimpleMoveableBitmap::UpdateBuffers(int positionX, int positionY) {
 	return true;
 }
 
-void SimpleMoveableBitmap::SubmitBuffers() {
+void SimpleMoveableSurface::SubmitBuffers() {
 
 	UINT stride = sizeof(VertexType);
 	UINT offset = 0;
@@ -236,7 +254,7 @@ void SimpleMoveableBitmap::SubmitBuffers() {
 	device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-bool SimpleMoveableBitmap::LoadTextureFromFile(WCHAR* filename) {
+bool SimpleMoveableSurface::LoadTextureFromFile(WCHAR* filename) {
 
 	texture_ = new SimpleTexture();
 	if (nullptr == texture_) {
@@ -251,11 +269,20 @@ bool SimpleMoveableBitmap::LoadTextureFromFile(WCHAR* filename) {
 	return true;
 }
 
-void SimpleMoveableBitmap::ReleaseTexture() {
+void SimpleMoveableSurface::ReleaseTexture() {
 
 	if (texture_) {
 		texture_->Release();
 		delete texture_;
 		texture_ = nullptr;
 	}
+}
+
+void SimpleMoveableSurface::SetMoveStep(int step) {
+}
+
+void SimpleMoveableSurface::MoveTowardLeft2D(int units) {
+}
+
+void SimpleMoveableSurface::MoveTowardRight2D(int units) {
 }
