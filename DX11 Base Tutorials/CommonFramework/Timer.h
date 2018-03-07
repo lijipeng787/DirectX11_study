@@ -1,8 +1,4 @@
-#ifndef _TIMERCLASS_H_
-#define _TIMERCLASS_H_
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#pragma once
 
 class Timer {
 public:
@@ -28,5 +24,3 @@ private:
 
 	float frame_time_ = 0.0f;
 };
-
-#endif

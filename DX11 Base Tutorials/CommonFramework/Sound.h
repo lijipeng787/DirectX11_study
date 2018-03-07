@@ -1,11 +1,6 @@
-#ifndef _SOUNDCLASS_H_
-#define _SOUNDCLASS_H_
+#pragma once
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <mmsystem.h>
 #include <dsound.h>
-#include <stdio.h>
 
 class SoundClass{
 public:
@@ -16,23 +11,6 @@ public:
 	SoundClass& operator=(const SoundClass& rhs) = delete;
 	
 	~SoundClass();
-private:
-	struct WaveHeaderType{
-
-		char chunkId[4];
-		unsigned long chunkSize;
-		char format[4];
-		char subChunkId[4];
-		unsigned long subChunkSize;
-		unsigned short audioFormat;
-		unsigned short numChannels;
-		unsigned long sampleRate;
-		unsigned long bytesPerSecond;
-		unsigned short blockAlign;
-		unsigned short bitsPerSample;
-		char dataChunkId[4];
-		unsigned long dataSize;
-	};
 public:
 	bool Initialize(HWND, char *sound_filename);
 
@@ -48,15 +26,13 @@ private:
 
 	bool PlayWaveFile();
 private:
-	IDirectSound8* m_DirectSound = nullptr;
+	IDirectSound8* sound_device_ = nullptr;
 
-	IDirectSoundBuffer* m_primaryBuffer = nullptr;
+	IDirectSoundBuffer* primary_buffer_ = nullptr;
 
-	IDirectSound3DListener8* m_listener = nullptr;
+	IDirectSound3DListener8* listener_ = nullptr;
 
-	IDirectSoundBuffer8* m_secondaryBuffer1 = nullptr;
+	IDirectSoundBuffer8* secondary_buffer_ = nullptr;
 
-	IDirectSound3DBuffer8* m_secondary3DBuffer1 = nullptr;
+	IDirectSound3DBuffer8* secondary_3D_buffer_ = nullptr;
 };
-
-#endif

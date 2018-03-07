@@ -1,4 +1,5 @@
 #include "stdafx.h"
+
 #include "SystemBase.h"
 #include "TypeDefine.h"
 #include "Input.h"

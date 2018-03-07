@@ -1,5 +1,4 @@
-#ifndef _SYSTEMCLASS_BASE_H_
-#define _SYSTEMCLASS_BASE_H_
+#pragma once
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -57,12 +56,10 @@ private:
 	HINSTANCE hinstance_ = {};
 
 	HWND hwnd_ = {};
-
+private:
 	Input *input_ = nullptr;
 
 	Timer *timer_ = nullptr;
-
+private:
 	LRESULT(CALLBACK *windd_proc_)(HWND, UINT, WPARAM, LPARAM);
 };
-
-#endif

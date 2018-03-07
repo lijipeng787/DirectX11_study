@@ -1,5 +1,4 @@
-#ifndef _GRAPHICSCLASS_H_
-#define _GRAPHICSCLASS_H_
+#pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -34,5 +33,3 @@ private:
 
 	ColorShaderClass *m_ColorShader;
 };
-
-#endif

@@ -2,6 +2,23 @@
 
 #include "Sound.h"
 
+struct WaveHeaderType {
+
+	char chunkId[4];
+	unsigned long chunkSize;
+	char format[4];
+	char subChunkId[4];
+	unsigned long subChunkSize;
+	unsigned short audioFormat;
+	unsigned short numChannels;
+	unsigned long sampleRate;
+	unsigned long bytesPerSecond;
+	unsigned short blockAlign;
+	unsigned short bitsPerSample;
+	char dataChunkId[4];
+	unsigned long dataSize;
+};
+
 SoundClass::SoundClass() {}
 
 SoundClass::~SoundClass(){}
@@ -15,7 +32,7 @@ bool SoundClass::Initialize(HWND hwnd, char *sound_filename) {
 		return false;
 	}
 
-	result = LoadWaveFile(sound_filename, &m_secondaryBuffer1, &m_secondary3DBuffer1);
+	result = LoadWaveFile(sound_filename, &secondary_buffer_, &secondary_3D_buffer_);
 	if (!result) {
 		return false;
 	}
@@ -30,7 +47,7 @@ bool SoundClass::Initialize(HWND hwnd, char *sound_filename) {
 
 void SoundClass::Shutdown() {
 
-	ShutdownWaveFile(&m_secondaryBuffer1, &m_secondary3DBuffer1);
+	ShutdownWaveFile(&secondary_buffer_, &secondary_3D_buffer_);
 
 	ShutdownDirectSound();
 }
@@ -43,14 +60,14 @@ bool SoundClass::InitializeDirectSound(HWND hwnd) {
 
 
 	// Initialize the direct sound interface pointer for the default sound device.
-	result = DirectSoundCreate8(NULL, &m_DirectSound, NULL);
+	result = DirectSoundCreate8(NULL, &sound_device_, NULL);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
 	// Set the cooperative level to priority so the format of the primary sound buffer can be modified.
-	result = m_DirectSound->SetCooperativeLevel(hwnd, DSSCL_PRIORITY);
+	result = sound_device_->SetCooperativeLevel(hwnd, DSSCL_PRIORITY);
 	if (FAILED(result))
 	{
 		return false;
@@ -65,7 +82,7 @@ bool SoundClass::InitializeDirectSound(HWND hwnd) {
 	bufferDesc.guid3DAlgorithm = GUID_NULL;
 
 	// Get control of the primary sound buffer on the default sound device.
-	result = m_DirectSound->CreateSoundBuffer(&bufferDesc, &m_primaryBuffer, NULL);
+	result = sound_device_->CreateSoundBuffer(&bufferDesc, &primary_buffer_, NULL);
 	if (FAILED(result))
 	{
 		return false;
@@ -82,45 +99,45 @@ bool SoundClass::InitializeDirectSound(HWND hwnd) {
 	waveFormat.cbSize = 0;
 
 	// Set the primary buffer to be the wave format specified.
-	result = m_primaryBuffer->SetFormat(&waveFormat);
+	result = primary_buffer_->SetFormat(&waveFormat);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
 	// Obtain a listener interface.
-	result = m_primaryBuffer->QueryInterface(IID_IDirectSound3DListener8, (LPVOID*)&m_listener);
+	result = primary_buffer_->QueryInterface(IID_IDirectSound3DListener8, (LPVOID*)&listener_);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
 	// Set the initial position of the listener to be in the middle of the scene.
-	m_listener->SetPosition(0.0f, 0.0f, 0.0f, DS3D_IMMEDIATE);
+	listener_->SetPosition(0.0f, 0.0f, 0.0f, DS3D_IMMEDIATE);
 
 	return true;
 }
 
 void SoundClass::ShutdownDirectSound() {
 
-	if (m_listener)
+	if (listener_)
 	{
-		m_listener->Release();
-		m_listener = 0;
+		listener_->Release();
+		listener_ = 0;
 	}
 
 	// Release the primary sound buffer pointer.
-	if (m_primaryBuffer)
+	if (primary_buffer_)
 	{
-		m_primaryBuffer->Release();
-		m_primaryBuffer = 0;
+		primary_buffer_->Release();
+		primary_buffer_ = 0;
 	}
 
 	// Release the direct sound interface pointer.
-	if (m_DirectSound)
+	if (sound_device_)
 	{
-		m_DirectSound->Release();
-		m_DirectSound = 0;
+		sound_device_->Release();
+		sound_device_ = 0;
 	}
 }
 
@@ -222,7 +239,7 @@ bool SoundClass::LoadWaveFile(char* filename, IDirectSoundBuffer8** secondaryBuf
 	bufferDesc.guid3DAlgorithm = GUID_NULL;
 
 	// Create a temporary sound buffer with the specific buffer settings.
-	result = m_DirectSound->CreateSoundBuffer(&bufferDesc, &tempBuffer, NULL);
+	result = sound_device_->CreateSoundBuffer(&bufferDesc, &tempBuffer, NULL);
 	if (FAILED(result))
 	{
 		return false;
@@ -321,24 +338,24 @@ bool SoundClass::PlayWaveFile() {
 	positionZ = 0.0f;
 
 	// Set position at the beginning of the sound buffer.
-	result = m_secondaryBuffer1->SetCurrentPosition(0);
+	result = secondary_buffer_->SetCurrentPosition(0);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
 	// Set volume of the buffer to 100%.
-	result = m_secondaryBuffer1->SetVolume(DSBVOLUME_MAX);
+	result = secondary_buffer_->SetVolume(DSBVOLUME_MAX);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
 	// Set the 3D position of the sound.
-	m_secondary3DBuffer1->SetPosition(positionX, positionY, positionZ, DS3D_IMMEDIATE);
+	secondary_3D_buffer_->SetPosition(positionX, positionY, positionZ, DS3D_IMMEDIATE);
 
 	// Play the contents of the secondary sound buffer.
-	result = m_secondaryBuffer1->Play(0, 0, 0);
+	result = secondary_buffer_->Play(0, 0, 0);
 	if (FAILED(result))
 	{
 		return false;

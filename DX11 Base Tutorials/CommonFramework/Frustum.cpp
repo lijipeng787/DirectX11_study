@@ -24,46 +24,46 @@ void FrustumClass::ConstructFrustum(float screenDepth, const XMMATRIX& projectio
 	matrix = XMMatrixMultiply(viewMatrix, projectionMatrixCopy);
 
 	// Calculate near plane of frustum.
-	m_planes[0].m128_f32[0] = matrix.r[0].m128_f32[3] + matrix.r[0].m128_f32[2];
-	m_planes[0].m128_f32[1] = matrix.r[1].m128_f32[3] + matrix.r[1].m128_f32[2];
-	m_planes[0].m128_f32[2] = matrix.r[2].m128_f32[3] + matrix.r[2].m128_f32[2];
-	m_planes[0].m128_f32[3] = matrix.r[3].m128_f32[3] + matrix.r[3].m128_f32[2];
-	m_planes[0] = XMPlaneNormalize(m_planes[0]);
+	planes_[0].m128_f32[0] = matrix.r[0].m128_f32[3] + matrix.r[0].m128_f32[2];
+	planes_[0].m128_f32[1] = matrix.r[1].m128_f32[3] + matrix.r[1].m128_f32[2];
+	planes_[0].m128_f32[2] = matrix.r[2].m128_f32[3] + matrix.r[2].m128_f32[2];
+	planes_[0].m128_f32[3] = matrix.r[3].m128_f32[3] + matrix.r[3].m128_f32[2];
+	planes_[0] = XMPlaneNormalize(planes_[0]);
 
 	// Calculate far plane of frustum.
-	m_planes[1].m128_f32[0] = matrix.r[0].m128_f32[3] - matrix.r[0].m128_f32[2];
-	m_planes[1].m128_f32[1] = matrix.r[1].m128_f32[3] - matrix.r[1].m128_f32[2];
-	m_planes[1].m128_f32[2] = matrix.r[2].m128_f32[3] - matrix.r[2].m128_f32[2];
-	m_planes[1].m128_f32[3] = matrix.r[3].m128_f32[3] - matrix.r[3].m128_f32[2];
-	m_planes[1] = XMPlaneNormalize(m_planes[1]);
+	planes_[1].m128_f32[0] = matrix.r[0].m128_f32[3] - matrix.r[0].m128_f32[2];
+	planes_[1].m128_f32[1] = matrix.r[1].m128_f32[3] - matrix.r[1].m128_f32[2];
+	planes_[1].m128_f32[2] = matrix.r[2].m128_f32[3] - matrix.r[2].m128_f32[2];
+	planes_[1].m128_f32[3] = matrix.r[3].m128_f32[3] - matrix.r[3].m128_f32[2];
+	planes_[1] = XMPlaneNormalize(planes_[1]);
 
 	// Calculate left plane of frustum.
-	m_planes[2].m128_f32[0] = matrix.r[0].m128_f32[3] + matrix.r[0].m128_f32[0];
-	m_planes[2].m128_f32[1] = matrix.r[1].m128_f32[3] + matrix.r[1].m128_f32[0];
-	m_planes[2].m128_f32[2] = matrix.r[2].m128_f32[3] + matrix.r[2].m128_f32[0];
-	m_planes[2].m128_f32[3] = matrix.r[3].m128_f32[3] + matrix.r[3].m128_f32[0];
-	m_planes[2] = XMPlaneNormalize(m_planes[2]);
+	planes_[2].m128_f32[0] = matrix.r[0].m128_f32[3] + matrix.r[0].m128_f32[0];
+	planes_[2].m128_f32[1] = matrix.r[1].m128_f32[3] + matrix.r[1].m128_f32[0];
+	planes_[2].m128_f32[2] = matrix.r[2].m128_f32[3] + matrix.r[2].m128_f32[0];
+	planes_[2].m128_f32[3] = matrix.r[3].m128_f32[3] + matrix.r[3].m128_f32[0];
+	planes_[2] = XMPlaneNormalize(planes_[2]);
 
 	// Calculate right plane of frustum.
-	m_planes[3].m128_f32[0] = matrix.r[0].m128_f32[3] - matrix.r[0].m128_f32[0];
-	m_planes[3].m128_f32[1] = matrix.r[1].m128_f32[3] - matrix.r[1].m128_f32[0];
-	m_planes[3].m128_f32[2] = matrix.r[2].m128_f32[3] - matrix.r[2].m128_f32[0];
-	m_planes[3].m128_f32[3] = matrix.r[3].m128_f32[3] - matrix.r[3].m128_f32[0];
-	m_planes[3] = XMPlaneNormalize(m_planes[3]);
+	planes_[3].m128_f32[0] = matrix.r[0].m128_f32[3] - matrix.r[0].m128_f32[0];
+	planes_[3].m128_f32[1] = matrix.r[1].m128_f32[3] - matrix.r[1].m128_f32[0];
+	planes_[3].m128_f32[2] = matrix.r[2].m128_f32[3] - matrix.r[2].m128_f32[0];
+	planes_[3].m128_f32[3] = matrix.r[3].m128_f32[3] - matrix.r[3].m128_f32[0];
+	planes_[3] = XMPlaneNormalize(planes_[3]);
 
 	// Calculate top plane of frustum.
-	m_planes[4].m128_f32[0] = matrix.r[0].m128_f32[3] - matrix.r[0].m128_f32[1];
-	m_planes[4].m128_f32[1] = matrix.r[1].m128_f32[3] - matrix.r[1].m128_f32[1];
-	m_planes[4].m128_f32[2] = matrix.r[2].m128_f32[3] - matrix.r[2].m128_f32[1];
-	m_planes[4].m128_f32[3] = matrix.r[3].m128_f32[3] - matrix.r[3].m128_f32[1];
-	m_planes[4] = XMPlaneNormalize(m_planes[4]);
+	planes_[4].m128_f32[0] = matrix.r[0].m128_f32[3] - matrix.r[0].m128_f32[1];
+	planes_[4].m128_f32[1] = matrix.r[1].m128_f32[3] - matrix.r[1].m128_f32[1];
+	planes_[4].m128_f32[2] = matrix.r[2].m128_f32[3] - matrix.r[2].m128_f32[1];
+	planes_[4].m128_f32[3] = matrix.r[3].m128_f32[3] - matrix.r[3].m128_f32[1];
+	planes_[4] = XMPlaneNormalize(planes_[4]);
 
 	// Calculate bottom plane of frustum.
-	m_planes[5].m128_f32[0] = matrix.r[0].m128_f32[3] + matrix.r[0].m128_f32[1];
-	m_planes[5].m128_f32[1] = matrix.r[1].m128_f32[3] + matrix.r[1].m128_f32[1];
-	m_planes[5].m128_f32[2] = matrix.r[2].m128_f32[3] + matrix.r[2].m128_f32[1];
-	m_planes[5].m128_f32[3] = matrix.r[3].m128_f32[3] + matrix.r[3].m128_f32[1];
-	m_planes[5] = XMPlaneNormalize(m_planes[5]);
+	planes_[5].m128_f32[0] = matrix.r[0].m128_f32[3] + matrix.r[0].m128_f32[1];
+	planes_[5].m128_f32[1] = matrix.r[1].m128_f32[3] + matrix.r[1].m128_f32[1];
+	planes_[5].m128_f32[2] = matrix.r[2].m128_f32[3] + matrix.r[2].m128_f32[1];
+	planes_[5].m128_f32[3] = matrix.r[3].m128_f32[3] + matrix.r[3].m128_f32[1];
+	planes_[5] = XMPlaneNormalize(planes_[5]);
 }
 
 bool FrustumClass::CheckPoint(float x, float y, float z) {
@@ -73,7 +73,7 @@ bool FrustumClass::CheckPoint(float x, float y, float z) {
 
 	// Check if the point is inside all six planes of the view frustum.
 	for (int i = 0; i < 6; i++) {
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 
 		if (tempVector.m128_f32[0] < 0.0f) {
 			return false;
@@ -94,7 +94,7 @@ bool FrustumClass::CheckCube(float xCenter, float yCenter, float zCenter, float 
 		temp.x = xCenter - radius;
 		temp.y = yCenter - radius;
 		temp.z = zCenter - radius;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}
@@ -102,7 +102,7 @@ bool FrustumClass::CheckCube(float xCenter, float yCenter, float zCenter, float 
 		temp.x = xCenter + radius;
 		temp.y = yCenter - radius;
 		temp.z = zCenter - radius;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}
@@ -110,7 +110,7 @@ bool FrustumClass::CheckCube(float xCenter, float yCenter, float zCenter, float 
 		temp.x = xCenter - radius;
 		temp.y = yCenter + radius;
 		temp.z = zCenter - radius;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}
@@ -118,7 +118,7 @@ bool FrustumClass::CheckCube(float xCenter, float yCenter, float zCenter, float 
 		temp.x = xCenter + radius;
 		temp.y = yCenter + radius;
 		temp.z = zCenter - radius;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}
@@ -126,7 +126,7 @@ bool FrustumClass::CheckCube(float xCenter, float yCenter, float zCenter, float 
 		temp.x = xCenter - radius;
 		temp.y = yCenter - radius;
 		temp.z = zCenter + radius;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}
@@ -134,7 +134,7 @@ bool FrustumClass::CheckCube(float xCenter, float yCenter, float zCenter, float 
 		temp.x = xCenter + radius;
 		temp.y = yCenter - radius;
 		temp.z = zCenter + radius;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}
@@ -142,7 +142,7 @@ bool FrustumClass::CheckCube(float xCenter, float yCenter, float zCenter, float 
 		temp.x = xCenter - radius;
 		temp.y = yCenter + radius;
 		temp.z = zCenter + radius;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}
@@ -150,7 +150,7 @@ bool FrustumClass::CheckCube(float xCenter, float yCenter, float zCenter, float 
 		temp.x = xCenter + radius;
 		temp.y = yCenter + radius;
 		temp.z = zCenter + radius;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}
@@ -168,7 +168,7 @@ bool FrustumClass::CheckSphere(float xCenter, float yCenter, float zCenter, floa
 
 	// Check if the radius of the sphere is inside the view frustum.
 	for (int i = 0; i < 6; i++) {
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 
 		if (tempVector.m128_f32[0] < -radius) {
 			return false;
@@ -189,7 +189,7 @@ bool FrustumClass::CheckRectangle(float xCenter, float yCenter, float zCenter, f
 		temp.x = xCenter - xSize;
 		temp.y = yCenter - ySize;
 		temp.z = zCenter - zSize;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}
@@ -197,7 +197,7 @@ bool FrustumClass::CheckRectangle(float xCenter, float yCenter, float zCenter, f
 		temp.x = xCenter + xSize;
 		temp.y = yCenter - ySize;
 		temp.z = zCenter - zSize;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}
@@ -205,7 +205,7 @@ bool FrustumClass::CheckRectangle(float xCenter, float yCenter, float zCenter, f
 		temp.x = xCenter - xSize;
 		temp.y = yCenter + ySize;
 		temp.z = zCenter - zSize;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}
@@ -213,7 +213,7 @@ bool FrustumClass::CheckRectangle(float xCenter, float yCenter, float zCenter, f
 		temp.x = xCenter - xSize;
 		temp.y = yCenter - ySize;
 		temp.z = zCenter + zSize;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}
@@ -221,7 +221,7 @@ bool FrustumClass::CheckRectangle(float xCenter, float yCenter, float zCenter, f
 		temp.x = xCenter + xSize;
 		temp.y = yCenter + ySize;
 		temp.z = zCenter - zSize;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}
@@ -229,7 +229,7 @@ bool FrustumClass::CheckRectangle(float xCenter, float yCenter, float zCenter, f
 		temp.x = xCenter + xSize;
 		temp.y = yCenter - ySize;
 		temp.z = zCenter + zSize;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}
@@ -237,7 +237,7 @@ bool FrustumClass::CheckRectangle(float xCenter, float yCenter, float zCenter, f
 		temp.x = xCenter - xSize;
 		temp.y = yCenter + ySize;
 		temp.z = zCenter + zSize;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}
@@ -245,7 +245,7 @@ bool FrustumClass::CheckRectangle(float xCenter, float yCenter, float zCenter, f
 		temp.x = xCenter + xSize;
 		temp.y = yCenter + ySize;
 		temp.z = zCenter + zSize;
-		tempVector = XMPlaneDotCoord(m_planes[i], XMLoadFloat3(&temp));
+		tempVector = XMPlaneDotCoord(planes_[i], XMLoadFloat3(&temp));
 		if (tempVector.m128_f32[0] >= 0.0f) {
 			continue;
 		}

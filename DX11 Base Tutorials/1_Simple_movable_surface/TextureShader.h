@@ -1,5 +1,4 @@
-#ifndef _TEXTURESHADERCLASS_H_
-#define _TEXTURESHADERCLASS_H_
+#pragma once
 
 #include <d3d11.h>
 #include <DirectXMath.h>
@@ -42,5 +41,3 @@ private:
 	
 	ID3D11SamplerState* sample_state_ = nullptr;
 };
-
-#endif

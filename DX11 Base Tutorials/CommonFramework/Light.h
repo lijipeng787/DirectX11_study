@@ -1,5 +1,4 @@
-#ifndef _LIGHTCLASS_H_
-#define _LIGHTCLASS_H_
+#pragma once
 
 #include <DirectXMath.h>
 
@@ -43,5 +42,3 @@ private:
 
 	float specular_power_;
 };
-
-#endif

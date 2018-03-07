@@ -1,5 +1,4 @@
-#ifndef _TEXTURECLASS_H_
-#define _TEXTURECLASS_H_
+#pragma once
 
 #include <d3d11.h>
 
@@ -23,5 +22,3 @@ public:
 private:
 	ID3D11ShaderResourceView * texture_srv_;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _FRUSTUMCLASS_H_
-#define _FRUSTUMCLASS_H_
+#pragma once
 
 #include <DirectXMath.h>
 
@@ -23,7 +22,5 @@ public:
 	
 	bool CheckRectangle(float, float, float, float, float, float);
 private:
-	DirectX::XMVECTOR m_planes[6];
+	DirectX::XMVECTOR planes_[6];
 };
-
-#endif

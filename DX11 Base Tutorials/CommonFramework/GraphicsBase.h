@@ -1,8 +1,6 @@
-#ifndef _GRAPHICSCLASS_BASE_H_
-#define _GRAPHICSCLASS_BASE_H_
+#pragma once
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include <Windows.h>
 
 class GraphicsBase {
 public:
@@ -22,5 +20,3 @@ public:
 
 	virtual bool Render() = 0;
 };
-
-#endif

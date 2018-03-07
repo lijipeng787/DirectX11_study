@@ -1,11 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////
-// Filename: texture.vs
-////////////////////////////////////////////////////////////////////////////////
-
-
-/////////////
-// GLOBALS //
-/////////////
 cbuffer MatrixBuffer
 {
 	matrix worldMatrix;
@@ -13,10 +5,6 @@ cbuffer MatrixBuffer
 	matrix projectionMatrix;
 };
 
-
-//////////////
-// TYPEDEFS //
-//////////////
 struct VertexInputType
 {
     float4 position : POSITION;
@@ -29,20 +17,14 @@ struct PixelInputType
     float2 tex : TEXCOORD0;
 };
 
-
-////////////////////////////////////////////////////////////////////////////////
-// Vertex Shader
-////////////////////////////////////////////////////////////////////////////////
 PixelInputType TextureVertexShader(VertexInputType input)
 {
-    PixelInputType output;
-    
-
 	// Change the position vector to be 4 units for proper matrix calculations.
     input.position.w = 1.0f;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-    output.position = mul(input.position, worldMatrix);
+	PixelInputType output; 
+	output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
@@ -50,4 +32,15 @@ PixelInputType TextureVertexShader(VertexInputType input)
 	output.tex = input.tex;
     
     return output;
+}
+
+Texture2D shaderTexture;
+SamplerState SampleType;
+
+float4 TexturePixelShader(PixelInputType input) : SV_TARGET
+{
+    // Sample the pixel color from the texture using the sampler at this texture coordinate location.
+    float4 textureColor = shaderTexture.Sample(SampleType, input.tex);
+
+    return textureColor;
 }

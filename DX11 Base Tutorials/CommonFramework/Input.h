@@ -1,5 +1,4 @@
-#ifndef _INPUTCLASS_H_
-#define _INPUTCLASS_H_
+#pragma once
 
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
@@ -61,21 +60,19 @@ public:
 
 	bool IsKeyDown(unsigned int)const;
 private:
-	IDirectInput8* m_directInput;
+	IDirectInput8* input_device_;
 
-	IDirectInputDevice8* m_keyboard;
+	IDirectInputDevice8* keyboard_;
 	
-	IDirectInputDevice8* m_mouse;
+	IDirectInputDevice8* mouse_;
 
-	unsigned char m_keyboardState[256];
+	unsigned char keyboard_state_[256];
 	
-	DIMOUSESTATE m_mouseState;
+	DIMOUSESTATE mouse_state_;
 
-	int m_screenWidth, m_screenHeight;
+	int screen_width_, screen_height_;
 	
-	int m_mouseX, m_mouseY;
+	int mouse_x_, mouse_y_;
 
 	bool keys_[256] = {};
 };
-
-#endif

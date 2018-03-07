@@ -1,8 +1,6 @@
-#ifndef _BITMAPCLASS_H_
-#define _BITMAPCLASS_H_
+#pragma once
 
 #include <d3d11.h>
-#include <DirectXMath.h>
 
 class SimpleTexture;
 
@@ -78,5 +76,3 @@ private:
 	
 	float previous_posititon_x_ = 0, previous_posititon_y_ = 0;
 };
-
-#endif

@@ -1,4 +1,5 @@
 #include "stdafx.h"
+
 #include "DirectX11Device.h"
 
 using namespace DirectX;
@@ -270,7 +271,7 @@ bool DirectX11Device::Initialize(
 	}
 
 	D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
-	ZeroMemory(&depthDisabledStencilDesc, sizeof(m_depthDisabledStencilState));
+	ZeroMemory(&depthDisabledStencilDesc, sizeof(depth_disabled_stencil_state_));
 	depthDisabledStencilDesc.DepthEnable = false;
 	depthDisabledStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depthDisabledStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
@@ -286,7 +287,7 @@ bool DirectX11Device::Initialize(
 	depthDisabledStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 	depthDisabledStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-	result = device_->CreateDepthStencilState(&depthDisabledStencilDesc, &m_depthDisabledStencilState);
+	result = device_->CreateDepthStencilState(&depthDisabledStencilDesc, &depth_disabled_stencil_state_);
 	if (FAILED(result)){
 		return false;
 	}
@@ -325,13 +326,13 @@ bool DirectX11Device::Initialize(
 	//blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	//blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
 
-	result = device_->CreateBlendState(&blendStateDescription, &m_alphaEnableBlendingState);
+	result = device_->CreateBlendState(&blendStateDescription, &alpha_enable_blending_state_);
 	if (FAILED(result)){
 		return false;
 	}
 
 	blendStateDescription.RenderTarget[0].BlendEnable = FALSE;
-	result = device_->CreateBlendState(&blendStateDescription, &m_alphaDisableBlendingState);
+	result = device_->CreateBlendState(&blendStateDescription, &alpha_disable_blending_state_);
 	if (FAILED(result)){
 		return false;
 	}
@@ -341,20 +342,20 @@ bool DirectX11Device::Initialize(
 
 void DirectX11Device::Shutdown() {
 
-	if (m_depthDisabledStencilState) {
-		m_depthDisabledStencilState->Release();
-		m_depthDisabledStencilState = nullptr;
+	if (depth_disabled_stencil_state_) {
+		depth_disabled_stencil_state_->Release();
+		depth_disabled_stencil_state_ = nullptr;
 	}
 
 
-	if (m_alphaEnableBlendingState) {
-		m_alphaEnableBlendingState->Release();
-		m_alphaEnableBlendingState = nullptr;
+	if (alpha_enable_blending_state_) {
+		alpha_enable_blending_state_->Release();
+		alpha_enable_blending_state_ = nullptr;
 	}
 
-	if (m_alphaDisableBlendingState) {
-		m_alphaDisableBlendingState->Release();
-		m_alphaDisableBlendingState = nullptr;
+	if (alpha_disable_blending_state_) {
+		alpha_disable_blending_state_->Release();
+		alpha_disable_blending_state_ = nullptr;
 	}
 
 	if (swap_chain_) {
@@ -432,7 +433,7 @@ void DirectX11Device::TurnZBufferOn() {
 
 
 void DirectX11Device::TurnZBufferOff() {
-	device_context_->OMSetDepthStencilState(m_depthDisabledStencilState, 1);
+	device_context_->OMSetDepthStencilState(depth_disabled_stencil_state_, 1);
 }
 
 void DirectX11Device::TurnOnAlphaBlending() {
@@ -444,7 +445,7 @@ void DirectX11Device::TurnOnAlphaBlending() {
 	blendFactor[2] = 0.0f;
 	blendFactor[3] = 0.0f;
 
-	device_context_->OMSetBlendState(m_alphaEnableBlendingState, blendFactor, 0xffffffff);
+	device_context_->OMSetBlendState(alpha_enable_blending_state_, blendFactor, 0xffffffff);
 }
 
 void DirectX11Device::TurnOffAlphaBlending() {
@@ -456,7 +457,7 @@ void DirectX11Device::TurnOffAlphaBlending() {
 	blendFactor[2] = 0.0f;
 	blendFactor[3] = 0.0f;
 
-	device_context_->OMSetBlendState(m_alphaDisableBlendingState, blendFactor, 0xffffffff);
+	device_context_->OMSetBlendState(alpha_disable_blending_state_, blendFactor, 0xffffffff);
 }
 
 ID3D11Device* DirectX11Device::GetDevice(){

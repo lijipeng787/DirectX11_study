@@ -1,4 +1,5 @@
 #include <DDSTextureLoader.h>
+
 #include "../CommonFramework/DirectX11Device.h"
 #include "SimpleTexture.h"
 

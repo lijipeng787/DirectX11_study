@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-#include <d3dcompiler.h>
 #include "ShaderLoader.h"
 
 void WCHARToString(WCHAR * wchar, std::string & s) {
@@ -19,21 +18,13 @@ ShaderLoader::ShaderLoader() {}
 
 ShaderLoader::~ShaderLoader() {}
 
-bool ShaderLoader::CreateVSAndPSFromFile(WCHAR * vs_filename, WCHAR * ps_filename) {
-
-	if (CreateVSFromFile(vs_filename) && CreatePSFromFile(ps_filename)) {
-		return true;
-	}
-	return false;
-}
-
 bool ShaderLoader::CreateVSFromFile(WCHAR * vs_filename) {
 
 #if defined(_DEBUG)
 	UINT compile_flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
 	UINT compile_flags = 0;
-#endif
+
 
 	string vs_string = {};
 	WCHARToString(vs_filename, vs_string);

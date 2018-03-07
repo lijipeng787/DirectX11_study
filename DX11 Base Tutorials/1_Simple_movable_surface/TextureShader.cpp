@@ -1,4 +1,5 @@
 #include <fstream>
+
 #include "../CommonFramework/DirectX11Device.h"
 #include "TextureShader.h"
 
@@ -10,7 +11,12 @@ struct MatrixBufferType {
 
 bool TextureShader::Initialize(HWND hwnd) {
 
-	auto result = InitializeShader(hwnd, L"../../tut11/texture.vs", L"../../tut11/texture.ps");
+	auto result = InitializeShader(
+		hwnd,
+		L"../../1_Simple_movable_surface/simple_texture_shader.hlsl",
+		L"../../1_Simple_movable_surface/simple_texture_shader.hlsl"
+	);
+
 	if (!result) {
 		return false;
 	}

@@ -1,4 +1,5 @@
 #include "stdafx.h"
+
 #include "Camera.h"
 
 using namespace DirectX;
@@ -10,19 +11,7 @@ Camera::~Camera(){}
 void Camera::GetWorldPosition(DirectX::XMMATRIX & wordMatrix) {
 }
 
-void Camera::SetMoveStep(int step) {
-}
-
-void Camera::MoveTowardLeft2D(int units) {
-}
-
-void Camera::MoveTowardRight2D(int units) {
-}
-
-void Camera::MoveTowardTop2D(int units) {
-}
-
-void Camera::MoveTowardBottom2D(int units) {
+void Camera::SetMoveRate(int rate) {
 }
 
 void Camera::SetPosition(float x, float y, float z) {
@@ -158,6 +147,6 @@ void Camera::RenderBaseViewMatrix() {
 	m_baseViewMatrix = XMMatrixLookAtLH(position, lookAt, up);
 }
 
-void Camera::GetBaseViewMatrix(XMMATRIX& viewMatrix) {
-	viewMatrix = m_baseViewMatrix;
+void Camera::GetBaseViewMatrix(XMMATRIX& outViewMatrix) {
+	outViewMatrix = m_baseViewMatrix;
 }

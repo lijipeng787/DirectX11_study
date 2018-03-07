@@ -165,8 +165,7 @@
     <ClCompile Include="TextureShader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="texture.ps" />
-    <None Include="texture.vs" />
+    <Text Include="simple_texture_shader.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

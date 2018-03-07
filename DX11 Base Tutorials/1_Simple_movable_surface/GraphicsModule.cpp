@@ -56,7 +56,7 @@ bool GraphicsModule::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		return false;
 	}
 
-	result = bitmap_->LoadTextureFromFile(L"../../tut11/data/seafloor.dds");
+	result = bitmap_->LoadTextureFromFile(L"../../1_Simple_movable_surface/data/seafloor.dds");
 	if (!result) {
 		MessageBox(hwnd, L"Could not initialize the bitmap texture.", L"Error", MB_OK);
 		return false;

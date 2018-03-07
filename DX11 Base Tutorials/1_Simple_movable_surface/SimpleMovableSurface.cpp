@@ -1,4 +1,5 @@
 #include <DirectXMath.h>
+
 #include "../CommonFramework/DirectX11Device.h"
 #include "SimpleMovableSurface.h"
 #include "SimpleTexture.h"

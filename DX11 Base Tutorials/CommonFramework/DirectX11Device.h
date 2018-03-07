@@ -1,5 +1,4 @@
-#ifndef _D3DCLASS_H_
-#define _D3DCLASS_H_
+#pragma once
 
 #include <dxgi.h>
 #include <d3dcommon.h>
@@ -16,7 +15,7 @@ public:
 
 	~DirectX11Device() {}
 public:
-	inline static DirectX11Device* GetD3d11DeviceInstance(){
+	inline static DirectX11Device* GetD3d11DeviceInstance() {
 
 		if (nullptr == device_instance_) {
 			device_instance_ = new DirectX11Device;
@@ -30,7 +29,7 @@ public:
 	inline unsigned int GetScreenHeight() { return screen_height_; }
 public:
 	bool Initialize(
-		unsigned int screenWidth, unsigned int screenHeight, 
+		unsigned int screenWidth, unsigned int screenHeight,
 		bool vsync, HWND hwnd, bool fullscreen,
 		float screenDepth, float screenNear
 	);
@@ -50,7 +49,7 @@ public:
 	void TurnOffAlphaBlending();
 
 	void TurnOnCulling();
-		 
+
 	void TurnOffCulling();
 
 	void SetBackBufferRenderTarget();
@@ -103,16 +102,14 @@ private:
 
 	DirectX::XMMATRIX orthonality_matrix_ = {};
 
-	ID3D11DepthStencilState* m_depthDisabledStencilState;
+	ID3D11DepthStencilState* depth_disabled_stencil_state_ = nullptr;
 
-	ID3D11BlendState* m_alphaEnableBlendingState;
+	ID3D11BlendState* alpha_enable_blending_state_ = nullptr;
 
-	ID3D11BlendState* m_alphaDisableBlendingState;
+	ID3D11BlendState* alpha_disable_blending_state_ = nullptr;
 
 	D3D11_VIEWPORT viewport_ = {};
 
 	unsigned int screen_width_ = 0;
 	unsigned int screen_height_ = 0;
 };
-
-#endif

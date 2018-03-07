@@ -1,5 +1,4 @@
-#ifndef _CPUCLASS_H_
-#define _CPUCLASS_H_
+#pragma once
 
 #include <pdh.h>
 
@@ -21,15 +20,13 @@ public:
 	
 	int GetCpuPercentage();
 private:
-	bool m_canReadCpu;
+	bool can_read_cpu_;
 	
-	HQUERY m_queryHandle;
+	HQUERY query_handle_;
 	
-	HCOUNTER m_counterHandle;
+	HCOUNTER counter_handle_;
 	
-	unsigned long m_lastSampleTime;
+	unsigned long last_sample_time_;
 	
-	long m_cpuUsage;
+	long cpu_usage_;
 };
-
-#endif

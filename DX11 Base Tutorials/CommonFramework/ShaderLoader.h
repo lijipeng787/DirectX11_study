@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef _SHADER_LOADER_H_
-#define _SHADER_LOADER_H_
-
 #include <wrl.h>
 #include <unordered_map>
 #include <vector>
@@ -30,8 +27,6 @@ public:
 
 	~ShaderLoader();
 public:
-	bool CreateVSAndPSFromFile(WCHAR *vs_shader_filename, WCHAR *ps_shader_filename);
-
 	bool CreateVSFromFile(WCHAR *vs_shader_filename);
 
 	bool CreatePSFromFile(WCHAR *ps_shader_filename);
@@ -74,5 +69,3 @@ private:
 
 	LPCSTR ps_target_version_ = "ps_5_0";
 };
-
-#endif // !_SHADER_LOADER_H_

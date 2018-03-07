@@ -1,5 +1,4 @@
-#ifndef _CAMERACLASS_H_
-#define _CAMERACLASS_H_
+#pragma once
 
 #include <DirectXMath.h>
 
@@ -15,15 +14,7 @@ public:
 public:
 	void GetWorldPosition(DirectX::XMMATRIX& wordMatrix);
 
-	void SetMoveStep(int step);
-
-	void MoveTowardLeft2D(int units);
-
-	void MoveTowardRight2D(int units);
-
-	void MoveTowardTop2D(int units);
-
-	void MoveTowardBottom2D(int units);
+	void SetMoveRate(int rate);
 
 	void SetPosition(float, float, float);
 	
@@ -39,11 +30,11 @@ public:
 
 	DirectX::XMMATRIX GetReflectionViewMatrix();
 
-	void GetViewMatrix(DirectX::XMMATRIX& );
+	void GetViewMatrix(DirectX::XMMATRIX& viewMatrix);
 
 	void RenderBaseViewMatrix();
 
-	void GetBaseViewMatrix(DirectX::XMMATRIX&);
+	void GetBaseViewMatrix(DirectX::XMMATRIX& outViewMatrix);
 private:
 	float position_x_ = 0.0f, position_y_ = 0.0f, position_z_ = 0.0f;
 	
@@ -55,5 +46,3 @@ private:
 
 	DirectX::XMMATRIX view_matrix_ = {};
 };
-
-#endif

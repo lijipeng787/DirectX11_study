@@ -51,11 +51,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="texture.vs">
+    <Text Include="simple_texture_shader.hlsl">
       <Filter>Shader Files</Filter>
-    </None>
-    <None Include="texture.ps">
-      <Filter>Shader Files</Filter>
-    </None>
+    </Text>
   </ItemGroup>
 </Project>
