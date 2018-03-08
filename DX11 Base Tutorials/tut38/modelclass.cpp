@@ -6,8 +6,8 @@
 
 ModelClass::ModelClass()
 {
-	m_vertexBuffer = 0;
-	m_indexBuffer = 0;
+	vertex_buffer_ = 0;
+	index_buffer_ = 0;
 }
 
 
@@ -42,7 +42,7 @@ void ModelClass::Shutdown()
 	// Shutdown the vertex and index buffers.
 	ShutdownBuffers();
 
-	return;
+	
 }
 
 
@@ -51,13 +51,13 @@ void ModelClass::Render(ID3D11DeviceContext* deviceContext)
 	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	RenderBuffers(deviceContext);
 
-	return;
+	
 }
 
 
 int ModelClass::GetIndexCount()
 {
-	return m_indexCount;
+	return index_count_;
 }
 
 
@@ -71,20 +71,20 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 
 
 	// Set the number of vertices in the vertex array.
-	m_vertexCount = 3;
+	vertex_count_ = 3;
 
 	// Set the number of indices in the index array.
-	m_indexCount = 3;
+	index_count_ = 3;
 
 	// Create the vertex array.
-	vertices = new VertexType[m_vertexCount];
+	vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
 		return false;
 	}
 
 	// Create the index array.
-	indices = new unsigned long[m_indexCount];
+	indices = new unsigned long[index_count_];
 	if(!indices)
 	{
 		return false;
@@ -107,7 +107,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 
 	// Set up the description of the static vertex buffer.
     vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
+    vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertex_count_;
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vertexBufferDesc.CPUAccessFlags = 0;
     vertexBufferDesc.MiscFlags = 0;
@@ -119,7 +119,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 	vertexData.SysMemSlicePitch = 0;
 
 	// Now create the vertex buffer.
-    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer);
+    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &vertex_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -127,7 +127,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 
 	// Set up the description of the static index buffer.
     indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    indexBufferDesc.ByteWidth = sizeof(unsigned long) * m_indexCount;
+    indexBufferDesc.ByteWidth = sizeof(unsigned long) * index_count_;
     indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
     indexBufferDesc.CPUAccessFlags = 0;
     indexBufferDesc.MiscFlags = 0;
@@ -139,7 +139,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 	indexData.SysMemSlicePitch = 0;
 
 	// Create the index buffer.
-	result = device->CreateBuffer(&indexBufferDesc, &indexData, &m_indexBuffer);
+	result = device->CreateBuffer(&indexBufferDesc, &indexData, &index_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -159,20 +159,20 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 void ModelClass::ShutdownBuffers()
 {
 	// Release the index buffer.
-	if(m_indexBuffer)
+	if(index_buffer_)
 	{
-		m_indexBuffer->Release();
-		m_indexBuffer = 0;
+		index_buffer_->Release();
+		index_buffer_ = 0;
 	}
 
 	// Release the vertex buffer.
-	if(m_vertexBuffer)
+	if(vertex_buffer_)
 	{
-		m_vertexBuffer->Release();
-		m_vertexBuffer = 0;
+		vertex_buffer_->Release();
+		vertex_buffer_ = 0;
 	}
 
-	return;
+	
 }
 
 
@@ -187,13 +187,13 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	offset = 0;
     
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
+	deviceContext->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
 
     // Set the index buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	deviceContext->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
 
     // Set the type of primitive that should be rendered from this vertex buffer.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 
-	return;
+	
 }

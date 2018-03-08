@@ -24,11 +24,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	XMMATRIX baseViewMatrix;
 
 	{
-		m_D3D = new DirectX11Device;
-		if (!m_D3D) {
+		directx_device_ = new DirectX11Device;
+		if (!directx_device_) {
 			return false;
 		}
-		result = m_D3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -36,25 +36,25 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Camera = (Camera*)_aligned_malloc(sizeof(Camera), 16);
-		new (m_Camera)Camera();
-		if (!m_Camera) {
+		camera_ = (Camera*)_aligned_malloc(sizeof(Camera), 16);
+		new (camera_)Camera();
+		if (!camera_) {
 			return false;
 		}
-		m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
-		m_Camera->Render();
-		m_Camera->GetViewMatrix(baseViewMatrix);
+		camera_->SetPosition(0.0f, 0.0f, -10.0f);
+		camera_->Render();
+		camera_->GetViewMatrix(baseViewMatrix);
 	}
 
 	m_screenWidth = screenWidth;
 	m_screenHeight = screenHeight;
 
 	{
-		m_Model = new ModelClass();
-		if (!m_Model) {
+		model_ = new ModelClass();
+		if (!model_) {
 			return false;
 		}
-		result = m_Model->Initialize(m_D3D->GetDevice(), "../../tut47/data/sphere.txt", L"../../tut47/data/blue.dds");
+		result = model_->Initialize(directx_device_->GetDevice(), "../../tut47/data/sphere.txt", L"../../tut47/data/blue.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
@@ -67,7 +67,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_TextureShader) {
 			return false;
 		}
-		result = m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_TextureShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -80,7 +80,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_LightShader) {
 			return false;
 		}
-		result = m_LightShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_LightShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
 			return false;
@@ -102,7 +102,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Text) {
 			return false;
 		}
-		result = m_Text->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
+		result = m_Text->Initialize(directx_device_->GetDevice(), directx_device_->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
 			return false;
@@ -114,7 +114,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Bitmap) {
 			return false;
 		}
-		result = m_Bitmap->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../../tut47/data/mouse.dds", 32, 32);
+		result = m_Bitmap->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight, L"../../tut47/data/mouse.dds", 32, 32);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
 			return false;
@@ -165,22 +165,22 @@ void GraphicsClass::Shutdown() {
 	}
 
 	// Release the model object.
-	if (m_Model) {
-		m_Model->Shutdown();
-		delete m_Model;
-		m_Model = 0;
+	if (model_) {
+		model_->Shutdown();
+		delete model_;
+		model_ = 0;
 	}
 
-	if (m_Camera) {
-		m_Camera->~Camera();
-		_aligned_free(m_Camera);
-		m_Camera = 0;
+	if (camera_) {
+		camera_->~Camera();
+		_aligned_free(camera_);
+		camera_ = 0;
 	}
 
-	if (m_D3D) {
-		m_D3D->Shutdown();
-		delete m_D3D;
-		m_D3D = 0;
+	if (directx_device_) {
+		directx_device_->Shutdown();
+		delete directx_device_;
+		directx_device_ = 0;
 	}
 }
 
@@ -208,12 +208,12 @@ void GraphicsClass::TestIntersection(int mouseX, int mouseY) {
 	pointY = (((2.0f * (float)mouseY) / (float)m_screenHeight) - 1.0f) * -1.0f;
 
 	// Adjust the points using the projection matrix to account for the aspect ratio of the viewport.
-	m_D3D->GetProjectionMatrix(projectionMatrix);
+	directx_device_->GetProjectionMatrix(projectionMatrix);
 	pointX = pointX / projectionMatrix.r[0].m128_f32[0];
 	pointY = pointY / projectionMatrix.r[1].m128_f32[1];
 
 	// Get the inverse of the view matrix.
-	m_Camera->GetViewMatrix(viewMatrix);
+	camera_->GetViewMatrix(viewMatrix);
 	inverseViewMatrix = XMMatrixInverse(NULL, viewMatrix);
 
 	// Calculate the direction of the picking ray in view space.
@@ -225,13 +225,13 @@ void GraphicsClass::TestIntersection(int mouseX, int mouseY) {
 		(pointX * inverseViewMatrix.r[0].m128_f32[2]) + (pointY * inverseViewMatrix.r[1].m128_f32[2]) + inverseViewMatrix.r[2].m128_f32[2];
 
 	// Get the origin of the picking ray which is the position of the camera.
-	XMFLOAT3 originCopy = m_Camera->GetPosition();
+	XMFLOAT3 originCopy = camera_->GetPosition();
 	origin.m128_f32[0] = originCopy.x;
 	origin.m128_f32[1] = originCopy.y;
 	origin.m128_f32[2] = originCopy.z;
 
 	// Get the world matrix and translate to the location of the sphere.
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 	translateMatrix = XMMatrixTranslation(-5.0f, 1.0f, 5.0f);
 	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
 
@@ -252,11 +252,11 @@ void GraphicsClass::TestIntersection(int mouseX, int mouseY) {
 
 	if (intersect == true) {
 		// If it does intersect then set the intersection to "yes" in the text string that is displayed to the screen.
-		result = m_Text->SetIntersection(true, m_D3D->GetDeviceContext());
+		result = m_Text->SetIntersection(true, directx_device_->GetDeviceContext());
 	}
 	else {
 		// If not then set the intersection to "No".
-		result = m_Text->SetIntersection(false, m_D3D->GetDeviceContext());
+		result = m_Text->SetIntersection(false, directx_device_->GetDeviceContext());
 	}
 }
 
@@ -286,53 +286,53 @@ bool GraphicsClass::Render() {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix, translateMatrix;
 	bool result;
 
-	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_Camera->Render();
+	camera_->Render();
 
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_D3D->GetProjectionMatrix(projectionMatrix);
-	m_D3D->GetOrthoMatrix(orthoMatrix);
+	camera_->GetViewMatrix(viewMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device_->GetProjectionMatrix(projectionMatrix);
+	directx_device_->GetOrthoMatrix(orthoMatrix);
 
 	translateMatrix = XMMatrixTranslation(-5.0f, 1.0f, 5.0f);
 	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
 
-	m_Model->Render(m_D3D->GetDeviceContext());
+	model_->Render(directx_device_->GetDeviceContext());
 	result = m_LightShader->Render(
-		m_D3D->GetDeviceContext(), 
-		m_Model->GetIndexCount(), 
+		directx_device_->GetDeviceContext(), 
+		model_->GetIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix, 
-		m_Model->GetTexture(), m_Light->GetDirection()
+		model_->GetTexture(), m_Light->GetDirection()
 	);
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
-	m_D3D->TurnZBufferOff();
+	directx_device_->TurnZBufferOff();
 
-	m_D3D->TurnOnAlphaBlending();
+	directx_device_->TurnOnAlphaBlending();
 
-	result = m_Bitmap->Render(m_D3D->GetDeviceContext(), mouse_x_, mouse_y_);  if (!result) { return false; }
+	result = m_Bitmap->Render(directx_device_->GetDeviceContext(), mouse_x_, mouse_y_);  if (!result) { return false; }
 	result = m_TextureShader->Render(
-		m_D3D->GetDeviceContext(), 
+		directx_device_->GetDeviceContext(), 
 		m_Bitmap->GetIndexCount(), 
 		worldMatrix, viewMatrix, orthoMatrix, 
 		m_Bitmap->GetTexture()
 	);
 
-	result = m_Text->Render(m_D3D->GetDeviceContext(), worldMatrix, orthoMatrix);
+	result = m_Text->Render(directx_device_->GetDeviceContext(), worldMatrix, orthoMatrix);
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->TurnOffAlphaBlending();
+	directx_device_->TurnOffAlphaBlending();
 
-	m_D3D->TurnZBufferOn();
+	directx_device_->TurnZBufferOn();
 
-	m_D3D->EndScene();
+	directx_device_->EndScene();
 
 	return true;
 }

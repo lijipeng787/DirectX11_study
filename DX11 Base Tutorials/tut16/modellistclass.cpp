@@ -68,7 +68,7 @@ void ModelListClass::Shutdown()
 		m_ModelInfoList = 0;
 	}
 
-	return;
+	
 }
 
 
@@ -86,5 +86,5 @@ void ModelListClass::GetData(int index, float& positionX, float& positionY, floa
 
 	color = m_ModelInfoList[index].color;
 
-	return;
+	
 }

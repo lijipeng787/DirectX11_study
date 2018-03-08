@@ -24,11 +24,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	bool result;
 
 	{
-		m_D3D = new DirectX11Device;
-		if (!m_D3D) {
+		directx_device_ = new DirectX11Device;
+		if (!directx_device_) {
 			return false;
 		}
-		result = m_D3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -36,14 +36,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Camera = (Camera*)_aligned_malloc(sizeof(Camera), 16);
-		new (m_Camera)Camera();
-		if (!m_Camera) {
+		camera_ = (Camera*)_aligned_malloc(sizeof(Camera), 16);
+		new (camera_)Camera();
+		if (!camera_) {
 			return false;
 		}
-			m_Camera->SetPosition(0.0f, -1.0f, -10.0f);
-			m_Camera->Render();
-			m_Camera->RenderBaseViewMatrix();
+			camera_->SetPosition(0.0f, -1.0f, -10.0f);
+			camera_->Render();
+			camera_->RenderBaseViewMatrix();
 	}
 
 	{
@@ -60,7 +60,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_GroundModel) {
 			return false;
 		}
-		result = m_GroundModel->Initialize(m_D3D->GetDevice(), "../../tut49/data/plane01.txt", L"../../tut49/data/dirt.dds", 2.0f);
+		result = m_GroundModel->Initialize(directx_device_->GetDevice(), "../../tut49/data/plane01.txt", L"../../tut49/data/dirt.dds", 2.0f);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
 			return false;
@@ -73,7 +73,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Tree) {
 			return false;
 		}
-		result = m_Tree->Initialize(m_D3D->GetDevice(), "../../tut49/data/trees/trunk001.txt", L"../../tut49/data/trees/trunk001.dds", "../../tut49/data/trees/leaf001.txt", L"../../tut49/data/trees/leaf001.dds", 0.1f);
+		result = m_Tree->Initialize(directx_device_->GetDevice(), "../../tut49/data/trees/trunk001.txt", L"../../tut49/data/trees/trunk001.dds", "../../tut49/data/trees/leaf001.txt", L"../../tut49/data/trees/leaf001.dds", 0.1f);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the tree object.", L"Error", MB_OK);
 			return false;
@@ -87,7 +87,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_RenderTexture) {
 			return false;
 		}
-		result = m_RenderTexture->Initialize(m_D3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
+		result = m_RenderTexture->Initialize(directx_device_->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
 			return false;
@@ -100,7 +100,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_DepthShader) {
 			return false;
 		}
-		result = m_DepthShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_DepthShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK);
 			return false;
@@ -113,7 +113,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_TransparentDepthShader) {
 			return false;
 		}
-		result = m_TransparentDepthShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_TransparentDepthShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the transparent depth shader object.", L"Error", MB_OK);
 			return false;
@@ -126,7 +126,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_ShadowShader) {
 			return false;
 		}
-		result = m_ShadowShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_ShadowShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the shadow shader object.", L"Error", MB_OK);
 			return false;
@@ -194,9 +194,9 @@ void GraphicsClass::Shutdown() {
 
 bool GraphicsClass::Frame() {
 
-	m_Camera->SetPosition(pos_x_, pos_y_, pos_z_);
-	m_Camera->SetRotation(rot_x_, rot_y_, rot_z_);
-	m_Camera->Render();
+	camera_->SetPosition(pos_x_, pos_y_, pos_z_);
+	camera_->SetRotation(rot_x_, rot_y_, rot_z_);
+	camera_->Render();
 
 	UpdateLighting();
 
@@ -240,15 +240,15 @@ bool GraphicsClass::Render() {
 		return false;
 	}
 
-	m_D3D->BeginScene(0.0f, 0.5f, 0.8f, 1.0f);
+	directx_device_->BeginScene(0.0f, 0.5f, 0.8f, 1.0f);
 
-	m_Camera->Render();
+	camera_->Render();
 
 	m_Light->GenerateViewMatrix();
 
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetProjectionMatrix(projectionMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
+	camera_->GetViewMatrix(viewMatrix);
+	directx_device_->GetProjectionMatrix(projectionMatrix);
 
 	m_Light->GetViewMatrix(lightViewMatrix);
 	m_Light->GetOrthoMatrix(lightOrthoMatrix);
@@ -259,10 +259,10 @@ bool GraphicsClass::Render() {
 	m_GroundModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
-	m_GroundModel->Render(m_D3D->GetDeviceContext());
+	m_GroundModel->Render(directx_device_->GetDeviceContext());
 
 	m_ShadowShader->Render(
-		m_D3D->GetDeviceContext(),
+		directx_device_->GetDeviceContext(),
 		m_GroundModel->GetIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
 		lightOrthoMatrix, m_GroundModel->GetTexture(),
@@ -270,25 +270,25 @@ bool GraphicsClass::Render() {
 		m_Light->GetDirection(),ambientColor, diffuseColor
 	);
 
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	m_Tree->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
-	m_Tree->RenderTrunk(m_D3D->GetDeviceContext());
+	m_Tree->RenderTrunk(directx_device_->GetDeviceContext());
 
-	m_ShadowShader->Render(m_D3D->GetDeviceContext(), 
+	m_ShadowShader->Render(directx_device_->GetDeviceContext(), 
 		m_Tree->GetTrunkIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
 		lightOrthoMatrix, m_Tree->GetTrunkTexture(),
 		m_RenderTexture->GetShaderResourceView(), m_Light->GetDirection(),ambientColor, diffuseColor
 	);
 
-	m_D3D->TurnOnAlphaBlending();
+	directx_device_->TurnOnAlphaBlending();
 
-	m_Tree->RenderLeaves(m_D3D->GetDeviceContext());
+	m_Tree->RenderLeaves(directx_device_->GetDeviceContext());
 
-	m_ShadowShader->Render(m_D3D->GetDeviceContext(),
+	m_ShadowShader->Render(directx_device_->GetDeviceContext(),
 		m_Tree->GetLeafIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
 		lightOrthoMatrix, m_Tree->GetLeafTexture(), 
@@ -296,9 +296,9 @@ bool GraphicsClass::Render() {
 		m_Light->GetDirection(),ambientColor, diffuseColor
 	);
 
-	m_D3D->TurnOffAlphaBlending();
+	directx_device_->TurnOffAlphaBlending();
 
-	m_D3D->EndScene();
+	directx_device_->EndScene();
 
 	return true;
 }
@@ -309,11 +309,11 @@ bool GraphicsClass::RenderSceneToTexture() {
 	float posX, posY, posZ;
 	bool result;
 
-	m_RenderTexture->SetRenderTarget(m_D3D->GetDeviceContext());
+	m_RenderTexture->SetRenderTarget(directx_device_->GetDeviceContext());
 
-	m_RenderTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_RenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	m_Light->GenerateViewMatrix();
 
@@ -323,17 +323,17 @@ bool GraphicsClass::RenderSceneToTexture() {
 	m_Tree->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
-	m_Tree->RenderTrunk(m_D3D->GetDeviceContext());
+	m_Tree->RenderTrunk(directx_device_->GetDeviceContext());
 	
 	m_DepthShader->Render(
-		m_D3D->GetDeviceContext(), 
+		directx_device_->GetDeviceContext(), 
 		m_Tree->GetTrunkIndexCount(), 
 		worldMatrix, lightViewMatrix, lightOrthoMatrix
 	);
 
-	m_Tree->RenderLeaves(m_D3D->GetDeviceContext());
+	m_Tree->RenderLeaves(directx_device_->GetDeviceContext());
 	result = m_TransparentDepthShader->Render(
-		m_D3D->GetDeviceContext(), 
+		directx_device_->GetDeviceContext(), 
 		m_Tree->GetLeafIndexCount(), 
 		worldMatrix, lightViewMatrix, lightOrthoMatrix, 
 		m_Tree->GetLeafTexture()
@@ -342,17 +342,17 @@ bool GraphicsClass::RenderSceneToTexture() {
 		return false;
 	}
 
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	m_GroundModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
-	m_GroundModel->Render(m_D3D->GetDeviceContext());
-	m_DepthShader->Render(m_D3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightOrthoMatrix);
+	m_GroundModel->Render(directx_device_->GetDeviceContext());
+	m_DepthShader->Render(directx_device_->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightOrthoMatrix);
 
-	m_D3D->SetBackBufferRenderTarget();
+	directx_device_->SetBackBufferRenderTarget();
 
-	m_D3D->ResetViewport();
+	directx_device_->ResetViewport();
 
 	return true;
 }

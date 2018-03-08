@@ -30,9 +30,9 @@ public:
 private:
 	float rotation_ = 0.0f;
 
-	DirectX11Device *m_D3D = nullptr;
+	DirectX11Device *directx_device_ = nullptr;
 
-	Camera *m_Camera = nullptr;
+	Camera *camera_ = nullptr;
 
 	ShaderManagerClass* m_ShaderManager;
 	

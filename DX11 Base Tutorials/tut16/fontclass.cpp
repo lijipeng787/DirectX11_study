@@ -52,7 +52,7 @@ void FontClass::Shutdown()
 	// Release the font data.
 	ReleaseFontData();
 
-	return;
+	
 }
 
 
@@ -112,7 +112,7 @@ void FontClass::ReleaseFontData()
 		m_Font = 0;
 	}
 
-	return;
+	
 }
 
 
@@ -149,7 +149,7 @@ void FontClass::ReleaseTexture()
 		m_Texture = 0;
 	}
 
-	return;
+	
 }
 
 
@@ -217,5 +217,5 @@ void FontClass::BuildVertexArray(void* vertices, char* sentence, float drawX, fl
 		}
 	}
 
-	return;
+	
 }

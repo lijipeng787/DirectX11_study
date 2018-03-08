@@ -22,14 +22,14 @@ LightClass::~LightClass()
 void LightClass::SetAmbientColor(float red, float green, float blue, float alpha)
 {
 	m_ambientColor = XMFLOAT4(red, green, blue, alpha);
-	return;
+	
 }
 
 
 void LightClass::SetDiffuseColor(float red, float green, float blue, float alpha)
 {
 	m_diffuseColor = XMFLOAT4(red, green, blue, alpha);
-	return;
+	
 }
 
 
@@ -39,7 +39,7 @@ void LightClass::SetPosition(float x, float y, float z)
 	m_position.y = y;
 	m_position.z = z;
 
-	return;
+	
 }
 
 
@@ -48,7 +48,7 @@ void LightClass::SetLookAt( float x, float y, float z )
 	m_lookAt.x = x;
 	m_lookAt.y = y;
 	m_lookAt.z = z;
-	return;
+	
 }
 
 
@@ -95,7 +95,7 @@ void LightClass::GenerateViewMatrix()
 	// Create the view matrix from the three vectors.
 	m_viewMatrix = XMMatrixLookAtLH( position, lookAt, up );
 
-	return;
+	
 }
 
 
@@ -111,19 +111,19 @@ void LightClass::GenerateProjectionMatrix(float screenDepth, float screenNear)
 	// Create the projection matrix for the light.
 	m_projectionMatrix = XMMatrixPerspectiveFovLH( fieldOfView, screenAspect, screenNear, screenDepth );
 
-	return;
+	
 }
 
 
 void LightClass::GetViewMatrix( XMMATRIX& viewMatrix)
 {
 	viewMatrix = m_viewMatrix;
-	return;
+	
 }
 
 
 void LightClass::GetProjectionMatrix( XMMATRIX& projectionMatrix )
 {
 	projectionMatrix = m_projectionMatrix;
-	return;
+	
 }

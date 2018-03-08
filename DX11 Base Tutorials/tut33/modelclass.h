@@ -67,10 +67,10 @@ private:
 	void ReleaseModel();
 
 private:
-	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
-	int m_vertexCount, m_indexCount;
+	ID3D11Buffer *vertex_buffer_, *index_buffer_;
+	int vertex_count_, index_count_;
 	TextureClass *m_Texture1, *m_Texture2, *m_Texture3;
-	ModelType* m_model;
+	ModelType* model_;
 };
 
 #endif

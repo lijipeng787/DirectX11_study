@@ -9,9 +9,9 @@ class DirectX11Device {
 public:
 	DirectX11Device() {}
 
-	DirectX11Device(const DirectX11Device& rhs) = delete;
+	DirectX11Device(const DirectX11Device& rhs) = default;
 
-	DirectX11Device& operator=(const DirectX11Device& rhs) = delete;
+	DirectX11Device& operator=(const DirectX11Device& rhs) = default;
 
 	~DirectX11Device() {}
 public:
@@ -110,6 +110,5 @@ private:
 
 	D3D11_VIEWPORT viewport_ = {};
 
-	unsigned int screen_width_ = 0;
-	unsigned int screen_height_ = 0;
+	unsigned int screen_width_ = 0,screen_height_ = 0;
 };

@@ -24,7 +24,7 @@ bool ShaderLoader::CreateVSFromFile(WCHAR * vs_filename) {
 	UINT compile_flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
 	UINT compile_flags = 0;
-
+#endif
 
 	string vs_string = {};
 	WCHARToString(vs_filename, vs_string);
@@ -131,4 +131,3 @@ BlobPtr ShaderLoader::GetVertexShaderBlobByEntryName(WCHAR* entry_name) const {
 BlobPtr ShaderLoader::GetPixelShaderBlobByEntryName(WCHAR* entry_name) const {
 	return BlobPtr();
 }
-

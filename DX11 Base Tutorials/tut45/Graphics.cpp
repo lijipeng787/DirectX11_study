@@ -21,11 +21,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	bool result;
 
 	{
-		m_D3D = new DirectX11Device;
-		if (!m_D3D) {
+		directx_device_ = new DirectX11Device;
+		if (!directx_device_) {
 			return false;
 		}
-		result = m_D3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -33,13 +33,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Camera = (Camera*)_aligned_malloc(sizeof(Camera), 16);
-		new (m_Camera)Camera();
-		if (!m_Camera) {
+		camera_ = (Camera*)_aligned_malloc(sizeof(Camera), 16);
+		new (camera_)Camera();
+		if (!camera_) {
 			return false;
 		}
-		m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
-		m_Camera->Render();
+		camera_->SetPosition(0.0f, 0.0f, -10.0f);
+		camera_->Render();
 	}
 
 	{
@@ -47,7 +47,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_ShaderManager) {
 			return false;
 		}
-		result = m_ShaderManager->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_ShaderManager->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the shader manager object.", L"Error", MB_OK);
 			return false;
@@ -72,7 +72,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Model1) {
 			return false;
 		}
-		result = m_Model1->Initialize(m_D3D->GetDevice(), "../../tut45/data/cube.txt", L"../../tut45/data/marble.dds");
+		result = m_Model1->Initialize(directx_device_->GetDevice(), "../../tut45/data/cube.txt", L"../../tut45/data/marble.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the first model object.", L"Error", MB_OK);
 			return false;
@@ -84,7 +84,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Model2) {
 			return false;
 		}
-		result = m_Model2->Initialize(m_D3D->GetDevice(), "../../tut45/data/cube.txt", L"../../tut45/data/metal.dds");
+		result = m_Model2->Initialize(directx_device_->GetDevice(), "../../tut45/data/cube.txt", L"../../tut45/data/metal.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the second model object.", L"Error", MB_OK);
 			return false;
@@ -96,7 +96,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Model3) {
 			return false;
 		}
-		result = m_Model3->Initialize(m_D3D->GetDevice(), "../../tut45/data/cube.txt", L"../../tut45/data/stone.dds",
+		result = m_Model3->Initialize(directx_device_->GetDevice(), "../../tut45/data/cube.txt", L"../../tut45/data/stone.dds",
 			L"../../tut45/data/normal.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the third model object.", L"Error", MB_OK);
@@ -142,16 +142,16 @@ void GraphicsClass::Shutdown() {
 		m_ShaderManager = 0;
 	}
 
-	if (m_Camera) {
-		m_Camera->~Camera();
-		_aligned_free(m_Camera);
-		m_Camera = 0;
+	if (camera_) {
+		camera_->~Camera();
+		_aligned_free(camera_);
+		camera_ = 0;
 	}
 
-	if (m_D3D) {
-		m_D3D->Shutdown();
-		delete m_D3D;
-		m_D3D = 0;
+	if (directx_device_) {
+		directx_device_->Shutdown();
+		delete directx_device_;
+		directx_device_ = 0;
 	}
 }
 
@@ -179,52 +179,52 @@ bool GraphicsClass::Render() {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, translateMatrix;
 	bool result;
 
-	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_Camera->Render();
+	camera_->Render();
 
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetProjectionMatrix(projectionMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
+	camera_->GetViewMatrix(viewMatrix);
+	directx_device_->GetProjectionMatrix(projectionMatrix);
 
 	worldMatrix = XMMatrixRotationY(rotation_);
 	translateMatrix = XMMatrixTranslation(-3.5f, 0.0f, 0.0f);
 	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
 
-	m_Model1->Render(m_D3D->GetDeviceContext());
-	result = m_ShaderManager->RenderTextureShader(m_D3D->GetDeviceContext(), m_Model1->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+	m_Model1->Render(directx_device_->GetDeviceContext());
+	result = m_ShaderManager->RenderTextureShader(directx_device_->GetDeviceContext(), m_Model1->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		m_Model1->GetTexture());
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 	worldMatrix = XMMatrixRotationY(rotation_);
 	translateMatrix = XMMatrixTranslation(0.0f, 0.0f, 0.0f);
 	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
 
-	m_Model2->Render(m_D3D->GetDeviceContext());
-	result = m_ShaderManager->RenderLightShader(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+	m_Model2->Render(directx_device_->GetDeviceContext());
+	result = m_ShaderManager->RenderLightShader(directx_device_->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		m_Model2->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
-		m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+		camera_->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 	worldMatrix = XMMatrixRotationY(rotation_);
 	translateMatrix = XMMatrixTranslation(3.5f, 0.0f, 0.0f);
 	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
 
-	m_Model3->Render(m_D3D->GetDeviceContext());
-	result = m_ShaderManager->RenderBumpMapShader(m_D3D->GetDeviceContext(), m_Model3->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+	m_Model3->Render(directx_device_->GetDeviceContext());
+	result = m_ShaderManager->RenderBumpMapShader(directx_device_->GetDeviceContext(), m_Model3->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		m_Model3->GetColorTexture(), m_Model3->GetNormalMapTexture(), m_Light->GetDirection(),
 		m_Light->GetDiffuseColor());
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->EndScene();
+	directx_device_->EndScene();
 
 	return true;
 }

@@ -20,11 +20,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	bool result;
 
 	{
-		m_D3D = new DirectX11Device;
-		if (!m_D3D) {
+		directx_device_ = new DirectX11Device;
+		if (!directx_device_) {
 			return false;
 		}
-		result = m_D3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -33,14 +33,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 	XMMATRIX baseViewMatrix = {};
 	{
-		m_Camera = (Camera*)_aligned_malloc(sizeof(Camera), 16);
-		new (m_Camera)Camera();
-		if (!m_Camera) {
+		camera_ = (Camera*)_aligned_malloc(sizeof(Camera), 16);
+		new (camera_)Camera();
+		if (!camera_) {
 			return false;
 		}
-		m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
-		m_Camera->Render();
-		m_Camera->GetViewMatrix(baseViewMatrix);
+		camera_->SetPosition(0.0f, 0.0f, -10.0f);
+		camera_->Render();
+		camera_->GetViewMatrix(baseViewMatrix);
 	}
 
 	{
@@ -50,7 +50,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 		
-		result = m_Text->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
+		result = m_Text->Initialize(directx_device_->GetDevice(), directx_device_->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
 			return false;
@@ -62,17 +62,17 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 void GraphicsClass::Shutdown() {
 
-	if (m_Camera) {
-		m_Camera->~Camera();
-		_aligned_free(m_Camera);
-		m_Camera = nullptr;
+	if (camera_) {
+		camera_->~Camera();
+		_aligned_free(camera_);
+		camera_ = nullptr;
 	}
 
-	if (m_D3D) {
-		m_D3D->Shutdown();
-		m_D3D->~DirectX11Device();
-		delete m_D3D;
-		m_D3D = nullptr;
+	if (directx_device_) {
+		directx_device_->Shutdown();
+		directx_device_->~DirectX11Device();
+		delete directx_device_;
+		directx_device_ = nullptr;
 	}
 }
 
@@ -91,28 +91,28 @@ bool GraphicsClass::Render() {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix, projectionMatrix;
 	bool result;
 
-	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_Camera->Render();
+	camera_->Render();
 
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_D3D->GetOrthoMatrix(orthoMatrix);
+	camera_->GetViewMatrix(viewMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device_->GetOrthoMatrix(orthoMatrix);
 
-	m_D3D->TurnZBufferOff();
+	directx_device_->TurnZBufferOff();
 
-	m_D3D->TurnOnAlphaBlending();
+	directx_device_->TurnOnAlphaBlending();
 
-	result = m_Text->Render(m_D3D->GetDeviceContext(), worldMatrix, orthoMatrix);
+	result = m_Text->Render(directx_device_->GetDeviceContext(), worldMatrix, orthoMatrix);
 	if (!result){
 		return false;
 	}
 
-	m_D3D->TurnOffAlphaBlending();
+	directx_device_->TurnOffAlphaBlending();
 
-	m_D3D->TurnZBufferOn();
+	directx_device_->TurnZBufferOn();
 
-	m_D3D->EndScene();
+	directx_device_->EndScene();
 
 	return true;
 }

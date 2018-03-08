@@ -45,7 +45,7 @@ void TextureClass::Shutdown()
 		m_texture = 0;
 	}
 
-	return;
+	
 }
 
 

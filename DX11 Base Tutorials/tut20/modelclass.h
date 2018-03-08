@@ -85,10 +85,10 @@ private:
 	void CalculateNormal(VectorType, VectorType, VectorType&);
 
 private:
-	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
-	int m_vertexCount, m_indexCount;
-	ModelType* m_model;
-	TextureArrayClass* m_TextureArray;
+	ID3D11Buffer *vertex_buffer_, *index_buffer_;
+	int vertex_count_, index_count_;
+	ModelType* model_;
+	TextureArrayClass* texture_array_;
 };
 
 #endif

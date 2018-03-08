@@ -25,11 +25,11 @@ public:
 
 	virtual bool Render()override;
 private:
-	DirectX11Device *m_D3D;
+	DirectX11Device *directx_device_;
 
-	Camera *m_Camera;
+	Camera *camera_;
 
-	ModelClass *m_Model;
+	ModelClass *model_;
 
 	ColorShaderClass *m_ColorShader;
 };

@@ -6,7 +6,7 @@
 
 ModelClass::ModelClass()
 {
-	m_vertexBuffer = 0;
+	vertex_buffer_ = 0;
 	m_instanceBuffer = 0;
 	m_Texture = 0;
 }
@@ -53,7 +53,7 @@ void ModelClass::Shutdown()
 	// Shutdown the vertex and instance buffers.
 	ShutdownBuffers();
 
-	return;
+	
 }
 
 
@@ -62,13 +62,13 @@ void ModelClass::Render(ID3D11DeviceContext* deviceContext)
 	// Put the vertex and instance buffers on the graphics pipeline to prepare them for drawing.
 	RenderBuffers(deviceContext);
 
-	return;
+	
 }
 
 
 int ModelClass::GetVertexCount()
 {
-	return m_vertexCount;
+	return vertex_count_;
 }
 
 
@@ -94,10 +94,10 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 
 
 	// Set the number of vertices in the vertex array.
-	m_vertexCount = 3;
+	vertex_count_ = 3;
 
 	// Create the vertex array.
-	vertices = new VertexType[m_vertexCount];
+	vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
 		return false;
@@ -115,7 +115,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 
 	// Set up the description of the static vertex buffer.
     vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
+    vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertex_count_;
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vertexBufferDesc.CPUAccessFlags = 0;
     vertexBufferDesc.MiscFlags = 0;
@@ -127,7 +127,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 	vertexData.SysMemSlicePitch = 0;
 
 	// Now create the vertex buffer.
-    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer);
+    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &vertex_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -191,13 +191,13 @@ void ModelClass::ShutdownBuffers()
 	}
 
 	// Release the vertex buffer.
-	if(m_vertexBuffer)
+	if(vertex_buffer_)
 	{
-		m_vertexBuffer->Release();
-		m_vertexBuffer = 0;
+		vertex_buffer_->Release();
+		vertex_buffer_ = 0;
 	}
 
-	return;
+	
 }
 
 
@@ -217,7 +217,7 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	offsets[1] = 0;
     
 	// Set the array of pointers to the vertex and instance buffers.
-	bufferPointers[0] = m_vertexBuffer;	
+	bufferPointers[0] = vertex_buffer_;	
 	bufferPointers[1] = m_instanceBuffer;
 
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
@@ -226,7 +226,7 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
     // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	return;
+	
 }
 
 
@@ -263,5 +263,5 @@ void ModelClass::ReleaseTexture()
 		m_Texture = 0;
 	}
 
-	return;
+	
 }

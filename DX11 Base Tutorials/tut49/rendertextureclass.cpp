@@ -169,7 +169,7 @@ void RenderTextureClass::Shutdown()
 		m_renderTargetTexture = 0;
 	}
 
-	return;
+	
 }
 
 
@@ -181,7 +181,7 @@ void RenderTextureClass::SetRenderTarget(ID3D11DeviceContext* deviceContext)
 	// Set the viewport.
 	deviceContext->RSSetViewports(1, &m_viewport);
 	
-	return;
+	
 }
 
 
@@ -202,7 +202,7 @@ void RenderTextureClass::ClearRenderTarget(ID3D11DeviceContext* deviceContext, f
 	// Clear the depth buffer.
 	deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	return;
+	
 }
 
 
@@ -215,12 +215,12 @@ ID3D11ShaderResourceView* RenderTextureClass::GetShaderResourceView()
 void RenderTextureClass::GetProjectionMatrix(XMMATRIX& projectionMatrix)
 {
 	projectionMatrix = m_projectionMatrix;
-	return;
+	
 }
 
 
 void RenderTextureClass::GetOrthoMatrix(XMMATRIX& orthoMatrix)
 {
 	orthoMatrix = m_orthoMatrix;
-	return;
+	
 }

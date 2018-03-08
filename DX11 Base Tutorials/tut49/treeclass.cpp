@@ -12,7 +12,7 @@ TreeClass::TreeClass()
 	m_leafIndexBuffer = 0;
 	m_TrunkTexture = 0;
 	m_TrunkTexture = 0;
-	m_model = 0;
+	model_ = 0;
 }
 
 
@@ -39,7 +39,7 @@ bool TreeClass::Initialize(ID3D11Device* device, char* trunkModelFilename, WCHAR
 	}
 
 	// Store the trunk index count;
-	m_trunkIndexCount = m_indexCount;
+	m_trunkIndexCount = index_count_;
 
 	// Initialize the vertex and index buffer that hold the geometry for the tree trunk.
 	result = InitializeTrunkBuffers(device, scale);
@@ -59,7 +59,7 @@ bool TreeClass::Initialize(ID3D11Device* device, char* trunkModelFilename, WCHAR
 	}
 
 	// Store the leaf index count;
-	m_leafIndexCount = m_indexCount;
+	m_leafIndexCount = index_count_;
 
 	// Initialize the vertex and index buffer that hold the geometry for the tree leaves.
 	result = InitializeLeafBuffers(device, scale);
@@ -93,7 +93,7 @@ void TreeClass::Shutdown()
 	// Release the model data if it hasn't been released yet.
 	ReleaseModel();
 
-	return;
+	
 }
 
 
@@ -102,7 +102,7 @@ void TreeClass::RenderTrunk(ID3D11DeviceContext* deviceContext)
 	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	RenderTrunkBuffers(deviceContext);
 
-	return;
+	
 }
 
 
@@ -111,7 +111,7 @@ void TreeClass::RenderLeaves(ID3D11DeviceContext* deviceContext)
 	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	RenderLeafBuffers(deviceContext);
 
-	return;
+	
 }
 
 
@@ -150,32 +150,32 @@ bool TreeClass::InitializeTrunkBuffers(ID3D11Device* device, float scale)
 
 
 	// Create the vertex array.
-	vertices = new VertexType[m_vertexCount];
+	vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
 		return false;
 	}
 
 	// Create the index array.
-	indices = new unsigned long[m_indexCount];
+	indices = new unsigned long[index_count_];
 	if(!indices)
 	{
 		return false;
 	}
 
 	// Load the vertex array and index array with data.
-	for(i=0; i<m_vertexCount; i++)
+	for(i=0; i<vertex_count_; i++)
 	{
-		vertices[i].position = XMFLOAT3(m_model[i].x * scale, m_model[i].y * scale, m_model[i].z * scale);
-		vertices[i].texture = XMFLOAT2(m_model[i].tu, m_model[i].tv);
-		vertices[i].normal = XMFLOAT3(m_model[i].nx, m_model[i].ny, m_model[i].nz);
+		vertices[i].position = XMFLOAT3(model_[i].x * scale, model_[i].y * scale, model_[i].z * scale);
+		vertices[i].texture = XMFLOAT2(model_[i].tu, model_[i].tv);
+		vertices[i].normal = XMFLOAT3(model_[i].nx, model_[i].ny, model_[i].nz);
 
 		indices[i] = i;
 	}
 
 	// Set up the description of the static vertex buffer.
     vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
+    vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertex_count_;
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vertexBufferDesc.CPUAccessFlags = 0;
     vertexBufferDesc.MiscFlags = 0;
@@ -195,7 +195,7 @@ bool TreeClass::InitializeTrunkBuffers(ID3D11Device* device, float scale)
 
 	// Set up the description of the static index buffer.
     indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    indexBufferDesc.ByteWidth = sizeof(unsigned long) * m_indexCount;
+    indexBufferDesc.ByteWidth = sizeof(unsigned long) * index_count_;
     indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
     indexBufferDesc.CPUAccessFlags = 0;
     indexBufferDesc.MiscFlags = 0;
@@ -235,32 +235,32 @@ bool TreeClass::InitializeLeafBuffers(ID3D11Device* device, float scale)
 
 
 	// Create the vertex array.
-	vertices = new VertexType[m_vertexCount];
+	vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
 		return false;
 	}
 
 	// Create the index array.
-	indices = new unsigned long[m_indexCount];
+	indices = new unsigned long[index_count_];
 	if(!indices)
 	{
 		return false;
 	}
 
 	// Load the vertex array and index array with data.
-	for(i=0; i<m_vertexCount; i++)
+	for(i=0; i<vertex_count_; i++)
 	{
-		vertices[i].position = XMFLOAT3(m_model[i].x * scale, m_model[i].y * scale, m_model[i].z * scale);
-		vertices[i].texture = XMFLOAT2(m_model[i].tu, m_model[i].tv);
-		vertices[i].normal = XMFLOAT3(m_model[i].nx, m_model[i].ny, m_model[i].nz);
+		vertices[i].position = XMFLOAT3(model_[i].x * scale, model_[i].y * scale, model_[i].z * scale);
+		vertices[i].texture = XMFLOAT2(model_[i].tu, model_[i].tv);
+		vertices[i].normal = XMFLOAT3(model_[i].nx, model_[i].ny, model_[i].nz);
 
 		indices[i] = i;
 	}
 
 	// Set up the description of the static vertex buffer.
     vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
+    vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertex_count_;
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vertexBufferDesc.CPUAccessFlags = 0;
     vertexBufferDesc.MiscFlags = 0;
@@ -280,7 +280,7 @@ bool TreeClass::InitializeLeafBuffers(ID3D11Device* device, float scale)
 
 	// Set up the description of the static index buffer.
     indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    indexBufferDesc.ByteWidth = sizeof(unsigned long) * m_indexCount;
+    indexBufferDesc.ByteWidth = sizeof(unsigned long) * index_count_;
     indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
     indexBufferDesc.CPUAccessFlags = 0;
     indexBufferDesc.MiscFlags = 0;
@@ -336,7 +336,7 @@ void TreeClass::ShutdownBuffers()
 		m_trunkVertexBuffer = 0;
 	}
 
-	return;
+	
 }
 
 
@@ -359,7 +359,7 @@ void TreeClass::RenderTrunkBuffers(ID3D11DeviceContext* deviceContext)
     // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	return;
+	
 }
 
 
@@ -382,7 +382,7 @@ void TreeClass::RenderLeafBuffers(ID3D11DeviceContext* deviceContext)
     // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	return;
+	
 }
 
 
@@ -440,7 +440,7 @@ void TreeClass::ReleaseTextures()
 		m_TrunkTexture = 0;
 	}
 
-	return;
+	
 }
 
 
@@ -468,14 +468,14 @@ bool TreeClass::LoadModel(char* filename)
 	}
 
 	// Read in the vertex count.
-	fin >> m_vertexCount;
+	fin >> vertex_count_;
 
 	// Set the number of indices to be the same as the vertex count.
-	m_indexCount = m_vertexCount;
+	index_count_ = vertex_count_;
 
 	// Create the model using the vertex count that was read in.
-	m_model = new ModelType[m_vertexCount];
-	if(!m_model)
+	model_ = new ModelType[vertex_count_];
+	if(!model_)
 	{
 		return false;
 	}
@@ -490,11 +490,11 @@ bool TreeClass::LoadModel(char* filename)
 	fin.get(input);
 
 	// Read in the vertex data.
-	for(i=0; i<m_vertexCount; i++)
+	for(i=0; i<vertex_count_; i++)
 	{
-		fin >> m_model[i].x >> m_model[i].y >> m_model[i].z;
-		fin >> m_model[i].tu >> m_model[i].tv;
-		fin >> m_model[i].nx >> m_model[i].ny >> m_model[i].nz;
+		fin >> model_[i].x >> model_[i].y >> model_[i].z;
+		fin >> model_[i].tu >> model_[i].tv;
+		fin >> model_[i].nx >> model_[i].ny >> model_[i].nz;
 	}
 
 	// Close the model file.
@@ -506,13 +506,13 @@ bool TreeClass::LoadModel(char* filename)
 
 void TreeClass::ReleaseModel()
 {
-	if(m_model)
+	if(model_)
 	{
-		delete [] m_model;
-		m_model = 0;
+		delete [] model_;
+		model_ = 0;
 	}
 
-	return;
+	
 }
 
 
@@ -521,7 +521,7 @@ void TreeClass::SetPosition(float x, float y, float z)
 	m_positionX = x;
 	m_positionY = y;
 	m_positionZ = z;
-	return;
+	
 }
 
 
@@ -530,5 +530,5 @@ void TreeClass::GetPosition(float& x, float& y, float& z)
 	x = m_positionX;
 	y = m_positionY;
 	z = m_positionZ;
-	return;
+	
 }

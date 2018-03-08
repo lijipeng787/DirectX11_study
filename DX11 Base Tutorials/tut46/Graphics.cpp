@@ -25,11 +25,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	bool result;
 
 	{
-		m_D3D = new DirectX11Device;
-		if (!m_D3D) {
+		directx_device_ = new DirectX11Device;
+		if (!directx_device_) {
 			return false;
 		}
-		result = m_D3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -37,13 +37,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Camera = (Camera*)_aligned_malloc(sizeof(Camera), 16);
-		new (m_Camera)Camera();
-		if (!m_Camera) {
+		camera_ = (Camera*)_aligned_malloc(sizeof(Camera), 16);
+		new (camera_)Camera();
+		if (!camera_) {
 			return false;
 		}
-		m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
-		m_Camera->Render();
+		camera_->SetPosition(0.0f, 0.0f, -10.0f);
+		camera_->Render();
 	}
 
 	{
@@ -52,7 +52,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_TextureShader) {
 			return false;
 		}
-		result = m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_TextureShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -64,7 +64,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Bitmap) {
 			return false;
 		}
-		result = m_Bitmap->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../../tut46/data/test.dds", L"../../tut46/data/glowmap.dds", 256, 32);
+		result = m_Bitmap->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight, L"../../tut46/data/test.dds", L"../../tut46/data/glowmap.dds", 256, 32);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
 			return false;
@@ -77,7 +77,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_RenderTexture) {
 			return false;
 		}
-		result = m_RenderTexture->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_RenderTexture->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
 			return false;
@@ -90,7 +90,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_DownSampleTexure) {
 			return false;
 		}
-		result = m_DownSampleTexure->Initialize(m_D3D->GetDevice(), (screenWidth / 2), (screenHeight / 2), SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_DownSampleTexure->Initialize(directx_device_->GetDevice(), (screenWidth / 2), (screenHeight / 2), SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the down sample render to texture object.", L"Error", MB_OK);
 			return false;
@@ -102,7 +102,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_SmallWindow) {
 			return false;
 		}
-		result = m_SmallWindow->Initialize(m_D3D->GetDevice(), (screenWidth / 2), (screenHeight / 2));
+		result = m_SmallWindow->Initialize(directx_device_->GetDevice(), (screenWidth / 2), (screenHeight / 2));
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the small ortho window object.", L"Error", MB_OK);
 			return false;
@@ -115,7 +115,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_HorizontalBlurTexture) {
 			return false;
 		}
-		result = m_HorizontalBlurTexture->Initialize(m_D3D->GetDevice(), (screenWidth / 2), (screenHeight / 2), SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_HorizontalBlurTexture->Initialize(directx_device_->GetDevice(), (screenWidth / 2), (screenHeight / 2), SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the horizontal blur render to texture object.", L"Error", MB_OK);
 			return false;
@@ -128,7 +128,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_HorizontalBlurShader) {
 			return false;
 		}
-		result = m_HorizontalBlurShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_HorizontalBlurShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the horizontal blur shader object.", L"Error", MB_OK);
 			return false;
@@ -141,7 +141,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_VerticalBlurTexture) {
 			return false;
 		}
-		result = m_VerticalBlurTexture->Initialize(m_D3D->GetDevice(), (screenWidth / 2), (screenHeight / 2), SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_VerticalBlurTexture->Initialize(directx_device_->GetDevice(), (screenWidth / 2), (screenHeight / 2), SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the vertical blur render to texture object.", L"Error", MB_OK);
 			return false;
@@ -154,7 +154,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_VerticalBlurShader) {
 			return false;
 		}
-		result = m_VerticalBlurShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_VerticalBlurShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the vertical blur shader object.", L"Error", MB_OK);
 			return false;
@@ -167,7 +167,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_UpSampleTexure) {
 			return false;
 		}
-		result = m_UpSampleTexure->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_UpSampleTexure->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the up sample render to texture object.", L"Error", MB_OK);
 			return false;
@@ -179,7 +179,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_FullScreenWindow) {
 			return false;
 		}
-		result = m_FullScreenWindow->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight);
+		result = m_FullScreenWindow->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK);
 			return false;
@@ -192,7 +192,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_GlowMapShader) {
 			return false;
 		}
-		result = m_GlowMapShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_GlowMapShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the glow map shader object.", L"Error", MB_OK);
 			return false;
@@ -205,7 +205,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_GlowShader) {
 			return false;
 		}
-		result = m_GlowShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_GlowShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the glow shader object.", L"Error", MB_OK);
 			return false;
@@ -317,16 +317,16 @@ void GraphicsClass::Shutdown() {
 		_aligned_free(m_TextureShader);
 		m_TextureShader = 0;
 	}
-	if (m_Camera) {
-		m_Camera->~Camera();
-		_aligned_free(m_Camera);
-		m_Camera = 0;
+	if (camera_) {
+		camera_->~Camera();
+		_aligned_free(camera_);
+		camera_ = 0;
 	}
 
-	if (m_D3D) {
-		m_D3D->Shutdown();
-		delete m_D3D;
-		m_D3D = 0;
+	if (directx_device_) {
+		directx_device_->Shutdown();
+		delete directx_device_;
+		directx_device_ = 0;
 	}
 }
 
@@ -393,31 +393,31 @@ bool GraphicsClass::RenderGlowMapToTexture() {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 	bool result;
 
-	m_RenderTexture->SetRenderTarget(m_D3D->GetDeviceContext());
+	m_RenderTexture->SetRenderTarget(directx_device_->GetDeviceContext());
 
-	m_RenderTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_RenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_Camera->Render();
+	camera_->Render();
 
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetOrthoMatrix(orthoMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
+	camera_->GetViewMatrix(viewMatrix);
+	directx_device_->GetOrthoMatrix(orthoMatrix);
 
-	m_D3D->TurnZBufferOff();
+	directx_device_->TurnZBufferOff();
 
-	result = m_Bitmap->Render(m_D3D->GetDeviceContext(), 100, 100);
+	result = m_Bitmap->Render(directx_device_->GetDeviceContext(), 100, 100);
 	if (!result) {
 		return false;
 	}
 
-	m_GlowMapShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+	m_GlowMapShader->Render(directx_device_->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_Bitmap->GetTexture(), m_Bitmap->GetGlowMap());
 
-	m_D3D->TurnZBufferOn();
+	directx_device_->TurnZBufferOn();
 
-	m_D3D->SetBackBufferRenderTarget();
+	directx_device_->SetBackBufferRenderTarget();
 
-	m_D3D->ResetViewport();
+	directx_device_->ResetViewport();
 
 	return true;
 }
@@ -427,32 +427,32 @@ bool GraphicsClass::DownSampleTexture() {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 	bool result;
 
-	m_DownSampleTexure->SetRenderTarget(m_D3D->GetDeviceContext());
+	m_DownSampleTexure->SetRenderTarget(directx_device_->GetDeviceContext());
 
-	m_DownSampleTexure->ClearRenderTarget(m_D3D->GetDeviceContext(), 0.0f, 1.0f, 0.0f, 1.0f);
+	m_DownSampleTexure->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 1.0f, 0.0f, 1.0f);
 
-	m_Camera->Render();
+	camera_->Render();
 
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_Camera->GetViewMatrix(viewMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
+	camera_->GetViewMatrix(viewMatrix);
 
 	m_DownSampleTexure->GetOrthoMatrix(orthoMatrix);
 
-	m_D3D->TurnZBufferOff();
+	directx_device_->TurnZBufferOff();
 
-	m_SmallWindow->Render(m_D3D->GetDeviceContext());
+	m_SmallWindow->Render(directx_device_->GetDeviceContext());
 
-	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+	result = m_TextureShader->Render(directx_device_->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_RenderTexture->GetShaderResourceView());
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->TurnZBufferOn();
+	directx_device_->TurnZBufferOn();
 
-	m_D3D->SetBackBufferRenderTarget();
+	directx_device_->SetBackBufferRenderTarget();
 
-	m_D3D->ResetViewport();
+	directx_device_->ResetViewport();
 
 	return true;
 }
@@ -463,34 +463,34 @@ bool GraphicsClass::RenderHorizontalBlurToTexture() {
 	float screenSizeX;
 	bool result;
 
-	m_HorizontalBlurTexture->SetRenderTarget(m_D3D->GetDeviceContext());
+	m_HorizontalBlurTexture->SetRenderTarget(directx_device_->GetDeviceContext());
 
-	m_HorizontalBlurTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_HorizontalBlurTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_Camera->Render();
+	camera_->Render();
 
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetWorldMatrix(worldMatrix);
+	camera_->GetViewMatrix(viewMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	m_HorizontalBlurTexture->GetOrthoMatrix(orthoMatrix);
 
-	m_D3D->TurnZBufferOff();
+	directx_device_->TurnZBufferOff();
 
 	screenSizeX = (float)m_HorizontalBlurTexture->GetTextureWidth();
 
-	m_SmallWindow->Render(m_D3D->GetDeviceContext());
+	m_SmallWindow->Render(directx_device_->GetDeviceContext());
 
-	result = m_HorizontalBlurShader->Render(m_D3D->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+	result = m_HorizontalBlurShader->Render(directx_device_->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_DownSampleTexure->GetShaderResourceView(), screenSizeX);
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->TurnZBufferOn();
+	directx_device_->TurnZBufferOn();
 
-	m_D3D->SetBackBufferRenderTarget();
+	directx_device_->SetBackBufferRenderTarget();
 
-	m_D3D->ResetViewport();
+	directx_device_->ResetViewport();
 
 	return true;
 }
@@ -501,34 +501,34 @@ bool GraphicsClass::RenderVerticalBlurToTexture() {
 	float screenSizeY;
 	bool result;
 
-	m_VerticalBlurTexture->SetRenderTarget(m_D3D->GetDeviceContext());
+	m_VerticalBlurTexture->SetRenderTarget(directx_device_->GetDeviceContext());
 
-	m_VerticalBlurTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_VerticalBlurTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_Camera->Render();
+	camera_->Render();
 
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetWorldMatrix(worldMatrix);
+	camera_->GetViewMatrix(viewMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	m_VerticalBlurTexture->GetOrthoMatrix(orthoMatrix);
 
-	m_D3D->TurnZBufferOff();
+	directx_device_->TurnZBufferOff();
 
 	screenSizeY = (float)m_VerticalBlurTexture->GetTextureHeight();
 
-	m_SmallWindow->Render(m_D3D->GetDeviceContext());
+	m_SmallWindow->Render(directx_device_->GetDeviceContext());
 
-	result = m_VerticalBlurShader->Render(m_D3D->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+	result = m_VerticalBlurShader->Render(directx_device_->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_HorizontalBlurTexture->GetShaderResourceView(), screenSizeY);
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->TurnZBufferOn();
+	directx_device_->TurnZBufferOn();
 
-	m_D3D->SetBackBufferRenderTarget();
+	directx_device_->SetBackBufferRenderTarget();
 
-	m_D3D->ResetViewport();
+	directx_device_->ResetViewport();
 
 	return true;
 }
@@ -538,32 +538,32 @@ bool GraphicsClass::UpSampleTexture() {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 	bool result;
 
-	m_UpSampleTexure->SetRenderTarget(m_D3D->GetDeviceContext());
+	m_UpSampleTexure->SetRenderTarget(directx_device_->GetDeviceContext());
 
-	m_UpSampleTexure->ClearRenderTarget(m_D3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_UpSampleTexure->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_Camera->Render();
+	camera_->Render();
 
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_Camera->GetViewMatrix(viewMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
+	camera_->GetViewMatrix(viewMatrix);
 
 	m_UpSampleTexure->GetOrthoMatrix(orthoMatrix);
 
-	m_D3D->TurnZBufferOff();
+	directx_device_->TurnZBufferOff();
 
-	m_FullScreenWindow->Render(m_D3D->GetDeviceContext());
+	m_FullScreenWindow->Render(directx_device_->GetDeviceContext());
 
-	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+	result = m_TextureShader->Render(directx_device_->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_VerticalBlurTexture->GetShaderResourceView());
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->TurnZBufferOn();
+	directx_device_->TurnZBufferOn();
 
-	m_D3D->SetBackBufferRenderTarget();
+	directx_device_->SetBackBufferRenderTarget();
 
-	m_D3D->ResetViewport();
+	directx_device_->ResetViewport();
 
 	return true;
 }
@@ -573,33 +573,33 @@ bool GraphicsClass::RenderUIElementsToTexture() {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 	bool result;
 
-	m_RenderTexture->SetRenderTarget(m_D3D->GetDeviceContext());
+	m_RenderTexture->SetRenderTarget(directx_device_->GetDeviceContext());
 
-	m_RenderTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_RenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_Camera->Render();
+	camera_->Render();
 
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetOrthoMatrix(orthoMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
+	camera_->GetViewMatrix(viewMatrix);
+	directx_device_->GetOrthoMatrix(orthoMatrix);
 
-	m_D3D->TurnZBufferOff();
+	directx_device_->TurnZBufferOff();
 
-	result = m_Bitmap->Render(m_D3D->GetDeviceContext(), 100, 100);
+	result = m_Bitmap->Render(directx_device_->GetDeviceContext(), 100, 100);
 	if (!result) {
 		return false;
 	}
 
-	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
+	result = m_TextureShader->Render(directx_device_->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->TurnZBufferOn();
+	directx_device_->TurnZBufferOn();
 
-	m_D3D->SetBackBufferRenderTarget();
+	directx_device_->SetBackBufferRenderTarget();
 
-	m_D3D->ResetViewport();
+	directx_device_->ResetViewport();
 
 	return true;
 }
@@ -608,24 +608,24 @@ bool GraphicsClass::RenderGlowScene() {
 
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 
-	m_D3D->BeginScene(1.0f, 0.0f, 0.0f, 0.0f);
+	directx_device_->BeginScene(1.0f, 0.0f, 0.0f, 0.0f);
 
-	m_Camera->Render();
+	camera_->Render();
 
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_D3D->GetOrthoMatrix(orthoMatrix);
+	camera_->GetViewMatrix(viewMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device_->GetOrthoMatrix(orthoMatrix);
 
-	m_D3D->TurnZBufferOff();
+	directx_device_->TurnZBufferOff();
 
-	m_FullScreenWindow->Render(m_D3D->GetDeviceContext());
+	m_FullScreenWindow->Render(directx_device_->GetDeviceContext());
 
-	m_GlowShader->Render(m_D3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+	m_GlowShader->Render(directx_device_->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_RenderTexture->GetShaderResourceView(), m_UpSampleTexure->GetShaderResourceView(), 3.0f);
 
-	m_D3D->TurnZBufferOn();
+	directx_device_->TurnZBufferOn();
 
-	m_D3D->EndScene();
+	directx_device_->EndScene();
 
 	return true;
 }

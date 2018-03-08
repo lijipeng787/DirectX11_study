@@ -77,9 +77,9 @@ private:
 
 private:
 	ID3D11Buffer *m_trunkVertexBuffer, *m_trunkIndexBuffer, *m_leafVertexBuffer, *m_leafIndexBuffer;
-	int m_vertexCount, m_indexCount, m_trunkIndexCount, m_leafIndexCount;
+	int vertex_count_, index_count_, m_trunkIndexCount, m_leafIndexCount;
 	TextureClass *m_TrunkTexture, *m_LeafTexture;
-	ModelType* m_model;
+	ModelType* model_;
 	float m_positionX, m_positionY, m_positionZ;
 };
 

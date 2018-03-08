@@ -109,7 +109,7 @@ void ShaderManagerClass::Shutdown()
 		m_TextureShader = 0;
 	}
 
-	return;
+	
 }
 
 

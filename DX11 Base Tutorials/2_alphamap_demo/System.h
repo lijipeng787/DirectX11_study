@@ -6,13 +6,13 @@ class GraphicsClass;
 
 class System :public SystemBase {
 public:
-	System();
+	System() {}
 
 	System(const System& rhs) = delete;
 
 	System& operator=(const System& rhs) = delete;
 
-	virtual ~System();
+	virtual ~System() {}
 public:
 	virtual bool Initialize()override;
 

@@ -22,14 +22,14 @@ ViewPointClass::~ViewPointClass()
 void ViewPointClass::SetPosition(float x, float y, float z)
 {
 	m_position = XMFLOAT3(x, y, z);
-	return;
+	
 }
 
 
 void ViewPointClass::SetLookAt(float x, float y, float z)
 {
 	m_lookAt = XMFLOAT3(x, y, z);
-	return;
+	
 }
 
 
@@ -39,7 +39,7 @@ void ViewPointClass::SetProjectionParameters(float fieldOfView, float aspectRati
 	m_aspectRatio = aspectRatio;
 	m_nearPlane = nearPlane;
 	m_farPlane = farPlane;
-	return;
+	
 }
 
 
@@ -68,7 +68,7 @@ void ViewPointClass::GenerateViewMatrix()
 	// Create the view matrix from the three vectors.
 	m_viewMatrix = XMMatrixLookAtLH( position, lookAt, up );
 
-	return;
+	
 }
 
 
@@ -77,19 +77,19 @@ void ViewPointClass::GenerateProjectionMatrix()
 	// Create the projection matrix for the view point.
 	m_projectionMatrix = XMMatrixPerspectiveFovLH( m_fieldOfView, m_aspectRatio, m_nearPlane, m_farPlane);
 
-	return;
+	
 }
 
 
 void ViewPointClass::GetViewMatrix( XMMATRIX& viewMatrix)
 {
 	viewMatrix = m_viewMatrix;
-	return;
+	
 }
 
 
 void ViewPointClass::GetProjectionMatrix( XMMATRIX& projectionMatrix)
 {
 	projectionMatrix = m_projectionMatrix;
-	return;
+	
 }

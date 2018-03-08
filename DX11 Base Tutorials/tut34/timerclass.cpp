@@ -55,7 +55,7 @@ void TimerClass::Frame()
 	// Restart the timer.
 	m_startTime = currentTime;
 
-	return;
+	
 }
 
 

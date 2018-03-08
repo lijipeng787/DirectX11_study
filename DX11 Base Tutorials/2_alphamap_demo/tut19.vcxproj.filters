@@ -14,10 +14,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="alphamap.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="alphamap.ps">
+    <None Include="alphamap_shader.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

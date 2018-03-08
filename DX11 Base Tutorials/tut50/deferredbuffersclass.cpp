@@ -189,7 +189,7 @@ void DeferredBuffersClass::Shutdown()
 		}
 	}
 
-	return;
+	
 }
 
 
@@ -201,7 +201,7 @@ void DeferredBuffersClass::SetRenderTargets(ID3D11DeviceContext* deviceContext)
 	// Set the viewport.
 	deviceContext->RSSetViewports(1, &m_viewport);
 	
-	return;
+	
 }
 
 
@@ -226,7 +226,7 @@ void DeferredBuffersClass::ClearRenderTargets(ID3D11DeviceContext* deviceContext
 	// Clear the depth buffer.
 	deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	return;
+	
 }
 
 

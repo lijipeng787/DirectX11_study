@@ -58,9 +58,9 @@ private:
 	void ReleaseTexture();
 
 private:
-	ID3D11Buffer* m_vertexBuffer;
+	ID3D11Buffer* vertex_buffer_;
 	ID3D11Buffer* m_instanceBuffer;
-	int m_vertexCount;
+	int vertex_count_;
 	int m_instanceCount;
 	TextureClass* m_Texture;
 };

@@ -1,6 +1,6 @@
-#ifndef _GRAPHICSCLASS_H_
-#define _GRAPHICSCLASS_H_
+#pragma once
 
+#include <Windows.h>
 #include "../CommonFramework/GraphicsBase.h"
 
 class DirectX11Device;
@@ -30,7 +30,7 @@ public:
 
 	virtual bool Render()override;
 
-	void SetRotation(float rotation) {
+	inline void SetRotation(float rotation) {
 		rotation_ = rotation;
 	}
 private:
@@ -48,11 +48,9 @@ private:
 private:
 	float rotation_ = 0.0f;
 
-	DirectX11Device *m_D3D = nullptr;
+	Camera *camera_ = nullptr;
 
-	Camera *m_Camera = nullptr;
-
-	ModelClass *m_Model = nullptr;
+	ModelClass *model_ = nullptr;
 
 	TextureShaderClass* m_TextureShader = nullptr;
 
@@ -69,5 +67,3 @@ private:
 
 	OrthoWindowClass *m_SmallWindow = nullptr, *m_FullScreenWindow = nullptr;
 };
-
-#endif

@@ -28,11 +28,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	int downSampleWidth, downSampleHeight;
 
 	{
-		m_D3D = new DirectX11Device;
-		if (!m_D3D) {
+		directx_device_ = new DirectX11Device;
+		if (!directx_device_) {
 			return false;
 		}
-		result = m_D3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -40,14 +40,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Camera = (Camera*)_aligned_malloc(sizeof(Camera), 16);
-		new (m_Camera)Camera();
-		if (!m_Camera) {
+		camera_ = (Camera*)_aligned_malloc(sizeof(Camera), 16);
+		new (camera_)Camera();
+		if (!camera_) {
 			return false;
 		}
-		m_Camera->SetPosition(0.0f, -1.0f, -10.0f);
-		m_Camera->Render();
-		m_Camera->RenderBaseViewMatrix();
+		camera_->SetPosition(0.0f, -1.0f, -10.0f);
+		camera_->Render();
+		camera_->RenderBaseViewMatrix();
 	}
 
 	{
@@ -58,7 +58,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the cube model object.
-		result = m_CubeModel->Initialize(m_D3D->GetDevice(), "../../tut42/data/cube.txt", L"../../tut42/data/wall01.dds");
+		result = m_CubeModel->Initialize(directx_device_->GetDevice(), "../../tut42/data/cube.txt", L"../../tut42/data/wall01.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
 			return false;
@@ -76,7 +76,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the sphere model object.
-		result = m_SphereModel->Initialize(m_D3D->GetDevice(), "../../tut42/data/sphere.txt", L"../../tut42/data/ice.dds");
+		result = m_SphereModel->Initialize(directx_device_->GetDevice(), "../../tut42/data/sphere.txt", L"../../tut42/data/ice.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the sphere model object.", L"Error", MB_OK);
 			return false;
@@ -94,7 +94,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the ground model object.
-		result = m_GroundModel->Initialize(m_D3D->GetDevice(), "../../tut42/data/plane01.txt", L"../../tut42/data/metal001.dds");
+		result = m_GroundModel->Initialize(directx_device_->GetDevice(), "../../tut42/data/plane01.txt", L"../../tut42/data/metal001.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
 			return false;
@@ -128,7 +128,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the render to texture object.
-		result = m_RenderTexture->Initialize(m_D3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_RenderTexture->Initialize(directx_device_->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
 			return false;
@@ -144,7 +144,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the depth shader object.
-		result = m_DepthShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_DepthShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK);
 			return false;
@@ -160,7 +160,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the black and white render to texture object.
-		result = m_BlackWhiteRenderTexture->Initialize(m_D3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_BlackWhiteRenderTexture->Initialize(directx_device_->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the black and white render to texture object.", L"Error", MB_OK);
 			return false;
@@ -176,7 +176,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the shadow shader object.
-		result = m_ShadowShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_ShadowShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the shadow shader object.", L"Error", MB_OK);
 			return false;
@@ -196,7 +196,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the down sample render to texture object.
-		result = m_DownSampleTexure->Initialize(m_D3D->GetDevice(), downSampleWidth, downSampleHeight, 100.0f, 1.0f);
+		result = m_DownSampleTexure->Initialize(directx_device_->GetDevice(), downSampleWidth, downSampleHeight, 100.0f, 1.0f);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the down sample render to texture object.", L"Error", MB_OK);
 			return false;
@@ -211,7 +211,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the small ortho window object.
-		result = m_SmallWindow->Initialize(m_D3D->GetDevice(), downSampleWidth, downSampleHeight);
+		result = m_SmallWindow->Initialize(directx_device_->GetDevice(), downSampleWidth, downSampleHeight);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the small ortho window object.", L"Error", MB_OK);
 			return false;
@@ -227,7 +227,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the texture shader object.
-		result = m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_TextureShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -243,7 +243,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the horizontal blur render to texture object.
-		result = m_HorizontalBlurTexture->Initialize(m_D3D->GetDevice(), downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
+		result = m_HorizontalBlurTexture->Initialize(directx_device_->GetDevice(), downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the horizontal blur render to texture object.", L"Error", MB_OK);
 			return false;
@@ -259,7 +259,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the horizontal blur shader object.
-		result = m_HorizontalBlurShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_HorizontalBlurShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the horizontal blur shader object.", L"Error", MB_OK);
 			return false;
@@ -275,7 +275,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the vertical blur render to texture object.
-		result = m_VerticalBlurTexture->Initialize(m_D3D->GetDevice(), downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
+		result = m_VerticalBlurTexture->Initialize(directx_device_->GetDevice(), downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the vertical blur render to texture object.", L"Error", MB_OK);
 			return false;
@@ -291,7 +291,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the vertical blur shader object.
-		result = m_VerticalBlurShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_VerticalBlurShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the vertical blur shader object.", L"Error", MB_OK);
 			return false;
@@ -307,7 +307,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the up sample render to texture object.
-		result = m_UpSampleTexure->Initialize(m_D3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, 0.1f);
+		result = m_UpSampleTexure->Initialize(directx_device_->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, 0.1f);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the up sample render to texture object.", L"Error", MB_OK);
 			return false;
@@ -322,7 +322,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the full screen ortho window object.
-		result = m_FullScreenWindow->Initialize(m_D3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT);
+		result = m_FullScreenWindow->Initialize(directx_device_->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK);
 			return false;
@@ -338,7 +338,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the soft shadow shader object.
-		result = m_SoftShadowShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_SoftShadowShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the soft shadow shader object.", L"Error", MB_OK);
 			return false;
@@ -506,16 +506,16 @@ void GraphicsClass::Shutdown() {
 		m_CubeModel = 0;
 	}
 
-	if (m_Camera) {
-		m_Camera->~Camera();
-		_aligned_free(m_Camera);
-		m_Camera = 0;
+	if (camera_) {
+		camera_->~Camera();
+		_aligned_free(camera_);
+		camera_ = 0;
 	}
 
-	if (m_D3D) {
-		m_D3D->Shutdown();
-		delete m_D3D;
-		m_D3D = 0;
+	if (directx_device_) {
+		directx_device_->Shutdown();
+		delete directx_device_;
+		directx_device_ = 0;
 	}
 }
 
@@ -524,8 +524,8 @@ bool GraphicsClass::Frame() {
 	bool result;
 	static float lightPositionX = -5.0f;
 
-	m_Camera->SetPosition(pos_x_, pos_y_, pos_z_);
-	m_Camera->SetRotation(rot_x_, rot_y_, rot_z_);
+	camera_->SetPosition(pos_x_, pos_y_, pos_z_);
+	camera_->SetRotation(rot_x_, rot_y_, rot_z_);
 
 	// Update the position of the light each frame.
 	lightPositionX += 0.05f;
@@ -551,13 +551,13 @@ bool GraphicsClass::RenderSceneToTexture() {
 	float posX, posY, posZ;
 	bool result;
 
-	m_RenderTexture->SetRenderTarget(m_D3D->GetDeviceContext());
+	m_RenderTexture->SetRenderTarget(directx_device_->GetDeviceContext());
 
-	m_RenderTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_RenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	m_Light->GenerateViewMatrix();
 
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	m_Light->GetViewMatrix(lightViewMatrix);
 	m_Light->GetProjectionMatrix(lightProjectionMatrix);
@@ -565,35 +565,35 @@ bool GraphicsClass::RenderSceneToTexture() {
 	m_CubeModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
-	m_CubeModel->Render(m_D3D->GetDeviceContext());
-	result = m_DepthShader->Render(m_D3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
+	m_CubeModel->Render(directx_device_->GetDeviceContext());
+	result = m_DepthShader->Render(directx_device_->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 	m_SphereModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
-	m_SphereModel->Render(m_D3D->GetDeviceContext());
-	result = m_DepthShader->Render(m_D3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
+	m_SphereModel->Render(directx_device_->GetDeviceContext());
+	result = m_DepthShader->Render(directx_device_->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	m_GroundModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
-	m_GroundModel->Render(m_D3D->GetDeviceContext());
-	result = m_DepthShader->Render(m_D3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
+	m_GroundModel->Render(directx_device_->GetDeviceContext());
+	result = m_DepthShader->Render(directx_device_->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->SetBackBufferRenderTarget();
+	directx_device_->SetBackBufferRenderTarget();
 
-	m_D3D->ResetViewport();
+	directx_device_->ResetViewport();
 
 	return true;
 }
@@ -606,21 +606,21 @@ bool GraphicsClass::RenderBlackAndWhiteShadows() {
 	bool result;
 
 	// Set the render target to be the render to texture.
-	m_BlackWhiteRenderTexture->SetRenderTarget(m_D3D->GetDeviceContext());
+	m_BlackWhiteRenderTexture->SetRenderTarget(directx_device_->GetDeviceContext());
 
 	// Clear the render to texture.
-	m_BlackWhiteRenderTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_BlackWhiteRenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Generate the view matrix based on the camera's position.
-	m_Camera->Render();
+	camera_->Render();
 
 	// Generate the light view matrix based on the light's position.
 	m_Light->GenerateViewMatrix();
 
 	// Get the world, view, and projection matrices from the camera and d3d objects.
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_D3D->GetProjectionMatrix(projectionMatrix);
+	camera_->GetViewMatrix(viewMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device_->GetProjectionMatrix(projectionMatrix);
 
 	// Get the light's view and projection matrices from the light object.
 	m_Light->GetViewMatrix(lightViewMatrix);
@@ -631,8 +631,8 @@ bool GraphicsClass::RenderBlackAndWhiteShadows() {
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
 	// Render the cube model using the shadow shader.
-	m_CubeModel->Render(m_D3D->GetDeviceContext());
-	result = m_ShadowShader->Render(m_D3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
+	m_CubeModel->Render(directx_device_->GetDeviceContext());
+	result = m_ShadowShader->Render(directx_device_->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
 		lightProjectionMatrix, m_RenderTexture->GetShaderResourceView(), m_Light->GetPosition());
 	if (!result)
 	{
@@ -640,40 +640,40 @@ bool GraphicsClass::RenderBlackAndWhiteShadows() {
 	}
 
 	// Reset the world matrix.
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	// Setup the translation matrix for the sphere model.
 	m_SphereModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
 	// Render the sphere model using the shadow shader.
-	m_SphereModel->Render(m_D3D->GetDeviceContext());
-	result = m_ShadowShader->Render(m_D3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
+	m_SphereModel->Render(directx_device_->GetDeviceContext());
+	result = m_ShadowShader->Render(directx_device_->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
 		lightProjectionMatrix, m_RenderTexture->GetShaderResourceView(), m_Light->GetPosition());
 	if (!result) {
 		return false;
 	}
 
 	// Reset the world matrix.
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	// Setup the translation matrix for the ground model.
 	m_GroundModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
 	// Render the ground model using the shadow shader.
-	m_GroundModel->Render(m_D3D->GetDeviceContext());
-	result = m_ShadowShader->Render(m_D3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
+	m_GroundModel->Render(directx_device_->GetDeviceContext());
+	result = m_ShadowShader->Render(directx_device_->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
 		lightProjectionMatrix, m_RenderTexture->GetShaderResourceView(), m_Light->GetPosition());
 	if (!result) {
 		return false;
 	}
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
-	m_D3D->SetBackBufferRenderTarget();
+	directx_device_->SetBackBufferRenderTarget();
 
 	// Reset the viewport back to the original.
-	m_D3D->ResetViewport();
+	directx_device_->ResetViewport();
 
 	return true;
 }
@@ -683,42 +683,42 @@ bool GraphicsClass::DownSampleTexture() {
 	XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
 	bool result;
 
-	m_DownSampleTexure->SetRenderTarget(m_D3D->GetDeviceContext());
+	m_DownSampleTexure->SetRenderTarget(directx_device_->GetDeviceContext());
 
 	// Clear the render to texture.
-	m_DownSampleTexure->ClearRenderTarget(m_D3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_DownSampleTexure->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Generate the view matrix based on the camera's position.
-	m_Camera->Render();
+	camera_->Render();
 
 	// Get the world and view matrices from the camera and d3d objects.
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_Camera->GetBaseViewMatrix(baseViewMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
+	camera_->GetBaseViewMatrix(baseViewMatrix);
 
 	// Get the ortho matrix from the render to texture since texture has different dimensions being that it is smaller.
 	m_DownSampleTexure->GetOrthoMatrix(orthoMatrix);
 
 	// Turn off the Z buffer to begin all 2D rendering.
-	m_D3D->TurnZBufferOff();
+	directx_device_->TurnZBufferOff();
 
 	// Put the small ortho window vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_SmallWindow->Render(m_D3D->GetDeviceContext());
+	m_SmallWindow->Render(directx_device_->GetDeviceContext());
 
 	// Render the small ortho window using the texture shader and the render to texture of the scene as the texture resource.
-	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
+	result = m_TextureShader->Render(directx_device_->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
 		m_BlackWhiteRenderTexture->GetShaderResourceView());
 	if (!result) {
 		return false;
 	}
 
 	// Turn the Z buffer back on now that all 2D rendering has completed.
-	m_D3D->TurnZBufferOn();
+	directx_device_->TurnZBufferOn();
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
-	m_D3D->SetBackBufferRenderTarget();
+	directx_device_->SetBackBufferRenderTarget();
 
 	// Reset the viewport back to the original.
-	m_D3D->ResetViewport();
+	directx_device_->ResetViewport();
 
 	return true;
 }
@@ -733,42 +733,42 @@ bool GraphicsClass::RenderHorizontalBlurToTexture() {
 	screenSizeX = (float)(SHADOWMAP_WIDTH / 2);
 
 	// Set the render target to be the render to texture.
-	m_HorizontalBlurTexture->SetRenderTarget(m_D3D->GetDeviceContext());
+	m_HorizontalBlurTexture->SetRenderTarget(directx_device_->GetDeviceContext());
 
 	// Clear the render to texture.
-	m_HorizontalBlurTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_HorizontalBlurTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Generate the view matrix based on the camera's position.
-	m_Camera->Render();
+	camera_->Render();
 
 	// Get the world and view matrices from the camera and d3d objects.
-	m_Camera->GetBaseViewMatrix(baseViewMatrix);
-	m_D3D->GetWorldMatrix(worldMatrix);
+	camera_->GetBaseViewMatrix(baseViewMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	// Get the ortho matrix from the render to texture since texture has different dimensions.
 	m_HorizontalBlurTexture->GetOrthoMatrix(orthoMatrix);
 
 	// Turn off the Z buffer to begin all 2D rendering.
-	m_D3D->TurnZBufferOff();
+	directx_device_->TurnZBufferOff();
 
 	// Put the small ortho window vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_SmallWindow->Render(m_D3D->GetDeviceContext());
+	m_SmallWindow->Render(directx_device_->GetDeviceContext());
 
 	// Render the small ortho window using the horizontal blur shader and the down sampled render to texture resource.
-	result = m_HorizontalBlurShader->Render(m_D3D->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
+	result = m_HorizontalBlurShader->Render(directx_device_->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
 		m_DownSampleTexure->GetShaderResourceView(), screenSizeX);
 	if (!result) {
 		return false;
 	}
 
 	// Turn the Z buffer back on now that all 2D rendering has completed.
-	m_D3D->TurnZBufferOn();
+	directx_device_->TurnZBufferOn();
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
-	m_D3D->SetBackBufferRenderTarget();
+	directx_device_->SetBackBufferRenderTarget();
 
 	// Reset the viewport back to the original.
-	m_D3D->ResetViewport();
+	directx_device_->ResetViewport();
 
 	return true;
 }
@@ -784,42 +784,42 @@ bool GraphicsClass::RenderVerticalBlurToTexture() {
 	screenSizeY = (float)(SHADOWMAP_HEIGHT / 2);
 
 	// Set the render target to be the render to texture.
-	m_VerticalBlurTexture->SetRenderTarget(m_D3D->GetDeviceContext());
+	m_VerticalBlurTexture->SetRenderTarget(directx_device_->GetDeviceContext());
 
 	// Clear the render to texture.
-	m_VerticalBlurTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_VerticalBlurTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Generate the view matrix based on the camera's position.
-	m_Camera->Render();
+	camera_->Render();
 
 	// Get the world and view matrices from the camera and d3d objects.
-	m_Camera->GetBaseViewMatrix(baseViewMatrix);
-	m_D3D->GetWorldMatrix(worldMatrix);
+	camera_->GetBaseViewMatrix(baseViewMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	// Get the ortho matrix from the render to texture since texture has different dimensions.
 	m_VerticalBlurTexture->GetOrthoMatrix(orthoMatrix);
 
 	// Turn off the Z buffer to begin all 2D rendering.
-	m_D3D->TurnZBufferOff();
+	directx_device_->TurnZBufferOff();
 
 	// Put the small ortho window vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_SmallWindow->Render(m_D3D->GetDeviceContext());
+	m_SmallWindow->Render(directx_device_->GetDeviceContext());
 
 	// Render the small ortho window using the vertical blur shader and the horizontal blurred render to texture resource.
-	result = m_VerticalBlurShader->Render(m_D3D->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
+	result = m_VerticalBlurShader->Render(directx_device_->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
 		m_HorizontalBlurTexture->GetShaderResourceView(), screenSizeY);
 	if (!result) {
 		return false;
 	}
 
 	// Turn the Z buffer back on now that all 2D rendering has completed.
-	m_D3D->TurnZBufferOn();
+	directx_device_->TurnZBufferOn();
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
-	m_D3D->SetBackBufferRenderTarget();
+	directx_device_->SetBackBufferRenderTarget();
 
 	// Reset the viewport back to the original.
-	m_D3D->ResetViewport();
+	directx_device_->ResetViewport();
 
 	return true;
 }
@@ -831,42 +831,42 @@ bool GraphicsClass::UpSampleTexture(){
 
 
 	// Set the render target to be the render to texture.
-	m_UpSampleTexure->SetRenderTarget(m_D3D->GetDeviceContext());
+	m_UpSampleTexure->SetRenderTarget(directx_device_->GetDeviceContext());
 
 	// Clear the render to texture.
-	m_UpSampleTexure->ClearRenderTarget(m_D3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_UpSampleTexure->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Generate the view matrix based on the camera's position.
-	m_Camera->Render();
+	camera_->Render();
 
 	// Get the world and view matrices from the camera and d3d objects.
-	m_Camera->GetBaseViewMatrix(baseViewMatrix);
-	m_D3D->GetWorldMatrix(worldMatrix);
+	camera_->GetBaseViewMatrix(baseViewMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	// Get the ortho matrix from the render to texture since texture has different dimensions.
 	m_UpSampleTexure->GetOrthoMatrix(orthoMatrix);
 
 	// Turn off the Z buffer to begin all 2D rendering.
-	m_D3D->TurnZBufferOff();
+	directx_device_->TurnZBufferOff();
 
 	// Put the full screen ortho window vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_FullScreenWindow->Render(m_D3D->GetDeviceContext());
+	m_FullScreenWindow->Render(directx_device_->GetDeviceContext());
 
 	// Render the full screen ortho window using the texture shader and the small sized final blurred render to texture resource.
-	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
+	result = m_TextureShader->Render(directx_device_->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
 		m_VerticalBlurTexture->GetShaderResourceView());
 	if (!result) {
 		return false;
 	}
 
 	// Turn the Z buffer back on now that all 2D rendering has completed.
-	m_D3D->TurnZBufferOn();
+	directx_device_->TurnZBufferOn();
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
-	m_D3D->SetBackBufferRenderTarget();
+	directx_device_->SetBackBufferRenderTarget();
 
 	// Reset the viewport back to the original.
-	m_D3D->ResetViewport();
+	directx_device_->ResetViewport();
 
 	return true;
 }
@@ -914,24 +914,24 @@ bool GraphicsClass::Render() {
 	}
 
 	// Clear the buffers to begin the scene.
-	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Generate the view matrix based on the camera's position.
-	m_Camera->Render();
+	camera_->Render();
 
 	// Get the world, view, and projection matrices from the camera and d3d objects.
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_D3D->GetProjectionMatrix(projectionMatrix);
+	camera_->GetViewMatrix(viewMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device_->GetProjectionMatrix(projectionMatrix);
 
 	// Setup the translation matrix for the cube model.
 	m_CubeModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
 	// Render the cube model using the soft shadow shader.
-	m_CubeModel->Render(m_D3D->GetDeviceContext());
+	m_CubeModel->Render(directx_device_->GetDeviceContext());
 	result = m_SoftShadowShader->Render(
-		m_D3D->GetDeviceContext(), 
+		directx_device_->GetDeviceContext(), 
 		m_CubeModel->GetIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix,
 		m_CubeModel->GetTexture(), m_UpSampleTexure->GetShaderResourceView(), 
@@ -943,17 +943,17 @@ bool GraphicsClass::Render() {
 	}
 
 	// Reset the world matrix.
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	// Setup the translation matrix for the sphere model.
 	m_SphereModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
 	// Render the sphere model using the soft shadow shader.
-	m_SphereModel->Render(m_D3D->GetDeviceContext());
+	m_SphereModel->Render(directx_device_->GetDeviceContext());
 
 	result = m_SoftShadowShader->Render(
-		m_D3D->GetDeviceContext(),
+		directx_device_->GetDeviceContext(),
 		m_SphereModel->GetIndexCount(),
 		worldMatrix, viewMatrix, projectionMatrix,
 		m_SphereModel->GetTexture(), m_UpSampleTexure->GetShaderResourceView(),
@@ -965,16 +965,16 @@ bool GraphicsClass::Render() {
 	}
 
 	// Reset the world matrix.
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	// Setup the translation matrix for the ground model.
 	m_GroundModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
 	// Render the ground model using the soft shadow shader.
-	m_GroundModel->Render(m_D3D->GetDeviceContext());
+	m_GroundModel->Render(directx_device_->GetDeviceContext());
 	result = m_SoftShadowShader->Render(
-		m_D3D->GetDeviceContext(),
+		directx_device_->GetDeviceContext(),
 		m_GroundModel->GetIndexCount(),
 		worldMatrix, viewMatrix, projectionMatrix,
 		m_GroundModel->GetTexture(), m_UpSampleTexure->GetShaderResourceView(),
@@ -985,7 +985,7 @@ bool GraphicsClass::Render() {
 	}
 
 	// Present the rendered scene to the screen.
-	m_D3D->EndScene();
+	directx_device_->EndScene();
 
 	return true;
 }

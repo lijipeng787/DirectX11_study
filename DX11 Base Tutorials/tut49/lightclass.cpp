@@ -22,14 +22,14 @@ LightClass::~LightClass()
 void LightClass::SetDirection(float x, float y, float z)
 {
 	m_direction = XMFLOAT3(x, y, z);
-	return;
+	
 }
 
 
 void LightClass::SetPosition(float x, float y, float z)
 {
 	m_position = XMFLOAT3(x, y, z);
-	return;
+	
 }
 
 
@@ -38,7 +38,7 @@ void LightClass::SetLookAt(float x, float y, float z)
 	m_lookAt.x = x;
 	m_lookAt.y = y;
 	m_lookAt.z = z;
-	return;
+	
 }
 
 
@@ -79,7 +79,7 @@ void LightClass::GenerateViewMatrix()
 	// Create the view matrix from the three vectors.
 	m_viewMatrix = XMMatrixLookAtLH( position, lookAt, up );
 
-	return;
+	
 }
 
 
@@ -96,7 +96,7 @@ void LightClass::GenerateProjectionMatrix(float screenDepth, float screenNear)
 	// Create the projection matrix for the light.
 	m_projectionMatrix = XMMatrixPerspectiveFovLH( fieldOfView, screenAspect, screenNear, screenDepth );
 
-	return;
+	
 }
 
 
@@ -105,26 +105,26 @@ void LightClass::GenerateOrthoMatrix(float width, float height, float screenDept
 	// Create the projection matrix for the light.
 	m_orthoMatrix = XMMatrixOrthographicLH( width, height, screenNear, screenDepth );
 
-	return;
+	
 }
 
 
 void LightClass::GetViewMatrix(XMMATRIX& viewMatrix)
 {
 	viewMatrix = m_viewMatrix;
-	return;
+	
 }
 
 
 void LightClass::GetProjectionMatrix(XMMATRIX& projectionMatrix)
 {
 	projectionMatrix = m_projectionMatrix;
-	return;
+	
 }
 
 
 void LightClass::GetOrthoMatrix(XMMATRIX& orthoMatrix)
 {
 	orthoMatrix = m_orthoMatrix;
-	return;
+	
 }

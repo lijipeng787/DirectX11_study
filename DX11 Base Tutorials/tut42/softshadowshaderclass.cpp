@@ -6,12 +6,12 @@
 
 SoftShadowShaderClass::SoftShadowShaderClass()
 {
-	m_vertexShader = 0;
-	m_pixelShader = 0;
-	m_layout = 0;
+	vertex_shader_ = 0;
+	pixel_shader_ = 0;
+	layout_ = 0;
 	m_sampleStateWrap = 0;
 	m_sampleStateClamp = 0;
-	m_matrixBuffer = 0;
+	matrix_buffer_ = 0;
 	m_lightBuffer = 0;
 	m_lightBuffer2 = 0;
 }
@@ -48,7 +48,7 @@ void SoftShadowShaderClass::Shutdown()
 	// Shutdown the vertex and pixel shaders as well as the related objects.
 	ShutdownShader();
 
-	return;
+	
 }
 
 
@@ -132,14 +132,14 @@ bool SoftShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WC
 	}
 
     // Create the vertex shader from the buffer.
-    result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
+    result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertex_shader_);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
     // Create the pixel shader from the buffer.
-    result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
+    result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &pixel_shader_);
 	if(FAILED(result))
 	{
 		return false;
@@ -175,7 +175,7 @@ bool SoftShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WC
 
 	// Create the vertex input layout.
 	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), 
-		                               &m_layout);
+		                               &layout_);
 	if(FAILED(result))
 	{
 		return false;
@@ -231,7 +231,7 @@ bool SoftShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WC
 	matrixBufferDesc.StructureByteStride = 0;
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
+	result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -287,10 +287,10 @@ void SoftShadowShaderClass::ShutdownShader()
 	}
 
 	// Release the matrix constant buffer.
-	if(m_matrixBuffer)
+	if(matrix_buffer_)
 	{
-		m_matrixBuffer->Release();
-		m_matrixBuffer = 0;
+		matrix_buffer_->Release();
+		matrix_buffer_ = 0;
 	}
 
 	// Release the sampler states.
@@ -307,27 +307,27 @@ void SoftShadowShaderClass::ShutdownShader()
 	}
 
 	// Release the layout.
-	if(m_layout)
+	if(layout_)
 	{
-		m_layout->Release();
-		m_layout = 0;
+		layout_->Release();
+		layout_ = 0;
 	}
 
 	// Release the pixel shader.
-	if(m_pixelShader)
+	if(pixel_shader_)
 	{
-		m_pixelShader->Release();
-		m_pixelShader = 0;
+		pixel_shader_->Release();
+		pixel_shader_ = 0;
 	}
 
 	// Release the vertex shader.
-	if(m_vertexShader)
+	if(vertex_shader_)
 	{
-		m_vertexShader->Release();
-		m_vertexShader = 0;
+		vertex_shader_->Release();
+		vertex_shader_ = 0;
 	}
 
-	return;
+	
 }
 
 
@@ -363,7 +363,7 @@ void SoftShadowShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, H
 	// Pop a message up on the screen to notify the user to check the text file for compile errors.
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 
-	return;
+	
 }
 
 
@@ -388,7 +388,7 @@ bool SoftShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceConte
 	projectionMatrixCopy = XMMatrixTranspose( projectionMatrix );
 
 	// Lock the constant buffer so it can be written to.
-	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = deviceContext->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -403,13 +403,13 @@ bool SoftShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceConte
 	dataPtr->projection = projectionMatrixCopy;
 
 	// Unlock the constant buffer.
-    deviceContext->Unmap(m_matrixBuffer, 0);
+    deviceContext->Unmap(matrix_buffer_, 0);
 
 	// Set the position of the constant buffer in the vertex shader.
 	bufferNumber = 0;
 
 	// Now set the constant buffer in the vertex shader with the updated values.
-    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &matrix_buffer_);
 
 	// Set shader texture resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
@@ -468,11 +468,11 @@ bool SoftShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceConte
 void SoftShadowShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
 {
 	// Set the vertex input layout.
-	deviceContext->IASetInputLayout(m_layout);
+	deviceContext->IASetInputLayout(layout_);
 
     // Set the vertex and pixel shaders that will be used to render this triangle.
-    deviceContext->VSSetShader(m_vertexShader, NULL, 0);
-    deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+    deviceContext->VSSetShader(vertex_shader_, NULL, 0);
+    deviceContext->PSSetShader(pixel_shader_, NULL, 0);
 
 	// Set the sampler states in the pixel shader.
 	deviceContext->PSSetSamplers(0, 1, &m_sampleStateClamp);
@@ -481,5 +481,5 @@ void SoftShadowShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int
 	// Render the triangle.
 	deviceContext->DrawIndexed(indexCount, 0, 0);
 
-	return;
+	
 }

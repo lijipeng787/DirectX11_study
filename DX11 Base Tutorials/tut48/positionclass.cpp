@@ -42,7 +42,7 @@ void PositionClass::SetPosition(float x, float y, float z)
 	m_positionX = x;
 	m_positionY = y;
 	m_positionZ = z;
-	return;
+	
 }
 
 
@@ -51,7 +51,7 @@ void PositionClass::SetRotation(float x, float y, float z)
 	m_rotationX = x;
 	m_rotationY = y;
 	m_rotationZ = z;
-	return;
+	
 }
 
 
@@ -60,7 +60,7 @@ void PositionClass::GetPosition(float& x, float& y, float& z)
 	x = m_positionX;
 	y = m_positionY;
 	z = m_positionZ;
-	return;
+	
 }
 
 
@@ -69,14 +69,14 @@ void PositionClass::GetRotation(float& x, float& y, float& z)
 	x = m_rotationX;
 	y = m_rotationY;
 	z = m_rotationZ;
-	return;
+	
 }
 
 
 void PositionClass::SetFrameTime(float time)
 {
 	m_frameTime = time;
-	return;
+	
 }
 
 
@@ -112,7 +112,7 @@ void PositionClass::MoveForward(bool keydown)
 	m_positionX += sinf(radians) * m_forwardSpeed;
 	m_positionZ += cosf(radians) * m_forwardSpeed;
 
-	return;
+	
 }
 
 
@@ -148,7 +148,7 @@ void PositionClass::MoveBackward(bool keydown)
 	m_positionX -= sinf(radians) * m_backwardSpeed;
 	m_positionZ -= cosf(radians) * m_backwardSpeed;
 
-	return;
+	
 }
 
 
@@ -177,7 +177,7 @@ void PositionClass::MoveUpward(bool keydown)
 	// Update the height position.
 	m_positionY += m_upwardSpeed;
 
-	return;
+	
 }
 
 
@@ -206,7 +206,7 @@ void PositionClass::MoveDownward(bool keydown)
 	// Update the height position.
 	m_positionY -= m_downwardSpeed;
 
-	return;
+	
 }
 
 
@@ -241,7 +241,7 @@ void PositionClass::TurnLeft(bool keydown)
 		m_rotationY += 360.0f;
 	}
 
-	return;
+	
 }
 
 
@@ -276,7 +276,7 @@ void PositionClass::TurnRight(bool keydown)
 		m_rotationY -= 360.0f;
 	}
 
-	return;
+	
 }
 
 
@@ -311,7 +311,7 @@ void PositionClass::LookUpward(bool keydown)
 		m_rotationX = 90.0f;
 	}
 
-	return;
+	
 }
 
 
@@ -346,5 +346,5 @@ void PositionClass::LookDownward(bool keydown)
 		m_rotationX = -90.0f;
 	}
 
-	return;
+	
 }

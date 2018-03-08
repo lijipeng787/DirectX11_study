@@ -19,11 +19,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	XMMATRIX baseViewMatrix;
 
 	{
-		m_D3D = new DirectX11Device;
-		if (!m_D3D) {
+		directx_device_ = new DirectX11Device;
+		if (!directx_device_) {
 			return false;
 		}
-		result = m_D3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -31,14 +31,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Camera = (Camera*)_aligned_malloc(sizeof(Camera), 16);
-		new (m_Camera)Camera();
-		if (!m_Camera) {
+		camera_ = (Camera*)_aligned_malloc(sizeof(Camera), 16);
+		new (camera_)Camera();
+		if (!camera_) {
 			return false;
 		}
-		m_Camera->SetPosition(0.0f, 0.0f, -1.0f);
-		m_Camera->Render();
-		m_Camera->GetViewMatrix(baseViewMatrix);
+		camera_->SetPosition(0.0f, 0.0f, -1.0f);
+		camera_->Render();
+		camera_->GetViewMatrix(baseViewMatrix);
 	}
 
 	{
@@ -47,7 +47,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_TextureShader) {
 			return false;
 		}
-		result = m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_TextureShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -59,7 +59,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_FloorModel) {
 			return false;
 		}
-		result = m_FloorModel->Initialize(m_D3D->GetDevice(), "../../tut34/data/floor.txt", L"../../tut34/data/grid01.dds");
+		result = m_FloorModel->Initialize(directx_device_->GetDevice(), "../../tut34/data/floor.txt", L"../../tut34/data/grid01.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the floor model object.", L"Error", MB_OK);
 			return false;
@@ -71,7 +71,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_BillboardModel) {
 			return false;
 		}
-		result = m_BillboardModel->Initialize(m_D3D->GetDevice(), "../../tut34/data/square.txt", L"../../tut34/data/seafloor.dds");
+		result = m_BillboardModel->Initialize(directx_device_->GetDevice(), "../../tut34/data/square.txt", L"../../tut34/data/seafloor.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the billboard model object.", L"Error", MB_OK);
 			return false;
@@ -108,15 +108,15 @@ void GraphicsClass::Shutdown() {
 		m_TextureShader = 0;
 	}
 
-	if (m_Camera) {
-		m_Camera->~Camera();
-		_aligned_free(m_Camera);
-		m_Camera = 0;
+	if (camera_) {
+		camera_->~Camera();
+		_aligned_free(camera_);
+		camera_ = 0;
 	}
 
-	if (m_D3D) {
-		m_D3D->Shutdown();
-		delete m_D3D;
+	if (directx_device_) {
+		directx_device_->Shutdown();
+		delete directx_device_;
 	}
 }
 
@@ -125,7 +125,7 @@ bool GraphicsClass::Frame() {
 	bool result;
 
 	// Update the position of the camera.
-	m_Camera->SetPosition(x_, y_, z_);
+	camera_->SetPosition(x_, y_, z_);
 
 	// Render the graphics scene.
 	result = Render();
@@ -144,23 +144,23 @@ bool GraphicsClass::Render() {
 	double angle;
 	float rotation;
 
-	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_Camera->Render();
+	camera_->Render();
 
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_D3D->GetProjectionMatrix(projectionMatrix);
+	camera_->GetViewMatrix(viewMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device_->GetProjectionMatrix(projectionMatrix);
 
-	m_FloorModel->Render(m_D3D->GetDeviceContext());
+	m_FloorModel->Render(directx_device_->GetDeviceContext());
 
-	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_FloorModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+	result = m_TextureShader->Render(directx_device_->GetDeviceContext(), m_FloorModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		m_FloorModel->GetTexture());
 	if (!result) {
 		return false;
 	}
 
-	cameraPosition = m_Camera->GetPosition();
+	cameraPosition = camera_->GetPosition();
 
 	modelPosition.x = 0.0f;
 	modelPosition.y = 1.5f;
@@ -176,15 +176,15 @@ bool GraphicsClass::Render() {
 
 	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
 
-	m_BillboardModel->Render(m_D3D->GetDeviceContext());
+	m_BillboardModel->Render(directx_device_->GetDeviceContext());
 
-	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_BillboardModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+	result = m_TextureShader->Render(directx_device_->GetDeviceContext(), m_BillboardModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		m_BillboardModel->GetTexture());
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->EndScene();
+	directx_device_->EndScene();
 
 	return true;
 }

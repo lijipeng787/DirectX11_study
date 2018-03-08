@@ -31,9 +31,9 @@ private:
 
 	bool RenderScene();
 private:
-	DirectX11Device *m_D3D = nullptr;
+	DirectX11Device *directx_device_ = nullptr;
 
-	Camera *m_Camera = nullptr;
+	Camera *camera_ = nullptr;
 
 	ModelClass *m_Model1 = nullptr;
 

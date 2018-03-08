@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{270CCB35-6B9D-42C5-82F8-D92BE5A68427}</ProjectGuid>
     <RootNamespace>tut19</RootNamespace>
-    <ProjectName>alpha_map</ProjectName>
+    <ProjectName>2_alpha_map_demo</ProjectName>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -150,10 +150,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="alphamap.ps" />
-    <None Include="alphamap.vs" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="alphamapshaderclass.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="modelclass.h" />
@@ -167,6 +163,15 @@
     <ClCompile Include="modelclass.cpp" />
     <ClCompile Include="System.cpp" />
     <ClCompile Include="texturearrayclass.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="alphamap_shader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

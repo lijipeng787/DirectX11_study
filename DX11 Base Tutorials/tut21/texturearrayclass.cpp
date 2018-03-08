@@ -6,9 +6,9 @@
 
 TextureArrayClass::TextureArrayClass()
 {
-	m_textures[0] = 0;
-	m_textures[1] = 0;
-	m_textures[2] = 0;
+	textures_[0] = 0;
+	textures_[1] = 0;
+	textures_[2] = 0;
 }
 
 
@@ -28,21 +28,21 @@ bool TextureArrayClass::Initialize(ID3D11Device* device, WCHAR* filename1, WCHAR
 
 
 	// Load the first texture in.
-	result = CreateDDSTextureFromFile( device, filename1, NULL, &m_textures[ 0 ] );
+	result = CreateDDSTextureFromFile( device, filename1, NULL, &textures_[ 0 ] );
 	if(FAILED(result))
 	{
 		return false;
 	}
 
 	// Load the second texture in.
-	result = CreateDDSTextureFromFile( device, filename2, NULL, &m_textures[ 1 ] );
+	result = CreateDDSTextureFromFile( device, filename2, NULL, &textures_[ 1 ] );
 	if(FAILED(result))
 	{
 		return false;
 	}
 
 	// Load the third texture in.
-	result = CreateDDSTextureFromFile( device, filename3, NULL, &m_textures[ 2 ] );
+	result = CreateDDSTextureFromFile( device, filename3, NULL, &textures_[ 2 ] );
 	if(FAILED(result))
 	{
 		return false;
@@ -55,29 +55,29 @@ bool TextureArrayClass::Initialize(ID3D11Device* device, WCHAR* filename1, WCHAR
 void TextureArrayClass::Shutdown()
 {
 	// Release the texture resources.
-	if(m_textures[0])
+	if(textures_[0])
 	{
-		m_textures[0]->Release();
-		m_textures[0] = 0;
+		textures_[0]->Release();
+		textures_[0] = 0;
 	}
 
-	if(m_textures[1])
+	if(textures_[1])
 	{
-		m_textures[1]->Release();
-		m_textures[1] = 0;
+		textures_[1]->Release();
+		textures_[1] = 0;
 	}
 
-	if(m_textures[2])
+	if(textures_[2])
 	{
-		m_textures[2]->Release();
-		m_textures[2] = 0;
+		textures_[2]->Release();
+		textures_[2] = 0;
 	}
 
-	return;
+	
 }
 
 
 ID3D11ShaderResourceView** TextureArrayClass::GetTextureArray()
 {
-	return m_textures;
+	return textures_;
 }

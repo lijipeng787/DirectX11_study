@@ -112,7 +112,7 @@ void GetModelFilename(char* filename)
 		}
 	}
 
-	return;
+	
 }
 
 

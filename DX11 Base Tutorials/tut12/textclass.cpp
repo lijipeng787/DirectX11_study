@@ -125,7 +125,7 @@ void TextClass::Shutdown()
 		m_Font = 0;
 	}
 
-	return;
+	
 }
 
 
@@ -346,7 +346,7 @@ void TextClass::ReleaseSentence(SentenceType** sentence)
 		*sentence = 0;
 	}
 
-	return;
+	
 }
 
 

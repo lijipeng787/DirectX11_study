@@ -28,9 +28,9 @@ public:
 public:
 	void SetPosition(float x,float y,float z);
 private:
-	DirectX11Device *m_D3D = nullptr;
+	DirectX11Device *directx_device_ = nullptr;
 
-	Camera *m_Camera = nullptr;
+	Camera *camera_ = nullptr;
 
 	TextureShaderClass* m_TextureShader = nullptr;
 

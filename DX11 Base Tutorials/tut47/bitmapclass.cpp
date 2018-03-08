@@ -6,8 +6,8 @@
 
 SimpleMoveableSurface::SimpleMoveableSurface()
 {
-	m_vertexBuffer = 0;
-	m_indexBuffer = 0;
+	vertex_buffer_ = 0;
+	index_buffer_ = 0;
 	m_Texture = 0;
 }
 
@@ -65,7 +65,7 @@ void SimpleMoveableSurface::Shutdown()
 	// Shutdown the vertex and index buffers.
 	ShutdownBuffers();
 
-	return;
+	
 }
 
 
@@ -90,7 +90,7 @@ bool SimpleMoveableSurface::Render(ID3D11DeviceContext* deviceContext, int posit
 
 int SimpleMoveableSurface::GetIndexCount()
 {
-	return m_indexCount;
+	return index_count_;
 }
 
 
@@ -111,37 +111,37 @@ bool SimpleMoveableSurface::InitializeBuffers(ID3D11Device* device)
 
 
 	// Set the number of vertices in the vertex array.
-	m_vertexCount = 6;
+	vertex_count_ = 6;
 
 	// Set the number of indices in the index array.
-	m_indexCount = m_vertexCount;
+	index_count_ = vertex_count_;
 
 	// Create the vertex array.
-	vertices = new VertexType[m_vertexCount];
+	vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
 		return false;
 	}
 
 	// Create the index array.
-	indices = new unsigned long[m_indexCount];
+	indices = new unsigned long[index_count_];
 	if(!indices)
 	{
 		return false;
 	}
 
 	// Initialize vertex array to zeros at first.
-	memset(vertices, 0, (sizeof(VertexType) * m_vertexCount));
+	memset(vertices, 0, (sizeof(VertexType) * vertex_count_));
 
 	// Load the index array with data.
-	for(i=0; i<m_indexCount; i++)
+	for(i=0; i<index_count_; i++)
 	{
 		indices[i] = i;
 	}
 
 	// Set up the description of the static vertex buffer.
     vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-    vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
+    vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertex_count_;
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     vertexBufferDesc.MiscFlags = 0;
@@ -153,7 +153,7 @@ bool SimpleMoveableSurface::InitializeBuffers(ID3D11Device* device)
 	vertexData.SysMemSlicePitch = 0;
 
 	// Now create the vertex buffer.
-    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer);
+    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &vertex_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -161,7 +161,7 @@ bool SimpleMoveableSurface::InitializeBuffers(ID3D11Device* device)
 
 	// Set up the description of the static index buffer.
     indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    indexBufferDesc.ByteWidth = sizeof(unsigned long) * m_indexCount;
+    indexBufferDesc.ByteWidth = sizeof(unsigned long) * index_count_;
     indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
     indexBufferDesc.CPUAccessFlags = 0;
     indexBufferDesc.MiscFlags = 0;
@@ -173,7 +173,7 @@ bool SimpleMoveableSurface::InitializeBuffers(ID3D11Device* device)
 	indexData.SysMemSlicePitch = 0;
 
 	// Create the index buffer.
-	result = device->CreateBuffer(&indexBufferDesc, &indexData, &m_indexBuffer);
+	result = device->CreateBuffer(&indexBufferDesc, &indexData, &index_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -193,20 +193,20 @@ bool SimpleMoveableSurface::InitializeBuffers(ID3D11Device* device)
 void SimpleMoveableSurface::ShutdownBuffers()
 {
 	// Release the index buffer.
-	if(m_indexBuffer)
+	if(index_buffer_)
 	{
-		m_indexBuffer->Release();
-		m_indexBuffer = 0;
+		index_buffer_->Release();
+		index_buffer_ = 0;
 	}
 
 	// Release the vertex buffer.
-	if(m_vertexBuffer)
+	if(vertex_buffer_)
 	{
-		m_vertexBuffer->Release();
-		m_vertexBuffer = 0;
+		vertex_buffer_->Release();
+		vertex_buffer_ = 0;
 	}
 
-	return;
+	
 }
 
 
@@ -243,7 +243,7 @@ bool SimpleMoveableSurface::UpdateBuffers(ID3D11DeviceContext* deviceContext, in
 	bottom = top - (float)m_bitmapHeight;
 
 	// Create the vertex array.
-	vertices = new VertexType[m_vertexCount];
+	vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
 		return false;
@@ -271,7 +271,7 @@ bool SimpleMoveableSurface::UpdateBuffers(ID3D11DeviceContext* deviceContext, in
 	vertices[5].texture = XMFLOAT2(1.0f, 1.0f);
 
 	// Lock the vertex buffer so it can be written to.
-	result = deviceContext->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = deviceContext->Map(vertex_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -281,10 +281,10 @@ bool SimpleMoveableSurface::UpdateBuffers(ID3D11DeviceContext* deviceContext, in
 	verticesPtr = (VertexType*)mappedResource.pData;
 
 	// Copy the data into the vertex buffer.
-	memcpy(verticesPtr, (void*)vertices, (sizeof(VertexType) * m_vertexCount));
+	memcpy(verticesPtr, (void*)vertices, (sizeof(VertexType) * vertex_count_));
 
 	// Unlock the vertex buffer.
-	deviceContext->Unmap(m_vertexBuffer, 0);
+	deviceContext->Unmap(vertex_buffer_, 0);
 
 	// Release the vertex array as it is no longer needed.
 	delete [] vertices;
@@ -305,15 +305,15 @@ void SimpleMoveableSurface::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	offset = 0;
     
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
+	deviceContext->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
 
     // Set the index buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	deviceContext->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
 
     // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	return;
+	
 }
 
 
@@ -350,5 +350,5 @@ void SimpleMoveableSurface::ReleaseTexture()
 		m_Texture = 0;
 	}
 
-	return;
+	
 }

@@ -22,21 +22,21 @@ LightClass::~LightClass()
 void LightClass::SetAmbientColor(float red, float green, float blue, float alpha)
 {
 	m_ambientColor = XMFLOAT4(red, green, blue, alpha);
-	return;
+	
 }
 
 
 void LightClass::SetDiffuseColor(float red, float green, float blue, float alpha)
 {
 	m_diffuseColor = XMFLOAT4(red, green, blue, alpha);
-	return;
+	
 }
 
 
 void LightClass::SetPosition(float x, float y, float z)
 {
 	m_position = XMFLOAT3(x, y, z);
-	return;
+	
 }
 
 
@@ -45,7 +45,7 @@ void LightClass::SetLookAt(float x, float y, float z)
 	m_lookAt.x = x;
 	m_lookAt.y = y;
 	m_lookAt.z = z;
-	return;
+	
 }
 
 
@@ -92,14 +92,14 @@ void LightClass::GenerateViewMatrix()
 	// Create the view matrix from the three vectors.
 	m_viewMatrix = XMMatrixLookAtLH( position, lookAt, up );
 
-	return;
+	
 }
 
 
 void LightClass::GetViewMatrix( XMMATRIX& viewMatrix)
 {
 	viewMatrix = m_viewMatrix;
-	return;
+	
 }
 
 
@@ -108,21 +108,21 @@ void LightClass::GenerateOrthoMatrix(float width, float depthPlane, float nearPl
 	// Create the orthographic matrix for the light.
 	m_orthoMatrix =  XMMatrixOrthographicLH( width, width, nearPlane, depthPlane);
 
-	return;
+	
 }
 
 
 void LightClass::GetOrthoMatrix( XMMATRIX& orthoMatrix)
 {
 	orthoMatrix = m_orthoMatrix;
-	return;
+	
 }
 
 
 void LightClass::SetDirection(float x, float y, float z)
 {
 	m_direction = XMFLOAT3(x, y, z);
-	return;
+	
 }
 
 

@@ -22,11 +22,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	bool result;
 
 	{
-		m_D3D = new DirectX11Device;
-		if (!m_D3D) {
+		directx_device_ = new DirectX11Device;
+		if (!directx_device_) {
 			return false;
 		}
-		result = m_D3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -34,13 +34,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Camera = (Camera*)_aligned_malloc(sizeof(Camera), 16);
-		new (m_Camera)Camera();
-		if (!m_Camera) {
+		camera_ = (Camera*)_aligned_malloc(sizeof(Camera), 16);
+		new (camera_)Camera();
+		if (!camera_) {
 			return false;
 		}
-		m_Camera->SetPosition(0.0f, -1.0f, -10.0f);
-		m_Camera->Render();
+		camera_->SetPosition(0.0f, -1.0f, -10.0f);
+		camera_->Render();
 	}
 
 	{
@@ -49,7 +49,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		result = m_CubeModel->Initialize(m_D3D->GetDevice(), "../../tut40/data/cube.txt", L"../../tut40/data/wall01.dds");
+		result = m_CubeModel->Initialize(directx_device_->GetDevice(), "../../tut40/data/cube.txt", L"../../tut40/data/wall01.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
 			return false;
@@ -63,7 +63,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_SphereModel) {
 			return false;
 		}
-		result = m_SphereModel->Initialize(m_D3D->GetDevice(), "../../tut40/data/sphere.txt", L"../../tut40/data/ice.dds");
+		result = m_SphereModel->Initialize(directx_device_->GetDevice(), "../../tut40/data/sphere.txt", L"../../tut40/data/ice.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the sphere model object.", L"Error", MB_OK);
 			return false;
@@ -76,7 +76,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_GroundModel) {
 			return false;
 		}
-		result = m_GroundModel->Initialize(m_D3D->GetDevice(), "../../tut40/data/plane01.txt", L"../../tut40/data/metal001.dds");
+		result = m_GroundModel->Initialize(directx_device_->GetDevice(), "../../tut40/data/plane01.txt", L"../../tut40/data/metal001.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
 			return false;
@@ -103,7 +103,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_RenderTexture) {
 			return false;
 		}
-		result = m_RenderTexture->Initialize(m_D3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_RenderTexture->Initialize(directx_device_->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
 			return false;
@@ -116,7 +116,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_DepthShader) {
 			return false;
 		}
-		result = m_DepthShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_DepthShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK);
 			return false;
@@ -129,7 +129,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_ShadowShader) {
 			return false;
 		}
-		result = m_ShadowShader->Initialize(m_D3D->GetDevice(), hwnd);
+		result = m_ShadowShader->Initialize(directx_device_->GetDevice(), hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the shadow shader object.", L"Error", MB_OK);
 			return false;
@@ -201,16 +201,16 @@ void GraphicsClass::Shutdown() {
 		m_CubeModel = 0;
 	}
 
-	if (m_Camera) {
-		m_Camera->~Camera();
-		_aligned_free(m_Camera);
-		m_Camera = 0;
+	if (camera_) {
+		camera_->~Camera();
+		_aligned_free(camera_);
+		camera_ = 0;
 	}
 
-	if (m_D3D) {
-		m_D3D->Shutdown();
-		delete m_D3D;
-		m_D3D = 0;
+	if (directx_device_) {
+		directx_device_->Shutdown();
+		delete directx_device_;
+		directx_device_ = 0;
 	}
 }
 
@@ -219,8 +219,8 @@ bool GraphicsClass::Frame() {
 	bool result;
 	static float lightPositionX = -5.0f;
 
-	m_Camera->SetPosition(pos_x_, pos_y_, pos_z_);
-	m_Camera->SetRotation(rot_x_, rot_y_, rot_z_);
+	camera_->SetPosition(pos_x_, pos_y_, pos_z_);
+	camera_->SetRotation(rot_x_, rot_y_, rot_z_);
 
 	lightPositionX += 0.05f;
 	if (lightPositionX > 5.0f) {
@@ -243,13 +243,13 @@ bool GraphicsClass::RenderSceneToTexture() {
 	float posX, posY, posZ;
 	bool result;
 
-	m_RenderTexture->SetRenderTarget(m_D3D->GetDeviceContext());
+	m_RenderTexture->SetRenderTarget(directx_device_->GetDeviceContext());
 
-	m_RenderTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_RenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	m_Light->GenerateViewMatrix();
 
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	m_Light->GetViewMatrix(lightViewMatrix);
 	m_Light->GetProjectionMatrix(lightProjectionMatrix);
@@ -257,37 +257,37 @@ bool GraphicsClass::RenderSceneToTexture() {
 	m_CubeModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
-	m_CubeModel->Render(m_D3D->GetDeviceContext());
-	result = m_DepthShader->Render(m_D3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
+	m_CubeModel->Render(directx_device_->GetDeviceContext());
+	result = m_DepthShader->Render(directx_device_->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	m_SphereModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
-	m_SphereModel->Render(m_D3D->GetDeviceContext());
-	result = m_DepthShader->Render(m_D3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
+	m_SphereModel->Render(directx_device_->GetDeviceContext());
+	result = m_DepthShader->Render(directx_device_->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	m_GroundModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
-	m_GroundModel->Render(m_D3D->GetDeviceContext());
-	result = m_DepthShader->Render(m_D3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
+	m_GroundModel->Render(directx_device_->GetDeviceContext());
+	result = m_DepthShader->Render(directx_device_->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
 	if (!result) {
 		return false;
 	}
 
-	m_D3D->SetBackBufferRenderTarget();
+	directx_device_->SetBackBufferRenderTarget();
 
-	m_D3D->ResetViewport();
+	directx_device_->ResetViewport();
 
 	return true;
 }
@@ -304,25 +304,25 @@ bool GraphicsClass::Render() {
 		return false;
 	}
 
-	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_Camera->Render();
+	camera_->Render();
 
 	m_Light->GenerateViewMatrix();
 
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_D3D->GetWorldMatrix(worldMatrix);
-	m_D3D->GetProjectionMatrix(projectionMatrix);
+	camera_->GetViewMatrix(viewMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device_->GetProjectionMatrix(projectionMatrix);
 
 	m_Light->GetViewMatrix(lightViewMatrix);
 	m_Light->GetProjectionMatrix(lightProjectionMatrix);
 
 	m_CubeModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
-	m_CubeModel->Render(m_D3D->GetDeviceContext());
+	m_CubeModel->Render(directx_device_->GetDeviceContext());
 
 	result = m_ShadowShader->Render(
-		m_D3D->GetDeviceContext(), 
+		directx_device_->GetDeviceContext(), 
 		m_CubeModel->GetIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,lightProjectionMatrix, 
 		m_CubeModel->GetTexture(), m_RenderTexture->GetShaderResourceView(), 
@@ -332,13 +332,13 @@ bool GraphicsClass::Render() {
 		return false;
 	}
 
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 	m_SphereModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
-	m_SphereModel->Render(m_D3D->GetDeviceContext());
+	m_SphereModel->Render(directx_device_->GetDeviceContext());
 
 	result = m_ShadowShader->Render(
-		m_D3D->GetDeviceContext(), 
+		directx_device_->GetDeviceContext(), 
 		m_SphereModel->GetIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,lightProjectionMatrix, 
 		m_SphereModel->GetTexture(), m_RenderTexture->GetShaderResourceView(), 
@@ -348,13 +348,13 @@ bool GraphicsClass::Render() {
 		return false;
 	}
 
-	m_D3D->GetWorldMatrix(worldMatrix);
+	directx_device_->GetWorldMatrix(worldMatrix);
 
 	m_GroundModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
-	m_GroundModel->Render(m_D3D->GetDeviceContext());
+	m_GroundModel->Render(directx_device_->GetDeviceContext());
 	result = m_ShadowShader->Render(
-		m_D3D->GetDeviceContext(), 
+		directx_device_->GetDeviceContext(), 
 		m_GroundModel->GetIndexCount(),
 		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,lightProjectionMatrix,
 		m_GroundModel->GetTexture(), m_RenderTexture->GetShaderResourceView(), 
@@ -364,7 +364,7 @@ bool GraphicsClass::Render() {
 		return false;
 	}
 
-	m_D3D->EndScene();
+	directx_device_->EndScene();
 
 	return true;
 }
