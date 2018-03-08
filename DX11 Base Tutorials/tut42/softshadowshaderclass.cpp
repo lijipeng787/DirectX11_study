@@ -122,7 +122,7 @@ bool SoftShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WC
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
 		}
-		// If there was nothing in the error message then it simply could not find the file itself.
+		
 		else
 		{
 			MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
@@ -415,7 +415,7 @@ bool SoftShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
 	device_context->PSSetShaderResources(0, 1, &texture);
 	device_context->PSSetShaderResources(1, 1, &shadowTexture);
 
-	// Lock the light constant buffer so it can be written to.
+
 	result = device_context->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
@@ -425,17 +425,17 @@ bool SoftShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
 	
 	dataPtr2 = (LightBufferType*)mappedResource.pData;
 
-	// Copy the lighting variables into the constant buffer.
+	
 	dataPtr2->ambientColor = ambientColor;
 	dataPtr2->diffuseColor = diffuseColor;
 
 	
 	device_context->Unmap(m_lightBuffer, 0);
 
-	// Set the position of the light constant buffer in the pixel shader.
+	
 	buffer_number = 0;
 
-	// Finally set the light constant buffer in the pixel shader with the updated values.
+	
 	device_context->PSSetConstantBuffers(buffer_number, 1, &m_lightBuffer);
 
 	// Lock the second light constant buffer so it can be written to.
@@ -448,7 +448,7 @@ bool SoftShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
 	
 	dataPtr3 = (LightBufferType2*)mappedResource.pData;
 
-	// Copy the lighting variables into the constant buffer.
+	
 	dataPtr3->lightPosition = lightPosition;
 	dataPtr3->padding = 0.0f;
 
@@ -458,7 +458,7 @@ bool SoftShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
 	// Set the position of the light constant buffer in the vertex shader.
 	buffer_number = 1;
 
-	// Finally set the light constant buffer in the pixel shader with the updated values.
+	
 	device_context->VSSetConstantBuffers(buffer_number, 1, &m_lightBuffer2);
 
 	return true;

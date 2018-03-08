@@ -64,13 +64,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_LightShader = (LightShaderClass*)_aligned_malloc(sizeof(LightShaderClass), 16);
-		new (m_LightShader)LightShaderClass();
-		if (!m_LightShader) {
+		light_shader_ = (LightShaderClass*)_aligned_malloc(sizeof(LightShaderClass), 16);
+		new (light_shader_)LightShaderClass();
+		if (!light_shader_) {
 			return false;
 		}
 
-		result = m_LightShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = light_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
 			return false;
@@ -78,13 +78,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Light = new LightClass();
-		if (!m_Light) {
+		light_ = new LightClass();
+		if (!light_) {
 			return false;
 		}
 
-		m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-		m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+		light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+		light_->SetDirection(0.0f, 0.0f, 1.0f);
 	}
 
 	{
@@ -93,7 +93,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		result = m_RenderTexture->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight);
+		result = m_RenderTexture->Initialize(screenWidth, screenHeight);
 		if (!result) {
 			return false;
 		}
@@ -105,7 +105,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		result = m_DebugWindow->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight, 100, 100);
+		result = m_DebugWindow->Initialize(screenWidth, screenHeight, 100, 100);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the debug window object.", L"Error", MB_OK);
 			return false;
@@ -120,7 +120,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		result = m_TextureShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_TextureShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -158,19 +158,19 @@ void GraphicsClass::Shutdown() {
 	}
 
 	// Release the light object.
-	if (m_Light)
+	if (light_)
 	{
-		delete m_Light;
-		m_Light = 0;
+		delete light_;
+		light_ = 0;
 	}
 
 	// Release the light shader object.
-	if (m_LightShader)
+	if (light_shader_)
 	{
-		m_LightShader->Shutdown();
-		m_LightShader->~LightShaderClass();
-		_aligned_free(m_LightShader);
-		m_LightShader = 0;
+		light_shader_->Shutdown();
+		light_shader_->~LightShaderClass();
+		_aligned_free(light_shader_);
+		light_shader_ = 0;
 	}
 
 
@@ -290,8 +290,8 @@ bool GraphicsClass::RenderScene() {
 	worldMatrix = XMMatrixRotationY(rotation);
 
 	model_->Render(directx_device_->GetDeviceContext());
-	result = m_LightShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		model_->GetTexture(), m_Light->GetDirection(), m_Light->GetDiffuseColor());
+	result = light_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		model_->GetTexture(), light_->GetDirection(), light_->GetDiffuseColor());
 	if (!result) {
 		return false;
 	}

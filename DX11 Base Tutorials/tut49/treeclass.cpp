@@ -451,10 +451,10 @@ bool TreeClass::LoadModel(char* filename)
 	int i;
 
 
-	// Open the model file.
+
 	fin.open(filename);
 	
-	// If it could not open the file then exit.
+
 	if(fin.fail())
 	{
 		return false;

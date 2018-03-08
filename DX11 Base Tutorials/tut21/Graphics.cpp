@@ -70,7 +70,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		result = m_SpecMapShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_SpecMapShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the specular map shader object.", L"Error", MB_OK);
 			return false;
@@ -78,15 +78,15 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Light = new LightClass();
-		if (!m_Light) {
+		light_ = new LightClass();
+		if (!light_) {
 			return false;
 		}
 
-		m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-		m_Light->SetDirection(0.0f, 0.0f, 1.0f);
-		m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
-		m_Light->SetSpecularPower(16.0f);
+		light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+		light_->SetDirection(0.0f, 0.0f, 1.0f);
+		light_->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+		light_->SetSpecularPower(16.0f);
 	}
 
 	return true;
@@ -95,10 +95,10 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 void GraphicsClass::Shutdown()
 {
 	// Release the light object.
-	if (m_Light)
+	if (light_)
 	{
-		delete m_Light;
-		m_Light = 0;
+		delete light_;
+		light_ = 0;
 	}
 
 	// Release the specular map shader object.
@@ -168,8 +168,8 @@ bool GraphicsClass::Render() {
 
 	model_->Render(directx_device_->GetDeviceContext());
 	m_SpecMapShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		model_->GetTextureArray(), m_Light->GetDirection(), m_Light->GetDiffuseColor(),
-		camera_->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+		model_->GetTextureArray(), light_->GetDirection(), light_->GetDiffuseColor(),
+		camera_->GetPosition(), light_->GetSpecularColor(), light_->GetSpecularPower());
 	directx_device_->EndScene();
 
 	return true;

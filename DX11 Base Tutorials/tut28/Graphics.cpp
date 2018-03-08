@@ -50,7 +50,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!model_) {
 			return false;
 		}
-		result = model_->Initialize(directx_device_->GetDevice(), L"../../tut28/data/seafloor.dds", "../../tut28/data/cube.txt");
+		result = model_->Initialize(L"../../tut28/data/seafloor.dds", "../../tut28/data/cube.txt");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
@@ -63,7 +63,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_TextureShader) {
 			return false;
 		}
-		result = m_TextureShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_TextureShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -75,7 +75,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_RenderTexture) {
 			return false;
 		}
-		result = m_RenderTexture->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight);
+		result = m_RenderTexture->Initialize(screenWidth, screenHeight);
 		if (!result) {
 			return false;
 		}
@@ -86,7 +86,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Bitmap) {
 			return false;
 		}
-		result = m_Bitmap->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight, screenWidth, screenHeight);
+		result = m_Bitmap->Initialize(screenWidth, screenHeight, screenWidth, screenHeight);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
 			return false;
@@ -102,7 +102,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_FadeShader) {
 			return false;
 		}
-		result = m_FadeShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_FadeShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the fade shader object.", L"Error", MB_OK);
 			return false;

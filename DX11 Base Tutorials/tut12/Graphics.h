@@ -1,5 +1,5 @@
-#ifndef _GRAPHICSCLASS_H_
-#define _GRAPHICSCLASS_H_
+
+
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -25,7 +25,7 @@ public:
 
 	virtual bool Render()override;
 private:
-	DirectX11Device *directx_device_ = nullptr;
+	
 
 	Camera *camera_ = nullptr;
 

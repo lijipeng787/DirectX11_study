@@ -122,7 +122,7 @@ bool ProjectionShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WC
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
 		}
-		// If there was nothing in the error message then it simply could not find the file itself.
+		
 		else
 		{
 			MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
@@ -268,7 +268,7 @@ void ProjectionShaderClass::ShutdownShader()
 		m_lightPositionBuffer = 0;
 	}
 
-	// Release the light constant buffer.
+	
 	if(m_lightBuffer)
 	{
 		m_lightBuffer->Release();
@@ -401,7 +401,7 @@ bool ProjectionShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
 	
     device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
-	// Lock the light constant buffer so it can be written to.
+
 	result = device_context->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
@@ -411,17 +411,17 @@ bool ProjectionShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
 	
 	dataPtr2 = (LightBufferType*)mappedResource.pData;
 
-	// Copy the lighting variables into the constant buffer.
+	
 	dataPtr2->ambientColor = ambientColor;
 	dataPtr2->diffuseColor = diffuseColor;
 
 	
 	device_context->Unmap(m_lightBuffer, 0);
 
-	// Set the position of the light constant buffer in the pixel shader.
+	
 	buffer_number = 0;
 
-	// Finally set the light constant buffer in the pixel shader with the updated values.
+	
 	device_context->PSSetConstantBuffers(buffer_number, 1, &m_lightBuffer);
 
 	// Lock the light position constant buffer so it can be written to.
@@ -434,7 +434,7 @@ bool ProjectionShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
 	
 	dataPtr3 = (LightPositionBufferType*)mappedResource.pData;
 
-	// Copy the lighting variables into the constant buffer.
+	
 	dataPtr3->lightPosition = lightPosition;
 	dataPtr3->padding = 0.0f;
 

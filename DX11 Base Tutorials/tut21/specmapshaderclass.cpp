@@ -287,7 +287,7 @@ void SpecMapShaderClass::ShutdownShader()
 		m_cameraBuffer = 0;
 	}
 
-	// Release the light constant buffer.
+	
 	if(m_lightBuffer)
 	{
 		m_lightBuffer->Release();
@@ -418,7 +418,7 @@ bool SpecMapShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context
 	// Set shader texture array resource in the pixel shader.
 	device_context->PSSetShaderResources(0, 3, textureArray);
 
-	// Lock the light constant buffer so it can be written to.
+
 	result = device_context->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
@@ -428,7 +428,7 @@ bool SpecMapShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context
 	
 	dataPtr2 = (LightBufferType*)mappedResource.pData;
 
-	// Copy the lighting variables into the constant buffer.
+	
 	dataPtr2->diffuseColor = diffuseColor;
 	dataPtr2->lightDirection = lightDirection;
 	dataPtr2->specularColor = specularColor;
@@ -437,10 +437,10 @@ bool SpecMapShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context
 	
 	device_context->Unmap(m_lightBuffer, 0);
 
-	// Set the position of the light constant buffer in the pixel shader.
+	
 	buffer_number = 0;
 
-	// Finally set the light constant buffer in the pixel shader with the updated values.
+	
 	device_context->PSSetConstantBuffers(buffer_number, 1, &m_lightBuffer);
 
 	// Lock the camera constant buffer so it can be written to.

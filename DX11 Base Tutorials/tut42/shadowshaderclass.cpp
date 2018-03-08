@@ -119,7 +119,7 @@ bool ShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR*
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
 		}
-		// If there was nothing in the error message then it simply could not find the file itself.
+		
 		else
 		{
 			MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
@@ -243,7 +243,7 @@ bool ShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR*
 
 void ShadowShaderClass::ShutdownShader()
 {
-	// Release the light constant buffer.
+	
 	if(m_lightBuffer2)
 	{
 		m_lightBuffer2->Release();
@@ -387,7 +387,7 @@ bool ShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context,
 	
 	dataPtr3 = (LightBufferType2*)mappedResource.pData;
 
-	// Copy the lighting variables into the constant buffer.
+	
 	dataPtr3->lightPosition = lightPosition;
 	dataPtr3->padding = 0.0f;
 
@@ -397,7 +397,7 @@ bool ShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context,
 	// Set the position of the light constant buffer in the vertex shader.
 	buffer_number = 1;
 
-	// Finally set the light constant buffer in the pixel shader with the updated values.
+	
 	device_context->VSSetConstantBuffers(buffer_number, 1, &m_lightBuffer2);
 
 	return true;

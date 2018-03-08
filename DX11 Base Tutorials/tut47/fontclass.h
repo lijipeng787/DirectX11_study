@@ -15,9 +15,9 @@ using namespace std;
 using namespace DirectX;
 
 
-/////////
-// MY CLASS INCLUDES //
-/////////
+
+
+
 #include "textureclass.h"
 
 

@@ -1,5 +1,5 @@
-#ifndef _GRAPHICSCLASS_H_
-#define _GRAPHICSCLASS_H_
+
+
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -34,7 +34,7 @@ public:
 		rotationY = rotation;
 	}
 private:
-	DirectX11Device *directx_device_ = nullptr;
+	
 
 	Camera *camera_ = nullptr;
 
@@ -42,9 +42,9 @@ private:
 
 	TextClass* m_Text = nullptr;
 
-	LightShaderClass* m_LightShader = nullptr;
+	LightShaderClass* light_shader_ = nullptr;
 
-	LightClass* m_Light = nullptr;
+	LightClass* light_ = nullptr;
 
 	ModelListClass* m_ModelList = nullptr;
 

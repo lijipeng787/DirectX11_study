@@ -1,5 +1,5 @@
 
-// Filename: lightclass.cpp
+
 
 #include "lightclass.h"
 
@@ -21,7 +21,7 @@ LightClass::~LightClass()
 
 void LightClass::SetDiffuseColor(float red, float green, float blue, float alpha)
 {
-	m_diffuseColor = XMFLOAT4(red, green, blue, alpha);
+	diffuse_color_ = XMFLOAT4(red, green, blue, alpha);
 	
 }
 
@@ -35,7 +35,7 @@ void LightClass::SetPosition(float x, float y, float z)
 
 XMFLOAT4 LightClass::GetDiffuseColor()
 {
-	return m_diffuseColor;
+	return diffuse_color_;
 }
 
 

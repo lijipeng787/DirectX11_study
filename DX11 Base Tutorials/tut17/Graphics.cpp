@@ -64,7 +64,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		result = m_MultiTextureShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_MultiTextureShader->Initialize(hwnd);
 		if (!result)
 		{
 			MessageBox(hwnd, L"Could not initialize the multitexture shader object.", L"Error", MB_OK);

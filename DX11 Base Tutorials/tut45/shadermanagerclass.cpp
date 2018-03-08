@@ -8,7 +8,7 @@
 ShaderManagerClass::ShaderManagerClass()
 {
 	m_TextureShader = 0;
-	m_LightShader = 0;
+	light_shader_ = 0;
 	m_BumpMapShader = 0;
 }
 
@@ -45,15 +45,15 @@ bool ShaderManagerClass::Initialize(ID3D11Device* device, HWND hwnd)
 	}
 
 	// Create the light shader object.
-	m_LightShader = ( LightShaderClass* )_aligned_malloc( sizeof( LightShaderClass ), 16 );
-	new ( m_LightShader )LightShaderClass();
-	if(!m_LightShader)
+	light_shader_ = ( LightShaderClass* )_aligned_malloc( sizeof( LightShaderClass ), 16 );
+	new ( light_shader_ )LightShaderClass();
+	if(!light_shader_)
 	{
 		return false;
 	}
 
 	// Initialize the light shader object.
-	result = m_LightShader->Initialize(device, hwnd);
+	result = light_shader_->Initialize(device, hwnd);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
@@ -92,12 +92,12 @@ void ShaderManagerClass::Shutdown()
 	}
 
 	// Release the light shader object.
-	if(m_LightShader)
+	if(light_shader_)
 	{
-		m_LightShader->Shutdown();
-		m_LightShader->~LightShaderClass();
-		_aligned_free( m_LightShader );
-		m_LightShader = 0;
+		light_shader_->Shutdown();
+		light_shader_->~LightShaderClass();
+		_aligned_free( light_shader_ );
+		light_shader_ = 0;
 	}
 
 	
@@ -138,7 +138,7 @@ bool ShaderManagerClass::RenderLightShader(ID3D11DeviceContext* device_context, 
 
 
 	// Render the model using the light shader.
-	result = m_LightShader->Render(device_context, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, ambient, diffuse, cameraPosition, 
+	result = light_shader_->Render(device_context, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, ambient, diffuse, cameraPosition, 
 								   specular, specularPower);
 	if(!result)
 	{

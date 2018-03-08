@@ -39,7 +39,7 @@ bool SimpleMoveableSurface::Initialize(ID3D11Device* device, int screenWidth, in
 	m_previousPosX = -1;
 	m_previousPosY = -1;
 
-	// Initialize the vertex and index buffers.
+	
 	result = InitializeBuffers(device);
 	if(!result)
 	{

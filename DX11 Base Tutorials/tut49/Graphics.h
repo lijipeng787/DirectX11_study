@@ -1,5 +1,5 @@
-#ifndef _GRAPHICSCLASS_H_
-#define _GRAPHICSCLASS_H_
+
+
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -62,11 +62,11 @@ private:
 
 	float delta_time_ = 0.0f;
 
-	DirectX11Device *directx_device_ = nullptr;
+	
 
 	Camera *camera_ = nullptr;
 
-	LightClass* m_Light;
+	LightClass* light_;
 
 	ModelClass* m_GroundModel;
 

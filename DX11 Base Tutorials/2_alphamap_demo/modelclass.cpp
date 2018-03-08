@@ -24,13 +24,13 @@ bool ModelClass::Initialize(char* modelFilename,
 							WCHAR* textureFilename2,
 							WCHAR* textureFilename3) {
 
-	// Load in the model data,
+	
 	auto result = LoadModel(modelFilename);
 	if (!result) {
 		return false;
 	}
 
-	// Initialize the vertex and index buffers.
+	
 	result = InitializeBuffers();
 	if (!result) {
 		return false;

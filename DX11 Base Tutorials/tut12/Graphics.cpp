@@ -50,7 +50,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 		
-		result = m_Text->Initialize(directx_device_->GetDevice(), directx_device_->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
+		result = m_Text->Initialize(directx_device_->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
 			return false;

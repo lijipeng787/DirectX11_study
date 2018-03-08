@@ -1,5 +1,5 @@
 
-// Filename: lightshaderclass.cpp
+
 
 #include "lightshaderclass.h"
 
@@ -246,7 +246,7 @@ bool LightShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 
 void LightShaderClass::ShutdownShader()
 {
-	// Release the light constant buffer.
+	
 	if(m_lightBuffer)
 	{
 		m_lightBuffer->Release();
@@ -373,7 +373,7 @@ bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, 
 	// Now set the matrix constant buffer in the vertex shader with the updated values.
     device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
-	// Lock the light constant buffer so it can be written to.
+
 	result = device_context->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
@@ -383,17 +383,17 @@ bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, 
 	
 	dataPtr2 = (LightBufferType*)mappedResource.pData;
 
-	// Copy the lighting variables into the constant buffer.
+	
 	dataPtr2->diffuseColor = diffuseColor;
 	dataPtr2->lightDirection = lightDirection;
 
 	
 	device_context->Unmap(m_lightBuffer, 0);
 
-	// Set the position of the light constant buffer in the pixel shader.
+	
 	buffer_number = 0;
 
-	// Finally set the light constant buffer in the pixel shader with the updated values.
+	
 	device_context->PSSetConstantBuffers(buffer_number, 1, &m_lightBuffer);
 
 	return true;

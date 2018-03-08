@@ -1,5 +1,5 @@
-#ifndef _LIGHTCLASS_H_
-#define _LIGHTCLASS_H_
+
+
 
 #include <DirectXMath.h>
 

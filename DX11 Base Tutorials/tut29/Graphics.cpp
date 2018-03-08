@@ -51,7 +51,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!ground_model_) {
 			return false;
 		}
-		result = ground_model_->Initialize(directx_device_->GetDevice(), L"../../tut29/data/ground01.dds", "../../tut29/data/ground.txt");
+		result = ground_model_->Initialize(L"../../tut29/data/ground01.dds", "../../tut29/data/ground.txt");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
 			return false;
@@ -61,7 +61,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!wall_model_) {
 			return false;
 		}
-		result = wall_model_->Initialize(directx_device_->GetDevice(), L"../../tut29/data/wall01.dds", "../../tut29/data/wall.txt");
+		result = wall_model_->Initialize(L"../../tut29/data/wall01.dds", "../../tut29/data/wall.txt");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the wall model object.", L"Error", MB_OK);
 			return false;
@@ -71,7 +71,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!bath_model_) {
 			return false;
 		}
-		result = bath_model_->Initialize(directx_device_->GetDevice(), L"../../tut29/data/marble01.dds", "../../tut29/data/bath.txt");
+		result = bath_model_->Initialize(L"../../tut29/data/marble01.dds", "../../tut29/data/bath.txt");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the bath model object.", L"Error", MB_OK);
 			return false;
@@ -81,7 +81,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!water_model_) {
 			return false;
 		}
-		result = water_model_->Initialize(directx_device_->GetDevice(), L"../../tut29/data/water01.dds", "../../tut29/data/water.txt");
+		result = water_model_->Initialize(L"../../tut29/data/water01.dds", "../../tut29/data/water.txt");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the water model object.", L"Error", MB_OK);
 			return false;
@@ -104,7 +104,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!refraction_texture_) {
 			return false;
 		}
-		result = refraction_texture_->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight);
+		result = refraction_texture_->Initialize(screenWidth, screenHeight);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the refraction render to texture object.", L"Error", MB_OK);
 			return false;
@@ -117,7 +117,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!reflection_texture_) {
 			return false;
 		}
-		result = reflection_texture_->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight);
+		result = reflection_texture_->Initialize(screenWidth, screenHeight);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the reflection render to texture object.", L"Error", MB_OK);
 			return false;
@@ -130,7 +130,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!light_shader_) {
 			return false;
 		}
-		result = light_shader_->Initialize(directx_device_->GetDevice(), hwnd);
+		result = light_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
 			return false;
@@ -143,7 +143,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!refraction_shader_) {
 			return false;
 		}
-		result = refraction_shader_->Initialize(directx_device_->GetDevice(), hwnd);
+		result = refraction_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the refraction shader object.", L"Error", MB_OK);
 			return false;
@@ -156,7 +156,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!water_shader_) {
 			return false;
 		}
-		result = water_shader_->Initialize(directx_device_->GetDevice(), hwnd);
+		result = water_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the water shader object.", L"Error", MB_OK);
 			return false;

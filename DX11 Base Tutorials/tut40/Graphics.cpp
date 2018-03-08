@@ -49,7 +49,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		result = m_CubeModel->Initialize(directx_device_->GetDevice(), "../../tut40/data/cube.txt", L"../../tut40/data/wall01.dds");
+		result = m_CubeModel->Initialize("../../tut40/data/cube.txt", L"../../tut40/data/wall01.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
 			return false;
@@ -63,7 +63,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_SphereModel) {
 			return false;
 		}
-		result = m_SphereModel->Initialize(directx_device_->GetDevice(), "../../tut40/data/sphere.txt", L"../../tut40/data/ice.dds");
+		result = m_SphereModel->Initialize("../../tut40/data/sphere.txt", L"../../tut40/data/ice.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the sphere model object.", L"Error", MB_OK);
 			return false;
@@ -76,7 +76,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_GroundModel) {
 			return false;
 		}
-		result = m_GroundModel->Initialize(directx_device_->GetDevice(), "../../tut40/data/plane01.txt", L"../../tut40/data/metal001.dds");
+		result = m_GroundModel->Initialize("../../tut40/data/plane01.txt", L"../../tut40/data/metal001.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
 			return false;
@@ -86,15 +86,15 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Light = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
-		new (m_Light)LightClass();
-		if (!m_Light) {
+		light_ = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
+		new (light_)LightClass();
+		if (!light_) {
 			return false;
 		}
-		m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
-		m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-		m_Light->SetLookAt(0.0f, 0.0f, 0.0f);
-		m_Light->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
+		light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+		light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+		light_->SetLookAt(0.0f, 0.0f, 0.0f);
+		light_->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
 	}
 
 	{
@@ -103,7 +103,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_RenderTexture) {
 			return false;
 		}
-		result = m_RenderTexture->Initialize(directx_device_->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_RenderTexture->Initialize(SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
 			return false;
@@ -116,7 +116,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_DepthShader) {
 			return false;
 		}
-		result = m_DepthShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_DepthShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK);
 			return false;
@@ -129,7 +129,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_ShadowShader) {
 			return false;
 		}
-		result = m_ShadowShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_ShadowShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the shadow shader object.", L"Error", MB_OK);
 			return false;
@@ -170,11 +170,11 @@ void GraphicsClass::Shutdown() {
 	}
 
 	// Release the light object.
-	if (m_Light)
+	if (light_)
 	{
-		m_Light->~LightClass();
-		_aligned_free(m_Light);
-		m_Light = 0;
+		light_->~LightClass();
+		_aligned_free(light_);
+		light_ = 0;
 	}
 
 	// Release the ground model object.
@@ -227,7 +227,7 @@ bool GraphicsClass::Frame() {
 		lightPositionX = -5.0f;
 	}
 
-	m_Light->SetPosition(lightPositionX, 8.0f, -5.0f);
+	light_->SetPosition(lightPositionX, 8.0f, -5.0f);
 
 	result = Render();
 	if (!result) {
@@ -247,12 +247,12 @@ bool GraphicsClass::RenderSceneToTexture() {
 
 	m_RenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_Light->GenerateViewMatrix();
+	light_->GenerateViewMatrix();
 
 	directx_device_->GetWorldMatrix(worldMatrix);
 
-	m_Light->GetViewMatrix(lightViewMatrix);
-	m_Light->GetProjectionMatrix(lightProjectionMatrix);
+	light_->GetViewMatrix(lightViewMatrix);
+	light_->GetProjectionMatrix(lightProjectionMatrix);
 
 	m_CubeModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
@@ -308,14 +308,14 @@ bool GraphicsClass::Render() {
 
 	camera_->Render();
 
-	m_Light->GenerateViewMatrix();
+	light_->GenerateViewMatrix();
 
 	camera_->GetViewMatrix(viewMatrix);
 	directx_device_->GetWorldMatrix(worldMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
-	m_Light->GetViewMatrix(lightViewMatrix);
-	m_Light->GetProjectionMatrix(lightProjectionMatrix);
+	light_->GetViewMatrix(lightViewMatrix);
+	light_->GetProjectionMatrix(lightProjectionMatrix);
 
 	m_CubeModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
@@ -326,7 +326,7 @@ bool GraphicsClass::Render() {
 		m_CubeModel->GetIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,lightProjectionMatrix, 
 		m_CubeModel->GetTexture(), m_RenderTexture->GetShaderResourceView(), 
-		m_Light->GetPosition(),m_Light->GetAmbientColor(), m_Light->GetDiffuseColor()
+		light_->GetPosition(),light_->GetAmbientColor(), light_->GetDiffuseColor()
 	);
 	if (!result) {
 		return false;
@@ -342,7 +342,7 @@ bool GraphicsClass::Render() {
 		m_SphereModel->GetIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,lightProjectionMatrix, 
 		m_SphereModel->GetTexture(), m_RenderTexture->GetShaderResourceView(), 
-		m_Light->GetPosition(),m_Light->GetAmbientColor(), m_Light->GetDiffuseColor()
+		light_->GetPosition(),light_->GetAmbientColor(), light_->GetDiffuseColor()
 	);
 	if (!result) {
 		return false;
@@ -358,7 +358,7 @@ bool GraphicsClass::Render() {
 		m_GroundModel->GetIndexCount(),
 		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,lightProjectionMatrix,
 		m_GroundModel->GetTexture(), m_RenderTexture->GetShaderResourceView(), 
-		m_Light->GetPosition(),m_Light->GetAmbientColor(), m_Light->GetDiffuseColor()
+		light_->GetPosition(),light_->GetAmbientColor(), light_->GetDiffuseColor()
 	);
 	if (!result) {
 		return false;

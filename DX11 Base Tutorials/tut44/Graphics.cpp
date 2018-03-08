@@ -49,7 +49,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_GroundModel) {
 			return false;
 		}
-		result = m_GroundModel->Initialize(directx_device_->GetDevice(), "../../tut44/data/floor.txt", L"../../tut44/data/stone.dds");
+		result = m_GroundModel->Initialize("../../tut44/data/floor.txt", L"../../tut44/data/stone.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
 			return false;
@@ -62,7 +62,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_CubeModel) {
 			return false;
 		}
-		result = m_CubeModel->Initialize(directx_device_->GetDevice(), "../../tut44/data/cube.txt", L"../../tut44/data/seafloor.dds");
+		result = m_CubeModel->Initialize("../../tut44/data/cube.txt", L"../../tut44/data/seafloor.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
 			return false;
@@ -70,14 +70,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Light = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
-		new (m_Light)LightClass();
-		if (!m_Light) {
+		light_ = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
+		new (light_)LightClass();
+		if (!light_) {
 			return false;
 		}
-		m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
-		m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-		m_Light->SetPosition(2.0f, 5.0f, -2.0f);
+		light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+		light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+		light_->SetPosition(2.0f, 5.0f, -2.0f);
 	}
 
 	{
@@ -86,7 +86,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_ProjectionShader) {
 			return false;
 		}
-		result = m_ProjectionShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_ProjectionShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the projection shader object.", L"Error", MB_OK);
 			return false;
@@ -99,7 +99,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_ProjectionTexture) {
 			return false;
 		}
-		result = m_ProjectionTexture->Initialize(directx_device_->GetDevice(), L"../../tut44/data/grate.dds");
+		result = m_ProjectionTexture->Initialize(L"../../tut44/data/grate.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the projection texture object.", L"Error", MB_OK);
 			return false;
@@ -148,10 +148,10 @@ void GraphicsClass::Shutdown() {
 	}
 
 	// Release the light object.
-	if (m_Light) {
-		m_Light->~LightClass();
-		_aligned_free(m_Light);
-		m_Light = 0;
+	if (light_) {
+		light_->~LightClass();
+		_aligned_free(light_);
+		light_ = 0;
 	}
 
 	// Release the cube model object.
@@ -213,7 +213,7 @@ bool GraphicsClass::Render() {
 
 	m_GroundModel->Render(directx_device_->GetDeviceContext());
 	result = m_ProjectionShader->Render(directx_device_->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_GroundModel->GetTexture(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetPosition(),
+		m_GroundModel->GetTexture(), light_->GetAmbientColor(), light_->GetDiffuseColor(), light_->GetPosition(),
 		viewMatrix2, projectionMatrix2, m_ProjectionTexture->GetTexture());
 	if (!result) {
 		return false;
@@ -224,7 +224,7 @@ bool GraphicsClass::Render() {
 
 	m_CubeModel->Render(directx_device_->GetDeviceContext());
 	result = m_ProjectionShader->Render(directx_device_->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_CubeModel->GetTexture(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetPosition(),
+		m_CubeModel->GetTexture(), light_->GetAmbientColor(), light_->GetDiffuseColor(), light_->GetPosition(),
 		viewMatrix2, projectionMatrix2, m_ProjectionTexture->GetTexture());
 	if (!result) {
 		return false;

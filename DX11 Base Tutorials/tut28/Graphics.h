@@ -1,5 +1,5 @@
-#ifndef _GRAPHICSCLASS_H_
-#define _GRAPHICSCLASS_H_
+
+
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -45,7 +45,7 @@ private:
 
 	bool m_fadeDone = false;
 
-	DirectX11Device *directx_device_ = nullptr;
+	
 
 	Camera *camera_ = nullptr;
 

@@ -49,7 +49,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		result = m_Model1->Initialize(directx_device_->GetDevice(), L"../../tut26/data/dirt01.dds", "../../tut26/data/square.txt");
+		result = m_Model1->Initialize(L"../../tut26/data/dirt01.dds", "../../tut26/data/square.txt");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the first model object.", L"Error", MB_OK);
 			return false;
@@ -60,7 +60,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		result = m_Model2->Initialize(directx_device_->GetDevice(), L"../../tut26/data/stone01.dds", "../../tut26/data/square.txt");
+		result = m_Model2->Initialize(L"../../tut26/data/stone01.dds", "../../tut26/data/square.txt");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the second model object.", L"Error", MB_OK);
 			return false;
@@ -74,7 +74,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		result = m_TextureShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_TextureShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -88,7 +88,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		result = m_TransparentShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_TransparentShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the transparent shader object.", L"Error", MB_OK);
 			return false;

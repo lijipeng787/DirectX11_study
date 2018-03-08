@@ -47,12 +47,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Light = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
-		new (m_Light)LightClass();
-		if (!m_Light) {
+		light_ = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
+		new (light_)LightClass();
+		if (!light_) {
 			return false;
 		}
-		m_Light->GenerateOrthoMatrix(15.0f, 15.0f, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
+		light_->GenerateOrthoMatrix(15.0f, 15.0f, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
 	}
 
 	{
@@ -60,7 +60,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_GroundModel) {
 			return false;
 		}
-		result = m_GroundModel->Initialize(directx_device_->GetDevice(), "../../tut49/data/plane01.txt", L"../../tut49/data/dirt.dds", 2.0f);
+		result = m_GroundModel->Initialize("../../tut49/data/plane01.txt", L"../../tut49/data/dirt.dds", 2.0f);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
 			return false;
@@ -73,7 +73,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Tree) {
 			return false;
 		}
-		result = m_Tree->Initialize(directx_device_->GetDevice(), "../../tut49/data/trees/trunk001.txt", L"../../tut49/data/trees/trunk001.dds", "../../tut49/data/trees/leaf001.txt", L"../../tut49/data/trees/leaf001.dds", 0.1f);
+		result = m_Tree->Initialize("../../tut49/data/trees/trunk001.txt", L"../../tut49/data/trees/trunk001.dds", "../../tut49/data/trees/leaf001.txt", L"../../tut49/data/trees/leaf001.dds", 0.1f);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the tree object.", L"Error", MB_OK);
 			return false;
@@ -87,7 +87,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_RenderTexture) {
 			return false;
 		}
-		result = m_RenderTexture->Initialize(directx_device_->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
+		result = m_RenderTexture->Initialize(SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
 			return false;
@@ -100,7 +100,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_DepthShader) {
 			return false;
 		}
-		result = m_DepthShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_DepthShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK);
 			return false;
@@ -113,7 +113,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_TransparentDepthShader) {
 			return false;
 		}
-		result = m_TransparentDepthShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_TransparentDepthShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the transparent depth shader object.", L"Error", MB_OK);
 			return false;
@@ -126,7 +126,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_ShadowShader) {
 			return false;
 		}
-		result = m_ShadowShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_ShadowShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the shadow shader object.", L"Error", MB_OK);
 			return false;
@@ -185,10 +185,10 @@ void GraphicsClass::Shutdown() {
 	}
 
 	// Release the light object.
-	if (m_Light) {
-		m_Light->~LightClass();
-		_aligned_free(m_Light);
-		m_Light = 0;
+	if (light_) {
+		light_->~LightClass();
+		_aligned_free(light_);
+		light_ = 0;
 	}
 }
 
@@ -221,11 +221,11 @@ void GraphicsClass::UpdateLighting() {
 		offsetX = 9.0f;
 	}
 	radians = angle * 0.0174532925f;
-	m_Light->SetDirection(sinf(radians), cosf(radians), 0.0f);
+	light_->SetDirection(sinf(radians), cosf(radians), 0.0f);
 
 	offsetX -= 0.003f * delta_time_;
-	m_Light->SetPosition(0.0f + offsetX, 10.0f, 1.0f);
-	m_Light->SetLookAt(0.0f - offsetX, 0.0f, 2.0f);
+	light_->SetPosition(0.0f + offsetX, 10.0f, 1.0f);
+	light_->SetLookAt(0.0f - offsetX, 0.0f, 2.0f);
 }
 
 bool GraphicsClass::Render() {
@@ -244,14 +244,14 @@ bool GraphicsClass::Render() {
 
 	camera_->Render();
 
-	m_Light->GenerateViewMatrix();
+	light_->GenerateViewMatrix();
 
 	directx_device_->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
-	m_Light->GetViewMatrix(lightViewMatrix);
-	m_Light->GetOrthoMatrix(lightOrthoMatrix);
+	light_->GetViewMatrix(lightViewMatrix);
+	light_->GetOrthoMatrix(lightOrthoMatrix);
 
 	diffuseColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	ambientColor = XMFLOAT4(0.15f, 0.15f, 0.15f, 1.0f);
@@ -267,7 +267,7 @@ bool GraphicsClass::Render() {
 		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
 		lightOrthoMatrix, m_GroundModel->GetTexture(),
 		m_RenderTexture->GetShaderResourceView(),
-		m_Light->GetDirection(),ambientColor, diffuseColor
+		light_->GetDirection(),ambientColor, diffuseColor
 	);
 
 	directx_device_->GetWorldMatrix(worldMatrix);
@@ -281,7 +281,7 @@ bool GraphicsClass::Render() {
 		m_Tree->GetTrunkIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
 		lightOrthoMatrix, m_Tree->GetTrunkTexture(),
-		m_RenderTexture->GetShaderResourceView(), m_Light->GetDirection(),ambientColor, diffuseColor
+		m_RenderTexture->GetShaderResourceView(), light_->GetDirection(),ambientColor, diffuseColor
 	);
 
 	directx_device_->TurnOnAlphaBlending();
@@ -293,7 +293,7 @@ bool GraphicsClass::Render() {
 		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
 		lightOrthoMatrix, m_Tree->GetLeafTexture(), 
 		m_RenderTexture->GetShaderResourceView(), 
-		m_Light->GetDirection(),ambientColor, diffuseColor
+		light_->GetDirection(),ambientColor, diffuseColor
 	);
 
 	directx_device_->TurnOffAlphaBlending();
@@ -315,10 +315,10 @@ bool GraphicsClass::RenderSceneToTexture() {
 
 	directx_device_->GetWorldMatrix(worldMatrix);
 
-	m_Light->GenerateViewMatrix();
+	light_->GenerateViewMatrix();
 
-	m_Light->GetViewMatrix(lightViewMatrix);
-	m_Light->GetOrthoMatrix(lightOrthoMatrix);
+	light_->GetViewMatrix(lightViewMatrix);
+	light_->GetOrthoMatrix(lightOrthoMatrix);
 
 	m_Tree->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);

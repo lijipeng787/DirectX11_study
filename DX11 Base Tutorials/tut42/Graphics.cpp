@@ -58,7 +58,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the cube model object.
-		result = m_CubeModel->Initialize(directx_device_->GetDevice(), "../../tut42/data/cube.txt", L"../../tut42/data/wall01.dds");
+		result = m_CubeModel->Initialize("../../tut42/data/cube.txt", L"../../tut42/data/wall01.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
 			return false;
@@ -76,7 +76,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the sphere model object.
-		result = m_SphereModel->Initialize(directx_device_->GetDevice(), "../../tut42/data/sphere.txt", L"../../tut42/data/ice.dds");
+		result = m_SphereModel->Initialize("../../tut42/data/sphere.txt", L"../../tut42/data/ice.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the sphere model object.", L"Error", MB_OK);
 			return false;
@@ -94,7 +94,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the ground model object.
-		result = m_GroundModel->Initialize(directx_device_->GetDevice(), "../../tut42/data/plane01.txt", L"../../tut42/data/metal001.dds");
+		result = m_GroundModel->Initialize("../../tut42/data/plane01.txt", L"../../tut42/data/metal001.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
 			return false;
@@ -106,17 +106,17 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 	{
 		// Create the light object.
-		m_Light = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
-		new (m_Light)LightClass();
-		if (!m_Light) {
+		light_ = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
+		new (light_)LightClass();
+		if (!light_) {
 			return false;
 		}
 
 		// Initialize the light object.
-		m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
-		m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-		m_Light->SetLookAt(0.0f, 0.0f, 0.0f);
-		m_Light->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
+		light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+		light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+		light_->SetLookAt(0.0f, 0.0f, 0.0f);
+		light_->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
 	}
 
 	{
@@ -128,7 +128,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the render to texture object.
-		result = m_RenderTexture->Initialize(directx_device_->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_RenderTexture->Initialize(SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
 			return false;
@@ -144,7 +144,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the depth shader object.
-		result = m_DepthShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_DepthShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK);
 			return false;
@@ -160,7 +160,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the black and white render to texture object.
-		result = m_BlackWhiteRenderTexture->Initialize(directx_device_->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_BlackWhiteRenderTexture->Initialize(SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the black and white render to texture object.", L"Error", MB_OK);
 			return false;
@@ -176,7 +176,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the shadow shader object.
-		result = m_ShadowShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_ShadowShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the shadow shader object.", L"Error", MB_OK);
 			return false;
@@ -196,7 +196,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the down sample render to texture object.
-		result = m_DownSampleTexure->Initialize(directx_device_->GetDevice(), downSampleWidth, downSampleHeight, 100.0f, 1.0f);
+		result = m_DownSampleTexure->Initialize(downSampleWidth, downSampleHeight, 100.0f, 1.0f);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the down sample render to texture object.", L"Error", MB_OK);
 			return false;
@@ -211,7 +211,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the small ortho window object.
-		result = m_SmallWindow->Initialize(directx_device_->GetDevice(), downSampleWidth, downSampleHeight);
+		result = m_SmallWindow->Initialize(downSampleWidth, downSampleHeight);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the small ortho window object.", L"Error", MB_OK);
 			return false;
@@ -227,7 +227,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the texture shader object.
-		result = m_TextureShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_TextureShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -243,7 +243,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the horizontal blur render to texture object.
-		result = m_HorizontalBlurTexture->Initialize(directx_device_->GetDevice(), downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
+		result = m_HorizontalBlurTexture->Initialize(downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the horizontal blur render to texture object.", L"Error", MB_OK);
 			return false;
@@ -259,7 +259,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the horizontal blur shader object.
-		result = m_HorizontalBlurShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_HorizontalBlurShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the horizontal blur shader object.", L"Error", MB_OK);
 			return false;
@@ -275,7 +275,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the vertical blur render to texture object.
-		result = m_VerticalBlurTexture->Initialize(directx_device_->GetDevice(), downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
+		result = m_VerticalBlurTexture->Initialize(downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the vertical blur render to texture object.", L"Error", MB_OK);
 			return false;
@@ -291,7 +291,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the vertical blur shader object.
-		result = m_VerticalBlurShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_VerticalBlurShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the vertical blur shader object.", L"Error", MB_OK);
 			return false;
@@ -307,7 +307,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the up sample render to texture object.
-		result = m_UpSampleTexure->Initialize(directx_device_->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, 0.1f);
+		result = m_UpSampleTexure->Initialize(SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, 0.1f);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the up sample render to texture object.", L"Error", MB_OK);
 			return false;
@@ -322,7 +322,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the full screen ortho window object.
-		result = m_FullScreenWindow->Initialize(directx_device_->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT);
+		result = m_FullScreenWindow->Initialize(SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK);
 			return false;
@@ -338,7 +338,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the soft shadow shader object.
-		result = m_SoftShadowShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_SoftShadowShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the soft shadow shader object.", L"Error", MB_OK);
 			return false;
@@ -475,11 +475,11 @@ void GraphicsClass::Shutdown() {
 	}
 
 	// Release the light object.
-	if (m_Light)
+	if (light_)
 	{
-		m_Light->~LightClass();
-		_aligned_free(m_Light);
-		m_Light = 0;
+		light_->~LightClass();
+		_aligned_free(light_);
+		light_ = 0;
 	}
 
 	// Release the ground model object.
@@ -534,7 +534,7 @@ bool GraphicsClass::Frame() {
 	}
 
 	// Update the position of the light.
-	m_Light->SetPosition(lightPositionX, 8.0f, -5.0f);
+	light_->SetPosition(lightPositionX, 8.0f, -5.0f);
 
 	// Render the graphics scene.
 	result = Render();
@@ -555,12 +555,12 @@ bool GraphicsClass::RenderSceneToTexture() {
 
 	m_RenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_Light->GenerateViewMatrix();
+	light_->GenerateViewMatrix();
 
 	directx_device_->GetWorldMatrix(worldMatrix);
 
-	m_Light->GetViewMatrix(lightViewMatrix);
-	m_Light->GetProjectionMatrix(lightProjectionMatrix);
+	light_->GetViewMatrix(lightViewMatrix);
+	light_->GetProjectionMatrix(lightProjectionMatrix);
 
 	m_CubeModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
@@ -615,7 +615,7 @@ bool GraphicsClass::RenderBlackAndWhiteShadows() {
 	camera_->Render();
 
 	// Generate the light view matrix based on the light's position.
-	m_Light->GenerateViewMatrix();
+	light_->GenerateViewMatrix();
 
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	camera_->GetViewMatrix(viewMatrix);
@@ -623,8 +623,8 @@ bool GraphicsClass::RenderBlackAndWhiteShadows() {
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
 	// Get the light's view and projection matrices from the light object.
-	m_Light->GetViewMatrix(lightViewMatrix);
-	m_Light->GetProjectionMatrix(lightProjectionMatrix);
+	light_->GetViewMatrix(lightViewMatrix);
+	light_->GetProjectionMatrix(lightProjectionMatrix);
 
 	// Setup the translation matrix for the cube model.
 	m_CubeModel->GetPosition(posX, posY, posZ);
@@ -633,7 +633,7 @@ bool GraphicsClass::RenderBlackAndWhiteShadows() {
 	// Render the cube model using the shadow shader.
 	m_CubeModel->Render(directx_device_->GetDeviceContext());
 	result = m_ShadowShader->Render(directx_device_->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
-		lightProjectionMatrix, m_RenderTexture->GetShaderResourceView(), m_Light->GetPosition());
+		lightProjectionMatrix, m_RenderTexture->GetShaderResourceView(), light_->GetPosition());
 	if (!result)
 	{
 		return false;
@@ -649,7 +649,7 @@ bool GraphicsClass::RenderBlackAndWhiteShadows() {
 	// Render the sphere model using the shadow shader.
 	m_SphereModel->Render(directx_device_->GetDeviceContext());
 	result = m_ShadowShader->Render(directx_device_->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
-		lightProjectionMatrix, m_RenderTexture->GetShaderResourceView(), m_Light->GetPosition());
+		lightProjectionMatrix, m_RenderTexture->GetShaderResourceView(), light_->GetPosition());
 	if (!result) {
 		return false;
 	}
@@ -664,7 +664,7 @@ bool GraphicsClass::RenderBlackAndWhiteShadows() {
 	// Render the ground model using the shadow shader.
 	m_GroundModel->Render(directx_device_->GetDeviceContext());
 	result = m_ShadowShader->Render(directx_device_->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
-		lightProjectionMatrix, m_RenderTexture->GetShaderResourceView(), m_Light->GetPosition());
+		lightProjectionMatrix, m_RenderTexture->GetShaderResourceView(), light_->GetPosition());
 	if (!result) {
 		return false;
 	}
@@ -935,8 +935,8 @@ bool GraphicsClass::Render() {
 		m_CubeModel->GetIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix,
 		m_CubeModel->GetTexture(), m_UpSampleTexure->GetShaderResourceView(), 
-		m_Light->GetPosition(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor()
+		light_->GetPosition(),
+		light_->GetAmbientColor(), light_->GetDiffuseColor()
 	);
 	if (!result) {
 		return false;
@@ -957,8 +957,8 @@ bool GraphicsClass::Render() {
 		m_SphereModel->GetIndexCount(),
 		worldMatrix, viewMatrix, projectionMatrix,
 		m_SphereModel->GetTexture(), m_UpSampleTexure->GetShaderResourceView(),
-		m_Light->GetPosition(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor()
+		light_->GetPosition(),
+		light_->GetAmbientColor(), light_->GetDiffuseColor()
 	);
 	if (!result) {
 		return false;
@@ -978,8 +978,8 @@ bool GraphicsClass::Render() {
 		m_GroundModel->GetIndexCount(),
 		worldMatrix, viewMatrix, projectionMatrix,
 		m_GroundModel->GetTexture(), m_UpSampleTexure->GetShaderResourceView(),
-		m_Light->GetPosition(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
+		light_->GetPosition(),
+		light_->GetAmbientColor(), light_->GetDiffuseColor());
 	if (!result) {
 		return false;
 	}

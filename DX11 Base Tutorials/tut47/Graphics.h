@@ -1,5 +1,5 @@
-#ifndef _GRAPHICSCLASS_H_
-#define _GRAPHICSCLASS_H_
+
+
 
 #include "../CommonFramework/GraphicsBase.h"
 #include <DirectXMath.h>
@@ -40,7 +40,7 @@ public:
 private:
 	bool RaySphereIntersect(const DirectX::XMFLOAT3&, const DirectX::XMFLOAT3&, float);
 private:
-	DirectX11Device *directx_device_ = nullptr;
+	
 
 	Camera *camera_ = nullptr;
 
@@ -48,9 +48,9 @@ private:
 
 	TextureShaderClass* m_TextureShader;
 
-	LightShaderClass* m_LightShader;
+	LightShaderClass* light_shader_;
 
-	LightClass* m_Light;
+	LightClass* light_;
 
 	TextClass* m_Text;
 

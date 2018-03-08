@@ -3,9 +3,9 @@
 
 
 
-/////////////
+////
 // GLOBALS //
-/////////////
+////
 cbuffer TessellationBuffer
 {
     float tessellationAmount;

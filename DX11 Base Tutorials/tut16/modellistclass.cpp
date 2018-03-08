@@ -1,6 +1,6 @@
-/////////
+
 // Filename: modellistclass.cpp
-/////////
+
 #include "modellistclass.h"
 
 

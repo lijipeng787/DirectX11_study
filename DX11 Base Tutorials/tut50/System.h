@@ -1,5 +1,5 @@
-#ifndef _SYSTEMCLASS_H_
-#define _SYSTEMCLASS_H_
+
+
 
 #include "../CommonFramework/SystemBase.h"
 

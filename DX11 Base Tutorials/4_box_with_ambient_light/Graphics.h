@@ -1,5 +1,6 @@
-#ifndef _GRAPHICSCLASS_H_
-#define _GRAPHICSCLASS_H_
+#pragma once
+
+#include <Windows.h>
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -11,13 +12,13 @@ class LightClass;
 
 class GraphicsClass :public GraphicsBase {
 public:
-	GraphicsClass();
+	GraphicsClass() {}
 
 	GraphicsClass(const GraphicsClass& rhs) = delete;
 
 	GraphicsClass& operator=(const GraphicsClass& rhs) = delete;
 
-	virtual ~GraphicsClass();
+	virtual ~GraphicsClass() {}
 public:
 	virtual bool Initialize(int, int, HWND)override;
 
@@ -27,17 +28,13 @@ public:
 
 	virtual bool Render()override;
 private:
-	DirectX11Device *directx_device_ = nullptr;
-
-	Camera *camera_ = nullptr;
+	Camera * camera_ = nullptr;
 
 	ModelClass *model_ = nullptr;
 
-	LightShaderClass* m_LightShader;
+	LightShaderClass* light_shader_ = nullptr;
 
-	LightClass* m_Light;
+	LightClass* light_ = nullptr;
 
 	static float rotation;
 };
-
-#endif

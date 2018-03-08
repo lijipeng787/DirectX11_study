@@ -1,8 +1,8 @@
 
-// Filename: textureclass.h
 
-#ifndef _TEXTURECLASS_H_
-#define _TEXTURECLASS_H_
+
+
+
 
 
 
@@ -14,7 +14,7 @@ using namespace DirectX;
 
 
 
-// Class name: TextureClass
+
 
 class TextureClass
 {

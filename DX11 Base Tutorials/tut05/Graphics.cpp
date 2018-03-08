@@ -44,7 +44,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 		if (!model_) {
 			return false;
 		}
-		result = model_->Initialize(directx_device_->GetDevice(), L"../../tut05/data/seafloor.dds");
+		result = model_->Initialize(L"../../tut05/data/seafloor.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
@@ -57,7 +57,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 		if (!m_TextureShader) {
 			return false;
 		}
-		result = m_TextureShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_TextureShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
 			return false;

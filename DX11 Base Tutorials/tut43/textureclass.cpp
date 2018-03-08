@@ -1,5 +1,5 @@
 
-// Filename: textureclass.cpp
+
 
 #include "textureclass.h"
 

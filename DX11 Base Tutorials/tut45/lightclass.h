@@ -1,8 +1,8 @@
 
-// Filename: lightclass.h
 
-#ifndef _LIGHTCLASS_H_
-#define _LIGHTCLASS_H_
+
+
+
 
 
 
@@ -13,7 +13,7 @@ using namespace DirectX;
 
 
 
-// Class name: LightClass
+
 
 class LightClass
 {
@@ -35,9 +35,9 @@ public:
 	float GetSpecularPower();
 
 private:
-	XMFLOAT4 m_ambientColor;
-	XMFLOAT4 m_diffuseColor;
-	XMFLOAT3 m_direction;
+	XMFLOAT4 ambient_color_;
+	XMFLOAT4 diffuse_color_;
+	XMFLOAT3 direction_;
 	XMFLOAT4 m_specularColor;
 	float m_specularPower;
 };

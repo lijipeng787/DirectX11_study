@@ -47,7 +47,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_ShaderManager) {
 			return false;
 		}
-		result = m_ShaderManager->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_ShaderManager->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the shader manager object.", L"Error", MB_OK);
 			return false;
@@ -55,16 +55,16 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Light = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
-		new (m_Light)LightClass();
-		if (!m_Light) {
+		light_ = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
+		new (light_)LightClass();
+		if (!light_) {
 			return false;
 		}
-		m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
-		m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-		m_Light->SetDirection(0.0f, 0.0f, 1.0f);
-		m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
-		m_Light->SetSpecularPower(64.0f);
+		light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+		light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+		light_->SetDirection(0.0f, 0.0f, 1.0f);
+		light_->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+		light_->SetSpecularPower(64.0f);
 	}
 
 	{
@@ -72,7 +72,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Model1) {
 			return false;
 		}
-		result = m_Model1->Initialize(directx_device_->GetDevice(), "../../tut45/data/cube.txt", L"../../tut45/data/marble.dds");
+		result = m_Model1->Initialize("../../tut45/data/cube.txt", L"../../tut45/data/marble.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the first model object.", L"Error", MB_OK);
 			return false;
@@ -84,7 +84,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Model2) {
 			return false;
 		}
-		result = m_Model2->Initialize(directx_device_->GetDevice(), "../../tut45/data/cube.txt", L"../../tut45/data/metal.dds");
+		result = m_Model2->Initialize("../../tut45/data/cube.txt", L"../../tut45/data/metal.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the second model object.", L"Error", MB_OK);
 			return false;
@@ -96,7 +96,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Model3) {
 			return false;
 		}
-		result = m_Model3->Initialize(directx_device_->GetDevice(), "../../tut45/data/cube.txt", L"../../tut45/data/stone.dds",
+		result = m_Model3->Initialize("../../tut45/data/cube.txt", L"../../tut45/data/stone.dds",
 			L"../../tut45/data/normal.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the third model object.", L"Error", MB_OK);
@@ -129,10 +129,10 @@ void GraphicsClass::Shutdown() {
 	}
 
 	// Release the light object.
-	if (m_Light) {
-		m_Light->~LightClass();
-		_aligned_free(m_Light);
-		m_Light = 0;
+	if (light_) {
+		light_->~LightClass();
+		_aligned_free(light_);
+		light_ = 0;
 	}
 
 	// Release the shader manager object.
@@ -205,8 +205,8 @@ bool GraphicsClass::Render() {
 
 	m_Model2->Render(directx_device_->GetDeviceContext());
 	result = m_ShaderManager->RenderLightShader(directx_device_->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_Model2->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
-		camera_->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+		m_Model2->GetTexture(), light_->GetDirection(), light_->GetAmbientColor(), light_->GetDiffuseColor(),
+		camera_->GetPosition(), light_->GetSpecularColor(), light_->GetSpecularPower());
 	if (!result) {
 		return false;
 	}
@@ -218,8 +218,8 @@ bool GraphicsClass::Render() {
 
 	m_Model3->Render(directx_device_->GetDeviceContext());
 	result = m_ShaderManager->RenderBumpMapShader(directx_device_->GetDeviceContext(), m_Model3->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_Model3->GetColorTexture(), m_Model3->GetNormalMapTexture(), m_Light->GetDirection(),
-		m_Light->GetDiffuseColor());
+		m_Model3->GetColorTexture(), m_Model3->GetNormalMapTexture(), light_->GetDirection(),
+		light_->GetDiffuseColor());
 	if (!result) {
 		return false;
 	}

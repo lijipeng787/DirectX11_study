@@ -46,8 +46,8 @@ bool TextureShader::Render(
 bool TextureShader::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename) {
 
 	ID3D10Blob* errorMessage = nullptr;
-
 	ID3D10Blob* vertexShaderBuffer = nullptr;
+
 	auto result = D3DCompileFromFile(vsFilename, NULL, NULL, "TextureVertexShader",
 		"vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
 	if (FAILED(result)) {
@@ -198,32 +198,23 @@ void TextureShader::ShutdownShader() {
 
 void TextureShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename) {
 	
-	char* compileErrors;
-	SIZE_T bufferSize, i;
+	auto compileErrors = (char*)(errorMessage->GetBufferPointer());
+
+	auto bufferSize = errorMessage->GetBufferSize();
+
 	ofstream fout;
-
-	
-	compileErrors = (char*)(errorMessage->GetBufferPointer());
-
-
-	bufferSize = errorMessage->GetBufferSize();
-
-	
 	fout.open("shader-error.txt");
-
-
+	
+	int i = 0;
 	for (i = 0; i < bufferSize; i++) {
 		fout << compileErrors[i];
 	}
-
 	
 	fout.close();
 
-	
 	errorMessage->Release();
 	errorMessage = 0;
 
-	
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 }
 

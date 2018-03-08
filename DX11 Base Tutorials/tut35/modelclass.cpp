@@ -1,5 +1,5 @@
 
-// Filename: modelclass.cpp
+
 
 #include "modelclass.h"
 
@@ -34,7 +34,7 @@ bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename)
 		return false;
 	}
 
-	// Initialize the vertex and index buffers.
+	
 	result = InitializeBuffers(device);
 	if(!result)
 	{

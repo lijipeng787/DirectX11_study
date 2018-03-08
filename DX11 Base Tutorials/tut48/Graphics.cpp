@@ -48,7 +48,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_CubeModel) {
 			return false;
 		}
-		result = m_CubeModel->Initialize(directx_device_->GetDevice(), "../../tut48/data/cube.txt", L"../../tut48/data/wall01.dds");
+		result = m_CubeModel->Initialize("../../tut48/data/cube.txt", L"../../tut48/data/wall01.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
 			return false;
@@ -61,7 +61,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_SphereModel) {
 			return false;
 		}
-		result = m_SphereModel->Initialize(directx_device_->GetDevice(), "../../tut48/data/sphere.txt", L"../../tut48/data/ice.dds");
+		result = m_SphereModel->Initialize("../../tut48/data/sphere.txt", L"../../tut48/data/ice.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the sphere model object.", L"Error", MB_OK);
 			return false;
@@ -74,7 +74,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_GroundModel) {
 			return false;
 		}
-		result = m_GroundModel->Initialize(directx_device_->GetDevice(), "../../tut48/data/plane01.txt", L"../../tut48/data/metal001.dds");
+		result = m_GroundModel->Initialize("../../tut48/data/plane01.txt", L"../../tut48/data/metal001.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
 			return false;
@@ -83,14 +83,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Light = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
-		new (m_Light)LightClass();
-		if (!m_Light) {
+		light_ = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
+		new (light_)LightClass();
+		if (!light_) {
 			return false;
 		}
-		m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
-		m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-		m_Light->GenerateOrthoMatrix(20.0f, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
+		light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+		light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+		light_->GenerateOrthoMatrix(20.0f, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
 	}
 
 	{
@@ -99,7 +99,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_RenderTexture) {
 			return false;
 		}
-		result = m_RenderTexture->Initialize(directx_device_->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
+		result = m_RenderTexture->Initialize(SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
 			return false;
@@ -112,7 +112,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_DepthShader) {
 			return false;
 		}
-		result = m_DepthShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_DepthShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK);
 			return false;
@@ -125,7 +125,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_ShadowShader) {
 			return false;
 		}
-		result = m_ShadowShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_ShadowShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the shadow shader object.", L"Error", MB_OK);
 			return false;
@@ -162,10 +162,10 @@ void GraphicsClass::Shutdown() {
 	}
 
 	// Release the light object.
-	if (m_Light) {
-		m_Light->~LightClass();
-		_aligned_free(m_Light);
-		m_Light = 0;
+	if (light_) {
+		light_->~LightClass();
+		_aligned_free(light_);
+		light_ = 0;
 	}
 
 	// Release the ground model object.
@@ -228,11 +228,11 @@ bool GraphicsClass::Frame() {
 	radians = lightAngle * 0.0174532925f;
 
 	// Update the direction of the light.
-	m_Light->SetDirection(sinf(radians), cosf(radians), 0.0f);
+	light_->SetDirection(sinf(radians), cosf(radians), 0.0f);
 
 	// Set the position and lookat for the light.
-	m_Light->SetPosition(lightPosX, 8.0f, -0.1f);
-	m_Light->SetLookAt(-lightPosX, 0.0f, 0.0f);
+	light_->SetPosition(lightPosX, 8.0f, -0.1f);
+	light_->SetLookAt(-lightPosX, 0.0f, 0.0f);
 
 	// Render the graphics scene.
 	result = Render();
@@ -253,12 +253,12 @@ bool GraphicsClass::RenderSceneToTexture() {
 
 	m_RenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	m_Light->GenerateViewMatrix();
+	light_->GenerateViewMatrix();
 
 	directx_device_->GetWorldMatrix(worldMatrix);
 
-	m_Light->GetViewMatrix(lightViewMatrix);
-	m_Light->GetOrthoMatrix(lightOrthoMatrix);
+	light_->GetViewMatrix(lightViewMatrix);
+	light_->GetOrthoMatrix(lightOrthoMatrix);
 
 	m_CubeModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
@@ -314,14 +314,14 @@ bool GraphicsClass::Render() {
 
 	camera_->Render();
 
-	m_Light->GenerateViewMatrix();
+	light_->GenerateViewMatrix();
 
 	camera_->GetViewMatrix(viewMatrix);
 	directx_device_->GetWorldMatrix(worldMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
-	m_Light->GetViewMatrix(lightViewMatrix);
-	m_Light->GetOrthoMatrix(lightOrthoMatrix);
+	light_->GetViewMatrix(lightViewMatrix);
+	light_->GetOrthoMatrix(lightOrthoMatrix);
 
 	m_CubeModel->GetPosition(posX, posY, posZ);
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
@@ -329,8 +329,8 @@ bool GraphicsClass::Render() {
 	m_CubeModel->Render(directx_device_->GetDeviceContext());
 
 	result = m_ShadowShader->Render(directx_device_->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
-		lightOrthoMatrix, m_CubeModel->GetTexture(), m_RenderTexture->GetShaderResourceView(), m_Light->GetDirection(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
+		lightOrthoMatrix, m_CubeModel->GetTexture(), m_RenderTexture->GetShaderResourceView(), light_->GetDirection(),
+		light_->GetAmbientColor(), light_->GetDiffuseColor());
 	if (!result) {
 		return false;
 	}
@@ -342,8 +342,8 @@ bool GraphicsClass::Render() {
 
 	m_SphereModel->Render(directx_device_->GetDeviceContext());
 	result = m_ShadowShader->Render(directx_device_->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
-		lightOrthoMatrix, m_SphereModel->GetTexture(), m_RenderTexture->GetShaderResourceView(), m_Light->GetDirection(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
+		lightOrthoMatrix, m_SphereModel->GetTexture(), m_RenderTexture->GetShaderResourceView(), light_->GetDirection(),
+		light_->GetAmbientColor(), light_->GetDiffuseColor());
 	if (!result) {
 		return false;
 	}
@@ -355,8 +355,8 @@ bool GraphicsClass::Render() {
 
 	m_GroundModel->Render(directx_device_->GetDeviceContext());
 	result = m_ShadowShader->Render(directx_device_->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
-		lightOrthoMatrix, m_GroundModel->GetTexture(), m_RenderTexture->GetShaderResourceView(), m_Light->GetDirection(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
+		lightOrthoMatrix, m_GroundModel->GetTexture(), m_RenderTexture->GetShaderResourceView(), light_->GetDirection(),
+		light_->GetAmbientColor(), light_->GetDiffuseColor());
 	if (!result) {
 		return false;
 	}

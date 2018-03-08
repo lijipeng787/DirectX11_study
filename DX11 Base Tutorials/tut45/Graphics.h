@@ -1,5 +1,5 @@
-#ifndef _GRAPHICSCLASS_H_
-#define _GRAPHICSCLASS_H_
+
+
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -30,13 +30,13 @@ public:
 private:
 	float rotation_ = 0.0f;
 
-	DirectX11Device *directx_device_ = nullptr;
+	
 
 	Camera *camera_ = nullptr;
 
 	ShaderManagerClass* m_ShaderManager;
 	
-	LightClass* m_Light;
+	LightClass* light_;
 	
 	ModelClass* m_Model1;
 	

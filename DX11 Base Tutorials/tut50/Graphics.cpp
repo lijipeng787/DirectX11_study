@@ -46,12 +46,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Light = new LightClass;
-		if (!m_Light) {
+		light_ = new LightClass;
+		if (!light_) {
 			return false;
 		}
-		m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-		m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+		light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+		light_->SetDirection(0.0f, 0.0f, 1.0f);
 	}
 
 	{
@@ -59,7 +59,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!model_) {
 			return false;
 		}
-		result = model_->Initialize(directx_device_->GetDevice(), "../../tut50/data/cube.txt", L"../../tut50/data/seafloor.dds");
+		result = model_->Initialize("../../tut50/data/cube.txt", L"../../tut50/data/seafloor.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
@@ -71,7 +71,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_FullScreenWindow) {
 			return false;
 		}
-		result = m_FullScreenWindow->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight);
+		result = m_FullScreenWindow->Initialize(screenWidth, screenHeight);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK);
 			return false;
@@ -83,7 +83,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_DeferredBuffers) {
 			return false;
 		}
-		result = m_DeferredBuffers->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_DeferredBuffers->Initialize(screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the deferred buffers object.", L"Error", MB_OK);
 			return false;
@@ -96,7 +96,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_DeferredShader) {
 			return false;
 		}
-		result = m_DeferredShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_DeferredShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the deferred shader object.", L"Error", MB_OK);
 			return false;
@@ -104,12 +104,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_LightShader = (LightShaderClass*)_aligned_malloc(sizeof(LightShaderClass), 16);
-		new (m_LightShader)LightShaderClass();
-		if (!m_LightShader) {
+		light_shader_ = (LightShaderClass*)_aligned_malloc(sizeof(LightShaderClass), 16);
+		new (light_shader_)LightShaderClass();
+		if (!light_shader_) {
 			return false;
 		}
-		result = m_LightShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = light_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
 			return false;
@@ -121,11 +121,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 void GraphicsClass::Shutdown() {
 
-	if (m_LightShader) {
-		m_LightShader->Shutdown();
-		m_LightShader->~LightShaderClass();
-		_aligned_free(m_LightShader);
-		m_LightShader = 0;
+	if (light_shader_) {
+		light_shader_->Shutdown();
+		light_shader_->~LightShaderClass();
+		_aligned_free(light_shader_);
+		light_shader_ = 0;
 	}
 
 	// Release the deferred shader object.
@@ -158,9 +158,9 @@ void GraphicsClass::Shutdown() {
 	}
 
 	// Release the light object.
-	if (m_Light) {
-		delete m_Light;
-		m_Light = 0;
+	if (light_) {
+		delete light_;
+		light_ = 0;
 	}
 }
 
@@ -194,9 +194,9 @@ bool GraphicsClass::Render() {
 
 	m_FullScreenWindow->Render(directx_device_->GetDeviceContext());
 
-	m_LightShader->Render(directx_device_->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
+	light_shader_->Render(directx_device_->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
 		m_DeferredBuffers->GetShaderResourceView(0), m_DeferredBuffers->GetShaderResourceView(1),
-		m_Light->GetDirection());
+		light_->GetDirection());
 
 	directx_device_->TurnZBufferOn();
 

@@ -48,7 +48,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 			return false;
 		}
 
-		result = model_->Initialize(directx_device_->GetDevice(), L"../../tut24/data/seafloor.dds", "../../tut24/data/triangle.txt");
+		result = model_->Initialize(L"../../tut24/data/seafloor.dds", "../../tut24/data/triangle.txt");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
@@ -62,7 +62,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 			return false;
 		}
 
-		result = m_ClipPlaneShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_ClipPlaneShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the clip plane shader object.", L"Error", MB_OK);
 			return false;

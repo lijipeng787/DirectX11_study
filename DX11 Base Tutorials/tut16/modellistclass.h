@@ -1,6 +1,6 @@
-/////////
+
 // Filename: modellistclass.h
-/////////
+
 #ifndef _MODELLISTCLASS_H_
 #define _MODELLISTCLASS_H_
 
@@ -14,9 +14,9 @@
 using namespace DirectX;
 
 
-/////////
+
 // Class name: ModelListClass
-/////////
+
 class ModelListClass
 {
 private:

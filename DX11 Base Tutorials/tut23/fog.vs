@@ -3,9 +3,9 @@
 
 
 
-/////////////
+////
 // GLOBALS //
-/////////////
+////
 cbuffer PerFrameBuffer
 {
 	matrix worldMatrix;

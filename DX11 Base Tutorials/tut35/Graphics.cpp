@@ -45,7 +45,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!model_) {
 			return false;
 		}
-		result = model_->Initialize(directx_device_->GetDevice(), "../../tut35/data/floor.txt");
+		result = model_->Initialize("../../tut35/data/floor.txt");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
@@ -58,7 +58,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_DepthShader) {
 			return false;
 		}
-		result = m_DepthShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_DepthShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK);
 			return false;

@@ -49,7 +49,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!model_) {
 			return false;
 		}
-		result = model_->Initialize(directx_device_->GetDevice(), "../../tut32/data/cube.txt", L"../../tut32/data/seafloor.dds", L"../../tut32/data/bump03.dds");
+		result = model_->Initialize("../../tut32/data/cube.txt", L"../../tut32/data/seafloor.dds", L"../../tut32/data/bump03.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
@@ -59,7 +59,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_WindowModel) {
 			return false;
 		}
-		result = m_WindowModel->Initialize(directx_device_->GetDevice(), "../../tut32/data/square.txt", L"../../tut32/data/glass01.dds", L"../../tut32/data/bump03.dds");
+		result = m_WindowModel->Initialize("../../tut32/data/square.txt", L"../../tut32/data/glass01.dds", L"../../tut32/data/bump03.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the window model object.", L"Error", MB_OK);
 			return false;
@@ -71,7 +71,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_RenderTexture) {
 			return false;
 		}
-		result = m_RenderTexture->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight);
+		result = m_RenderTexture->Initialize(screenWidth, screenHeight);
 		if (!result) {
 			return false;
 		}
@@ -83,7 +83,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_TextureShader) {
 			return false;
 		}
-		result = m_TextureShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_TextureShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -96,7 +96,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_GlassShader) {
 			return false;
 		}
-		result = m_GlassShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_GlassShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the glass shader object.", L"Error", MB_OK);
 			return false;

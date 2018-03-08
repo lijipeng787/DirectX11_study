@@ -1,6 +1,6 @@
-/////////
+
 // Filename: textclass.cpp
-/////////
+
 #include "textclass.h"
 
 

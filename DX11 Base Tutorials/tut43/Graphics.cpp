@@ -53,7 +53,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the ground model object.
-		result = m_GroundModel->Initialize(directx_device_->GetDevice(), "../../tut43/data/floor.txt", L"../../tut43/data/stone.dds");
+		result = m_GroundModel->Initialize("../../tut43/data/floor.txt", L"../../tut43/data/stone.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
 			return false;
@@ -68,7 +68,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the cube model object.
-		result = m_CubeModel->Initialize(directx_device_->GetDevice(), "../../tut43/data/cube.txt", L"../../tut43/data/seafloor.dds");
+		result = m_CubeModel->Initialize("../../tut43/data/cube.txt", L"../../tut43/data/seafloor.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
 			return false;
@@ -77,16 +77,16 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 	{
 		// Create the light object.
-		m_Light = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
-		new (m_Light)LightClass();
-		if (!m_Light) {
+		light_ = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
+		new (light_)LightClass();
+		if (!light_) {
 			return false;
 		}
 
 		// Initialize the light object.
-		m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
-		m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-		m_Light->SetDirection(0.0f, -0.75f, 0.5f);
+		light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+		light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+		light_->SetDirection(0.0f, -0.75f, 0.5f);
 	}
 
 	{
@@ -98,7 +98,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the projection shader object.
-		result = m_ProjectionShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_ProjectionShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the projection shader object.", L"Error", MB_OK);
 			return false;
@@ -114,7 +114,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the projection texture object.
-		result = m_ProjectionTexture->Initialize(directx_device_->GetDevice(), L"../../tut43/data/dx11.dds");
+		result = m_ProjectionTexture->Initialize(L"../../tut43/data/dx11.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the projection texture object.", L"Error", MB_OK);
 			return false;
@@ -166,10 +166,10 @@ void GraphicsClass::Shutdown() {
 	}
 
 	// Release the light object.
-	if (m_Light) {
-		m_Light->~LightClass();
-		_aligned_free(m_Light);
-		m_Light = 0;
+	if (light_) {
+		light_->~LightClass();
+		_aligned_free(light_);
+		light_ = 0;
 	}
 
 	// Release the cube model object.
@@ -233,7 +233,7 @@ bool GraphicsClass::Render() {
 
 	m_GroundModel->Render(directx_device_->GetDeviceContext());
 	result = m_ProjectionShader->Render(directx_device_->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_GroundModel->GetTexture(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(),
+		m_GroundModel->GetTexture(), light_->GetAmbientColor(), light_->GetDiffuseColor(), light_->GetDirection(),
 		viewMatrix2, projectionMatrix2, m_ProjectionTexture->GetTexture());
 	if (!result) {
 		return false;
@@ -244,7 +244,7 @@ bool GraphicsClass::Render() {
 
 	m_CubeModel->Render(directx_device_->GetDeviceContext());
 	result = m_ProjectionShader->Render(directx_device_->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_CubeModel->GetTexture(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(),
+		m_CubeModel->GetTexture(), light_->GetAmbientColor(), light_->GetDiffuseColor(), light_->GetDirection(),
 		viewMatrix2, projectionMatrix2, m_ProjectionTexture->GetTexture());
 	if (!result) {
 		return false;

@@ -1,8 +1,8 @@
 
-// Filename: lightclass.h
 
-#ifndef _LIGHTCLASS_H_
-#define _LIGHTCLASS_H_
+
+
+
 
 
 
@@ -13,7 +13,7 @@ using namespace DirectX;
 
 
 
-// Class name: LightClass
+
 
 class LightClass
 {
@@ -38,7 +38,7 @@ public:
 	void GetOrthoMatrix(XMMATRIX&);
 
 private:
-	XMFLOAT3 m_direction, m_position, m_lookAt;
+	XMFLOAT3 direction_, m_position, m_lookAt;
 	XMMATRIX m_viewMatrix, projection_matrix_, ortho_matrix_;
 };
 

@@ -48,7 +48,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 			return false;
 		}
 		result = model_->Initialize(
-			directx_device_->GetDevice(), 
+			
 			"../../tut33/data/square.txt", 
 			L"../../tut33/data/fire01.dds",
 			L"../../tut33/data/noise01.dds", 
@@ -66,7 +66,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 		if (!m_FireShader) {
 			return false;
 		}
-		result = m_FireShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_FireShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the fire shader object.", L"Error", MB_OK);
 			return false;

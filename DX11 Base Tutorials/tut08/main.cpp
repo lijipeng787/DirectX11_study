@@ -27,9 +27,9 @@ typedef struct
 }FaceType;
 
 
-///////////
+//
 // FUNCTION PROTOTYPES //
-///////////
+//
 void GetModelFilename(char*);
 bool ReadFileCounts(char*, int&, int&, int&, int&);
 bool LoadDataStructures(char*, int, int, int, int);

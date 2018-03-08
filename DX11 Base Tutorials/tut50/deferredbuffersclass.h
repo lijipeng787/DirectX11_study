@@ -5,9 +5,9 @@
 #define _DEFERREDBUFFERSCLASS_H_
 
 
-/////////////
+////
 // DEFINES //
-/////////////
+////
 const int BUFFER_COUNT = 2;
 
 

@@ -1,5 +1,5 @@
-#ifndef _GRAPHICSCLASS_H_
-#define _GRAPHICSCLASS_H_
+
+
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -70,13 +70,13 @@ private:
 
 	float frame_time_ = 0.0f;
 
-	DirectX11Device *directx_device_ = nullptr;
+	
 
 	Camera *camera_ = nullptr;
 
 	ModelClass *m_CubeModel, *m_GroundModel, *m_SphereModel;
 
-	LightClass* m_Light;
+	LightClass* light_;
 
 	RenderTextureClass* m_RenderTexture;
 

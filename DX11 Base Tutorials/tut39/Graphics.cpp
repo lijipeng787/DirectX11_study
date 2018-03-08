@@ -49,7 +49,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 	}
 
 	// Initialize the particle shader object.
-	result = m_ParticleShader->Initialize(directx_device_->GetDevice(), hwnd);
+	result = m_ParticleShader->Initialize(hwnd);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
@@ -65,7 +65,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 	}
 
 	// Initialize the particle system object.
-	result = m_ParticleSystem->Initialize(directx_device_->GetDevice(), L"../../tut39/data/star.dds");
+	result = m_ParticleSystem->Initialize(L"../../tut39/data/star.dds");
 	if(!result)
 	{
 		return false;

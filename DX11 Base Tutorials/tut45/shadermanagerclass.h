@@ -5,9 +5,9 @@
 #define _SHADERMANAGERCLASS_H_
 
 
-/////////
-// MY CLASS INCLUDES //
-/////////
+
+
+
 #include "textureshaderclass.h"
 #include "lightshaderclass.h"
 #include "bumpmapshaderclass.h"
@@ -36,7 +36,7 @@ public:
 
 private:
 	TextureShaderClass* m_TextureShader;
-	LightShaderClass* m_LightShader;
+	LightShaderClass* light_shader_;
 	BumpMapShaderClass* m_BumpMapShader;
 };
 

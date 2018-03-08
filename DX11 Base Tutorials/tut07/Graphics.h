@@ -1,5 +1,5 @@
-#ifndef _GRAPHICSCLASS_H_
-#define _GRAPHICSCLASS_H_
+
+
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -27,15 +27,15 @@ public:
 
 	virtual bool Render()override;
 private:
-	DirectX11Device *directx_device_ = nullptr;
+	
 
 	Camera *camera_ = nullptr;
 
 	ModelClass *model_ = nullptr;
 
-	LightShaderClass* m_LightShader;
+	LightShaderClass* light_shader_;
 
-	LightClass* m_Light;
+	LightClass* light_;
 
 	static float rotation;
 };

@@ -26,7 +26,7 @@ public:
 
 	virtual bool Render()override;
 private:
-	DirectX11Device *directx_device_ = nullptr;
+	
 
 	Camera *camera_ = nullptr;
 

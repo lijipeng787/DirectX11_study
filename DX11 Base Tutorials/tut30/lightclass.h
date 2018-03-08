@@ -1,8 +1,8 @@
 
-// Filename: lightclass.h
 
-#ifndef _LIGHTCLASS_H_
-#define _LIGHTCLASS_H_
+
+
+
 
 
 
@@ -13,7 +13,7 @@ using namespace DirectX;
 
 
 
-// Class name: LightClass
+
 
 class LightClass
 {
@@ -29,7 +29,7 @@ public:
 	XMFLOAT4 GetPosition();
 
 private:
-	XMFLOAT4 m_diffuseColor;
+	XMFLOAT4 diffuse_color_;
 	XMFLOAT4 m_position;
 };
 

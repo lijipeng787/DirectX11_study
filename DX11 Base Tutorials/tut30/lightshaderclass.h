@@ -1,13 +1,13 @@
 
-// Filename: lightshaderclass.h
-
-#ifndef _LIGHTSHADERCLASS_H_
-#define _LIGHTSHADERCLASS_H_
 
 
-/////////////
+
+
+
+
+////
 // GLOBALS //
-/////////////
+////
 const int NUM_LIGHTS = 4;
 
 
@@ -23,7 +23,7 @@ using namespace DirectX;
 
 
 
-// Class name: LightShaderClass
+
 
 class LightShaderClass
 {

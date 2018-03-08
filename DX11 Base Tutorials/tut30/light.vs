@@ -3,15 +3,15 @@
 
 
 
-/////////////
+////
 // DEFINES //
-/////////////
+////
 #define NUM_LIGHTS 4
 
 
-/////////////
+////
 // GLOBALS //
-/////////////
+////
 cbuffer MatrixBuffer
 {
 	matrix worldMatrix;

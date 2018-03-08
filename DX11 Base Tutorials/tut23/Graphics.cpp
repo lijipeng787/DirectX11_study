@@ -65,7 +65,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		result = m_FogShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_FogShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the fog shader object.", L"Error", MB_OK);
 			return false;

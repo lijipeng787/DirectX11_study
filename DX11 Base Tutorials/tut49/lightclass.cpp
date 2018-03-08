@@ -1,5 +1,5 @@
 
-// Filename: lightclass.cpp
+
 
 #include "lightclass.h"
 
@@ -21,7 +21,7 @@ LightClass::~LightClass()
 
 void LightClass::SetDirection(float x, float y, float z)
 {
-	m_direction = XMFLOAT3(x, y, z);
+	direction_ = XMFLOAT3(x, y, z);
 	
 }
 
@@ -44,7 +44,7 @@ void LightClass::SetLookAt(float x, float y, float z)
 
 XMFLOAT3 LightClass::GetDirection()
 {
-	return m_direction;
+	return direction_;
 }
 
 

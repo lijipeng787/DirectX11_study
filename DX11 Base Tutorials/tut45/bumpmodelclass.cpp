@@ -29,7 +29,7 @@ bool BumpModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR
 	bool result;
 
 
-	// Load in the model data,
+	
 	result = LoadModel(modelFilename);
 	if(!result)
 	{
@@ -39,7 +39,7 @@ bool BumpModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR
 	// Calculate the tangent and binormal vectors for the model.
 	CalculateModelVectors();
 
-	// Initialize the vertex and index buffers.
+	
 	result = InitializeBuffers(device);
 	if(!result)
 	{

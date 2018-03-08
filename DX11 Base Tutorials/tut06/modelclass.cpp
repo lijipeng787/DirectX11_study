@@ -1,5 +1,5 @@
 
-// Filename: modelclass.cpp
+
 
 #include "modelclass.h"
 
@@ -27,7 +27,7 @@ bool ModelClass::Initialize(ID3D11Device* device, WCHAR* textureFilename)
 	bool result;
 
 
-	// Initialize the vertex and index buffers.
+	
 	result = InitializeBuffers(device);
 	if(!result)
 	{

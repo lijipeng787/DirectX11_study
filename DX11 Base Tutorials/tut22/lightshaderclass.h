@@ -1,8 +1,8 @@
 
-// Filename: lightshaderclass.h
 
-#ifndef _LIGHTSHADERCLASS_H_
-#define _LIGHTSHADERCLASS_H_
+
+
+
 
 
 
@@ -17,7 +17,7 @@ using namespace DirectX;
 
 
 
-// Class name: LightShaderClass
+
 
 class LightShaderClass
 {

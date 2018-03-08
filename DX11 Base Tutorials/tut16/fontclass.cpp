@@ -1,6 +1,6 @@
-/////////
+
 // Filename: fontclass.cpp
-/////////
+
 #include "fontclass.h"
 
 

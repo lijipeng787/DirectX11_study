@@ -47,7 +47,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!model_) {
 			return false;
 		}
-		result = model_->Initialize(directx_device_->GetDevice(), "../../tut07/data/cube.txt", L"../../tut05/data/seafloor.dds");
+		result = model_->Initialize("../../tut07/data/cube.txt", L"../../tut05/data/seafloor.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
@@ -55,13 +55,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_LightShader = (LightShaderClass*)_aligned_malloc(sizeof(LightShaderClass), 16);
-		new (m_LightShader)LightShaderClass();
-		if (!m_LightShader) {
+		light_shader_ = (LightShaderClass*)_aligned_malloc(sizeof(LightShaderClass), 16);
+		new (light_shader_)LightShaderClass();
+		if (!light_shader_) {
 			return false;
 		}
 
-		result = m_LightShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = light_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
 			return false;
@@ -69,15 +69,15 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Light = new LightClass();
-		if (!m_Light) {
+		light_ = new LightClass();
+		if (!light_) {
 			return false;
 		}
-		m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
-		m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-		m_Light->SetDirection(0.0f, 0.0f, 1.0f);
-		m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
-		m_Light->SetSpecularPower(32.0f);
+		light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+		light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+		light_->SetDirection(0.0f, 0.0f, 1.0f);
+		light_->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+		light_->SetSpecularPower(32.0f);
 	}
 
 	return true;
@@ -85,16 +85,16 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 void GraphicsClass::Shutdown() {
 
-	if (m_Light) {
-		delete m_Light;
-		m_Light = nullptr;
+	if (light_) {
+		delete light_;
+		light_ = nullptr;
 	}
 
-	if (m_LightShader) {
-		m_LightShader->Shutdown();
-		m_LightShader->~LightShaderClass();
-		_aligned_free(m_LightShader);
-		m_LightShader = nullptr;
+	if (light_shader_) {
+		light_shader_->Shutdown();
+		light_shader_->~LightShaderClass();
+		_aligned_free(light_shader_);
+		light_shader_ = nullptr;
 	}
 
 	if (model_) {
@@ -149,9 +149,9 @@ bool GraphicsClass::Render() {
 
 	model_->Render(directx_device_->GetDeviceContext());
 
-	result = m_LightShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		model_->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
-		camera_->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+	result = light_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		model_->GetTexture(), light_->GetDirection(), light_->GetAmbientColor(), light_->GetDiffuseColor(),
+		camera_->GetPosition(), light_->GetSpecularColor(), light_->GetSpecularPower());
 	if (!result) {
 		return false;
 	}

@@ -47,7 +47,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_TextureShader) {
 			return false;
 		}
-		result = m_TextureShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_TextureShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -59,7 +59,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_FloorModel) {
 			return false;
 		}
-		result = m_FloorModel->Initialize(directx_device_->GetDevice(), "../../tut34/data/floor.txt", L"../../tut34/data/grid01.dds");
+		result = m_FloorModel->Initialize("../../tut34/data/floor.txt", L"../../tut34/data/grid01.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the floor model object.", L"Error", MB_OK);
 			return false;
@@ -71,7 +71,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_BillboardModel) {
 			return false;
 		}
-		result = m_BillboardModel->Initialize(directx_device_->GetDevice(), "../../tut34/data/square.txt", L"../../tut34/data/seafloor.dds");
+		result = m_BillboardModel->Initialize("../../tut34/data/square.txt", L"../../tut34/data/seafloor.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the billboard model object.", L"Error", MB_OK);
 			return false;

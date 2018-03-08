@@ -14,9 +14,9 @@
 using namespace std;
 
 
-/////////
-// MY CLASS INCLUDES //
-/////////
+
+
+
 #include "textureclass.h"
 
 

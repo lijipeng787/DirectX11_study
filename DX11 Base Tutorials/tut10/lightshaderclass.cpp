@@ -1,5 +1,5 @@
 
-// Filename: lightshaderclass.cpp
+
 
 #include "lightshaderclass.h"
 
@@ -121,7 +121,7 @@ bool LightShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
 		}
-		// If there was nothing in the error message then it simply could not find the file itself.
+		
 		else
 		{
 			MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
@@ -262,7 +262,7 @@ bool LightShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 
 void LightShaderClass::ShutdownShader()
 {
-	// Release the light constant buffer.
+	
 	if(m_lightBuffer)
 	{
 		m_lightBuffer->Release();
@@ -421,7 +421,7 @@ bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, 
 	
 	device_context->PSSetShaderResources(0, 1, &texture);
 
-	// Lock the light constant buffer so it can be written to.
+
 	result = device_context->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
@@ -441,10 +441,10 @@ bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, 
 	// Unlock the light constant buffer.
 	device_context->Unmap(m_lightBuffer, 0);
 
-	// Set the position of the light constant buffer in the pixel shader.
+	
 	buffer_number = 0;
 
-	// Finally set the light constant buffer in the pixel shader with the updated values.
+	
 	device_context->PSSetConstantBuffers(buffer_number, 1, &m_lightBuffer);
 
 	return true;

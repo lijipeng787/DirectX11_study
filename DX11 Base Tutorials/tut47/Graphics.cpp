@@ -54,7 +54,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!model_) {
 			return false;
 		}
-		result = model_->Initialize(directx_device_->GetDevice(), "../../tut47/data/sphere.txt", L"../../tut47/data/blue.dds");
+		result = model_->Initialize("../../tut47/data/sphere.txt", L"../../tut47/data/blue.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
@@ -67,7 +67,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_TextureShader) {
 			return false;
 		}
-		result = m_TextureShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_TextureShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -75,12 +75,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_LightShader = (LightShaderClass*)_aligned_malloc(sizeof(LightShaderClass), 16);
-		new (m_LightShader)LightShaderClass();
-		if (!m_LightShader) {
+		light_shader_ = (LightShaderClass*)_aligned_malloc(sizeof(LightShaderClass), 16);
+		new (light_shader_)LightShaderClass();
+		if (!light_shader_) {
 			return false;
 		}
-		result = m_LightShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = light_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
 			return false;
@@ -88,12 +88,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Light = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
-		new (m_Light)LightClass();
-		if (!m_Light) {
+		light_ = (LightClass*)_aligned_malloc(sizeof(LightClass), 16);
+		new (light_)LightClass();
+		if (!light_) {
 			return false;
 		}
-		m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+		light_->SetDirection(0.0f, 0.0f, 1.0f);
 	}
 
 	{
@@ -102,7 +102,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Text) {
 			return false;
 		}
-		result = m_Text->Initialize(directx_device_->GetDevice(), directx_device_->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
+		result = m_Text->Initialize(directx_device_->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
 			return false;
@@ -114,7 +114,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Bitmap) {
 			return false;
 		}
-		result = m_Bitmap->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight, L"../../tut47/data/mouse.dds", 32, 32);
+		result = m_Bitmap->Initialize(screenWidth, screenHeight, L"../../tut47/data/mouse.dds", 32, 32);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
 			return false;
@@ -142,18 +142,18 @@ void GraphicsClass::Shutdown() {
 	}
 
 	// Release the light object.
-	if (m_Light) {
-		m_Light->~LightClass();
-		_aligned_free(m_Light);
-		m_Light = 0;
+	if (light_) {
+		light_->~LightClass();
+		_aligned_free(light_);
+		light_ = 0;
 	}
 
 	// Release the light shader object.
-	if (m_LightShader) {
-		m_LightShader->Shutdown();
-		m_LightShader->~LightShaderClass();
-		_aligned_free(m_LightShader);
-		m_LightShader = 0;
+	if (light_shader_) {
+		light_shader_->Shutdown();
+		light_shader_->~LightShaderClass();
+		_aligned_free(light_shader_);
+		light_shader_ = 0;
 	}
 
 	
@@ -299,11 +299,11 @@ bool GraphicsClass::Render() {
 	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
 
 	model_->Render(directx_device_->GetDeviceContext());
-	result = m_LightShader->Render(
+	result = light_shader_->Render(
 		directx_device_->GetDeviceContext(), 
 		model_->GetIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix, 
-		model_->GetTexture(), m_Light->GetDirection()
+		model_->GetTexture(), light_->GetDirection()
 	);
 	if (!result) {
 		return false;

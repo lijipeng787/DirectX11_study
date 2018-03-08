@@ -49,7 +49,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		result = model_->Initialize(
-			directx_device_->GetDevice(), 
+			
 			"../../tut18/data/square.txt",
 			L"../../tut18/data/stone01.dds",
 			L"../../tut18/data/light01.dds"
@@ -66,7 +66,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_LightMapShader) {
 			return false;
 		}
-		result = m_LightMapShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_LightMapShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the light map shader object.", L"Error", MB_OK);
 			return false;

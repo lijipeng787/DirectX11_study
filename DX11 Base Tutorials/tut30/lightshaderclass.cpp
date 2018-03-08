@@ -1,5 +1,5 @@
 
-// Filename: lightshaderclass.cpp
+
 
 #include "lightshaderclass.h"
 

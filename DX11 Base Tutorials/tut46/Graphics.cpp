@@ -52,7 +52,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_TextureShader) {
 			return false;
 		}
-		result = m_TextureShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_TextureShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -64,7 +64,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_Bitmap) {
 			return false;
 		}
-		result = m_Bitmap->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight, L"../../tut46/data/test.dds", L"../../tut46/data/glowmap.dds", 256, 32);
+		result = m_Bitmap->Initialize(screenWidth, screenHeight, L"../../tut46/data/test.dds", L"../../tut46/data/glowmap.dds", 256, 32);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
 			return false;
@@ -77,7 +77,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_RenderTexture) {
 			return false;
 		}
-		result = m_RenderTexture->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_RenderTexture->Initialize(screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
 			return false;
@@ -90,7 +90,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_DownSampleTexure) {
 			return false;
 		}
-		result = m_DownSampleTexure->Initialize(directx_device_->GetDevice(), (screenWidth / 2), (screenHeight / 2), SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_DownSampleTexure->Initialize((screenWidth / 2), (screenHeight / 2), SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the down sample render to texture object.", L"Error", MB_OK);
 			return false;
@@ -102,7 +102,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_SmallWindow) {
 			return false;
 		}
-		result = m_SmallWindow->Initialize(directx_device_->GetDevice(), (screenWidth / 2), (screenHeight / 2));
+		result = m_SmallWindow->Initialize((screenWidth / 2), (screenHeight / 2));
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the small ortho window object.", L"Error", MB_OK);
 			return false;
@@ -115,7 +115,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_HorizontalBlurTexture) {
 			return false;
 		}
-		result = m_HorizontalBlurTexture->Initialize(directx_device_->GetDevice(), (screenWidth / 2), (screenHeight / 2), SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_HorizontalBlurTexture->Initialize((screenWidth / 2), (screenHeight / 2), SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the horizontal blur render to texture object.", L"Error", MB_OK);
 			return false;
@@ -128,7 +128,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_HorizontalBlurShader) {
 			return false;
 		}
-		result = m_HorizontalBlurShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_HorizontalBlurShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the horizontal blur shader object.", L"Error", MB_OK);
 			return false;
@@ -141,7 +141,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_VerticalBlurTexture) {
 			return false;
 		}
-		result = m_VerticalBlurTexture->Initialize(directx_device_->GetDevice(), (screenWidth / 2), (screenHeight / 2), SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_VerticalBlurTexture->Initialize((screenWidth / 2), (screenHeight / 2), SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the vertical blur render to texture object.", L"Error", MB_OK);
 			return false;
@@ -154,7 +154,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_VerticalBlurShader) {
 			return false;
 		}
-		result = m_VerticalBlurShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_VerticalBlurShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the vertical blur shader object.", L"Error", MB_OK);
 			return false;
@@ -167,7 +167,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_UpSampleTexure) {
 			return false;
 		}
-		result = m_UpSampleTexure->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
+		result = m_UpSampleTexure->Initialize(screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the up sample render to texture object.", L"Error", MB_OK);
 			return false;
@@ -179,7 +179,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_FullScreenWindow) {
 			return false;
 		}
-		result = m_FullScreenWindow->Initialize(directx_device_->GetDevice(), screenWidth, screenHeight);
+		result = m_FullScreenWindow->Initialize(screenWidth, screenHeight);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK);
 			return false;
@@ -192,7 +192,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_GlowMapShader) {
 			return false;
 		}
-		result = m_GlowMapShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_GlowMapShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the glow map shader object.", L"Error", MB_OK);
 			return false;
@@ -205,7 +205,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_GlowShader) {
 			return false;
 		}
-		result = m_GlowShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_GlowShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the glow shader object.", L"Error", MB_OK);
 			return false;

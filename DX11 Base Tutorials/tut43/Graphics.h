@@ -1,5 +1,5 @@
-#ifndef _GRAPHICSCLASS_H_
-#define _GRAPHICSCLASS_H_
+
+
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -33,13 +33,13 @@ private:
 
 	bool RenderScene();
 private:
-	DirectX11Device *directx_device_ = nullptr;
+	
 
 	Camera *camera_ = nullptr;
 
 	ModelClass *m_GroundModel, *m_CubeModel;
 
-	LightClass* m_Light;
+	LightClass* light_;
 
 	ProjectionShaderClass* m_ProjectionShader;
 

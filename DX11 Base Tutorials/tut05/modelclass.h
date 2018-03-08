@@ -1,8 +1,8 @@
 
-// Filename: modelclass.h
 
-#ifndef _MODELCLASS_H_
-#define _MODELCLASS_H_
+
+
+
 
 
 
@@ -13,14 +13,14 @@
 using namespace DirectX;
 
 
-/////////
-// MY CLASS INCLUDES //
-/////////
+
+
+
 #include "textureclass.h"
 
 
 
-// Class name: ModelClass
+
 
 class ModelClass
 {

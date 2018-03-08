@@ -55,7 +55,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		result = m_Text->Initialize(directx_device_->GetDevice(), directx_device_->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
+		result = m_Text->Initialize(directx_device_->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
 		if (!result)
 		{
 			MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
@@ -69,7 +69,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		result = model_->Initialize(directx_device_->GetDevice(), L"../../tut16/data/seafloor.dds", "../../tut16/data/sphere.txt");
+		result = model_->Initialize(L"../../tut16/data/seafloor.dds", "../../tut16/data/sphere.txt");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
@@ -77,13 +77,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_LightShader = (LightShaderClass*)_aligned_malloc(sizeof(LightShaderClass), 16);
-		new (m_LightShader)LightShaderClass();
-		if (!m_LightShader) {
+		light_shader_ = (LightShaderClass*)_aligned_malloc(sizeof(LightShaderClass), 16);
+		new (light_shader_)LightShaderClass();
+		if (!light_shader_) {
 			return false;
 		}
 
-		result = m_LightShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = light_shader_->Initialize(hwnd);
 		if (!result)
 		{
 			MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
@@ -92,12 +92,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Light = new LightClass();
-		if (!m_Light) {
+		light_ = new LightClass();
+		if (!light_) {
 			return false;
 		}
 
-		m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+		light_->SetDirection(0.0f, 0.0f, 1.0f);
 
 	}
 
@@ -139,16 +139,16 @@ void GraphicsClass::Shutdown() {
 		m_ModelList = 0;
 	}
 
-	if (m_Light) {
-		delete m_Light;
-		m_Light = 0;
+	if (light_) {
+		delete light_;
+		light_ = 0;
 	}
 
-	if (m_LightShader) {
-		m_LightShader->Shutdown();
-		m_LightShader->~LightShaderClass();
-		_aligned_free(m_LightShader);
-		m_LightShader = 0;
+	if (light_shader_) {
+		light_shader_->Shutdown();
+		light_shader_->~LightShaderClass();
+		_aligned_free(light_shader_);
+		light_shader_ = 0;
 	}
 
 	if (model_) {
@@ -224,8 +224,8 @@ bool GraphicsClass::Render() {
 
 			model_->Render(directx_device_->GetDeviceContext());
 
-			m_LightShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-				model_->GetTexture(), m_Light->GetDirection(), color);
+			light_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+				model_->GetTexture(), light_->GetDirection(), color);
 
 			directx_device_->GetWorldMatrix(worldMatrix);
 

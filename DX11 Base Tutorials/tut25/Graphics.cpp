@@ -48,7 +48,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		result = model_->Initialize(directx_device_->GetDevice(), L"../../tut25/data/seafloor.dds", "../../tut25/data/triangle.txt");
+		result = model_->Initialize(L"../../tut25/data/seafloor.dds", "../../tut25/data/triangle.txt");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
@@ -61,7 +61,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_TranslateShader) {
 			return false;
 		}
-		result = m_TranslateShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_TranslateShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture translation shader object.", L"Error", MB_OK);
 			return false;

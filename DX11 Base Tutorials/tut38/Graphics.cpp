@@ -58,7 +58,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!m_ColorShader) {
 			return false;
 		}
-		result = m_ColorShader->Initialize(directx_device_->GetDevice(), hwnd);
+		result = m_ColorShader->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
 			return false;
