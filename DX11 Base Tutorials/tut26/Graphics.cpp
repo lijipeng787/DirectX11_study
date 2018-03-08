@@ -108,7 +108,7 @@ void GraphicsClass::Shutdown() {
 		m_TransparentShader = 0;
 	}
 
-	// Release the texture shader object.
+	
 	if (m_TextureShader)
 	{
 		m_TextureShader->Shutdown();

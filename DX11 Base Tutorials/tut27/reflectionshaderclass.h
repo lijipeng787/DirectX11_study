@@ -1,13 +1,13 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: reflectionshaderclass.h
-////////////////////////////////////////////////////////////////////////////////
+
 #ifndef _REFLECTIONSHADERCLASS_H_
 #define _REFLECTIONSHADERCLASS_H_
 
 
-//////////////
-// INCLUDES //
-//////////////
+
+
+
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
@@ -16,9 +16,9 @@ using namespace std;
 using namespace DirectX;
 
 
-////////////////////////////////////////////////////////////////////////////////
+
 // Class name: ReflectionShaderClass
-////////////////////////////////////////////////////////////////////////////////
+
 class ReflectionShaderClass
 {
 private:
@@ -41,7 +41,7 @@ public:
 
 	bool Initialize(ID3D11Device*, HWND);
 	void Shutdown();
-	bool Render(ID3D11DeviceContext*, int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*, 
+	bool Render(int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*, 
 				ID3D11ShaderResourceView*, const XMMATRIX& );
 
 private:
@@ -49,9 +49,9 @@ private:
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(ID3D11DeviceContext*, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*, 
+	bool SetShaderParameters(const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*, 
 							 ID3D11ShaderResourceView*, const XMMATRIX& );
-	void RenderShader(ID3D11DeviceContext*, int);
+	void RenderShader(int);
 
 private:
 	ID3D11VertexShader* vertex_shader_;

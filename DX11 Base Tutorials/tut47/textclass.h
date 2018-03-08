@@ -1,19 +1,19 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: textclass.h
-////////////////////////////////////////////////////////////////////////////////
+
 #ifndef _TEXTCLASS_H_
 #define _TEXTCLASS_H_
 
-///////////////////////
+/////////
 // MY CLASS INCLUDES //
-///////////////////////
+/////////
 #include "fontclass.h"
 #include "fontshaderclass.h"
 
 
-////////////////////////////////////////////////////////////////////////////////
+
 // Class name: TextClass
-////////////////////////////////////////////////////////////////////////////////
+
 class TextClass
 {
 private:
@@ -35,9 +35,9 @@ public:
 	TextClass(const TextClass&);
 	~TextClass();
 
-	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, HWND, int, int, const XMMATRIX& );
+	bool Initialize(ID3D11Device*, HWND, int, int, const XMMATRIX& );
 	void Shutdown();
-	bool Render(ID3D11DeviceContext*, const XMMATRIX&, const XMMATRIX& );
+	bool Render(const XMMATRIX&, const XMMATRIX& );
 
 	bool SetIntersection(bool, ID3D11DeviceContext*);
 
@@ -45,7 +45,7 @@ private:
 	bool InitializeSentence(SentenceType**, int, ID3D11Device*);
 	bool UpdateSentence(SentenceType*, char*, int, int, float, float, float, ID3D11DeviceContext*);
 	void ReleaseSentence(SentenceType**);
-	bool RenderSentence(ID3D11DeviceContext*, SentenceType*, const XMMATRIX&, const XMMATRIX& );
+	bool RenderSentence(SentenceType*, const XMMATRIX&, const XMMATRIX& );
 
 private:
 	FontClass* m_Font;

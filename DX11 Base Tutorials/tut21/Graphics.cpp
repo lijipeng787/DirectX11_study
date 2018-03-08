@@ -110,7 +110,7 @@ void GraphicsClass::Shutdown()
 		m_SpecMapShader = 0;
 	}
 
-	// Release the model object.
+
 	if (model_)
 	{
 		model_->Shutdown();

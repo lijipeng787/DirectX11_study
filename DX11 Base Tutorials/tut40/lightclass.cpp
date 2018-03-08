@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: lightclass.cpp
-////////////////////////////////////////////////////////////////////////////////
+
 #include "lightclass.h"
 
 
@@ -109,7 +109,7 @@ void LightClass::GenerateProjectionMatrix(float screenDepth, float screenNear)
 	screenAspect = 1.0f;
 
 	// Create the projection matrix for the light.
-	m_projectionMatrix = XMMatrixPerspectiveFovLH( fieldOfView, screenAspect, screenNear, screenDepth );
+	projection_matrix_ = XMMatrixPerspectiveFovLH( fieldOfView, screenAspect, screenNear, screenDepth );
 
 	
 }
@@ -124,6 +124,6 @@ void LightClass::GetViewMatrix( XMMATRIX& viewMatrix)
 
 void LightClass::GetProjectionMatrix( XMMATRIX& projectionMatrix )
 {
-	projectionMatrix = m_projectionMatrix;
+	projectionMatrix = projection_matrix_;
 	
 }

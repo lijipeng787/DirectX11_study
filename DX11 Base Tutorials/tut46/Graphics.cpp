@@ -233,14 +233,14 @@ void GraphicsClass::Shutdown() {
 		m_GlowMapShader = 0;
 	}
 
-	// Release the full screen ortho window object.
+	buffer_number
 	if (m_FullScreenWindow) {
 		m_FullScreenWindow->Shutdown();
 		delete m_FullScreenWindow;
 		m_FullScreenWindow = 0;
 	}
 
-	// Release the up sample render to texture object.
+
 	if (m_UpSampleTexure) {
 		m_UpSampleTexure->Shutdown();
 		m_UpSampleTexure->~RenderTextureClass();
@@ -248,7 +248,7 @@ void GraphicsClass::Shutdown() {
 		m_UpSampleTexure = 0;
 	}
 
-	// Release the vertical blur shader object.
+	
 	if (m_VerticalBlurShader) {
 		m_VerticalBlurShader->Shutdown();
 		m_VerticalBlurShader->~VerticalBlurShaderClass();
@@ -256,7 +256,7 @@ void GraphicsClass::Shutdown() {
 		m_VerticalBlurShader = 0;
 	}
 
-	// Release the vertical blur render to texture object.
+	
 	if (m_VerticalBlurTexture) {
 		m_VerticalBlurTexture->Shutdown();
 		m_VerticalBlurTexture->~RenderTextureClass();
@@ -264,7 +264,7 @@ void GraphicsClass::Shutdown() {
 		m_VerticalBlurTexture = 0;
 	}
 
-	// Release the horizontal blur shader object.
+	
 	if (m_HorizontalBlurShader) {
 		m_HorizontalBlurShader->Shutdown();
 		m_HorizontalBlurShader->~HorizontalBlurShaderClass();
@@ -272,7 +272,7 @@ void GraphicsClass::Shutdown() {
 		m_HorizontalBlurShader = 0;
 	}
 
-	// Release the horizontal blur render to texture object.
+	
 	if (m_HorizontalBlurTexture) {
 		m_HorizontalBlurTexture->Shutdown();
 		m_HorizontalBlurTexture->~RenderTextureClass();
@@ -280,14 +280,14 @@ void GraphicsClass::Shutdown() {
 		m_HorizontalBlurTexture = 0;
 	}
 
-	// Release the small ortho window object.
+	
 	if (m_SmallWindow) {
 		m_SmallWindow->Shutdown();
 		delete m_SmallWindow;
 		m_SmallWindow = 0;
 	}
 
-	// Release the down sample render to texture object.
+
 	if (m_DownSampleTexure) {
 		m_DownSampleTexure->Shutdown();
 		m_DownSampleTexure->~RenderTextureClass();
@@ -295,7 +295,7 @@ void GraphicsClass::Shutdown() {
 		m_DownSampleTexure = 0;
 	}
 
-	// Release the render to texture object.
+	
 	if (m_RenderTexture) {
 		m_RenderTexture->Shutdown();
 		m_RenderTexture->~RenderTextureClass();
@@ -310,7 +310,7 @@ void GraphicsClass::Shutdown() {
 		m_Bitmap = 0;
 	}
 
-	// Release the texture shader object.
+	
 	if (m_TextureShader) {
 		m_TextureShader->Shutdown();
 		m_TextureShader->~TextureShaderClass();

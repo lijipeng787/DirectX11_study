@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: lightclass.cpp
-////////////////////////////////////////////////////////////////////////////////
+
 #include "lightclass.h"
 
 
@@ -106,7 +106,7 @@ void LightClass::GetViewMatrix( XMMATRIX& viewMatrix)
 void LightClass::GenerateOrthoMatrix(float width, float depthPlane, float nearPlane)
 {
 	// Create the orthographic matrix for the light.
-	m_orthoMatrix =  XMMatrixOrthographicLH( width, width, nearPlane, depthPlane);
+	ortho_matrix_ =  XMMatrixOrthographicLH( width, width, nearPlane, depthPlane);
 
 	
 }
@@ -114,7 +114,7 @@ void LightClass::GenerateOrthoMatrix(float width, float depthPlane, float nearPl
 
 void LightClass::GetOrthoMatrix( XMMATRIX& orthoMatrix)
 {
-	orthoMatrix = m_orthoMatrix;
+	orthoMatrix = ortho_matrix_;
 	
 }
 

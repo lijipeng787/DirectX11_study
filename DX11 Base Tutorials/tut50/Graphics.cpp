@@ -143,14 +143,14 @@ void GraphicsClass::Shutdown() {
 		m_DeferredBuffers = 0;
 	}
 
-	// Release the full screen ortho window object.
+	buffer_number
 	if (m_FullScreenWindow) {
 		m_FullScreenWindow->Shutdown();
 		delete m_FullScreenWindow;
 		m_FullScreenWindow = 0;
 	}
 
-	// Release the model object.
+
 	if (model_) {
 		model_->Shutdown();
 		delete model_;

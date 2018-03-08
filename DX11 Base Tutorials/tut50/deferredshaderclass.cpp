@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: deferredshaderclass.cpp
-////////////////////////////////////////////////////////////////////////////////
+
 #include "deferredshaderclass.h"
 
 
@@ -29,7 +29,7 @@ bool DeferredShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 	bool result;
 
 
-	// Initialize the vertex and pixel shaders.
+	
 	result = InitializeShader(device, hwnd, L"../../tut50/deferred.vs", L"../../tut50/deferred.ps");
 	if(!result)
 	{
@@ -42,28 +42,28 @@ bool DeferredShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 
 void DeferredShaderClass::Shutdown()
 {
-	// Shutdown the vertex and pixel shaders as well as the related objects.
+
 	ShutdownShader();
 
 	
 }
 
 
-bool DeferredShaderClass::Render( ID3D11DeviceContext* deviceContext, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool DeferredShaderClass::Render( ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 	const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture )
 {
 	bool result;
 
 
-	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture);
+
+	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture);
 	if(!result)
 	{
 		return false;
 	}
 
-	// Now render the prepared buffers with the shader.
-	RenderShader(deviceContext, indexCount);
+
+	RenderShader(device_context, indexCount);
 
 	return true;
 }
@@ -81,22 +81,22 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHA
 	D3D11_BUFFER_DESC matrixBufferDesc;
 
 
-	// Initialize the pointers this function will use to null.
+	
 	errorMessage = 0;
 	vertexShaderBuffer = 0;
 	pixelShaderBuffer = 0;
 
-    // Compile the vertex shader code.
+    
 	result = D3DCompileFromFile(vsFilename, NULL, NULL, "DeferredVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, 
 								   &vertexShaderBuffer, &errorMessage );
 	if(FAILED(result))
 	{
-		// If the shader failed to compile it should have writen something to the error message.
+		
 		if(errorMessage)
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
 		}
-		// If there was nothing in the error message then it simply could not find the shader file itself.
+		
 		else
 		{
 			MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
@@ -105,12 +105,12 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHA
 		return false;
 	}
 
-    // Compile the pixel shader code.
+    
 	result = D3DCompileFromFile(psFilename, NULL, NULL, "DeferredPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, 
 								   &pixelShaderBuffer, &errorMessage );
 	if(FAILED(result))
 	{
-		// If the shader failed to compile it should have writen something to the error message.
+		
 		if(errorMessage)
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
@@ -124,21 +124,21 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHA
 		return false;
 	}
 
-    // Create the vertex shader from the buffer.
+
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertex_shader_);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-    // Create the pixel shader from the buffer.
+
     result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &pixel_shader_);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Create the vertex input layout description.
+	
 	polygonLayout[0].SemanticName = "POSITION";
 	polygonLayout[0].SemanticIndex = 0;
 	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -163,10 +163,10 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHA
 	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[2].InstanceDataStepRate = 0;
 
-	// Get a count of the elements in the layout.
+	
     numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
-	// Create the vertex input layout.
+	
 	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), 
 		                               &layout_);
 	if(FAILED(result))
@@ -174,7 +174,7 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHA
 		return false;
 	}
 
-	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
+	
 	vertexShaderBuffer->Release();
 	vertexShaderBuffer = 0;
 
@@ -196,14 +196,14 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHA
     samplerDesc.MinLOD = 0;
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	// Create the texture sampler state.
+	
     result = device->CreateSamplerState(&samplerDesc, &m_sampleStateWrap);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
+	
     matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
     matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -211,7 +211,7 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHA
     matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
 
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	
 	result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
 	if(FAILED(result))
 	{
@@ -224,35 +224,35 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHA
 
 void DeferredShaderClass::ShutdownShader()
 {
-	// Release the matrix constant buffer.
+
 	if(matrix_buffer_)
 	{
 		matrix_buffer_->Release();
 		matrix_buffer_ = 0;
 	}
 
-	// Release the sampler state.
+
 	if(m_sampleStateWrap)
 	{
 		m_sampleStateWrap->Release();
 		m_sampleStateWrap = 0;
 	}
 
-	// Release the layout.
+	
 	if(layout_)
 	{
 		layout_->Release();
 		layout_ = 0;
 	}
 
-	// Release the pixel shader.
+	
 	if(pixel_shader_)
 	{
 		pixel_shader_->Release();
 		pixel_shader_ = 0;
 	}
 
-	// Release the vertex shader.
+	
 	if(vertex_shader_)
 	{
 		vertex_shader_->Release();
@@ -270,97 +270,97 @@ void DeferredShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWN
 	ofstream fout;
 
 
-	// Get a pointer to the error message text buffer.
+	
 	compileErrors = (char*)(errorMessage->GetBufferPointer());
 
-	// Get the length of the message.
+
 	bufferSize = errorMessage->GetBufferSize();
 
-	// Open a file to write the error message to.
+	
 	fout.open("shader-error.txt");
 
-	// Write out the error message.
+
 	for(i=0; i<bufferSize; i++)
 	{
 		fout << compileErrors[i];
 	}
 
-	// Close the file.
+	
 	fout.close();
 
-	// Release the error message.
+	
 	errorMessage->Release();
 	errorMessage = 0;
 
-	// Pop a message up on the screen to notify the user to check the text file for compile errors.
+	
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 
 	
 }
 
 
-bool DeferredShaderClass::SetShaderParameters( ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool DeferredShaderClass::SetShaderParameters( ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 	const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture )
 {
 	HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
-	unsigned int bufferNumber;
+	unsigned int buffer_number;
 	MatrixBufferType* dataPtr;
 
 	XMMATRIX worldMatrixCopy = worldMatrix;
 	XMMATRIX viewMatrixCopy = viewMatrix;
 	XMMATRIX projectionMatrixCopy = projectionMatrix;
 
-	// Transpose the matrices to prepare them for the shader.
+
 	worldMatrixCopy = XMMatrixTranspose( worldMatrix );
 	viewMatrixCopy = XMMatrixTranspose( viewMatrix );
 	projectionMatrixCopy = XMMatrixTranspose( projectionMatrix );
 
-	// Lock the constant buffer so it can be written to.
-	result = deviceContext->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+
+	result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Get a pointer to the data in the constant buffer.
+	
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 
-	// Copy the matrices into the constant buffer.
+	
 	dataPtr->world = worldMatrixCopy;
 	dataPtr->view = viewMatrixCopy;
 	dataPtr->projection = projectionMatrixCopy;
 
-	// Unlock the constant buffer.
-    deviceContext->Unmap(matrix_buffer_, 0);
+	
+    device_context->Unmap(matrix_buffer_, 0);
 
-	// Set the position of the constant buffer in the vertex shader.
-	bufferNumber = 0;
+	
+	buffer_number = 0;
 
-	// Now set the constant buffer in the vertex shader with the updated values.
-    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &matrix_buffer_);
+	
+    device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
-	// Set shader texture resource in the pixel shader.
-	deviceContext->PSSetShaderResources(0, 1, &texture);
+	
+	device_context->PSSetShaderResources(0, 1, &texture);
 
 	return true;
 }
 
 
-void DeferredShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+void DeferredShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
 {
-	// Set the vertex input layout.
-	deviceContext->IASetInputLayout(layout_);
+
+	device_context->IASetInputLayout(layout_);
 
     // Set the vertex and pixel shaders that will be used to render.
-    deviceContext->VSSetShader(vertex_shader_, NULL, 0);
-    deviceContext->PSSetShader(pixel_shader_, NULL, 0);
+    device_context->VSSetShader(vertex_shader_, NULL, 0);
+    device_context->PSSetShader(pixel_shader_, NULL, 0);
 
 	// Set the sampler states in the pixel shader.
-	deviceContext->PSSetSamplers(0, 1, &m_sampleStateWrap);
+	device_context->PSSetSamplers(0, 1, &m_sampleStateWrap);
 
 	// Render the geometry.
-	deviceContext->DrawIndexed(indexCount, 0, 0);
+	device_context->DrawIndexed(indexCount, 0, 0);
 
 	
 }

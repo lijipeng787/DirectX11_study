@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: fogshaderclass.cpp
-////////////////////////////////////////////////////////////////////////////////
+
 #include "fogshaderclass.h"
 
 
@@ -30,7 +30,7 @@ bool FogShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 	bool result;
 
 
-	// Initialize the vertex and pixel shaders.
+	
 	result = InitializeShader(device, hwnd, L"../../tut23/fog.vs", L"../../tut23/fog.ps");
 	if(!result)
 	{
@@ -43,28 +43,28 @@ bool FogShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 
 void FogShaderClass::Shutdown()
 {
-	// Shutdown the vertex and pixel shaders as well as the related objects.
+
 	ShutdownShader();
 
 	
 }
 
 
-bool FogShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool FogShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 							const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, float fogStart, float fogEnd)
 {
 	bool result;
 
 
-	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, fogStart, fogEnd);
+
+	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture, fogStart, fogEnd);
 	if(!result)
 	{
 		return false;
 	}
 
-	// Now render the prepared buffers with the shader.
-	RenderShader(deviceContext, indexCount);
+
+	RenderShader(device_context, indexCount);
 
 	return true;
 }
@@ -83,17 +83,17 @@ bool FogShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 	D3D11_BUFFER_DESC fogBufferDesc;
 
 
-	// Initialize the pointers this function will use to null.
+	
 	errorMessage = 0;
 	vertexShaderBuffer = 0;
 	pixelShaderBuffer = 0;
 
-    // Compile the vertex shader code.
+    
 	result = D3DCompileFromFile(vsFilename, NULL, NULL, "FogVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
 								   &vertexShaderBuffer, &errorMessage );
 	if(FAILED(result))
 	{
-		// If the shader failed to compile it should have writen something to the error message.
+		
 		if(errorMessage)
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
@@ -107,17 +107,17 @@ bool FogShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 		return false;
 	}
 
-    // Compile the pixel shader code.
+    
 	result = D3DCompileFromFile(psFilename, NULL, NULL, "FogPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
 								   &pixelShaderBuffer, &errorMessage );
 	if(FAILED(result))
 	{
-		// If the shader failed to compile it should have writen something to the error message.
+		
 		if(errorMessage)
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
 		}
-		// If there was  nothing in the error message then it simply could not find the file itself.
+		
 		else
 		{
 			MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
@@ -126,7 +126,7 @@ bool FogShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 		return false;
 	}
 
-    // Create the vertex shader from the buffer.
+
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, 
 										&vertex_shader_);
 	if(FAILED(result))
@@ -134,7 +134,7 @@ bool FogShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 		return false;
 	}
 
-    // Create the vertex shader from the buffer.
+
     result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, 
 									   &pixel_shader_);
 	if(FAILED(result))
@@ -142,8 +142,8 @@ bool FogShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 		return false;
 	}
 
-	// Create the vertex input layout description.
-	// This setup needs to match the VertexType stucture in the ModelClass and in the shader.
+	
+	
 	polygonLayout[0].SemanticName = "POSITION";
 	polygonLayout[0].SemanticIndex = 0;
 	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -160,10 +160,10 @@ bool FogShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[1].InstanceDataStepRate = 0;
 
-	// Get a count of the elements in the layout.
+	
     numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
-	// Create the vertex input layout.
+	
 	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), 
 									   vertexShaderBuffer->GetBufferSize(), &layout_);
 	if(FAILED(result))
@@ -171,7 +171,7 @@ bool FogShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
 		return false;
 	}
 
-	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
+	
 	vertexShaderBuffer->Release();
 	vertexShaderBuffer = 0;
 
@@ -186,14 +186,14 @@ bool FogShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
     constantBufferDesc.MiscFlags = 0;
 	constantBufferDesc.StructureByteStride = 0;
 
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	
 	result = device->CreateBuffer(&constantBufferDesc, NULL, &m_constantBuffer);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Create a texture sampler state description.
+	
     samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
     samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -208,7 +208,7 @@ bool FogShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs
     samplerDesc.MinLOD = 0;
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	// Create the texture sampler state.
+	
     result = device->CreateSamplerState(&samplerDesc, &sample_state_);
 	if(FAILED(result))
 	{
@@ -243,7 +243,7 @@ void FogShaderClass::ShutdownShader()
 		m_fogBuffer = 0;
 	}
 
-	// Release the sampler state.
+
 	if(sample_state_)
 	{
 		sample_state_->Release();
@@ -257,21 +257,21 @@ void FogShaderClass::ShutdownShader()
 		m_constantBuffer = 0;
 	}
 
-	// Release the layout.
+	
 	if(layout_)
 	{
 		layout_->Release();
 		layout_ = 0;
 	}
 
-	// Release the pixel shader.
+	
 	if(pixel_shader_)
 	{
 		pixel_shader_->Release();
 		pixel_shader_ = 0;
 	}
 
-	// Release the vertex shader.
+	
 	if(vertex_shader_)
 	{
 		vertex_shader_->Release();
@@ -289,122 +289,122 @@ void FogShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwn
 	ofstream fout;
 
 
-	// Get a pointer to the error message text buffer.
+	
 	compileErrors = (char*)(errorMessage->GetBufferPointer());
 
-	// Get the length of the message.
+
 	bufferSize = errorMessage->GetBufferSize();
 
-	// Open a file to write the error message to.
+	
 	fout.open("shader-error.txt");
 
-	// Write out the error message.
+
 	for(i=0; i<bufferSize; i++)
 	{
 		fout << compileErrors[i];
 	}
 
-	// Close the file.
+	
 	fout.close();
 
-	// Release the error message.
+	
 	errorMessage->Release();
 	errorMessage = 0;
 
-	// Pop a message up on the screen to notify the user to check the text file for compile errors.
+	
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 
 	
 }
 
 
-bool FogShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool FogShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 										 const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, float fogStart, 
 										 float fogEnd)
 {
 	HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
 	ConstantBufferType* dataPtr;
-	unsigned int bufferNumber;
+	unsigned int buffer_number;
 	FogBufferType* dataPtr2;
 
 	XMMATRIX worldMatrixCopy = worldMatrix;
 	XMMATRIX viewMatrixCopy = viewMatrix;
 	XMMATRIX projectionMatrixCopy = projectionMatrix;
 
-	// Transpose the matrices to prepare them for the shader.
+
 	worldMatrixCopy = XMMatrixTranspose( worldMatrix );
 	viewMatrixCopy = XMMatrixTranspose( viewMatrix );
 	projectionMatrixCopy = XMMatrixTranspose( projectionMatrix );
 
-	// Lock the constant buffer so it can be written to.
-	result = deviceContext->Map(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+
+	result = device_context->Map(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Get a pointer to the data in the constant buffer.
+	
 	dataPtr = (ConstantBufferType*)mappedResource.pData;
 	
-	// Copy the matrices into the constant buffer.
+	
 	dataPtr->world = worldMatrixCopy;
 	dataPtr->view = viewMatrixCopy;
 	dataPtr->projection = projectionMatrixCopy;
 
-	// Unlock the constant buffer.
-    deviceContext->Unmap(m_constantBuffer, 0);
+	
+    device_context->Unmap(m_constantBuffer, 0);
 
-	// Set the position of the constant buffer in the vertex shader.
-	bufferNumber = 0;
+	
+	buffer_number = 0;
 
-	// Now set the constant buffer in the vertex shader with the updated values.
-    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_constantBuffer);
+	
+    device_context->VSSetConstantBuffers(buffer_number, 1, &m_constantBuffer);
 
-	// Set shader texture resource in the pixel shader.
-	deviceContext->PSSetShaderResources(0, 1, &texture);
+	
+	device_context->PSSetShaderResources(0, 1, &texture);
 
 	// Lock the fog constant buffer so it can be written to.
-	result = deviceContext->Map(m_fogBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(m_fogBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Get a pointer to the data in the constant buffer.
+	
 	dataPtr2 = (FogBufferType*)mappedResource.pData;
 
 	// Copy the fog information into the fog constant buffer.
 	dataPtr2->fogStart = fogStart;
 	dataPtr2->fogEnd = fogEnd;
 
-	// Unlock the constant buffer.
-    deviceContext->Unmap(m_fogBuffer, 0);
+	
+    device_context->Unmap(m_fogBuffer, 0);
 
 	// Set the position of the fog constant buffer in the vertex shader.
-	bufferNumber = 1;
+	buffer_number = 1;
 
 	// Now set the fog buffer in the vertex shader with the updated values.
-    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_fogBuffer);
+    device_context->VSSetConstantBuffers(buffer_number, 1, &m_fogBuffer);
 
 	return true;
 }
 
 
-void FogShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+void FogShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
 {
-	// Set the vertex input layout.
-	deviceContext->IASetInputLayout(layout_);
 
-    // Set the vertex and pixel shaders that will be used to render this triangle.
-    deviceContext->VSSetShader(vertex_shader_, NULL, 0);
-    deviceContext->PSSetShader(pixel_shader_, NULL, 0);
+	device_context->IASetInputLayout(layout_);
 
-	// Set the sampler state in the pixel shader.
-	deviceContext->PSSetSamplers(0, 1, &sample_state_);
+ 
+    device_context->VSSetShader(vertex_shader_, NULL, 0);
+    device_context->PSSetShader(pixel_shader_, NULL, 0);
 
-	// Render the triangle.
-	deviceContext->DrawIndexed(indexCount, 0, 0);
+	
+	device_context->PSSetSamplers(0, 1, &sample_state_);
+
+	
+	device_context->DrawIndexed(indexCount, 0, 0);
 
 	
 }

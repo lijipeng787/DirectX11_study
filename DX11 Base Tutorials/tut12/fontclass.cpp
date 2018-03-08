@@ -1,13 +1,13 @@
-///////////////////////////////////////////////////////////////////////////////
+/////////
 // Filename: fontclass.cpp
-///////////////////////////////////////////////////////////////////////////////
+/////////
 #include "fontclass.h"
 
 
 FontClass::FontClass()
 {
 	m_Font = 0;
-	m_Texture = 0;
+	texture_ = 0;
 }
 
 
@@ -96,7 +96,7 @@ bool FontClass::LoadFontData(char* filename)
 		fin >> m_Font[i].size;
 	}
 
-	// Close the file.
+	
 	fin.close();
 
 	return true;
@@ -121,15 +121,15 @@ bool FontClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
 	bool result;
 
 
-	// Create the texture object.
-	m_Texture = new TextureClass();
-	if(!m_Texture)
+	
+	texture_ = new TextureClass();
+	if(!texture_)
 	{
 		return false;
 	}
 
-	// Initialize the texture object.
-	result = m_Texture->Initialize(device, filename);
+
+	result = texture_->Initialize(device, filename);
 	if(!result)
 	{
 		return false;
@@ -141,12 +141,12 @@ bool FontClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
 
 void FontClass::ReleaseTexture()
 {
-	// Release the texture object.
-	if(m_Texture)
+
+	if(texture_)
 	{
-		m_Texture->Shutdown();
-		delete m_Texture;
-		m_Texture = 0;
+		texture_->Shutdown();
+		delete texture_;
+		texture_ = 0;
 	}
 
 	
@@ -155,7 +155,7 @@ void FontClass::ReleaseTexture()
 
 ID3D11ShaderResourceView* FontClass::GetTexture()
 {
-	return m_Texture->GetTexture();
+	return texture_->GetTexture();
 }
 
 

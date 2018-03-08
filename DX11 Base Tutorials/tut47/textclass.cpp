@@ -1,6 +1,6 @@
-///////////////////////////////////////////////////////////////////////////////
+/////////
 // Filename: textclass.cpp
-///////////////////////////////////////////////////////////////////////////////
+/////////
 #include "textclass.h"
 
 
@@ -22,7 +22,7 @@ TextClass::~TextClass()
 }
 
 
-bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, HWND hwnd, int screenWidth, int screenHeight, 
+bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* device_context, HWND hwnd, int screenWidth, int screenHeight, 
 						   const XMMATRIX& baseViewMatrix )
 {
 	bool result;
@@ -73,7 +73,7 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
 	}
 
 	// Now update the sentence vertex buffer with the new string information.
-	result = UpdateSentence(m_sentence1, "Intersection: No", 20, 20, 1.0f, 0.0f, 0.0f, deviceContext);
+	result = UpdateSentence(m_sentence1, "Intersection: No", 20, 20, 1.0f, 0.0f, 0.0f, device_context);
 	if(!result)
 	{
 		return false;
@@ -108,13 +108,13 @@ void TextClass::Shutdown()
 }
 
 
-bool TextClass::Render(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& orthoMatrix )
+bool TextClass::Render(ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix, const XMMATRIX& orthoMatrix )
 {
 	bool result;
 
 
 	// Draw the first sentence.
-	result = RenderSentence(deviceContext, m_sentence1, worldMatrix, orthoMatrix);
+	result = RenderSentence(device_context, m_sentence1, worldMatrix, orthoMatrix);
 	if(!result)
 	{
 		return false;
@@ -128,8 +128,8 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
 {
 	VertexType* vertices;
 	unsigned long* indices;
-	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
-    D3D11_SUBRESOURCE_DATA vertexData, indexData;
+	D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
+    D3D11_SUBRESOURCE_DATA vertex_date, indexData;
 	HRESULT result;
 	int i;
 
@@ -154,14 +154,14 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
 	// Set the number of indexes in the index array.
 	(*sentence)->indexCount = (*sentence)->vertexCount;
 
-	// Create the vertex array.
+	
 	vertices = new VertexType[(*sentence)->vertexCount];
 	if(!vertices)
 	{
 		return false;
 	}
 
-	// Create the index array.
+	
 	indices = new unsigned long[(*sentence)->indexCount];
 	if(!indices)
 	{
@@ -178,40 +178,40 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
 	}
 
 	// Set up the description of the dynamic vertex buffer.
-    vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-    vertexBufferDesc.ByteWidth = sizeof(VertexType) * (*sentence)->vertexCount;
-    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    vertexBufferDesc.MiscFlags = 0;
-	vertexBufferDesc.StructureByteStride = 0;
+    vertex_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
+    vertex_buffer_desc.ByteWidth = sizeof(VertexType) * (*sentence)->vertexCount;
+    vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vertex_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    vertex_buffer_desc.MiscFlags = 0;
+	vertex_buffer_desc.StructureByteStride = 0;
 
-	// Give the subresource structure a pointer to the vertex data.
-    vertexData.pSysMem = vertices;
-	vertexData.SysMemPitch = 0;
-	vertexData.SysMemSlicePitch = 0;
+	
+    vertex_date.pSysMem = vertices;
+	vertex_date.SysMemPitch = 0;
+	vertex_date.SysMemSlicePitch = 0;
 
 	// Create the vertex buffer.
-    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &(*sentence)->vertexBuffer);
+    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_date, &(*sentence)->vertexBuffer);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Set up the description of the static index buffer.
-    indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    indexBufferDesc.ByteWidth = sizeof(unsigned long) * (*sentence)->indexCount;
-    indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    indexBufferDesc.CPUAccessFlags = 0;
-    indexBufferDesc.MiscFlags = 0;
-	indexBufferDesc.StructureByteStride = 0;
+	
+    index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+    index_buffer_desc.ByteWidth = sizeof(unsigned long) * (*sentence)->indexCount;
+    index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    index_buffer_desc.CPUAccessFlags = 0;
+    index_buffer_desc.MiscFlags = 0;
+	index_buffer_desc.StructureByteStride = 0;
 
-	// Give the subresource structure a pointer to the index data.
+	
     indexData.pSysMem = indices;
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
-	// Create the index buffer.
-	result = device->CreateBuffer(&indexBufferDesc, &indexData, &(*sentence)->indexBuffer);
+	
+	result = device->CreateBuffer(&index_buffer_desc, &indexData, &(*sentence)->indexBuffer);
 	if(FAILED(result))
 	{
 		return false;
@@ -230,7 +230,7 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
 
 
 bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int positionX, int positionY, float red, float green, float blue,
-							   ID3D11DeviceContext* deviceContext)
+							   ID3D11DeviceContext* device_context)
 {
 	int numLetters;
 	VertexType* vertices;
@@ -254,7 +254,7 @@ bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int positionX
 		return false;
 	}
 
-	// Create the vertex array.
+	
 	vertices = new VertexType[sentence->vertexCount];
 	if(!vertices)
 	{
@@ -272,7 +272,7 @@ bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int positionX
 	m_Font->BuildVertexArray((void*)vertices, text, drawX, drawY);
 
 	// Lock the vertex buffer so it can be written to.
-	result = deviceContext->Map(sentence->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(sentence->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -285,7 +285,7 @@ bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int positionX
 	memcpy(verticesPtr, (void*)vertices, (sizeof(VertexType) * sentence->vertexCount));
 
 	// Unlock the vertex buffer.
-	deviceContext->Unmap(sentence->vertexBuffer, 0);
+	device_context->Unmap(sentence->vertexBuffer, 0);
 
 	// Release the vertex array as it is no longer needed.
 	delete [] vertices;
@@ -322,7 +322,7 @@ void TextClass::ReleaseSentence(SentenceType** sentence)
 }
 
 
-bool TextClass::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType* sentence, const XMMATRIX& worldMatrix, 
+bool TextClass::RenderSentence(ID3D11DeviceContext* device_context, SentenceType* sentence, const XMMATRIX& worldMatrix, 
 							   const XMMATRIX& orthoMatrix )
 {
 	unsigned int stride, offset;
@@ -330,24 +330,24 @@ bool TextClass::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType*
 	bool result;
 
 
-	// Set vertex buffer stride and offset.
+	
     stride = sizeof(VertexType); 
 	offset = 0;
 
-	// Set the vertex buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetVertexBuffers(0, 1, &sentence->vertexBuffer, &stride, &offset);
+	
+	device_context->IASetVertexBuffers(0, 1, &sentence->vertexBuffer, &stride, &offset);
 
-    // Set the index buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetIndexBuffer(sentence->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    
+	device_context->IASetIndexBuffer(sentence->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-    // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    
+	device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Create a pixel color vector with the input sentence color.
 	pixelColor = XMFLOAT4(sentence->red, sentence->green, sentence->blue, 1.0f);
 
 	// Render the text using the font shader.
-	result = m_FontShader->Render(deviceContext, sentence->indexCount, worldMatrix, m_baseViewMatrix, orthoMatrix, m_Font->GetTexture(), 
+	result = m_FontShader->Render(device_context, sentence->indexCount, worldMatrix, m_baseViewMatrix, orthoMatrix, m_Font->GetTexture(), 
 								  pixelColor);
 	if(!result)
 	{
@@ -358,7 +358,7 @@ bool TextClass::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType*
 }
 
 
-bool TextClass::SetIntersection(bool intersection, ID3D11DeviceContext* deviceContext)
+bool TextClass::SetIntersection(bool intersection, ID3D11DeviceContext* device_context)
 {
 	char intersectionString[32];
 	bool result;
@@ -367,12 +367,12 @@ bool TextClass::SetIntersection(bool intersection, ID3D11DeviceContext* deviceCo
 	if(intersection)
 	{
 		strcpy_s(intersectionString, "Intersection: Yes");
-		result = UpdateSentence(m_sentence1, intersectionString, 20, 20, 0.0f, 1.0f, 0.0f, deviceContext);
+		result = UpdateSentence(m_sentence1, intersectionString, 20, 20, 0.0f, 1.0f, 0.0f, device_context);
 	}
 	else
 	{
 		strcpy_s(intersectionString, "Intersection: No");
-		result = UpdateSentence(m_sentence1, intersectionString, 20, 20, 1.0f, 0.0f, 0.0f, deviceContext);
+		result = UpdateSentence(m_sentence1, intersectionString, 20, 20, 1.0f, 0.0f, 0.0f, device_context);
 	}
 
 	return result;

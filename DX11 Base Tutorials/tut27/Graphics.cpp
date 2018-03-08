@@ -129,7 +129,7 @@ void GraphicsClass::Shutdown() {
 		m_FloorModel = 0;
 	}
 
-	// Release the render to texture object.
+	
 	if (m_RenderTexture)
 	{
 		m_RenderTexture->Shutdown();
@@ -137,7 +137,7 @@ void GraphicsClass::Shutdown() {
 		m_RenderTexture = 0;
 	}
 
-	// Release the texture shader object.
+	
 	if (m_TextureShader)
 	{
 		m_TextureShader->Shutdown();
@@ -146,7 +146,7 @@ void GraphicsClass::Shutdown() {
 		m_TextureShader = 0;
 	}
 
-	// Release the model object.
+
 	if (model_)
 	{
 		model_->Shutdown();

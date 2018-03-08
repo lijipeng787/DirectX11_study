@@ -153,7 +153,7 @@ void GraphicsClass::Shutdown() {
 		m_DepthShader = 0;
 	}
 
-	// Release the render to texture object.
+	
 	if (m_RenderTexture) {
 		m_RenderTexture->Shutdown();
 		m_RenderTexture->~RenderTextureClass();

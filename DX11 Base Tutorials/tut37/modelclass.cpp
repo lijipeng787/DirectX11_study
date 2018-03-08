@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: modelclass.cpp
-////////////////////////////////////////////////////////////////////////////////
+
 #include "modelclass.h"
 
 
@@ -8,7 +8,7 @@ ModelClass::ModelClass()
 {
 	vertex_buffer_ = 0;
 	m_instanceBuffer = 0;
-	m_Texture = 0;
+	texture_ = 0;
 }
 
 
@@ -34,7 +34,7 @@ bool ModelClass::Initialize(ID3D11Device* device, WCHAR* textureFilename)
 		return false;
 	}
 
-	// Load the texture for this model.
+	
 	result = LoadTexture(device, textureFilename);
 	if(!result)
 	{
@@ -47,7 +47,7 @@ bool ModelClass::Initialize(ID3D11Device* device, WCHAR* textureFilename)
 
 void ModelClass::Shutdown()
 {
-	// Release the model texture.
+	
 	ReleaseTexture();
 
 	// Shutdown the vertex and instance buffers.
@@ -57,10 +57,10 @@ void ModelClass::Shutdown()
 }
 
 
-void ModelClass::Render(ID3D11DeviceContext* deviceContext)
+void ModelClass::Render(ID3D11DeviceContext* device_context)
 {
 	// Put the vertex and instance buffers on the graphics pipeline to prepare them for drawing.
-	RenderBuffers(deviceContext);
+	RenderBuffers(device_context);
 
 	
 }
@@ -80,7 +80,7 @@ int ModelClass::GetInstanceCount()
 
 ID3D11ShaderResourceView* ModelClass::GetTexture()
 {
-	return m_Texture->GetTexture();
+	return texture_->GetTexture();
 }
 
 
@@ -88,15 +88,15 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 {
 	VertexType* vertices;
 	InstanceType* instances;
-	D3D11_BUFFER_DESC vertexBufferDesc, instanceBufferDesc;
-    D3D11_SUBRESOURCE_DATA vertexData, instanceData;
+	D3D11_BUFFER_DESC vertex_buffer_desc, instanceBufferDesc;
+    D3D11_SUBRESOURCE_DATA vertex_date, instanceData;
 	HRESULT result;
 
 
 	// Set the number of vertices in the vertex array.
 	vertex_count_ = 3;
 
-	// Create the vertex array.
+	
 	vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
@@ -113,21 +113,21 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 	vertices[2].position = XMFLOAT3(1.0f, -1.0f, 0.0f);  // Bottom right.
 	vertices[2].texture = XMFLOAT2(1.0f, 1.0f);
 
-	// Set up the description of the static vertex buffer.
-    vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertex_count_;
-    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vertexBufferDesc.CPUAccessFlags = 0;
-    vertexBufferDesc.MiscFlags = 0;
-	vertexBufferDesc.StructureByteStride = 0;
+	
+    vertex_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+    vertex_buffer_desc.ByteWidth = sizeof(VertexType) * vertex_count_;
+    vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vertex_buffer_desc.CPUAccessFlags = 0;
+    vertex_buffer_desc.MiscFlags = 0;
+	vertex_buffer_desc.StructureByteStride = 0;
 
-	// Give the subresource structure a pointer to the vertex data.
-    vertexData.pSysMem = vertices;
-	vertexData.SysMemPitch = 0;
-	vertexData.SysMemSlicePitch = 0;
+	
+    vertex_date.pSysMem = vertices;
+	vertex_date.SysMemPitch = 0;
+	vertex_date.SysMemSlicePitch = 0;
 
-	// Now create the vertex buffer.
-    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &vertex_buffer_);
+	
+    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_date, &vertex_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -190,7 +190,7 @@ void ModelClass::ShutdownBuffers()
 		m_instanceBuffer = 0;
 	}
 
-	// Release the vertex buffer.
+	
 	if(vertex_buffer_)
 	{
 		vertex_buffer_->Release();
@@ -201,7 +201,7 @@ void ModelClass::ShutdownBuffers()
 }
 
 
-void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
+void ModelClass::RenderBuffers(ID3D11DeviceContext* device_context)
 {
 	unsigned int strides[2];
 	unsigned int offsets[2];
@@ -220,11 +220,11 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	bufferPointers[0] = vertex_buffer_;	
 	bufferPointers[1] = m_instanceBuffer;
 
-	// Set the vertex buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetVertexBuffers(0, 2, bufferPointers, strides, offsets);
+	
+	device_context->IASetVertexBuffers(0, 2, bufferPointers, strides, offsets);
 
-    // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    
+	device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	
 }
@@ -235,15 +235,15 @@ bool ModelClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
 	bool result;
 
 
-	// Create the texture object.
-	m_Texture = new TextureClass();
-	if(!m_Texture)
+	
+	texture_ = new TextureClass();
+	if(!texture_)
 	{
 		return false;
 	}
 
-	// Initialize the texture object.
-	result = m_Texture->Initialize(device, filename);
+
+	result = texture_->Initialize(device, filename);
 	if(!result)
 	{
 		return false;
@@ -255,12 +255,12 @@ bool ModelClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
 
 void ModelClass::ReleaseTexture()
 {
-	// Release the texture object.
-	if(m_Texture)
+
+	if(texture_)
 	{
-		m_Texture->Shutdown();
-		delete m_Texture;
-		m_Texture = 0;
+		texture_->Shutdown();
+		delete texture_;
+		texture_ = 0;
 	}
 
 	

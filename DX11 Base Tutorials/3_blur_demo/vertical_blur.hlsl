@@ -1,22 +1,22 @@
-////////////////////////////////////////////////////////////////////////////////
-// Filename: verticalblur.ps
-////////////////////////////////////////////////////////////////////////////////
+cbuffer MatrixBuffer {
+	matrix worldMatrix;
+	matrix viewMatrix;
+	matrix projectionMatrix;
+};
 
+cbuffer ScreenSizeBuffer {
+	float screenHeight;
+	float3 padding;
+};
 
-/////////////
-// GLOBALS //
-/////////////
-Texture2D shaderTexture;
-SamplerState SampleType;
+struct VertexInputType {
+	float4 position : POSITION;
+	float2 tex : TEXCOORD0;
+};
 
-
-//////////////
-// TYPEDEFS //
-//////////////
-struct PixelInputType
-{
-    float4 position : SV_POSITION;
-    float2 tex : TEXCOORD0;
+struct PixelInputType {
+	float4 position : SV_POSITION;
+	float2 tex : TEXCOORD0;
 	float2 texCoord1 : TEXCOORD1;
 	float2 texCoord2 : TEXCOORD2;
 	float2 texCoord3 : TEXCOORD3;
@@ -28,16 +28,47 @@ struct PixelInputType
 	float2 texCoord9 : TEXCOORD9;
 };
 
+PixelInputType VerticalBlurVertexShader(VertexInputType input) {
 
-////////////////////////////////////////////////////////////////////////////////
-// Pixel Shader
-////////////////////////////////////////////////////////////////////////////////
+	PixelInputType output;
+	float texelSize;
+
+	// Change the position vector to be 4 units for proper matrix calculations.
+	input.position.w = 1.0f;
+
+	// Calculate the position of the vertex against the world, view, and projection matrices.
+	output.position = mul(input.position, worldMatrix);
+	output.position = mul(output.position, viewMatrix);
+	output.position = mul(output.position, projectionMatrix);
+
+	// Store the texture coordinates for the pixel shader.
+	output.tex = input.tex;
+
+	// Determine the floating point size of a texel for a screen with this specific height.
+	texelSize = 1.0f / screenHeight;
+
+	// Create UV coordinates for the pixel and its four vertical neighbors on either side.
+	output.texCoord1 = input.tex + float2(0.0f, texelSize * -4.0f);
+	output.texCoord2 = input.tex + float2(0.0f, texelSize * -3.0f);
+	output.texCoord3 = input.tex + float2(0.0f, texelSize * -2.0f);
+	output.texCoord4 = input.tex + float2(0.0f, texelSize * -1.0f);
+	output.texCoord5 = input.tex + float2(0.0f, texelSize *  0.0f);
+	output.texCoord6 = input.tex + float2(0.0f, texelSize *  1.0f);
+	output.texCoord7 = input.tex + float2(0.0f, texelSize *  2.0f);
+	output.texCoord8 = input.tex + float2(0.0f, texelSize *  3.0f);
+	output.texCoord9 = input.tex + float2(0.0f, texelSize *  4.0f);
+
+	return output;
+}
+
+Texture2D shaderTexture;
+SamplerState SampleType;
+
 float4 VerticalBlurPixelShader(PixelInputType input) : SV_TARGET
 {
 	float weight0, weight1, weight2, weight3, weight4;
 	float normalization;
 	float4 color;
-
 
 	// Create the weights that each neighbor pixel will contribute to the blur.
 	weight0 = 1.0f;
@@ -73,5 +104,5 @@ float4 VerticalBlurPixelShader(PixelInputType input) : SV_TARGET
 	// Set the alpha channel to one.
 	color.a = 1.0f;
 
-    return color;
+	return color;
 }

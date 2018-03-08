@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: shadermanagerclass.cpp
-////////////////////////////////////////////////////////////////////////////////
+
 #include "shadermanagerclass.h"
 #include <new>
 
@@ -100,7 +100,7 @@ void ShaderManagerClass::Shutdown()
 		m_LightShader = 0;
 	}
 
-	// Release the texture shader object.
+	
 	if(m_TextureShader)
 	{
 		m_TextureShader->Shutdown();
@@ -130,7 +130,7 @@ bool ShaderManagerClass::RenderTextureShader(ID3D11DeviceContext* device, int in
 }
 
 
-bool ShaderManagerClass::RenderLightShader(ID3D11DeviceContext* deviceContext, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,const XMMATRIX& projectionMatrix, 
+bool ShaderManagerClass::RenderLightShader(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,const XMMATRIX& projectionMatrix, 
 										   ID3D11ShaderResourceView* texture, const XMFLOAT3& lightDirection, const XMFLOAT4& ambient, const XMFLOAT4& diffuse, 
 										   const XMFLOAT3& cameraPosition, const XMFLOAT4& specular, float specularPower)
 {
@@ -138,7 +138,7 @@ bool ShaderManagerClass::RenderLightShader(ID3D11DeviceContext* deviceContext, i
 
 
 	// Render the model using the light shader.
-	result = m_LightShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, ambient, diffuse, cameraPosition, 
+	result = m_LightShader->Render(device_context, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, ambient, diffuse, cameraPosition, 
 								   specular, specularPower);
 	if(!result)
 	{
@@ -149,7 +149,7 @@ bool ShaderManagerClass::RenderLightShader(ID3D11DeviceContext* deviceContext, i
 }
 
 
-bool ShaderManagerClass::RenderBumpMapShader(ID3D11DeviceContext* deviceContext, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,const XMMATRIX& projectionMatrix, 
+bool ShaderManagerClass::RenderBumpMapShader(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,const XMMATRIX& projectionMatrix, 
 											 ID3D11ShaderResourceView* colorTexture, ID3D11ShaderResourceView* normalTexture, const XMFLOAT3& lightDirection, 
 											 const XMFLOAT4& diffuse )
 {
@@ -157,7 +157,7 @@ bool ShaderManagerClass::RenderBumpMapShader(ID3D11DeviceContext* deviceContext,
 
 
 	// Render the model using the bump map shader.
-	result = m_BumpMapShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, colorTexture, normalTexture, lightDirection, diffuse);
+	result = m_BumpMapShader->Render(device_context, indexCount, worldMatrix, viewMatrix, projectionMatrix, colorTexture, normalTexture, lightDirection, diffuse);
 	if(!result)
 	{
 		return false;

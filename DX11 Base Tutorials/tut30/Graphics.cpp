@@ -137,7 +137,7 @@ void GraphicsClass::Shutdown() {
 		m_LightShader = 0;
 	}
 
-	// Release the model object.
+
 	if (model_)
 	{
 		model_->Shutdown();

@@ -1,21 +1,21 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: debugwindowclass.h
-////////////////////////////////////////////////////////////////////////////////
+
 #ifndef _DEBUGWINDOWCLASS_H_
 #define _DEBUGWINDOWCLASS_H_
 
 
-//////////////
-// INCLUDES //
-//////////////
+
+
+
 #include <d3d11.h>
 #include <DirectXMath.h>
 using namespace DirectX;
 
 
-////////////////////////////////////////////////////////////////////////////////
+
 // Class name: DebugWindowClass
-////////////////////////////////////////////////////////////////////////////////
+
 class DebugWindowClass
 {
 private:
@@ -32,14 +32,14 @@ public:
 
 	bool Initialize(ID3D11Device*, int, int, int, int);
 	void Shutdown();
-	bool Render(ID3D11DeviceContext*, int, int);
+	bool Render(int, int);
 
 	int GetIndexCount();
 
 private:
 	bool InitializeBuffers(ID3D11Device*);
 	void ShutdownBuffers();
-	bool UpdateBuffers(ID3D11DeviceContext*, int, int);
+	bool UpdateBuffers(int, int);
 	void RenderBuffers(ID3D11DeviceContext*);
 
 private:

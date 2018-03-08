@@ -9,9 +9,9 @@ class DirectX11Device {
 public:
 	DirectX11Device() {}
 
-	DirectX11Device(const DirectX11Device& rhs) = default;
+	DirectX11Device(const DirectX11Device& rhs) = delete;
 
-	DirectX11Device& operator=(const DirectX11Device& rhs) = default;
+	DirectX11Device& operator=(const DirectX11Device& rhs) = delete;
 
 	~DirectX11Device() {}
 public:

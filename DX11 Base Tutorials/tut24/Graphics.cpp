@@ -83,7 +83,7 @@ void GraphicsClass::Shutdown()
 		m_ClipPlaneShader = 0;
 	}
 
-	// Release the model object.
+
 	if (model_)
 	{
 		model_->Shutdown();

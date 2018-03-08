@@ -79,7 +79,7 @@ void GraphicsClass::Shutdown() {
 		m_ColorShader = 0;
 	}
 
-	// Release the model object.
+
 	if (model_)
 	{
 		model_->Shutdown();

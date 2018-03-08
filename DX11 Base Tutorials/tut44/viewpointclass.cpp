@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: viewpointclass.cpp
-////////////////////////////////////////////////////////////////////////////////
+
 #include "viewpointclass.h"
 
 
@@ -75,7 +75,7 @@ void ViewPointClass::GenerateViewMatrix()
 void ViewPointClass::GenerateProjectionMatrix()
 {
 	// Create the projection matrix for the view point.
-	m_projectionMatrix = XMMatrixPerspectiveFovLH( m_fieldOfView, m_aspectRatio, m_nearPlane, m_farPlane);
+	projection_matrix_ = XMMatrixPerspectiveFovLH( m_fieldOfView, m_aspectRatio, m_nearPlane, m_farPlane);
 
 	
 }
@@ -90,6 +90,6 @@ void ViewPointClass::GetViewMatrix( XMMATRIX& viewMatrix)
 
 void ViewPointClass::GetProjectionMatrix( XMMATRIX& projectionMatrix)
 {
-	projectionMatrix = m_projectionMatrix;
+	projectionMatrix = projection_matrix_;
 	
 }

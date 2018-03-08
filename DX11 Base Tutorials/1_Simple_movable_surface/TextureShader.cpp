@@ -165,31 +165,31 @@ bool TextureShader::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFile
 }
 
 void TextureShader::ShutdownShader() {
-	// Release the sampler state.
+
 	if (sample_state_) {
 		sample_state_->Release();
 		sample_state_ = 0;
 	}
 
-	// Release the matrix constant buffer.
+
 	if (matrix_buffer_) {
 		matrix_buffer_->Release();
 		matrix_buffer_ = 0;
 	}
 
-	// Release the layout.
+	
 	if (input_layout_) {
 		input_layout_->Release();
 		input_layout_ = 0;
 	}
 
-	// Release the pixel shader.
+	
 	if (pixel_shader_) {
 		pixel_shader_->Release();
 		pixel_shader_ = 0;
 	}
 
-	// Release the vertex shader.
+	
 	if (vertex_shader_) {
 		vertex_shader_->Release();
 		vertex_shader_ = 0;
@@ -202,28 +202,28 @@ void TextureShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd
 	SIZE_T bufferSize, i;
 	ofstream fout;
 
-	// Get a pointer to the error message text buffer.
+	
 	compileErrors = (char*)(errorMessage->GetBufferPointer());
 
-	// Get the length of the message.
+
 	bufferSize = errorMessage->GetBufferSize();
 
-	// Open a file to write the error message to.
+	
 	fout.open("shader-error.txt");
 
-	// Write out the error message.
+
 	for (i = 0; i < bufferSize; i++) {
 		fout << compileErrors[i];
 	}
 
-	// Close the file.
+	
 	fout.close();
 
-	// Release the error message.
+	
 	errorMessage->Release();
 	errorMessage = 0;
 
-	// Pop a message up on the screen to notify the user to check the text file for compile errors.
+	
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 }
 
@@ -231,17 +231,17 @@ bool TextureShader::SetShaderParameters(
 	const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 	const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture) {
 			 
-	auto deviceContext = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
+	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 	
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	auto result = deviceContext->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result)) {
 		return false;
 	}
 
 	MatrixBufferType *dataPtr = (MatrixBufferType*)mappedResource.pData;
 
-	// Transpose the matrices to prepare them for the shader.
+
 	XMMATRIX worldMatrixCopy = XMMatrixTranspose(worldMatrix);
 	XMMATRIX viewMatrixCopy = XMMatrixTranspose(viewMatrix);
 	XMMATRIX projectionMatrixCopy = XMMatrixTranspose(projectionMatrix);
@@ -250,28 +250,28 @@ bool TextureShader::SetShaderParameters(
 	dataPtr->view = viewMatrixCopy;
 	dataPtr->projection = projectionMatrixCopy;
 
-	deviceContext->Unmap(matrix_buffer_, 0);
+	device_context->Unmap(matrix_buffer_, 0);
 
-	unsigned int bufferNumber = 0;
+	unsigned int buffer_number = 0;
 
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &matrix_buffer_);
+	device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
-	deviceContext->PSSetShaderResources(0, 1, &texture);
+	device_context->PSSetShaderResources(0, 1, &texture);
 
 	return true;
 }
 
 void TextureShader::RenderShader(int indexCount) {
 
-	auto deviceContext = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
+	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	deviceContext->IASetInputLayout(input_layout_);
+	device_context->IASetInputLayout(input_layout_);
 
-	deviceContext->VSSetShader(vertex_shader_, NULL, 0);
+	device_context->VSSetShader(vertex_shader_, NULL, 0);
 
-	deviceContext->PSSetShader(pixel_shader_, NULL, 0);
+	device_context->PSSetShader(pixel_shader_, NULL, 0);
 
-	deviceContext->PSSetSamplers(0, 1, &sample_state_);
+	device_context->PSSetSamplers(0, 1, &sample_state_);
 
-	deviceContext->DrawIndexed(indexCount, 0, 0);
+	device_context->DrawIndexed(indexCount, 0, 0);
 }

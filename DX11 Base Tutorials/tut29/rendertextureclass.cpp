@@ -1,14 +1,14 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: rendertextureclass.cpp
-////////////////////////////////////////////////////////////////////////////////
+
 #include "rendertextureclass.h"
 
 
 RenderTextureClass::RenderTextureClass()
 {
-	m_renderTargetTexture = 0;
-	m_renderTargetView = 0;
-	m_shaderResourceView = 0;
+	render_target_texture_ = 0;
+	render_target_view_ = 0;
+	shader_resource_view_ = 0;
 }
 
 
@@ -30,10 +30,10 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 
 
-	// Initialize the render target texture description.
+	
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
 
-	// Setup the render target texture description.
+	
 	textureDesc.Width = textureWidth;
 	textureDesc.Height = textureHeight;
 	textureDesc.MipLevels = 1;
@@ -45,33 +45,33 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int 
 	textureDesc.CPUAccessFlags = 0;
     textureDesc.MiscFlags = 0;
 
-	// Create the render target texture.
-	result = device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetTexture);
+	
+	result = device->CreateTexture2D(&textureDesc, NULL, &render_target_texture_);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Setup the description of the render target view.
+	
 	renderTargetViewDesc.Format = textureDesc.Format;
 	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	renderTargetViewDesc.Texture2D.MipSlice = 0;
 
-	// Create the render target view.
-	result = device->CreateRenderTargetView(m_renderTargetTexture, &renderTargetViewDesc, &m_renderTargetView);
+	
+	result = device->CreateRenderTargetView(render_target_texture_, &renderTargetViewDesc, &render_target_view_);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Setup the description of the shader resource view.
+	
 	shaderResourceViewDesc.Format = textureDesc.Format;
 	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
 
-	// Create the shader resource view.
-	result = device->CreateShaderResourceView(m_renderTargetTexture, &shaderResourceViewDesc, &m_shaderResourceView);
+	
+	result = device->CreateShaderResourceView(render_target_texture_, &shaderResourceViewDesc, &shader_resource_view_);
 	if(FAILED(result))
 	{
 		return false;
@@ -83,54 +83,54 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int 
 
 void RenderTextureClass::Shutdown()
 {
-	if(m_shaderResourceView)
+	if(shader_resource_view_)
 	{
-		m_shaderResourceView->Release();
-		m_shaderResourceView = 0;
+		shader_resource_view_->Release();
+		shader_resource_view_ = 0;
 	}
 
-	if(m_renderTargetView)
+	if(render_target_view_)
 	{
-		m_renderTargetView->Release();
-		m_renderTargetView = 0;
+		render_target_view_->Release();
+		render_target_view_ = 0;
 	}
 
-	if(m_renderTargetTexture)
+	if(render_target_texture_)
 	{
-		m_renderTargetTexture->Release();
-		m_renderTargetTexture = 0;
+		render_target_texture_->Release();
+		render_target_texture_ = 0;
 	}
 
 	
 }
 
 
-void RenderTextureClass::SetRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView)
+void RenderTextureClass::SetRenderTarget(ID3D11DeviceContext* device_context, ID3D11DepthStencilView* depthStencilView)
 {
-	// Bind the render target view and depth stencil buffer to the output render pipeline.
-	deviceContext->OMSetRenderTargets(1, &m_renderTargetView, depthStencilView);
+
+	device_context->OMSetRenderTargets(1, &render_target_view_, depthStencilView);
 	
 	
 }
 
 
-void RenderTextureClass::ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView, 
+void RenderTextureClass::ClearRenderTarget(ID3D11DeviceContext* device_context, ID3D11DepthStencilView* depthStencilView, 
 										   float red, float green, float blue, float alpha)
 {
 	float color[4];
 
 
-	// Setup the color to clear the buffer to.
+	
 	color[0] = red;
 	color[1] = green;
 	color[2] = blue;
 	color[3] = alpha;
 
-	// Clear the back buffer.
-	deviceContext->ClearRenderTargetView(m_renderTargetView, color);
+	
+	device_context->ClearRenderTargetView(render_target_view_, color);
     
-	// Clear the depth buffer.
-	deviceContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	
+	device_context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	
 }
@@ -138,5 +138,5 @@ void RenderTextureClass::ClearRenderTarget(ID3D11DeviceContext* deviceContext, I
 
 ID3D11ShaderResourceView* RenderTextureClass::GetShaderResourceView()
 {
-	return m_shaderResourceView;
+	return shader_resource_view_;
 }

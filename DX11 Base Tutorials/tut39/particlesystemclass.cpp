@@ -1,12 +1,12 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: particlesystemclass.cpp
-////////////////////////////////////////////////////////////////////////////////
+
 #include "particlesystemclass.h"
 
 
 ParticleSystemClass::ParticleSystemClass()
 {
-	m_Texture = 0;
+	texture_ = 0;
 	m_particleList = 0;
 	m_vertices = 0;
 	vertex_buffer_ = 0;
@@ -69,7 +69,7 @@ void ParticleSystemClass::Shutdown()
 }
 
 
-bool ParticleSystemClass::Frame(float frameTime, ID3D11DeviceContext* deviceContext)
+bool ParticleSystemClass::Frame(float frameTime, ID3D11DeviceContext* device_context)
 {
 	bool result;
 
@@ -84,7 +84,7 @@ bool ParticleSystemClass::Frame(float frameTime, ID3D11DeviceContext* deviceCont
 	UpdateParticles(frameTime);
 
 	// Update the dynamic vertex buffer with the new position of each particle.
-	result = UpdateBuffers(deviceContext);
+	result = UpdateBuffers(device_context);
 	if(!result)
 	{
 		return false;
@@ -94,10 +94,10 @@ bool ParticleSystemClass::Frame(float frameTime, ID3D11DeviceContext* deviceCont
 }
 
 
-void ParticleSystemClass::Render(ID3D11DeviceContext* deviceContext)
+void ParticleSystemClass::Render(ID3D11DeviceContext* device_context)
 {
-	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	RenderBuffers(deviceContext);
+	
+	RenderBuffers(device_context);
 
 	
 }
@@ -105,7 +105,7 @@ void ParticleSystemClass::Render(ID3D11DeviceContext* deviceContext)
 
 ID3D11ShaderResourceView* ParticleSystemClass::GetTexture()
 {
-	return m_Texture->GetTexture();
+	return texture_->GetTexture();
 }
 
 
@@ -120,15 +120,15 @@ bool ParticleSystemClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
 	bool result;
 
 
-	// Create the texture object.
-	m_Texture = new TextureClass();
-	if(!m_Texture)
+	
+	texture_ = new TextureClass();
+	if(!texture_)
 	{
 		return false;
 	}
 
-	// Initialize the texture object.
-	result = m_Texture->Initialize(device, filename);
+
+	result = texture_->Initialize(device, filename);
 	if(!result)
 	{
 		return false;
@@ -140,12 +140,12 @@ bool ParticleSystemClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
 
 void ParticleSystemClass::ReleaseTexture()
 {
-	// Release the texture object.
-	if(m_Texture)
+
+	if(texture_)
 	{
-		m_Texture->Shutdown();
-		delete m_Texture;
-		m_Texture = 0;
+		texture_->Shutdown();
+		delete texture_;
+		texture_ = 0;
 	}
 
 	
@@ -215,8 +215,8 @@ bool ParticleSystemClass::InitializeBuffers(ID3D11Device* device)
 {
 	unsigned long* indices;
 	int i;
-	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
-    D3D11_SUBRESOURCE_DATA vertexData, indexData;
+	D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
+    D3D11_SUBRESOURCE_DATA vertex_date, indexData;
 	HRESULT result;
 
 
@@ -233,7 +233,7 @@ bool ParticleSystemClass::InitializeBuffers(ID3D11Device* device)
 		return false;
 	}
 
-	// Create the index array.
+	
 	indices = new unsigned long[index_count_];
 	if(!indices)
 	{
@@ -250,40 +250,40 @@ bool ParticleSystemClass::InitializeBuffers(ID3D11Device* device)
 	}
 
 	// Set up the description of the dynamic vertex buffer.
-    vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-    vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertex_count_;
-    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    vertexBufferDesc.MiscFlags = 0;
-	vertexBufferDesc.StructureByteStride = 0;
+    vertex_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
+    vertex_buffer_desc.ByteWidth = sizeof(VertexType) * vertex_count_;
+    vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vertex_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    vertex_buffer_desc.MiscFlags = 0;
+	vertex_buffer_desc.StructureByteStride = 0;
 
-	// Give the subresource structure a pointer to the vertex data.
-    vertexData.pSysMem = m_vertices;
-	vertexData.SysMemPitch = 0;
-	vertexData.SysMemSlicePitch = 0;
+	
+    vertex_date.pSysMem = m_vertices;
+	vertex_date.SysMemPitch = 0;
+	vertex_date.SysMemSlicePitch = 0;
 
-	// Now finally create the vertex buffer.
-    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &vertex_buffer_);
+	
+    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_date, &vertex_buffer_);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Set up the description of the static index buffer.
-    indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    indexBufferDesc.ByteWidth = sizeof(unsigned long) * index_count_;
-    indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    indexBufferDesc.CPUAccessFlags = 0;
-    indexBufferDesc.MiscFlags = 0;
-	indexBufferDesc.StructureByteStride = 0;
+	
+    index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+    index_buffer_desc.ByteWidth = sizeof(unsigned long) * index_count_;
+    index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    index_buffer_desc.CPUAccessFlags = 0;
+    index_buffer_desc.MiscFlags = 0;
+	index_buffer_desc.StructureByteStride = 0;
 
-	// Give the subresource structure a pointer to the index data.
+	
     indexData.pSysMem = indices;
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
-	// Create the index buffer.
-	result = device->CreateBuffer(&indexBufferDesc, &indexData, &index_buffer_);
+	
+	result = device->CreateBuffer(&index_buffer_desc, &indexData, &index_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -299,14 +299,14 @@ bool ParticleSystemClass::InitializeBuffers(ID3D11Device* device)
 
 void ParticleSystemClass::ShutdownBuffers()
 {
-	// Release the index buffer.
+
 	if(index_buffer_)
 	{
 		index_buffer_->Release();
 		index_buffer_ = 0;
 	}
 
-	// Release the vertex buffer.
+	
 	if(vertex_buffer_)
 	{
 		vertex_buffer_->Release();
@@ -449,7 +449,7 @@ void ParticleSystemClass::KillParticles()
 }
 
 
-bool ParticleSystemClass::UpdateBuffers(ID3D11DeviceContext* deviceContext)
+bool ParticleSystemClass::UpdateBuffers(ID3D11DeviceContext* device_context)
 {
 	int index, i;
 	HRESULT result;
@@ -503,7 +503,7 @@ bool ParticleSystemClass::UpdateBuffers(ID3D11DeviceContext* deviceContext)
 	}
 	
 	// Lock the vertex buffer.
-	result = deviceContext->Map(vertex_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(vertex_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -516,30 +516,30 @@ bool ParticleSystemClass::UpdateBuffers(ID3D11DeviceContext* deviceContext)
 	memcpy(verticesPtr, (void*)m_vertices, (sizeof(VertexType) * vertex_count_));
 
 	// Unlock the vertex buffer.
-	deviceContext->Unmap(vertex_buffer_, 0);
+	device_context->Unmap(vertex_buffer_, 0);
 
 	return true;
 }
 
 
-void ParticleSystemClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
+void ParticleSystemClass::RenderBuffers(ID3D11DeviceContext* device_context)
 {
 	unsigned int stride;
 	unsigned int offset;
 
 
-	// Set vertex buffer stride and offset.
+	
     stride = sizeof(VertexType); 
 	offset = 0;
     
-	// Set the vertex buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
+	
+	device_context->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
 
-    // Set the index buffer to active in the input assembler so it can be rendered.
-    deviceContext->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
+    
+    device_context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
 
     // Set the type of primitive that should be rendered from this vertex buffer.
-    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	
 }

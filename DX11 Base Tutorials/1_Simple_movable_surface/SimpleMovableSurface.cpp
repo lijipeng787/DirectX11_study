@@ -192,7 +192,7 @@ bool SimpleMoveableSurface::UpdateBuffers() {
 	// Calculate the screen coordinates of the bottom of the bitmap.
 	auto bottom = top - (float)bitmap_height_;
 
-	// Create the vertex array.
+	
 	auto vertices = new VertexType[vertex_count_];
 	if (!vertices) {
 		return false;

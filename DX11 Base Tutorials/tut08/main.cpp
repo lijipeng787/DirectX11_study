@@ -1,19 +1,19 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: main.cpp
-////////////////////////////////////////////////////////////////////////////////
 
 
-//////////////
-// INCLUDES //
-//////////////
+
+
+
+
 #include <iostream>
 #include <fstream>
 using namespace std;
 
 
-//////////////
+
 // TYPEDEFS //
-//////////////
+
 typedef struct
 {
 	float x, y, z;
@@ -27,17 +27,17 @@ typedef struct
 }FaceType;
 
 
-/////////////////////////
+///////////
 // FUNCTION PROTOTYPES //
-/////////////////////////
+///////////
 void GetModelFilename(char*);
 bool ReadFileCounts(char*, int&, int&, int&, int&);
 bool LoadDataStructures(char*, int, int, int, int);
 
 
-//////////////////
+////
 // MAIN PROGRAM //
-//////////////////
+////
 int main()
 {
 	bool result;
@@ -167,7 +167,7 @@ bool ReadFileCounts(char* filename, int& vertexCount, int& textureCount, int& no
 		fin.get(input);
 	}
 
-	// Close the file.
+	
 	fin.close();
 
 	return true;
@@ -288,7 +288,7 @@ bool LoadDataStructures(char* filename, int vertexCount, int textureCount, int n
 		fin.get(input);
 	}
 
-	// Close the file.
+	
 	fin.close();
 
 	// Open the output file.

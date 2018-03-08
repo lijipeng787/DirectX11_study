@@ -1,27 +1,27 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: bitmapclass.h
-////////////////////////////////////////////////////////////////////////////////
+
 #ifndef _BITMAPCLASS_H_
 #define _BITMAPCLASS_H_
 
 
-//////////////
-// INCLUDES //
-//////////////
+
+
+
 #include <d3d11.h>
 #include <DirectXMath.h>
 using namespace DirectX;
 
 
-///////////////////////
+/////////
 // MY CLASS INCLUDES //
-///////////////////////
+/////////
 #include "textureclass.h"
 
 
-////////////////////////////////////////////////////////////////////////////////
+
 // Class name: BitmapClass
-////////////////////////////////////////////////////////////////////////////////
+
 class SimpleMoveableSurface
 {
 private:
@@ -38,7 +38,7 @@ public:
 
 	bool Initialize(ID3D11Device*, int, int, WCHAR*, int, int);
 	void Shutdown();
-	bool Render(ID3D11DeviceContext*, int, int);
+	bool Render(int, int);
 
 	int GetIndexCount();
 	ID3D11ShaderResourceView* GetTexture();
@@ -46,7 +46,7 @@ public:
 private:
 	bool InitializeBuffers(ID3D11Device*);
 	void ShutdownBuffers();
-	bool UpdateBuffers(ID3D11DeviceContext*, int, int);
+	bool UpdateBuffers(int, int);
 	void RenderBuffers(ID3D11DeviceContext*);
 
 	bool LoadTexture(ID3D11Device*, WCHAR*);
@@ -55,7 +55,7 @@ private:
 private:
 	ID3D11Buffer *vertex_buffer_, *index_buffer_;
 	int vertex_count_, index_count_;
-	TextureClass* m_Texture;
+	TextureClass* texture_;
 	int m_screenWidth, m_screenHeight;
 	int m_bitmapWidth, m_bitmapHeight;
 	int m_previousPosX, m_previousPosY;

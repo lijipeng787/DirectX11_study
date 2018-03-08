@@ -1,19 +1,19 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: rendertextureclass.h
-////////////////////////////////////////////////////////////////////////////////
+
 #ifndef _RENDERTEXTURECLASS_H_
 #define _RENDERTEXTURECLASS_H_
 
 
-//////////////
-// INCLUDES //
-//////////////
+
+
+
 #include <d3d11.h>
 
 
-////////////////////////////////////////////////////////////////////////////////
+
 // Class name: RenderTextureClass
-////////////////////////////////////////////////////////////////////////////////
+
 class RenderTextureClass
 {
 public:
@@ -24,14 +24,14 @@ public:
 	bool Initialize(ID3D11Device*, int, int);
 	void Shutdown();
 
-	void SetRenderTarget(ID3D11DeviceContext*, ID3D11DepthStencilView*);
-	void ClearRenderTarget(ID3D11DeviceContext*, ID3D11DepthStencilView*, float, float, float, float);
+	void SetRenderTarget(ID3D11DepthStencilView*);
+	void ClearRenderTarget(ID3D11DepthStencilView*, float, float, float, float);
 	ID3D11ShaderResourceView* GetShaderResourceView();
 
 private:
-	ID3D11Texture2D* m_renderTargetTexture;
-	ID3D11RenderTargetView* m_renderTargetView;
-	ID3D11ShaderResourceView* m_shaderResourceView;
+	ID3D11Texture2D* render_target_texture_;
+	ID3D11RenderTargetView* render_target_view_;
+	ID3D11ShaderResourceView* shader_resource_view_;
 };
 
 #endif

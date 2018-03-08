@@ -69,7 +69,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 void GraphicsClass::Shutdown() {
 
-	// Release the texture shader object.
+	
 	if (m_TextureShader)
 	{
 		m_TextureShader->Shutdown();
@@ -78,7 +78,7 @@ void GraphicsClass::Shutdown() {
 		m_TextureShader = 0;
 	}
 
-	// Release the model object.
+
 	if (model_)
 	{
 		model_->Shutdown();

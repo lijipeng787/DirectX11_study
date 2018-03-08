@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////
+
 // Filename: bitmapclass.cpp
-////////////////////////////////////////////////////////////////////////////////
+
 #include "bitmapclass.h"
 
 
@@ -51,27 +51,27 @@ bool SimpleMoveableSurface::Initialize(ID3D11Device* device, int screenWidth, in
 
 void SimpleMoveableSurface::Shutdown()
 {
-	// Shutdown the vertex and index buffers.
+	
 	ShutdownBuffers();
 
 	
 }
 
 
-bool SimpleMoveableSurface::Render(ID3D11DeviceContext* deviceContext, int positionX, int positionY)
+bool SimpleMoveableSurface::Render(ID3D11DeviceContext* device_context, int positionX, int positionY)
 {
 	bool result;
 
 
 	// Re-build the dynamic vertex buffer for rendering to possibly a different location on the screen.
-	result = UpdateBuffers(deviceContext, positionX, positionY);
+	result = UpdateBuffers(device_context, positionX, positionY);
 	if(!result)
 	{
 		return false;
 	}
 
-	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	RenderBuffers(deviceContext);
+	
+	RenderBuffers(device_context);
 
 	return true;
 }
@@ -87,8 +87,8 @@ bool SimpleMoveableSurface::InitializeBuffers(ID3D11Device* device)
 {
 	VertexType* vertices;
 	unsigned long* indices;
-	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
-	D3D11_SUBRESOURCE_DATA vertexData, indexData;
+	D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
+	D3D11_SUBRESOURCE_DATA vertex_date, indexData;
 	HRESULT result;
 	int i;
 
@@ -99,14 +99,14 @@ bool SimpleMoveableSurface::InitializeBuffers(ID3D11Device* device)
 	// Set the number of indices in the index array.
 	index_count_ = vertex_count_;
 
-	// Create the vertex array.
+	
 	vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
 		return false;
 	}
 
-	// Create the index array.
+	
 	indices = new unsigned long[index_count_];
 	if(!indices)
 	{
@@ -116,53 +116,53 @@ bool SimpleMoveableSurface::InitializeBuffers(ID3D11Device* device)
 	// Initialize vertex array to zeros at first.
 	memset(vertices, 0, (sizeof(VertexType) * vertex_count_));
 
-	// Load the index array with data.
+	
 	for(i=0; i<index_count_; i++)
 	{
 		indices[i] = i;
 	}
 
-	// Set up the description of the static vertex buffer.
-    vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-    vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertex_count_;
-    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    vertexBufferDesc.MiscFlags = 0;
-	vertexBufferDesc.StructureByteStride = 0;
+	
+    vertex_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
+    vertex_buffer_desc.ByteWidth = sizeof(VertexType) * vertex_count_;
+    vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vertex_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    vertex_buffer_desc.MiscFlags = 0;
+	vertex_buffer_desc.StructureByteStride = 0;
 
-	// Give the subresource structure a pointer to the vertex data.
-    vertexData.pSysMem = vertices;
-	vertexData.SysMemPitch = 0;
-	vertexData.SysMemSlicePitch = 0;
+	
+    vertex_date.pSysMem = vertices;
+	vertex_date.SysMemPitch = 0;
+	vertex_date.SysMemSlicePitch = 0;
 
-	// Now create the vertex buffer.
-    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &vertex_buffer_);
+	
+    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_date, &vertex_buffer_);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Set up the description of the static index buffer.
-    indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    indexBufferDesc.ByteWidth = sizeof(unsigned long) * index_count_;
-    indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    indexBufferDesc.CPUAccessFlags = 0;
-    indexBufferDesc.MiscFlags = 0;
-	indexBufferDesc.StructureByteStride = 0;
+	
+    index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+    index_buffer_desc.ByteWidth = sizeof(unsigned long) * index_count_;
+    index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    index_buffer_desc.CPUAccessFlags = 0;
+    index_buffer_desc.MiscFlags = 0;
+	index_buffer_desc.StructureByteStride = 0;
 
-	// Give the subresource structure a pointer to the index data.
+	
     indexData.pSysMem = indices;
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
-	// Create the index buffer.
-	result = device->CreateBuffer(&indexBufferDesc, &indexData, &index_buffer_);
+	
+	result = device->CreateBuffer(&index_buffer_desc, &indexData, &index_buffer_);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Release the arrays now that the vertex and index buffers have been created and loaded.
+	
 	delete [] vertices;
 	vertices = 0;
 
@@ -175,14 +175,14 @@ bool SimpleMoveableSurface::InitializeBuffers(ID3D11Device* device)
 
 void SimpleMoveableSurface::ShutdownBuffers()
 {
-	// Release the index buffer.
+
 	if(index_buffer_)
 	{
 		index_buffer_->Release();
 		index_buffer_ = 0;
 	}
 
-	// Release the vertex buffer.
+	
 	if(vertex_buffer_)
 	{
 		vertex_buffer_->Release();
@@ -193,7 +193,7 @@ void SimpleMoveableSurface::ShutdownBuffers()
 }
 
 
-bool SimpleMoveableSurface::UpdateBuffers(ID3D11DeviceContext* deviceContext, int positionX, int positionY)
+bool SimpleMoveableSurface::UpdateBuffers(ID3D11DeviceContext* device_context, int positionX, int positionY)
 {
 	float left, right, top, bottom;
 	VertexType* vertices;
@@ -225,7 +225,7 @@ bool SimpleMoveableSurface::UpdateBuffers(ID3D11DeviceContext* deviceContext, in
 	// Calculate the screen coordinates of the bottom of the bitmap.
 	bottom = top - (float)m_bitmapHeight;
 
-	// Create the vertex array.
+	
 	vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
@@ -254,7 +254,7 @@ bool SimpleMoveableSurface::UpdateBuffers(ID3D11DeviceContext* deviceContext, in
 	vertices[5].texture = XMFLOAT2(1.0f, 1.0f);
 
 	// Lock the vertex buffer so it can be written to.
-	result = deviceContext->Map(vertex_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(vertex_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -267,7 +267,7 @@ bool SimpleMoveableSurface::UpdateBuffers(ID3D11DeviceContext* deviceContext, in
 	memcpy(verticesPtr, (void*)vertices, (sizeof(VertexType) * vertex_count_));
 
 	// Unlock the vertex buffer.
-	deviceContext->Unmap(vertex_buffer_, 0);
+	device_context->Unmap(vertex_buffer_, 0);
 
 	// Release the vertex array as it is no longer needed.
 	delete [] vertices;
@@ -277,24 +277,24 @@ bool SimpleMoveableSurface::UpdateBuffers(ID3D11DeviceContext* deviceContext, in
 }
 
 
-void SimpleMoveableSurface::RenderBuffers(ID3D11DeviceContext* deviceContext)
+void SimpleMoveableSurface::RenderBuffers(ID3D11DeviceContext* device_context)
 {
 	unsigned int stride;
 	unsigned int offset;
 
 
-	// Set vertex buffer stride and offset.
+	
 	stride = sizeof(VertexType); 
 	offset = 0;
     
-	// Set the vertex buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
+	
+	device_context->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
 
-    // Set the index buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
+    
+	device_context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
 
-    // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    
+	device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	
 }
