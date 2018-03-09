@@ -98,7 +98,7 @@ bool FadeShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFi
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
 		}
-		// If there was  nothing in the error message then it simply could not find the shader file itself.
+		
 		else
 		{
 			MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
@@ -178,7 +178,7 @@ bool FadeShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFi
 	pixelShaderBuffer->Release();
 	pixelShaderBuffer = 0;
 
-    // Setup the description of the matrix dynamic constant buffer that is in the vertex shader.
+    
     matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
     matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -351,13 +351,13 @@ bool FadeShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMM
 	dataPtr->view = viewMatrixCopy;
 	dataPtr->projection = projectionMatrixCopy;
 
-	// Unlock the matrix constant buffer.
+	
     device_context->Unmap(matrix_buffer_, 0);
 
-	// Set the position of the matrix constant buffer in the vertex shader.
+	
 	buffer_number = 0;
 
-	// Now set the matrix constant buffer in the vertex shader with the updated values.
+	
     device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
 	

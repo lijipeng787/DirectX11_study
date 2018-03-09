@@ -45,7 +45,7 @@ bool ModelClass::Initialize(char* modelFilename, WCHAR* textureFilename1, WCHAR*
 		return false;
 	}
 
-	// Load the textures for this model.
+	
 	result = LoadTextures(device, textureFilename1, textureFilename2, textureFilename3);
 	if(!result)
 	{
@@ -58,7 +58,7 @@ bool ModelClass::Initialize(char* modelFilename, WCHAR* textureFilename1, WCHAR*
 
 void ModelClass::Shutdown()
 {
-	// Release the model textures.
+	
 	ReleaseTextures();
 
 	

@@ -50,7 +50,7 @@ PixelInputType TransparentDepthVertexShader(VertexInputType input)
 	// Store the position value in a second input value for depth value calculations.
 	output.depthPosition = output.position;
 	
-	// Store the texture coordinates for the pixel shader.
+	
     output.tex = input.tex;
 
 	return output;

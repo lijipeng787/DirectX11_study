@@ -10,6 +10,8 @@
 #include "modelclass.h"
 #include "lightmapshaderclass.h"
 
+using namespace DirectX;
+
 GraphicsClass::GraphicsClass() {}
 
 GraphicsClass::~GraphicsClass() {}
@@ -20,11 +22,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	XMMATRIX baseViewMatrix;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -61,12 +61,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_LightMapShader = (LightMapShaderClass*)_aligned_malloc(sizeof(LightMapShaderClass), 16);
-		new (m_LightMapShader)LightMapShaderClass();
-		if (!m_LightMapShader) {
+		lightmap_shader_ = (LightMapShaderClass*)_aligned_malloc(sizeof(LightMapShaderClass), 16);
+		new (lightmap_shader_)LightMapShaderClass();
+		if (!lightmap_shader_) {
 			return false;
 		}
-		result = m_LightMapShader->Initialize(hwnd);
+		result = lightmap_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the light map shader object.", L"Error", MB_OK);
 			return false;
@@ -78,12 +78,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 void GraphicsClass::Shutdown() {
 
-	if (m_LightMapShader)
+	if (lightmap_shader_)
 	{
-		m_LightMapShader->Shutdown();
-		m_LightMapShader->~LightMapShaderClass();
-		_aligned_free(m_LightMapShader);
-		m_LightMapShader = 0;
+		lightmap_shader_->Shutdown();
+		lightmap_shader_->~LightMapShaderClass();
+		_aligned_free(lightmap_shader_);
+		lightmap_shader_ = 0;
 	}
 
 	if (model_) {
@@ -95,21 +95,13 @@ void GraphicsClass::Shutdown() {
 	if (camera_) {
 		camera_->~Camera();
 		_aligned_free(camera_);
-		camera_ = 0;
-	}
-
-	
-		
-		
-		directx_device_ = 0;
+		camera_ = nullptr;
 	}
 }
 
 bool GraphicsClass::Frame() {
 
-	bool result;
-
-	result = Render();
+	auto result = Render();
 	if (!result) {
 		return false;
 	}
@@ -117,12 +109,13 @@ bool GraphicsClass::Frame() {
 	return true;
 }
 
-
 bool GraphicsClass::Render() {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 
 	camera_->SetPosition(0.0f, 0.0f, -5.0f);
+
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
 	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -133,9 +126,9 @@ bool GraphicsClass::Render() {
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 	directx_device_->GetOrthoMatrix(orthoMatrix);
 
-	model_->Render(directx_device_->GetDeviceContext());
+	model_->Render();
 
-	m_LightMapShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+	lightmap_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		model_->GetTextureArray());
 
 	directx_device_->EndScene();

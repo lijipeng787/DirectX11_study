@@ -99,7 +99,7 @@ bool TransparentShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHA
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
 		}
-		// If there was  nothing in the error message then it simply could not find the shader file itself.
+		
 		else
 		{
 			MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
@@ -355,10 +355,10 @@ bool TransparentShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, co
 	// Unlock the buffer.
     device_context->Unmap(matrix_buffer_, 0);
 
-	// Set the position of the matrix constant buffer in the vertex shader.
+	
 	buffer_number = 0;
 
-	// Now set the matrix constant buffer in the vertex shader with the updated values.
+	
     device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
 	

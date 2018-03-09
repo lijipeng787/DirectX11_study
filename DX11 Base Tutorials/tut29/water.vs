@@ -55,7 +55,7 @@ PixelInputType WaterVertexShader(VertexInputType input)
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
-	// Store the texture coordinates for the pixel shader.
+	
     output.tex = input.tex;
     
 	// Create the reflection projection world matrix.

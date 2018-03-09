@@ -79,7 +79,7 @@ PixelInputType ShadowVertexShader(VertexInputType input)
     output.lightViewPosition2 = mul(output.lightViewPosition2, lightViewMatrix2);
     output.lightViewPosition2 = mul(output.lightViewPosition2, lightProjectionMatrix2);
 
-	// Store the texture coordinates for the pixel shader.
+	
     output.tex = input.tex;
     
 	// Calculate the normal vector against the world matrix only.

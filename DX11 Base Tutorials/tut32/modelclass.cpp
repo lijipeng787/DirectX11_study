@@ -43,7 +43,7 @@ bool ModelClass::Initialize(char* modelFilename, WCHAR* colorTextureFilename, WC
 		return false;
 	}
 
-	// Load the textures for this model.
+	
 	result = LoadTextures(device, colorTextureFilename, normalTextureFilename);
 	if(!result)
 	{
@@ -56,7 +56,7 @@ bool ModelClass::Initialize(char* modelFilename, WCHAR* colorTextureFilename, WC
 
 void ModelClass::Shutdown()
 {
-	// Release the model textures.
+	
 	ReleaseTextures();
 
 	

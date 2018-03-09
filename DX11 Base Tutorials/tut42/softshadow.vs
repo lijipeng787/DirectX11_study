@@ -64,7 +64,7 @@ PixelInputType SoftShadowVertexShader(VertexInputType input)
 	// Store the position of the vertice as viewed by the camera in a separate variable.
     output.viewPosition = output.position;
 
-	// Store the texture coordinates for the pixel shader.
+	
     output.tex = input.tex;
     
 	// Calculate the normal vector against the world matrix only.

@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
 #include "lightmapshaderclass.h"
@@ -27,13 +26,10 @@ public:
 
 	virtual bool Render()override;
 private:
-	
-
 	Camera *camera_ = nullptr;
 
 	ModelClass *model_ = nullptr;
 
-	LightMapShaderClass* m_LightMapShader = nullptr;
+	LightMapShaderClass* lightmap_shader_ = nullptr;
 };
 
-#endif

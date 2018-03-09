@@ -56,7 +56,7 @@ PixelInputType ProjectionVertexShader(VertexInputType input)
     output.viewPosition = mul(output.viewPosition, viewMatrix2);
     output.viewPosition = mul(output.viewPosition, projectionMatrix2);
 
-	// Store the texture coordinates for the pixel shader.
+	
 	output.tex = input.tex;
     
 	// Calculate the normal vector against the world matrix only.

@@ -1,8 +1,8 @@
 
-// Filename: texturearrayclass.h
 
-#ifndef _TEXTUREARRAYCLASS_H_
-#define _TEXTUREARRAYCLASS_H_
+
+
+
 
 
 
@@ -14,7 +14,7 @@ using namespace DirectX;
 
 
 
-// Class name: TextureArrayClass
+
 
 class TextureArrayClass
 {

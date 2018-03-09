@@ -394,7 +394,7 @@ bool ColorShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XM
 	dataPtr->view = viewMatrixCopy;
 	dataPtr->projection = projectionMatrixCopy;
 
-	// Unlock the matrix constant buffer.
+	
     device_context->Unmap(matrix_buffer_, 0);
 
 	// Set the position of the matrix constant buffer in the domain shader.

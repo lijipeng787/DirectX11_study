@@ -43,7 +43,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!model_) {
 			return false;
 		}
-		result = model_->Initialize("../../tut07/data/cube.txt", L"../../tut05/data/seafloor.dds");
+		result = model_->Initialize("../../6_box_with_texture/data/cube.txt", L"../../6_box_with_texture/data/seafloor.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;

@@ -99,7 +99,7 @@ bool LightShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psF
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
 		}
-		// If there was  nothing in the error message then it simply could not find the shader file itself.
+		
 		else
 		{
 			MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
@@ -209,7 +209,7 @@ bool LightShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psF
 		return false;
 	}
 
-    // Setup the description of the matrix dynamic constant buffer that is in the vertex shader.
+    
     matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
     matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -217,7 +217,7 @@ bool LightShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psF
     matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
 
-	// Create the matrix constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+
 	result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
 	if(FAILED(result))
 	{
@@ -365,13 +365,13 @@ bool LightShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XM
 	dataPtr->view = viewMatrixCopy;
 	dataPtr->projection = projectionMatrixCopy;
 
-	// Unlock the matrix constant buffer.
+	
     device_context->Unmap(matrix_buffer_, 0);
 
-	// Set the position of the matrix constant buffer in the vertex shader.
+	
 	buffer_number = 0;
 
-	// Now set the matrix constant buffer in the vertex shader with the updated values.
+	
     device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
 

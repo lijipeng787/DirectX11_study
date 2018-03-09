@@ -98,7 +98,7 @@ bool FontShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFi
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
 		}
-		// If there was  nothing in the error message then it simply could not find the shader file itself.
+		
 		else
 		{
 			MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
@@ -401,7 +401,7 @@ void FontShaderClass::RenderShader(int indexCount)
 	
 	device_context->PSSetSamplers(0, 1, &sample_state_);
 
-	// Render the triangles.
+	
 	device_context->DrawIndexed(indexCount, 0, 0);
 
 	

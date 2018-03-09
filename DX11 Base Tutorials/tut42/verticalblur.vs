@@ -62,7 +62,7 @@ PixelInputType VerticalBlurVertexShader(VertexInputType input)
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
-	// Store the texture coordinates for the pixel shader.
+	
 	output.tex = input.tex;
     
 	// Determine the floating point size of a texel for a screen with this specific height.

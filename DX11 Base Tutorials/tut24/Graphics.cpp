@@ -94,7 +94,7 @@ void GraphicsClass::Shutdown()
 	if (camera_) {
 		camera_->~Camera();
 		_aligned_free(camera_);
-		camera_ = 0;
+		camera_ = nullptr;
 	}
 
 	

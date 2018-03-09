@@ -46,7 +46,7 @@ bool BumpModelClass::Initialize(char* modelFilename, WCHAR* textureFilename1, WC
 		return false;
 	}
 
-	// Load the textures for this model.
+	
 	result = LoadTextures(device, textureFilename1, textureFilename2);
 	if(!result)
 	{
@@ -59,7 +59,7 @@ bool BumpModelClass::Initialize(char* modelFilename, WCHAR* textureFilename1, WC
 
 void BumpModelClass::Shutdown()
 {
-	// Release the model textures.
+	
 	ReleaseTextures();
 
 	

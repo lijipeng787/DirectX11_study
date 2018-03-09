@@ -8,13 +8,13 @@ using namespace DirectX;
 bool TextureArrayClass::Initialize(WCHAR* filename1, WCHAR* filename2, WCHAR* filename3) {
 
 	auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
-	// Load the first texture in.
+	
 	auto result = CreateDDSTextureFromFile(device, filename1, NULL, &textures_[0]);
 	if (FAILED(result)) {
 		return false;
 	}
 
-	// Load the second texture in.
+	
 	result = CreateDDSTextureFromFile(device, filename2, NULL, &textures_[1]);
 	if (FAILED(result)) {
 		return false;
@@ -30,15 +30,15 @@ bool TextureArrayClass::Initialize(WCHAR* filename1, WCHAR* filename2, WCHAR* fi
 }
 
 void TextureArrayClass::Shutdown() {
-	// Release the texture resources.
+	
 	if (textures_[0]) {
 		textures_[0]->Release();
-		textures_[0] = 0;
+		textures_[0] = nullptr;
 	}
 
 	if (textures_[1]) {
 		textures_[1]->Release();
-		textures_[1] = 0;
+		textures_[1] = nullptr;
 	}
 
 	if (textures_[2]) {

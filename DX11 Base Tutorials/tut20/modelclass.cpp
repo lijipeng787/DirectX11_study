@@ -45,7 +45,7 @@ bool ModelClass::Initialize(char* modelFilename, WCHAR* textureFilename1, WCHAR*
 		return false;
 	}
 
-	// Load the textures for this model.
+	
 	result = LoadTextures(device, textureFilename1, textureFilename2);
 	if(!result)
 	{
@@ -58,7 +58,7 @@ bool ModelClass::Initialize(char* modelFilename, WCHAR* textureFilename1, WCHAR*
 
 void ModelClass::Shutdown()
 {
-	// Release the model textures.
+	
 	ReleaseTextures();
 
 	
@@ -227,14 +227,14 @@ bool ModelClass::LoadTextures(WCHAR* filename1, WCHAR* filename2)
 	bool result;
 
 
-	// Create the texture array object.
+	
 	texture_array_ = new TextureArrayClass();
 	if(!texture_array_)
 	{
 		return false;
 	}
 
-	// Initialize the texture array object.
+	
 	result = texture_array_->Initialize(device, filename1, filename2);
 	if(!result)
 	{
@@ -247,7 +247,7 @@ bool ModelClass::LoadTextures(WCHAR* filename1, WCHAR* filename2)
 
 void ModelClass::ReleaseTextures()
 {
-	// Release the texture array object.
+	
 	if(texture_array_)
 	{
 		texture_array_->Shutdown();

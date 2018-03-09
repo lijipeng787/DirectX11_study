@@ -57,7 +57,7 @@ PixelInputType FireVertexShader(VertexInputType input)
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
-	// Store the texture coordinates for the pixel shader.
+	
 	output.tex = input.tex;
 
     // Compute texture coordinates for first noise texture using the first scale and upward scrolling speed values.

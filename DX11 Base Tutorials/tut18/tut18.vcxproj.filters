@@ -51,10 +51,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="lightmap.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="lightmap.vs">
+    <None Include="lightmap.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

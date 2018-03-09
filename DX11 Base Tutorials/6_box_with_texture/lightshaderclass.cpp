@@ -21,7 +21,7 @@ struct LightBufferType {
 
 bool LightShaderClass::Initialize(HWND hwnd) {
 
-	auto result = InitializeShader(hwnd, L"../../tut07/simple_light.hlsl", L"../../tut07/simple_light.hlsl");
+	auto result = InitializeShader(hwnd, L"../../6_box_with_texture/simple_light.hlsl", L"../../6_box_with_texture/simple_light.hlsl");
 	if (!result) {
 		return false;
 	}
