@@ -14,10 +14,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="light_ps.hlsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="light_vs.hlsl">
+    <None Include="simple_light.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

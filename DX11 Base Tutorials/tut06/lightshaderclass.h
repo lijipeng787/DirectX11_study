@@ -33,7 +33,7 @@ private:
 	{
 		XMFLOAT4 diffuseColor;
 		XMFLOAT3 lightDirection;
-		float padding;  // Added extra padding so structure is a multiple of 16 for CreateBuffer function requirements.
+		float padding;  
 	};
 
 public:

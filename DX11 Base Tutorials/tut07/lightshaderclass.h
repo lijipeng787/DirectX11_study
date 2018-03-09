@@ -1,65 +1,54 @@
-
-
-
-
-
-
-
-
-
+#pragma once
 
 #include <d3d11.h>
 #include <DirectXMath.h>
-#include <d3dcompiler.h>
-#include <fstream>
-using namespace std;
-using namespace DirectX;
 
+struct MatrixBufferType;
+struct LightBufferType;
 
-
-
-
-class LightShaderClass
-{
-private:
-	struct MatrixBufferType
-	{
-		XMMATRIX world;
-		XMMATRIX view;
-		XMMATRIX projection;
-	};
-
-	struct LightBufferType
-	{
-		XMFLOAT4 diffuseColor;
-		XMFLOAT3 lightDirection;
-		float padding;  // Added extra padding so structure is a multiple of 16 for CreateBuffer function requirements.
-	};
-
+class LightShaderClass {
 public:
-	LightShaderClass();
-	LightShaderClass(const LightShaderClass&);
-	~LightShaderClass();
+	LightShaderClass() {}
 
+	LightShaderClass(const LightShaderClass&) = delete;
+
+	~LightShaderClass() {}
+public:
 	bool Initialize(HWND);
-	void Shutdown();
-	bool Render(int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*, const XMFLOAT3&, const XMFLOAT4& );
 
+	void Shutdown();
+
+	bool Render(int, 
+				const DirectX::XMMATRIX&, 
+				const DirectX::XMMATRIX&, 
+				const DirectX::XMMATRIX&, 
+				ID3D11ShaderResourceView*, 
+				const DirectX::XMFLOAT3&, 
+				const DirectX::XMFLOAT4&);
 private:
 	bool InitializeShader(HWND, WCHAR*, WCHAR*);
+
 	void ShutdownShader();
+
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*, const XMFLOAT3&, const XMFLOAT4& );
+	bool SetShaderParameters(
+		const DirectX::XMMATRIX&,
+		const DirectX::XMMATRIX&, 
+		const DirectX::XMMATRIX&, 
+		ID3D11ShaderResourceView*, 
+		const DirectX::XMFLOAT3&, 
+		const DirectX::XMFLOAT4&);
+
 	void RenderShader(int);
-
 private:
-	ID3D11VertexShader* vertex_shader_;
-	ID3D11PixelShader* pixel_shader_;
-	ID3D11InputLayout* layout_;
-	ID3D11SamplerState* sample_state_;
-	ID3D11Buffer* matrix_buffer_;
-	ID3D11Buffer* light_buffer_;
-};
+	ID3D11VertexShader * vertex_shader_ = nullptr;
 
-#endif
+	ID3D11PixelShader* pixel_shader_ = nullptr;
+
+	ID3D11InputLayout* layout_ = nullptr;
+
+	ID3D11SamplerState* sample_state_ = nullptr;
+
+	ID3D11Buffer* matrix_buffer_ = nullptr, *light_buffer_ = nullptr;
+};

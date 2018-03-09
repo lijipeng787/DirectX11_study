@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A939E50A-94EF-40D0-939B-0069485436A4}</ProjectGuid>
     <RootNamespace>tut10</RootNamespace>
-    <ProjectName>cube_with_specular_light</ProjectName>
+    <ProjectName>5box_with_specular_light</ProjectName>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
