@@ -68,11 +68,11 @@ void GraphicsClass::Shutdown() {
 		camera_ = nullptr;
 	}
 
-	if (directx_device_) {
-		directx_device_->Shutdown();
-		directx_device_->~DirectX11Device();
-		delete directx_device_;
-		directx_device_ = nullptr;
+	
+		
+		
+		
+		
 	}
 }
 

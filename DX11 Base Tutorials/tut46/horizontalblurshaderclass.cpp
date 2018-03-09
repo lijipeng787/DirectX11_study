@@ -6,11 +6,11 @@
 
 HorizontalBlurShaderClass::HorizontalBlurShaderClass()
 {
-	vertex_shader_ = 0;
-	pixel_shader_ = 0;
-	layout_ = 0;
-	sample_state_ = 0;
-	matrix_buffer_ = 0;
+	vertex_shader_ = nullptr;
+	pixel_shader_ = nullptr;
+	layout_ = nullptr;
+	sample_state_ = nullptr;
+	matrix_buffer_ = nullptr;
 	screen_size_buffer_ = 0;
 }
 
@@ -25,7 +25,7 @@ HorizontalBlurShaderClass::~HorizontalBlurShaderClass()
 }
 
 
-bool HorizontalBlurShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool HorizontalBlurShaderClass::Initialize(HWND hwnd)
 {
 	bool result;
 
@@ -50,7 +50,7 @@ void HorizontalBlurShaderClass::Shutdown()
 }
 
 
-bool HorizontalBlurShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool HorizontalBlurShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 									   const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, float screenWidth)
 {
 	bool result;
@@ -70,7 +70,7 @@ bool HorizontalBlurShaderClass::Render(ID3D11DeviceContext* device_context, int 
 }
 
 
-bool HorizontalBlurShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool HorizontalBlurShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
@@ -245,35 +245,35 @@ void HorizontalBlurShaderClass::ShutdownShader()
 	if(matrix_buffer_)
 	{
 		matrix_buffer_->Release();
-		matrix_buffer_ = 0;
+		matrix_buffer_ = nullptr;
 	}
 
 
 	if(sample_state_)
 	{
 		sample_state_->Release();
-		sample_state_ = 0;
+		sample_state_ = nullptr;
 	}
 
 	
 	if(layout_)
 	{
 		layout_->Release();
-		layout_ = 0;
+		layout_ = nullptr;
 	}
 
 	
 	if(pixel_shader_)
 	{
 		pixel_shader_->Release();
-		pixel_shader_ = 0;
+		pixel_shader_ = nullptr;
 	}
 
 	
 	if(vertex_shader_)
 	{
 		vertex_shader_->Release();
-		vertex_shader_ = 0;
+		vertex_shader_ = nullptr;
 	}
 
 	
@@ -316,7 +316,7 @@ void HorizontalBlurShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessag
 }
 
 
-bool HorizontalBlurShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool HorizontalBlurShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 													const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, float screenWidth)
 {
 	HRESULT result;
@@ -388,7 +388,7 @@ bool HorizontalBlurShaderClass::SetShaderParameters(ID3D11DeviceContext* device_
 }
 
 
-void HorizontalBlurShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
+void HorizontalBlurShaderClass::RenderShader(int indexCount)
 {
 
 	device_context->IASetInputLayout(layout_);

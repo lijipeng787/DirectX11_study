@@ -36,7 +36,7 @@ public:
 	SimpleMoveableSurface(const SimpleMoveableSurface&);
 	~SimpleMoveableSurface();
 
-	bool Initialize(ID3D11Device*, int, int, WCHAR*, WCHAR*, int, int);
+	bool Initialize(int, int, WCHAR*, WCHAR*, int, int);
 	void Shutdown();
 	bool Render(int, int);
 
@@ -50,7 +50,7 @@ private:
 	bool UpdateBuffers(int, int);
 	void RenderBuffers(ID3D11DeviceContext*);
 
-	bool LoadTextures(ID3D11Device*, WCHAR*, WCHAR*);
+	bool LoadTextures(WCHAR*, WCHAR*);
 	void ReleaseTextures();
 
 private:

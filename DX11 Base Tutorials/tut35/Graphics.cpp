@@ -76,9 +76,9 @@ void GraphicsClass::Shutdown() {
 		camera_ = 0;
 	}
 
-	if (directx_device_) {
-		directx_device_->Shutdown();
-		delete directx_device_;
+	
+		
+		
 		directx_device_ = 0;
 	}
 }

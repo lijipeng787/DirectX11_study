@@ -152,7 +152,7 @@ void GraphicsClass::Shutdown() {
 	{
 		model_->Shutdown();
 		delete model_;
-		model_ = 0;
+		model_ = nullptr;
 	}
 
 	if (camera_) {
@@ -161,9 +161,9 @@ void GraphicsClass::Shutdown() {
 		camera_ = 0;
 	}
 
-	if (directx_device_) {
-		directx_device_->Shutdown();
-		delete directx_device_;
+	
+		
+		
 		directx_device_ = 0;
 	}
 }
@@ -202,20 +202,20 @@ bool GraphicsClass::Frame() {
 bool GraphicsClass::Render() {
 
 	bool result;
-	static float rotation = 0.0f;
+	static float rotation_ = 0.0f;
 
-	rotation += (float)XM_PI * 0.005f;
-	if (rotation > 360.0f) {
-		rotation -= 360.0f;
+	rotation_ += (float)XM_PI * 0.005f;
+	if (rotation_ > 360.0f) {
+		rotation_ -= 360.0f;
 	}
 
 	if (m_fadeDone) {
 
-		RenderNormalScene(rotation);
+		RenderNormalScene(rotation_);
 	}
 	else {
 
-		result = RenderToTexture(rotation);
+		result = RenderToTexture(rotation_);
 		if (!result) {
 			return false;
 		}
@@ -229,7 +229,7 @@ bool GraphicsClass::Render() {
 	return true;
 }
 
-bool GraphicsClass::RenderToTexture(float rotation) {
+bool GraphicsClass::RenderToTexture(float rotation_) {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	bool result;
@@ -244,7 +244,7 @@ bool GraphicsClass::RenderToTexture(float rotation) {
 	camera_->GetViewMatrix(viewMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
-	worldMatrix = XMMatrixRotationY(rotation);
+	worldMatrix = XMMatrixRotationY(rotation_);
 
 	model_->Render(directx_device_->GetDeviceContext());
 
@@ -292,7 +292,7 @@ bool GraphicsClass::RenderFadingScene() {
 	return true;
 }
 
-bool GraphicsClass::RenderNormalScene(float rotation) {
+bool GraphicsClass::RenderNormalScene(float rotation_) {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	bool result;
@@ -305,7 +305,7 @@ bool GraphicsClass::RenderNormalScene(float rotation) {
 	camera_->GetViewMatrix(viewMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
-	worldMatrix = XMMatrixRotationY(rotation);
+	worldMatrix = XMMatrixRotationY(rotation_);
 
 	model_->Render(directx_device_->GetDeviceContext());
 

@@ -3,9 +3,9 @@
 
 
 
-////
-// GLOBALS //
-////
+
+
+
 Texture2D colorTexture : register(t0);
 Texture2D normalMapTexture : register(t1);
 SamplerState SampleType;
@@ -18,7 +18,7 @@ cbuffer LightBuffer
 
 
 
-// TYPEDEFS //
+
 
 struct PixelInputType
 {
@@ -31,7 +31,7 @@ struct PixelInputType
 
 
 
-// Pixel Shader
+
 
 float4 BumpMapPixelShader(PixelInputType input) : SV_TARGET
 {

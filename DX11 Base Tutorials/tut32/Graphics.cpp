@@ -147,7 +147,7 @@ void GraphicsClass::Shutdown() {
 	{
 		model_->Shutdown();
 		delete model_;
-		model_ = 0;
+		model_ = nullptr;
 	}
 
 	if (camera_) {
@@ -156,31 +156,31 @@ void GraphicsClass::Shutdown() {
 		camera_ = 0;
 	}
 
-	if (directx_device_) {
-		directx_device_->Shutdown();
-		delete directx_device_;
+	
+		
+		
 		directx_device_ = 0;
 	}
 }
 
 bool GraphicsClass::Frame() {
 
-	static float rotation = 0.0f;
+	static float rotation_ = 0.0f;
 	bool result;
 
 
-	// Update the rotation variable each frame.
-	rotation += (float)XM_PI * 0.005f;
-	if (rotation > 360.0f) {
-		rotation -= 360.0f;
+	// Update the rotation_ variable each frame.
+	rotation_ += (float)XM_PI * 0.005f;
+	if (rotation_ > 360.0f) {
+		rotation_ -= 360.0f;
 	}
-	rotation_ = rotation;
+	rotation_ = rotation_;
 
 	// Set the position of the camera.
 	camera_->SetPosition(0.0f, 0.0f, -10.0f);
 
 	// Render the scene to texture first.
-	result = RenderToTexture(rotation);
+	result = RenderToTexture(rotation_);
 	if (!result) {
 		return false;
 	}
@@ -194,7 +194,7 @@ bool GraphicsClass::Frame() {
 	return true;
 }
 
-bool GraphicsClass::RenderToTexture(float rotation) {
+bool GraphicsClass::RenderToTexture(float rotation_) {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	bool result;
@@ -209,7 +209,7 @@ bool GraphicsClass::RenderToTexture(float rotation) {
 	camera_->GetViewMatrix(viewMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
-	worldMatrix = XMMatrixRotationY(rotation);
+	worldMatrix = XMMatrixRotationY(rotation_);
 
 	model_->Render(directx_device_->GetDeviceContext());
 

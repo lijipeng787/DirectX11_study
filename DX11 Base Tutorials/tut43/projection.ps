@@ -16,9 +16,9 @@ Texture2D projectionTexture : register(t1);
 SamplerState SampleType;
 
 
-////////
+
 // CONSTANT BUFFERS //
-////////
+
 cbuffer LightBuffer
 {
 	float4 ambientColor;
@@ -29,7 +29,7 @@ cbuffer LightBuffer
 
 
 
-// TYPEDEFS //
+
 
 struct PixelInputType
 {
@@ -41,7 +41,7 @@ struct PixelInputType
 
 
 
-// Pixel Shader
+
 
 float4 ProjectionPixelShader(PixelInputType input) : SV_TARGET
 {
@@ -71,7 +71,7 @@ float4 ProjectionPixelShader(PixelInputType input) : SV_TARGET
 	// Saturate the light color.
 	color = saturate(color);
 
-	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
+	
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 
 	// Combine the light color and the texture color.

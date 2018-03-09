@@ -30,8 +30,8 @@ public:
 
 	virtual bool Render()override;
 public:
-	void SetRotation(float rotation) {
-		rotationY = rotation;
+	void SetRotation(float rotation_) {
+		rotationY = rotation_;
 	}
 private:
 	

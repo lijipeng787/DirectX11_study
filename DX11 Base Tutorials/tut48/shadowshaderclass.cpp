@@ -6,13 +6,13 @@
 
 ShadowShaderClass::ShadowShaderClass()
 {
-	vertex_shader_ = 0;
-	pixel_shader_ = 0;
-	layout_ = 0;
+	vertex_shader_ = nullptr;
+	pixel_shader_ = nullptr;
+	layout_ = nullptr;
 	m_sampleStateWrap = 0;
 	m_sampleStateClamp = 0;
-	matrix_buffer_ = 0;
-	m_lightBuffer = 0;
+	matrix_buffer_ = nullptr;
+	light_buffer_ = nullptr;
 }
 
 
@@ -26,7 +26,7 @@ ShadowShaderClass::~ShadowShaderClass()
 }
 
 
-bool ShadowShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool ShadowShaderClass::Initialize(HWND hwnd)
 {
 	bool result;
 
@@ -51,7 +51,7 @@ void ShadowShaderClass::Shutdown()
 }
 
 
-bool ShadowShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool ShadowShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 							   const XMMATRIX& projectionMatrix, const XMMATRIX& lightViewMatrix, const XMMATRIX& lightProjectionMatrix, 
 							   ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depthMapTexture, const XMFLOAT3& lightDirection, 
 							   const XMFLOAT4& ambientColor, const XMFLOAT4& diffuseColor )
@@ -74,7 +74,7 @@ bool ShadowShaderClass::Render(ID3D11DeviceContext* device_context, int indexCou
 }
 
 
-bool ShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool ShadowShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
@@ -236,7 +236,7 @@ bool ShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR*
 		return false;
 	}
 
-	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
+	
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
 	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -245,7 +245,7 @@ bool ShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR*
 	lightBufferDesc.StructureByteStride = 0;
 
 	// Create the constant buffer pointer so we can access the pixel shader constant buffer from within this class.
-	result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
+	result = device->CreateBuffer(&lightBufferDesc, NULL, &light_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -258,17 +258,17 @@ bool ShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR*
 void ShadowShaderClass::ShutdownShader()
 {
 	
-	if(m_lightBuffer)
+	if(light_buffer_)
 	{
-		m_lightBuffer->Release();
-		m_lightBuffer = 0;
+		light_buffer_->Release();
+		light_buffer_ = nullptr;
 	}
 
 
 	if(matrix_buffer_)
 	{
 		matrix_buffer_->Release();
-		matrix_buffer_ = 0;
+		matrix_buffer_ = nullptr;
 	}
 
 	// Release the sampler states.
@@ -288,21 +288,21 @@ void ShadowShaderClass::ShutdownShader()
 	if(layout_)
 	{
 		layout_->Release();
-		layout_ = 0;
+		layout_ = nullptr;
 	}
 
 	
 	if(pixel_shader_)
 	{
 		pixel_shader_->Release();
-		pixel_shader_ = 0;
+		pixel_shader_ = nullptr;
 	}
 
 	
 	if(vertex_shader_)
 	{
 		vertex_shader_->Release();
-		vertex_shader_ = 0;
+		vertex_shader_ = nullptr;
 	}
 
 	
@@ -345,7 +345,7 @@ void ShadowShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND 
 }
 
 
-bool ShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool ShadowShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 											const XMMATRIX& projectionMatrix, const XMMATRIX& lightViewMatrix, const XMMATRIX& lightProjectionMatrix, 
 											ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depthMapTexture, const XMFLOAT3& lightDirection,
 											const XMFLOAT4& ambientColor, const XMFLOAT4& diffuseColor )
@@ -400,7 +400,7 @@ bool ShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context,
 	device_context->PSSetShaderResources(1, 1, &depthMapTexture);
 
 
-	result = device_context->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -416,19 +416,19 @@ bool ShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context,
 	dataPtr2->padding = 0.0f;
 
 	
-	device_context->Unmap(m_lightBuffer, 0);
+	device_context->Unmap(light_buffer_, 0);
 
 	
 	buffer_number = 0;
 
 	
-	device_context->PSSetConstantBuffers(buffer_number, 1, &m_lightBuffer);
+	device_context->PSSetConstantBuffers(buffer_number, 1, &light_buffer_);
 
 	return true;
 }
 
 
-void ShadowShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
+void ShadowShaderClass::RenderShader(int indexCount)
 {
 
 	device_context->IASetInputLayout(layout_);

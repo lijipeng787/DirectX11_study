@@ -23,7 +23,7 @@ ShaderManagerClass::~ShaderManagerClass()
 }
 
 
-bool ShaderManagerClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool ShaderManagerClass::Initialize(HWND hwnd)
 {
 	bool result;
 
@@ -130,7 +130,7 @@ bool ShaderManagerClass::RenderTextureShader(ID3D11DeviceContext* device, int in
 }
 
 
-bool ShaderManagerClass::RenderLightShader(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,const XMMATRIX& projectionMatrix, 
+bool ShaderManagerClass::RenderLightShader(int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,const XMMATRIX& projectionMatrix, 
 										   ID3D11ShaderResourceView* texture, const XMFLOAT3& lightDirection, const XMFLOAT4& ambient, const XMFLOAT4& diffuse, 
 										   const XMFLOAT3& cameraPosition, const XMFLOAT4& specular, float specularPower)
 {
@@ -149,7 +149,7 @@ bool ShaderManagerClass::RenderLightShader(ID3D11DeviceContext* device_context, 
 }
 
 
-bool ShaderManagerClass::RenderBumpMapShader(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,const XMMATRIX& projectionMatrix, 
+bool ShaderManagerClass::RenderBumpMapShader(int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,const XMMATRIX& projectionMatrix, 
 											 ID3D11ShaderResourceView* colorTexture, ID3D11ShaderResourceView* normalTexture, const XMFLOAT3& lightDirection, 
 											 const XMFLOAT4& diffuse )
 {

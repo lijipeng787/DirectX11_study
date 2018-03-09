@@ -6,8 +6,8 @@
 
 OrthoWindowClass::OrthoWindowClass()
 {
-	vertex_buffer_ = 0;
-	index_buffer_ = 0;
+	vertex_buffer_=nullptr;
+	index_buffer_=nullptr;
 }
 
 
@@ -21,7 +21,7 @@ OrthoWindowClass::~OrthoWindowClass()
 }
 
 
-bool OrthoWindowClass::Initialize(ID3D11Device* device, int windowWidth, int windowHeight)
+bool OrthoWindowClass::Initialize(int windowWidth, int windowHeight)
 {
 	bool result;
 
@@ -61,7 +61,7 @@ int OrthoWindowClass::GetIndexCount()
 }
 
 
-bool OrthoWindowClass::InitializeBuffers(ID3D11Device* device, int windowWidth, int windowHeight)
+bool OrthoWindowClass::InitializeBuffers(int windowWidth, int windowHeight)
 {
 	float left, right, top, bottom;
 	VertexType* vertices;
@@ -91,14 +91,14 @@ bool OrthoWindowClass::InitializeBuffers(ID3D11Device* device, int windowWidth, 
 	index_count_ = vertex_count_;
 
 	
-	vertices = new VertexType[vertex_count_];
+	auto vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
 		return false;
 	}
 
 	
-	indices = new unsigned long[index_count_];
+	auto indices = new unsigned long[index_count_];
 	if(!indices)
 	{
 		return false;
@@ -188,14 +188,14 @@ void OrthoWindowClass::ShutdownBuffers()
 	if(index_buffer_)
 	{
 		index_buffer_->Release();
-		index_buffer_ = 0;
+		index_buffer_=nullptr;
 	}
 
 	
 	if(vertex_buffer_)
 	{
 		vertex_buffer_->Release();
-		vertex_buffer_ = 0;
+		vertex_buffer_=nullptr;
 	}
 
 	

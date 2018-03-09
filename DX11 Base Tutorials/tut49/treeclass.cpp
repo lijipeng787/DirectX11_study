@@ -12,7 +12,7 @@ TreeClass::TreeClass()
 	m_leafIndexBuffer = 0;
 	m_TrunkTexture = 0;
 	m_TrunkTexture = 0;
-	model_ = 0;
+	model_ = nullptr;
 }
 
 
@@ -26,7 +26,7 @@ TreeClass::~TreeClass()
 }
 
 
-bool TreeClass::Initialize(ID3D11Device* device, char* trunkModelFilename, WCHAR* trunkTextureFilename, char* leafModelFilename, WCHAR* leafTextureFilename, float scale)
+bool TreeClass::Initialize(char* trunkModelFilename, WCHAR* trunkTextureFilename, char* leafModelFilename, WCHAR* leafTextureFilename, float scale)
 {
 	bool result;
 
@@ -139,7 +139,7 @@ ID3D11ShaderResourceView* TreeClass::GetLeafTexture()
 }
 
 
-bool TreeClass::InitializeTrunkBuffers(ID3D11Device* device, float scale)
+bool TreeClass::InitializeTrunkBuffers(float scale)
 {
 	VertexType* vertices;
 	unsigned long* indices;
@@ -150,14 +150,14 @@ bool TreeClass::InitializeTrunkBuffers(ID3D11Device* device, float scale)
 
 
 	
-	vertices = new VertexType[vertex_count_];
+	auto vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
 		return false;
 	}
 
 	
-	indices = new unsigned long[index_count_];
+	auto indices = new unsigned long[index_count_];
 	if(!indices)
 	{
 		return false;
@@ -224,7 +224,7 @@ bool TreeClass::InitializeTrunkBuffers(ID3D11Device* device, float scale)
 }
 
 
-bool TreeClass::InitializeLeafBuffers(ID3D11Device* device, float scale)
+bool TreeClass::InitializeLeafBuffers(float scale)
 {
 	VertexType* vertices;
 	unsigned long* indices;
@@ -235,14 +235,14 @@ bool TreeClass::InitializeLeafBuffers(ID3D11Device* device, float scale)
 
 
 	
-	vertices = new VertexType[vertex_count_];
+	auto vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
 		return false;
 	}
 
 	
-	indices = new unsigned long[index_count_];
+	auto indices = new unsigned long[index_count_];
 	if(!indices)
 	{
 		return false;
@@ -386,7 +386,7 @@ void TreeClass::RenderLeafBuffers(ID3D11DeviceContext* device_context)
 }
 
 
-bool TreeClass::LoadTextures(ID3D11Device* device, WCHAR* trunkFilename, WCHAR* leafFilename)
+bool TreeClass::LoadTextures(WCHAR* trunkFilename, WCHAR* leafFilename)
 {
 	bool result;
 
@@ -509,7 +509,7 @@ void TreeClass::ReleaseModel()
 	if(model_)
 	{
 		delete [] model_;
-		model_ = 0;
+		model_ = nullptr;
 	}
 
 	

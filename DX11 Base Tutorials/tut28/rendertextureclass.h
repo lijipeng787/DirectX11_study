@@ -21,7 +21,7 @@ public:
 	RenderTextureClass(const RenderTextureClass&);
 	~RenderTextureClass();
 
-	bool Initialize(ID3D11Device*, int, int);
+	bool Initialize(int, int);
 	void Shutdown();
 
 	void SetRenderTarget(ID3D11DepthStencilView*);

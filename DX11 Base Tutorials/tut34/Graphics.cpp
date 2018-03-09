@@ -114,9 +114,9 @@ void GraphicsClass::Shutdown() {
 		camera_ = 0;
 	}
 
-	if (directx_device_) {
-		directx_device_->Shutdown();
-		delete directx_device_;
+	
+		
+		
 	}
 }
 
@@ -142,7 +142,7 @@ bool GraphicsClass::Render() {
 	bool result;
 	XMFLOAT3 cameraPosition, modelPosition;
 	double angle;
-	float rotation;
+	float rotation_;
 
 	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -168,9 +168,9 @@ bool GraphicsClass::Render() {
 
 	angle = atan2(modelPosition.x - cameraPosition.x, modelPosition.z - cameraPosition.z) * (180.0 / XM_PI);
 
-	rotation = (float)angle * 0.0174532925f;
+	rotation_ = (float)angle * 0.0174532925f;
 
-	worldMatrix = XMMatrixRotationY(rotation);
+	worldMatrix = XMMatrixRotationY(rotation_);
 
 	translateMatrix = XMMatrixTranslation(modelPosition.x, modelPosition.y, modelPosition.z);
 

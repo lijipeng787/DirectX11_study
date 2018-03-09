@@ -268,7 +268,7 @@ void GraphicsClass::Shutdown(){
 	{
 		model_->Shutdown();
 		delete model_;
-		model_ = 0;
+		model_ = nullptr;
 	}
 
 	if (camera_) {
@@ -281,11 +281,11 @@ void GraphicsClass::Shutdown(){
 bool GraphicsClass::Frame() {
 
 	bool result;
-	static float rotation = 0.0f;
+	static float rotation_ = 0.0f;
 
-	rotation += (float)XM_PI * 0.005f;
-	if (rotation > 360.0f) {
-		rotation -= 360.0f;
+	rotation_ += (float)XM_PI * 0.005f;
+	if (rotation_ > 360.0f) {
+		rotation_ -= 360.0f;
 	}
 
 	result = Render();
@@ -334,7 +334,7 @@ bool GraphicsClass::Render(){
 	return true;
 }
 
-bool GraphicsClass::RenderSceneToTexture(float rotation) {
+bool GraphicsClass::RenderSceneToTexture(float rotation_) {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	
@@ -350,7 +350,7 @@ bool GraphicsClass::RenderSceneToTexture(float rotation) {
 	directx_device->GetWorldMatrix(worldMatrix);
 	directx_device->GetProjectionMatrix(projectionMatrix);
 
-	worldMatrix = XMMatrixRotationY(rotation);
+	worldMatrix = XMMatrixRotationY(rotation_);
 
 	model_->Render();
 

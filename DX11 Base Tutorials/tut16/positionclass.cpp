@@ -59,7 +59,7 @@ void PositionClass::TurnLeft(bool keydown)
 		}
 	}
 
-	// Update the rotation using the turning speed.
+	// Update the rotation_ using the turning speed.
 	m_rotationY -= m_leftTurnSpeed;
 	if(m_rotationY < 0.0f)
 	{
@@ -92,7 +92,7 @@ void PositionClass::TurnRight(bool keydown)
 		}
 	}
 
-	// Update the rotation using the turning speed.
+	// Update the rotation_ using the turning speed.
 	m_rotationY += m_rightTurnSpeed;
 	if(m_rotationY > 360.0f)
 	{

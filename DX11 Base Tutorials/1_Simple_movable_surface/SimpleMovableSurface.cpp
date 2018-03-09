@@ -74,12 +74,12 @@ bool SimpleMoveableSurface::InitializeVertexAndIndexBuffers() {
 
 	index_count_ = vertex_count_ = 6;
 
-	auto vertices = new VertexType[vertex_count_];
+	auto auto vertices = new VertexType[vertex_count_];
 	if (nullptr == vertices) {
 		return false;
 	}
 
-	auto indices = new unsigned long[index_count_];
+	auto auto indices = new unsigned long[index_count_];
 	if (nullptr == indices) {
 		return false;
 	}
@@ -193,7 +193,7 @@ bool SimpleMoveableSurface::UpdateBuffers() {
 	auto bottom = top - (float)bitmap_height_;
 
 	
-	auto vertices = new VertexType[vertex_count_];
+	auto auto vertices = new VertexType[vertex_count_];
 	if (!vertices) {
 		return false;
 	}

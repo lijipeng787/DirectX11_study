@@ -6,8 +6,8 @@
 
 ModelClass::ModelClass()
 {
-	vertex_buffer_ = 0;
-	index_buffer_ = 0;
+	vertex_buffer_=nullptr;
+	index_buffer_=nullptr;
 }
 
 
@@ -77,14 +77,14 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 	index_count_ = 3;
 
 	
-	vertices = new VertexType[vertex_count_];
+	auto vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
 		return false;
 	}
 
 	
-	indices = new unsigned long[index_count_];
+	auto indices = new unsigned long[index_count_];
 	if(!indices)
 	{
 		return false;
@@ -162,14 +162,14 @@ void ModelClass::ShutdownBuffers()
 	if(index_buffer_)
 	{
 		index_buffer_->Release();
-		index_buffer_ = 0;
+		index_buffer_=nullptr;
 	}
 
 	
 	if(vertex_buffer_)
 	{
 		vertex_buffer_->Release();
-		vertex_buffer_ = 0;
+		vertex_buffer_=nullptr;
 	}
 
 	

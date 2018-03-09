@@ -151,7 +151,7 @@ void GraphicsClass::Shutdown() {
 	{
 		model_->Shutdown();
 		delete model_;
-		model_ = 0;
+		model_ = nullptr;
 	}
 
 	if (camera_) {
@@ -160,9 +160,9 @@ void GraphicsClass::Shutdown() {
 		camera_ = 0;
 	}
 
-	if (directx_device_) {
-		directx_device_->Shutdown();
-		delete directx_device_;
+	
+		
+		
 		directx_device_ = 0;
 	}
 }
@@ -198,7 +198,7 @@ bool GraphicsClass::Render() {
 bool GraphicsClass::RenderToTexture() {
 
 	XMMATRIX worldMatrix, reflectionViewMatrix, projectionMatrix;
-	static float rotation = 0.0f;
+	static float rotation_ = 0.0f;
 
 
 	m_RenderTexture->SetRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView());
@@ -212,11 +212,11 @@ bool GraphicsClass::RenderToTexture() {
 	directx_device_->GetWorldMatrix(worldMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
-	rotation += (float)XM_PI * 0.005f;
-	if (rotation > 360.0f) {
-		rotation -= 360.0f;
+	rotation_ += (float)XM_PI * 0.005f;
+	if (rotation_ > 360.0f) {
+		rotation_ -= 360.0f;
 	}
-	worldMatrix = XMMatrixRotationY(rotation);
+	worldMatrix = XMMatrixRotationY(rotation_);
 
 	model_->Render(directx_device_->GetDeviceContext());
 
@@ -231,7 +231,7 @@ bool GraphicsClass::RenderToTexture() {
 bool GraphicsClass::RenderScene() {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, reflectionMatrix;
 	bool result;
-	static float rotation = 0.0f;
+	static float rotation_ = 0.0f;
 
 	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -241,12 +241,12 @@ bool GraphicsClass::RenderScene() {
 	camera_->GetViewMatrix(viewMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
-	rotation += (float)XM_PI * 0.005f;
-	if (rotation > 360.0f) {
-		rotation -= 360.0f;
+	rotation_ += (float)XM_PI * 0.005f;
+	if (rotation_ > 360.0f) {
+		rotation_ -= 360.0f;
 	}
 
-	worldMatrix = XMMatrixRotationY(rotation);
+	worldMatrix = XMMatrixRotationY(rotation_);
 
 	model_->Render(directx_device_->GetDeviceContext());
 

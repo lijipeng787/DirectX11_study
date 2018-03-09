@@ -23,7 +23,7 @@ public:
 	ShaderManagerClass(const ShaderManagerClass&);
 	~ShaderManagerClass();
 
-	bool Initialize(ID3D11Device*, HWND);
+	bool Initialize(HWND);
 	void Shutdown();
 
 	bool RenderTextureShader(int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*);

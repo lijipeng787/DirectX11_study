@@ -240,9 +240,9 @@ void GraphicsClass::Shutdown() {
 		camera_ = 0;
 	}
 
-	if (directx_device_) {
-		directx_device_->Shutdown();
-		delete directx_device_;
+	
+		
+		
 		directx_device_ = 0;
 	}
 }
@@ -255,7 +255,7 @@ bool GraphicsClass::Frame() {
 		water_translation_ -= 1.0f;
 	}
 
-	// Set the position and rotation of the camera.
+	// Set the position and rotation_ of the camera.
 	camera_->SetPosition(-10.0f, 6.0f, -10.0f);
 	camera_->SetRotation(0.0f, 45.0f, 0.0f);
 

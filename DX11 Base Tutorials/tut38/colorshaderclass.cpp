@@ -6,12 +6,12 @@
 
 ColorShaderClass::ColorShaderClass()
 {
-	vertex_shader_ = 0;
+	vertex_shader_ = nullptr;
 	m_hullShader = 0;
 	m_domainShader = 0;
-	pixel_shader_ = 0;
-	layout_ = 0;
-	matrix_buffer_ = 0;
+	pixel_shader_ = nullptr;
+	layout_ = nullptr;
+	matrix_buffer_ = nullptr;
 	m_tessellationBuffer = 0;
 }
 
@@ -26,7 +26,7 @@ ColorShaderClass::~ColorShaderClass()
 }
 
 
-bool ColorShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool ColorShaderClass::Initialize(HWND hwnd)
 {
 	bool result;
 
@@ -51,7 +51,7 @@ void ColorShaderClass::Shutdown()
 }
 
 
-bool ColorShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool ColorShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 							  const XMMATRIX& projectionMatrix, float tessellationAmount)
 {
 	bool result;
@@ -71,7 +71,7 @@ bool ColorShaderClass::Render(ID3D11DeviceContext* device_context, int indexCoun
 }
 
 
-bool ColorShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* hsFilename, WCHAR* dsFilename, WCHAR* psFilename)
+bool ColorShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* hsFilename, WCHAR* dsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
@@ -283,21 +283,21 @@ void ColorShaderClass::ShutdownShader()
 	if(matrix_buffer_)
 	{
 		matrix_buffer_->Release();
-		matrix_buffer_ = 0;
+		matrix_buffer_ = nullptr;
 	}
 
 	
 	if(layout_)
 	{
 		layout_->Release();
-		layout_ = 0;
+		layout_ = nullptr;
 	}
 
 	
 	if(pixel_shader_)
 	{
 		pixel_shader_->Release();
-		pixel_shader_ = 0;
+		pixel_shader_ = nullptr;
 	}
 
 	// Release the domain shader.
@@ -318,7 +318,7 @@ void ColorShaderClass::ShutdownShader()
 	if(vertex_shader_)
 	{
 		vertex_shader_->Release();
-		vertex_shader_ = 0;
+		vertex_shader_ = nullptr;
 	}
 
 	
@@ -361,7 +361,7 @@ void ColorShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND h
 }
 
 
-bool ColorShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool ColorShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 										   const XMMATRIX& projectionMatrix, float tessellationAmount)
 {
 	HRESULT result;
@@ -430,7 +430,7 @@ bool ColorShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, 
 }
 
 
-void ColorShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
+void ColorShaderClass::RenderShader(int indexCount)
 {
 
 	device_context->IASetInputLayout(layout_);

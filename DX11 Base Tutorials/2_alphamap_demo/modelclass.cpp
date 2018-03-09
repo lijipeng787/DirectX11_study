@@ -71,13 +71,13 @@ ID3D11ShaderResourceView** ModelClass::GetTextureArray() {
 
 bool ModelClass::InitializeBuffers() {
 	
-	auto vertices = new VertexType[vertex_count_];
+	auto auto vertices = new VertexType[vertex_count_];
 	if (!vertices) {
 		return false;
 	}
 
 	
-	auto indices = new unsigned long[index_count_];
+	auto auto indices = new unsigned long[index_count_];
 	if (!indices) {
 		return false;
 	}
@@ -148,13 +148,13 @@ void ModelClass::ShutdownBuffers() {
 
 	if (index_buffer_) {
 		index_buffer_->Release();
-		index_buffer_ = 0;
+		index_buffer_=nullptr;
 	}
 
 	
 	if (vertex_buffer_) {
 		vertex_buffer_->Release();
-		vertex_buffer_ = 0;
+		vertex_buffer_=nullptr;
 	}
 }
 
@@ -251,6 +251,6 @@ bool ModelClass::LoadModel(char* filename) {
 void ModelClass::ReleaseModel() {
 	if (model_) {
 		delete[] model_;
-		model_ = 0;
+		model_ = nullptr;
 	}
 }

@@ -37,8 +37,8 @@ public:
 private:
 	XMFLOAT4 ambient_color_;
 	XMFLOAT4 diffuse_color_;
-	XMFLOAT4 m_specularColor;
-	float m_specularPower;
+	XMFLOAT4 specular_color_;
+	float specular_power_;
 	XMFLOAT3 direction_;
 };
 

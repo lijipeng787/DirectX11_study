@@ -5,9 +5,9 @@
 #define _DEFERREDBUFFERSCLASS_H_
 
 
-////
+
 // DEFINES //
-////
+
 const int BUFFER_COUNT = 2;
 
 
@@ -29,7 +29,7 @@ public:
 	DeferredBuffersClass(const DeferredBuffersClass&);
 	~DeferredBuffersClass();
 
-	bool Initialize(ID3D11Device*, int, int, float, float);
+	bool Initialize(int, int, float, float);
 	void Shutdown();
 
 	void SetRenderTargets(ID3D11DeviceContext*);

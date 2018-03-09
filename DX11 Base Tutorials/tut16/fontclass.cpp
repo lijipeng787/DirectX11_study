@@ -7,7 +7,7 @@
 FontClass::FontClass()
 {
 	m_Font = 0;
-	texture_ = 0;
+	texture_ = nullptr;
 }
 
 
@@ -21,7 +21,7 @@ FontClass::~FontClass()
 }
 
 
-bool FontClass::Initialize(ID3D11Device* device, char* fontFilename, WCHAR* textureFilename)
+bool FontClass::Initialize(char* fontFilename, WCHAR* textureFilename)
 {
 	bool result;
 
@@ -116,7 +116,7 @@ void FontClass::ReleaseFontData()
 }
 
 
-bool FontClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
+bool FontClass::LoadTexture(WCHAR* filename)
 {
 	bool result;
 
@@ -146,7 +146,7 @@ void FontClass::ReleaseTexture()
 	{
 		texture_->Shutdown();
 		delete texture_;
-		texture_ = 0;
+		texture_ = nullptr;
 	}
 
 	

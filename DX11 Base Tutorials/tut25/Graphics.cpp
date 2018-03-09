@@ -86,7 +86,7 @@ void GraphicsClass::Shutdown() {
 	{
 		model_->Shutdown();
 		delete model_;
-		model_ = 0;
+		model_ = nullptr;
 	}
 
 	if (camera_) {
@@ -95,9 +95,9 @@ void GraphicsClass::Shutdown() {
 		camera_ = 0;
 	}
 
-	if (directx_device_) {
-		directx_device_->Shutdown();
-		delete directx_device_;
+	
+		
+		
 		directx_device_ = 0;
 	}
 }

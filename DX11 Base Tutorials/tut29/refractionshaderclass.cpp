@@ -6,12 +6,12 @@
 
 RefractionShaderClass::RefractionShaderClass()
 {
-	vertex_shader_ = 0;
-	pixel_shader_ = 0;
-	layout_ = 0;
-	sample_state_ = 0;
-	matrix_buffer_ = 0;
-	m_lightBuffer = 0;
+	vertex_shader_ = nullptr;
+	pixel_shader_ = nullptr;
+	layout_ = nullptr;
+	sample_state_ = nullptr;
+	matrix_buffer_ = nullptr;
+	light_buffer_ = nullptr;
 	m_clipPlaneBuffer = 0;
 }
 
@@ -26,7 +26,7 @@ RefractionShaderClass::~RefractionShaderClass()
 }
 
 
-bool RefractionShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool RefractionShaderClass::Initialize(HWND hwnd)
 {
 	bool result;
 
@@ -51,7 +51,7 @@ void RefractionShaderClass::Shutdown()
 }
 
 
-bool RefractionShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, 
+bool RefractionShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, 
 								   const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, 
 								   const XMFLOAT3& lightDirection, const XMFLOAT4& ambientColor, const XMFLOAT4& diffuseColor,
 								   const XMFLOAT4& clipPlane)
@@ -74,7 +74,7 @@ bool RefractionShaderClass::Render(ID3D11DeviceContext* device_context, int inde
 }
 
 
-bool RefractionShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool RefractionShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
@@ -228,8 +228,8 @@ bool RefractionShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WC
 		return false;
 	}
 
-	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
-	// Note that ByteWidth always needs to be a multiple of 16 if using D3D11_BIND_CONSTANT_BUFFER or CreateBuffer will fail.
+	
+	
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
 	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -238,7 +238,7 @@ bool RefractionShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WC
 	lightBufferDesc.StructureByteStride = 0;
 
 	
-	result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
+	result = device->CreateBuffer(&lightBufferDesc, NULL, &light_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -273,45 +273,45 @@ void RefractionShaderClass::ShutdownShader()
 	}
 
 	
-	if(m_lightBuffer)
+	if(light_buffer_)
 	{
-		m_lightBuffer->Release();
-		m_lightBuffer = 0;
+		light_buffer_->Release();
+		light_buffer_ = nullptr;
 	}
 
 
 	if(matrix_buffer_)
 	{
 		matrix_buffer_->Release();
-		matrix_buffer_ = 0;
+		matrix_buffer_ = nullptr;
 	}
 
 
 	if(sample_state_)
 	{
 		sample_state_->Release();
-		sample_state_ = 0;
+		sample_state_ = nullptr;
 	}
 
 	
 	if(layout_)
 	{
 		layout_->Release();
-		layout_ = 0;
+		layout_ = nullptr;
 	}
 
 	
 	if(pixel_shader_)
 	{
 		pixel_shader_->Release();
-		pixel_shader_ = 0;
+		pixel_shader_ = nullptr;
 	}
 
 	
 	if(vertex_shader_)
 	{
 		vertex_shader_->Release();
-		vertex_shader_ = 0;
+		vertex_shader_ = nullptr;
 	}
 
 	
@@ -354,7 +354,7 @@ void RefractionShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, H
 }
 
 
-bool RefractionShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool RefractionShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 												const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture,
 												const XMFLOAT3& lightDirection, const XMFLOAT4& ambientColor, const XMFLOAT4&  diffuseColor,
 												const XMFLOAT4& clipPlane )
@@ -403,7 +403,7 @@ bool RefractionShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
     device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
 
-	result = device_context->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -418,13 +418,13 @@ bool RefractionShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
 	dataPtr2->lightDirection = lightDirection;
 
 	
-	device_context->Unmap(m_lightBuffer, 0);
+	device_context->Unmap(light_buffer_, 0);
 
 	
 	buffer_number = 0;
 
 	
-	device_context->PSSetConstantBuffers(buffer_number, 1, &m_lightBuffer);
+	device_context->PSSetConstantBuffers(buffer_number, 1, &light_buffer_);
 
 	// Lock the clip plane constant buffer so it can be written to.
 	result = device_context->Map(m_clipPlaneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -452,7 +452,7 @@ bool RefractionShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
 }
 
 
-void RefractionShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
+void RefractionShaderClass::RenderShader(int indexCount)
 {
 
 	device_context->IASetInputLayout(layout_);

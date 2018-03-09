@@ -6,12 +6,12 @@
 
 ProjectionShaderClass::ProjectionShaderClass()
 {
-	vertex_shader_ = 0;
-	pixel_shader_ = 0;
-	layout_ = 0;
-	sample_state_ = 0;
-	matrix_buffer_ = 0;
-	m_lightBuffer = 0;
+	vertex_shader_ = nullptr;
+	pixel_shader_ = nullptr;
+	layout_ = nullptr;
+	sample_state_ = nullptr;
+	matrix_buffer_ = nullptr;
+	light_buffer_ = nullptr;
 }
 
 
@@ -25,7 +25,7 @@ ProjectionShaderClass::~ProjectionShaderClass()
 }
 
 
-bool ProjectionShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool ProjectionShaderClass::Initialize(HWND hwnd)
 {
 	bool result;
 
@@ -50,7 +50,7 @@ void ProjectionShaderClass::Shutdown()
 }
 
 
-bool ProjectionShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool ProjectionShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 								   const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, const XMFLOAT4& ambientColor, const XMFLOAT4& diffuseColor, 
 								   const XMFLOAT3& lightDirection, const XMMATRIX& viewMatrix2, const XMMATRIX& projectionMatrix2, 
 								   ID3D11ShaderResourceView* projectionTexture)
@@ -73,7 +73,7 @@ bool ProjectionShaderClass::Render(ID3D11DeviceContext* device_context, int inde
 }
 
 
-bool ProjectionShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool ProjectionShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
@@ -223,7 +223,7 @@ bool ProjectionShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WC
 		return false;
 	}
 
-	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
+	
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
 	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -232,7 +232,7 @@ bool ProjectionShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WC
 	lightBufferDesc.StructureByteStride = 0;
 
 	// Create the constant buffer pointer so we can access the pixel shader constant buffer from within this class.
-	result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
+	result = device->CreateBuffer(&lightBufferDesc, NULL, &light_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -245,45 +245,45 @@ bool ProjectionShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WC
 void ProjectionShaderClass::ShutdownShader()
 {
 	
-	if(m_lightBuffer)
+	if(light_buffer_)
 	{
-		m_lightBuffer->Release();
-		m_lightBuffer = 0;
+		light_buffer_->Release();
+		light_buffer_ = nullptr;
 	}
 
 
 	if(matrix_buffer_)
 	{
 		matrix_buffer_->Release();
-		matrix_buffer_ = 0;
+		matrix_buffer_ = nullptr;
 	}
 
 
 	if(sample_state_)
 	{
 		sample_state_->Release();
-		sample_state_ = 0;
+		sample_state_ = nullptr;
 	}
 
 	
 	if(layout_)
 	{
 		layout_->Release();
-		layout_ = 0;
+		layout_ = nullptr;
 	}
 
 	
 	if(pixel_shader_)
 	{
 		pixel_shader_->Release();
-		pixel_shader_ = 0;
+		pixel_shader_ = nullptr;
 	}
 
 	
 	if(vertex_shader_)
 	{
 		vertex_shader_->Release();
-		vertex_shader_ = 0;
+		vertex_shader_ = nullptr;
 	}
 
 	
@@ -326,7 +326,7 @@ void ProjectionShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, H
 }
 
 
-bool ProjectionShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool ProjectionShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 												const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, const XMFLOAT4& ambientColor, 
 												const XMFLOAT4& diffuseColor, const XMFLOAT3& lightDirection, const XMMATRIX& viewMatrix2, const XMMATRIX& projectionMatrix2,
 												ID3D11ShaderResourceView* projectionTexture)
@@ -377,7 +377,7 @@ bool ProjectionShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
     device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
 
-	result = device_context->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -393,13 +393,13 @@ bool ProjectionShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
 	dataPtr2->padding = 0.0f;
 
 	
-	device_context->Unmap(m_lightBuffer, 0);
+	device_context->Unmap(light_buffer_, 0);
 
 	
 	buffer_number = 0;
 
 	
-	device_context->PSSetConstantBuffers(buffer_number, 1, &m_lightBuffer);
+	device_context->PSSetConstantBuffers(buffer_number, 1, &light_buffer_);
 
 	
 	device_context->PSSetShaderResources(0, 1, &texture);
@@ -409,7 +409,7 @@ bool ProjectionShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
 }
 
 
-void ProjectionShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
+void ProjectionShaderClass::RenderShader(int indexCount)
 {
 
 	device_context->IASetInputLayout(layout_);

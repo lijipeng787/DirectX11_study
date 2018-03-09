@@ -31,11 +31,11 @@ public:
 
 	void SetFameTime(float frame_time);
 private:
-	bool RenderToTexture(float rotation);
+	bool RenderToTexture(float rotation_);
 
 	bool RenderScene();
 
-	bool RenderNormalScene(float rotation);
+	bool RenderNormalScene(float rotation_);
 
 	bool RenderFadingScene();
 private:

@@ -30,7 +30,7 @@ DeferredBuffersClass::~DeferredBuffersClass()
 }
 
 
-bool DeferredBuffersClass::Initialize(ID3D11Device* device, int textureWidth, int textureHeight, float screenDepth, float screenNear)
+bool DeferredBuffersClass::Initialize(int textureWidth, int textureHeight, float screenDepth, float screenNear)
 {
 	D3D11_TEXTURE2D_DESC textureDesc;
 	HRESULT result;
@@ -205,7 +205,7 @@ void DeferredBuffersClass::SetRenderTargets(ID3D11DeviceContext* device_context)
 }
 
 
-void DeferredBuffersClass::ClearRenderTargets(ID3D11DeviceContext* device_context, float red, float green, float blue, float alpha)
+void DeferredBuffersClass::ClearRenderTargets(float red, float green, float blue, float alpha)
 {
 	float color[4];
 	int i;

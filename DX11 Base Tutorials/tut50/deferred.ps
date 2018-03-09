@@ -9,14 +9,14 @@
 Texture2D shaderTexture : register(t0);
 
 
-/////
+/
 // SAMPLE STATES //
-/////
+/
 SamplerState SampleTypeWrap : register(s0);
 
 
 
-// TYPEDEFS //
+
 
 struct PixelInputType
 {
@@ -33,7 +33,7 @@ struct PixelOutputType
 
 
 
-// Pixel Shader
+
 
 PixelOutputType DeferredPixelShader(PixelInputType input) : SV_TARGET
 {

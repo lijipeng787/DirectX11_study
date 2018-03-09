@@ -62,7 +62,7 @@ bool System::Frame() {
 	keyDown = GetInputComponent().IsRightArrowPressed();
 	m_Position->TurnRight(keyDown);
 
-	// Get the current view point rotation.
+	// Get the current view point rotation_.
 	m_Position->GetRotation(rotationY);
 
 	m_Graphics->SetRotation(rotationY);

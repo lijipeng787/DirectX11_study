@@ -13,7 +13,7 @@
 
 using namespace DirectX;
 
-float GraphicsClass::rotation = 0.0f;
+float GraphicsClass::rotation_ = 0.0f;
 
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
@@ -106,9 +106,9 @@ void GraphicsClass::Shutdown() {
 
 bool GraphicsClass::Frame() {
 
-	rotation += (float)XM_PI * 0.01f;
-	if (rotation > 360.0f) {
-		rotation -= 360.0f;
+	rotation_ += (float)XM_PI * 0.01f;
+	if (rotation_ > 360.0f) {
+		rotation_ -= 360.0f;
 	}
 
 	bool result = Render();
@@ -133,7 +133,7 @@ bool GraphicsClass::Render() {
 	directx_device->GetWorldMatrix(worldMatrix);
 	directx_device->GetProjectionMatrix(projectionMatrix);
 
-	worldMatrix = XMMatrixRotationY(rotation);
+	worldMatrix = XMMatrixRotationY(rotation_);
 
 	model_->Render();
 

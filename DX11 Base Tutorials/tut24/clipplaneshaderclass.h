@@ -39,12 +39,12 @@ public:
 	ClipPlaneShaderClass(const ClipPlaneShaderClass&);
 	~ClipPlaneShaderClass();
 
-	bool Initialize(ID3D11Device*, HWND);
+	bool Initialize(HWND);
 	void Shutdown();
 	bool Render(int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*, const XMFLOAT4& );
 
 private:
-	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
+	bool InitializeShader(HWND, WCHAR*, WCHAR*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 

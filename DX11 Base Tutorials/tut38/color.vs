@@ -4,7 +4,7 @@
 
 
 
-// TYPEDEFS //
+
 
 struct VertexInputType
 {
@@ -20,7 +20,7 @@ struct HullInputType
 
 
 
-// Vertex Shader
+
 
 HullInputType ColorVertexShader(VertexInputType input)
 {

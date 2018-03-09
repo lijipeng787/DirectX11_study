@@ -3,9 +3,9 @@
 
 
 
-////
-// GLOBALS //
-////
+
+
+
 SamplerState SampleType;
 Texture2D colorTexture : register(t0);
 Texture2D normalTexture : register(t1);
@@ -19,7 +19,7 @@ cbuffer GlassBuffer
 
 
 
-// TYPEDEFS //
+
 
 struct PixelInputType
 {
@@ -30,7 +30,7 @@ struct PixelInputType
 
 
 
-// Pixel Shader
+
 
 float4 GlassPixelShader(PixelInputType input) : SV_TARGET
 {

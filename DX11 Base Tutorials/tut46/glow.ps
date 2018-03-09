@@ -3,9 +3,9 @@
 
 
 
-////
-// GLOBALS //
-////
+
+
+
 Texture2D colorTexture : register(t0);
 Texture2D glowTexture : register(t1);
 SamplerState SampleType;
@@ -18,7 +18,7 @@ cbuffer GlowBuffer
 
 
 
-// TYPEDEFS //
+
 
 struct PixelInputType
 {
@@ -28,7 +28,7 @@ struct PixelInputType
 
 
 
-// Pixel Shader
+
 
 float4 GlowPixelShader(PixelInputType input) : SV_TARGET
 {
@@ -37,7 +37,7 @@ float4 GlowPixelShader(PixelInputType input) : SV_TARGET
 	float4 color;
 
 
-	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
+	
 	textureColor = colorTexture.Sample(SampleType, input.tex);
 
 	// Sample the glow texture.

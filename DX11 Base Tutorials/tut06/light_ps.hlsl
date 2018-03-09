@@ -1,11 +1,11 @@
 
-// Filename: light.ps
 
 
 
-////
-// GLOBALS //
-////
+
+
+
+
 Texture2D shaderTexture;
 SamplerState SampleType;
 
@@ -18,7 +18,7 @@ cbuffer LightBuffer
 
 
 
-// TYPEDEFS //
+
 
 struct PixelInputType
 {
@@ -29,7 +29,7 @@ struct PixelInputType
 
 
 
-// Pixel Shader
+
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
@@ -39,7 +39,7 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	float4 color;
 
 
-	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
+	
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 
 	// Invert the light direction for calculations.

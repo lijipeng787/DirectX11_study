@@ -37,7 +37,7 @@ private:
 
 	LightClass* light_;
 
-	static float rotation;
+	static float rotation_;
 };
 
 #endif

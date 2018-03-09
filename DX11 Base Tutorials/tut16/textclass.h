@@ -35,7 +35,7 @@ public:
 	TextClass(const TextClass&);
 	~TextClass();
 
-	bool Initialize(ID3D11Device*, HWND, int, int, const XMMATRIX& );
+	bool Initialize(HWND, int, int, const XMMATRIX& );
 	void Shutdown();
 	bool Render(const XMMATRIX&, const XMMATRIX& );
 

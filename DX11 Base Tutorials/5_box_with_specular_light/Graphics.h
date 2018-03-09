@@ -1,6 +1,3 @@
-
-
-
 #include "../CommonFramework/GraphicsBase.h"
 
 class DirectX11Device;
@@ -11,13 +8,13 @@ class LightClass;
 
 class GraphicsClass :public GraphicsBase {
 public:
-	GraphicsClass();
+	GraphicsClass() {}
 
 	GraphicsClass(const GraphicsClass& rhs) = delete;
 
 	GraphicsClass& operator=(const GraphicsClass& rhs) = delete;
 
-	virtual ~GraphicsClass();
+	virtual ~GraphicsClass() {}
 public:
 	virtual bool Initialize(int, int, HWND)override;
 
@@ -37,7 +34,5 @@ private:
 
 	LightClass* light_;
 
-	static float rotation;
+	static float rotation_;
 };
-
-#endif

@@ -6,11 +6,11 @@
 
 DeferredShaderClass::DeferredShaderClass()
 {
-	vertex_shader_ = 0;
-	pixel_shader_ = 0;
-	layout_ = 0;
+	vertex_shader_ = nullptr;
+	pixel_shader_ = nullptr;
+	layout_ = nullptr;
 	m_sampleStateWrap = 0;
-	matrix_buffer_ = 0;
+	matrix_buffer_ = nullptr;
 }
 
 
@@ -24,7 +24,7 @@ DeferredShaderClass::~DeferredShaderClass()
 }
 
 
-bool DeferredShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool DeferredShaderClass::Initialize(HWND hwnd)
 {
 	bool result;
 
@@ -49,7 +49,7 @@ void DeferredShaderClass::Shutdown()
 }
 
 
-bool DeferredShaderClass::Render( ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool DeferredShaderClass::Render( int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 	const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture )
 {
 	bool result;
@@ -69,7 +69,7 @@ bool DeferredShaderClass::Render( ID3D11DeviceContext* device_context, int index
 }
 
 
-bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool DeferredShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
@@ -228,7 +228,7 @@ void DeferredShaderClass::ShutdownShader()
 	if(matrix_buffer_)
 	{
 		matrix_buffer_->Release();
-		matrix_buffer_ = 0;
+		matrix_buffer_ = nullptr;
 	}
 
 
@@ -242,21 +242,21 @@ void DeferredShaderClass::ShutdownShader()
 	if(layout_)
 	{
 		layout_->Release();
-		layout_ = 0;
+		layout_ = nullptr;
 	}
 
 	
 	if(pixel_shader_)
 	{
 		pixel_shader_->Release();
-		pixel_shader_ = 0;
+		pixel_shader_ = nullptr;
 	}
 
 	
 	if(vertex_shader_)
 	{
 		vertex_shader_->Release();
-		vertex_shader_ = 0;
+		vertex_shader_ = nullptr;
 	}
 
 	
@@ -299,7 +299,7 @@ void DeferredShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWN
 }
 
 
-bool DeferredShaderClass::SetShaderParameters( ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool DeferredShaderClass::SetShaderParameters( const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 	const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture )
 {
 	HRESULT result;
@@ -347,7 +347,7 @@ bool DeferredShaderClass::SetShaderParameters( ID3D11DeviceContext* device_conte
 }
 
 
-void DeferredShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
+void DeferredShaderClass::RenderShader(int indexCount)
 {
 
 	device_context->IASetInputLayout(layout_);

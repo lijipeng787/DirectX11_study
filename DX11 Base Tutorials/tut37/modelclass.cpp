@@ -6,9 +6,9 @@
 
 ModelClass::ModelClass()
 {
-	vertex_buffer_ = 0;
+	vertex_buffer_=nullptr;
 	m_instanceBuffer = 0;
-	texture_ = 0;
+	texture_ = nullptr;
 }
 
 
@@ -22,7 +22,7 @@ ModelClass::~ModelClass()
 }
 
 
-bool ModelClass::Initialize(ID3D11Device* device, WCHAR* textureFilename)
+bool ModelClass::Initialize(WCHAR* textureFilename)
 {
 	bool result;
 
@@ -97,7 +97,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 	vertex_count_ = 3;
 
 	
-	vertices = new VertexType[vertex_count_];
+	auto vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
 		return false;
@@ -194,7 +194,7 @@ void ModelClass::ShutdownBuffers()
 	if(vertex_buffer_)
 	{
 		vertex_buffer_->Release();
-		vertex_buffer_ = 0;
+		vertex_buffer_=nullptr;
 	}
 
 	
@@ -230,7 +230,7 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* device_context)
 }
 
 
-bool ModelClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
+bool ModelClass::LoadTexture(WCHAR* filename)
 {
 	bool result;
 
@@ -260,7 +260,7 @@ void ModelClass::ReleaseTexture()
 	{
 		texture_->Shutdown();
 		delete texture_;
-		texture_ = 0;
+		texture_ = nullptr;
 	}
 
 	

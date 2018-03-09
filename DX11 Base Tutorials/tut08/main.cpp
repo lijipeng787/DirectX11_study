@@ -12,7 +12,7 @@ using namespace std;
 
 
 
-// TYPEDEFS //
+
 
 typedef struct
 {
@@ -35,9 +35,9 @@ bool ReadFileCounts(char*, int&, int&, int&, int&);
 bool LoadDataStructures(char*, int, int, int, int);
 
 
-////
+
 // MAIN PROGRAM //
-////
+
 int main()
 {
 	bool result;

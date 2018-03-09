@@ -9,14 +9,14 @@
 Texture2D shaderTexture : register(t0);
 
 
-/////
+/
 // SAMPLE STATES //
-/////
+/
 SamplerState SampleType : register(s0);
 
 
 
-// TYPEDEFS //
+
 
 struct PixelInputType
 {
@@ -27,7 +27,7 @@ struct PixelInputType
 
 
 
-// Pixel Shader
+
 
 float4 TransparentDepthPixelShader(PixelInputType input) : SV_TARGET
 {
@@ -36,7 +36,7 @@ float4 TransparentDepthPixelShader(PixelInputType input) : SV_TARGET
 	float4 textureColor;
 
 
-	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
+	
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 
 	// Test based on the alpha value of the texture.

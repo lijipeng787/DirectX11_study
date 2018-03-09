@@ -178,7 +178,7 @@ void GraphicsClass::Shutdown() {
 	{
 		model_->Shutdown();
 		delete model_;
-		model_ = 0;
+		model_ = nullptr;
 	}
 
 	if (camera_) {
@@ -187,9 +187,9 @@ void GraphicsClass::Shutdown() {
 		camera_ = 0;
 	}
 
-	if (directx_device_) {
-		directx_device_->Shutdown();
-		delete directx_device_;
+	
+		
+		
 		directx_device_ = 0;
 	}
 }
@@ -273,7 +273,7 @@ bool GraphicsClass::RenderScene() {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	bool result;
-	static float rotation = 0.0f;
+	static float rotation_ = 0.0f;
 
 	camera_->Render();
 
@@ -281,13 +281,13 @@ bool GraphicsClass::RenderScene() {
 	camera_->GetViewMatrix(viewMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
-	rotation += (float)XM_PI * 0.005f;
-	if (rotation > 360.0f)
+	rotation_ += (float)XM_PI * 0.005f;
+	if (rotation_ > 360.0f)
 	{
-		rotation -= 360.0f;
+		rotation_ -= 360.0f;
 	}
 
-	worldMatrix = XMMatrixRotationY(rotation);
+	worldMatrix = XMMatrixRotationY(rotation_);
 
 	model_->Render(directx_device_->GetDeviceContext());
 	result = light_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,

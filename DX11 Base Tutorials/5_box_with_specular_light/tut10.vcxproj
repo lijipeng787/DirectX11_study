@@ -22,6 +22,7 @@
     <ProjectGuid>{A939E50A-94EF-40D0-939B-0069485436A4}</ProjectGuid>
     <RootNamespace>tut10</RootNamespace>
     <ProjectName>cube_with_specular_light</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -105,7 +106,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>E:\Code\local_git\DirectX11\DX11 Base Tutorials\x64\Debug;..\..\DirectXTK\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\x64\Debug;..\..\DirectXTK\</AdditionalLibraryDirectories>
       <AdditionalDependencies>CommonFramework.lib;d3d11.lib;d3dcompiler.lib;dinput8.lib;DirectXTK.lib;dsound.lib;dxgi.lib;dxguid.lib;pdh.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -166,8 +167,7 @@
     <ClCompile Include="textureclass.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="light.ps" />
-    <None Include="light.vs" />
+    <None Include="specular_light.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -21,7 +21,7 @@ TextureArrayClass::~TextureArrayClass()
 }
 
 
-bool TextureArrayClass::Initialize(ID3D11Device* device, WCHAR* filename1, WCHAR* filename2)
+bool TextureArrayClass::Initialize(WCHAR* filename1, WCHAR* filename2)
 {
 	HRESULT result;
 

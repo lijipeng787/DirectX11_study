@@ -6,11 +6,11 @@
 
 ShadowShaderClass::ShadowShaderClass()
 {
-	vertex_shader_ = 0;
-	pixel_shader_ = 0;
-	layout_ = 0;
+	vertex_shader_ = nullptr;
+	pixel_shader_ = nullptr;
+	layout_ = nullptr;
 	m_sampleStateClamp = 0;
-	matrix_buffer_ = 0;
+	matrix_buffer_ = nullptr;
 	m_lightBuffer2 = 0;
 }
 
@@ -25,7 +25,7 @@ ShadowShaderClass::~ShadowShaderClass()
 }
 
 
-bool ShadowShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool ShadowShaderClass::Initialize(HWND hwnd)
 {
 	bool result;
 
@@ -50,7 +50,7 @@ void ShadowShaderClass::Shutdown()
 }
 
 
-bool ShadowShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool ShadowShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 							   const XMMATRIX& projectionMatrix, const XMMATRIX& lightViewMatrix, const XMMATRIX& lightProjectionMatrix, 
 							   ID3D11ShaderResourceView* depthMapTexture, const XMFLOAT3& lightPosition)
 {
@@ -72,7 +72,7 @@ bool ShadowShaderClass::Render(ID3D11DeviceContext* device_context, int indexCou
 }
 
 
-bool ShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool ShadowShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
@@ -254,7 +254,7 @@ void ShadowShaderClass::ShutdownShader()
 	if(matrix_buffer_)
 	{
 		matrix_buffer_->Release();
-		matrix_buffer_ = 0;
+		matrix_buffer_ = nullptr;
 	}
 
 
@@ -268,21 +268,21 @@ void ShadowShaderClass::ShutdownShader()
 	if(layout_)
 	{
 		layout_->Release();
-		layout_ = 0;
+		layout_ = nullptr;
 	}
 
 	
 	if(pixel_shader_)
 	{
 		pixel_shader_->Release();
-		pixel_shader_ = 0;
+		pixel_shader_ = nullptr;
 	}
 
 	
 	if(vertex_shader_)
 	{
 		vertex_shader_->Release();
-		vertex_shader_ = 0;
+		vertex_shader_ = nullptr;
 	}
 
 	
@@ -325,7 +325,7 @@ void ShadowShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND 
 }
 
 
-bool ShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool ShadowShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 											const XMMATRIX& projectionMatrix, const XMMATRIX& lightViewMatrix, const XMMATRIX& lightProjectionMatrix, 
 											ID3D11ShaderResourceView* depthMapTexture, const XMFLOAT3& lightPosition)
 {
@@ -404,7 +404,7 @@ bool ShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context,
 }
 
 
-void ShadowShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
+void ShadowShaderClass::RenderShader(int indexCount)
 {
 
 	device_context->IASetInputLayout(layout_);

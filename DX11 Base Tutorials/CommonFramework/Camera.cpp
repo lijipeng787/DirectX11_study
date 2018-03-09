@@ -65,10 +65,10 @@ void Camera::Render() {
 	yaw = rotation_y_ * 0.0174532925f;
 	roll = rotation_z_ * 0.0174532925f;
 
-	// Create the rotation matrix from the yaw, pitch, and roll values.
+	// Create the rotation_ matrix from the yaw, pitch, and roll values.
 	rotationMatrix = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
 
-	// Transform the lookAt and up vector by the rotation matrix so the view is correctly rotated at the origin.
+	// Transform the lookAt and up vector by the rotation_ matrix so the view is correctly rotated at the origin.
 	lookAt = XMVector3TransformCoord(lookAt, rotationMatrix);
 	up = XMVector3TransformCoord(up, rotationMatrix);
 
@@ -103,7 +103,7 @@ void Camera::RenderReflection(float height) {
 	position.m128_f32[2] = position_z_;
 	position.m128_f32[3] = 1.0f;
 
-	// Calculate the rotation in radians.
+	// Calculate the rotation_ in radians.
 	radians = rotation_y_ * 0.0174532925f;
 
 	// Setup where the camera is looking by default.
@@ -135,7 +135,7 @@ void Camera::RenderBaseViewMatrix() {
 	position.m128_f32[1] = position_y_;
 	position.m128_f32[2] = position_z_;
 
-	// Calculate the rotation in radians.
+	// Calculate the rotation_ in radians.
 	radians = rotation_y_ * 0.0174532925f;
 
 	// Setup where the camera is looking.

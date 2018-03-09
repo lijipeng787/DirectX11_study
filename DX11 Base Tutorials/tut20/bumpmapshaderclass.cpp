@@ -6,12 +6,12 @@
 
 BumpMapShaderClass::BumpMapShaderClass()
 {
-	vertex_shader_ = 0;
-	pixel_shader_ = 0;
-	layout_ = 0;
-	matrix_buffer_ = 0;
-	sample_state_ = 0;
-	m_lightBuffer = 0;
+	vertex_shader_ = nullptr;
+	pixel_shader_ = nullptr;
+	layout_ = nullptr;
+	matrix_buffer_ = nullptr;
+	sample_state_ = nullptr;
+	light_buffer_ = nullptr;
 }
 
 
@@ -25,7 +25,7 @@ BumpMapShaderClass::~BumpMapShaderClass()
 }
 
 
-bool BumpMapShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool BumpMapShaderClass::Initialize(HWND hwnd)
 {
 	bool result;
 
@@ -50,7 +50,7 @@ void BumpMapShaderClass::Shutdown()
 }
 
 
-bool BumpMapShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool BumpMapShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 								const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView** textureArray, const XMFLOAT3& lightDirection,
 								const XMFLOAT4& diffuseColor )
 {
@@ -72,7 +72,7 @@ bool BumpMapShaderClass::Render(ID3D11DeviceContext* device_context, int indexCo
 }
 
 
-bool BumpMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool BumpMapShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
@@ -241,7 +241,7 @@ bool BumpMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 		return false;
 	}
 
-	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
+	
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
 	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -250,7 +250,7 @@ bool BumpMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 	lightBufferDesc.StructureByteStride = 0;
 
 	
-	result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
+	result = device->CreateBuffer(&lightBufferDesc, NULL, &light_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -263,45 +263,45 @@ bool BumpMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 void BumpMapShaderClass::ShutdownShader()
 {
 	
-	if(m_lightBuffer)
+	if(light_buffer_)
 	{
-		m_lightBuffer->Release();
-		m_lightBuffer = 0;
+		light_buffer_->Release();
+		light_buffer_ = nullptr;
 	}
 
 
 	if(sample_state_)
 	{
 		sample_state_->Release();
-		sample_state_ = 0;
+		sample_state_ = nullptr;
 	}
 
 
 	if(matrix_buffer_)
 	{
 		matrix_buffer_->Release();
-		matrix_buffer_ = 0;
+		matrix_buffer_ = nullptr;
 	}
 
 	
 	if(layout_)
 	{
 		layout_->Release();
-		layout_ = 0;
+		layout_ = nullptr;
 	}
 
 	
 	if(pixel_shader_)
 	{
 		pixel_shader_->Release();
-		pixel_shader_ = 0;
+		pixel_shader_ = nullptr;
 	}
 
 	
 	if(vertex_shader_)
 	{
 		vertex_shader_->Release();
-		vertex_shader_ = 0;
+		vertex_shader_ = nullptr;
 	}
 
 	
@@ -344,7 +344,7 @@ void BumpMapShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND
 }
 
 
-bool BumpMapShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix, 
+bool BumpMapShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, 
 											 const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, 
 											 ID3D11ShaderResourceView** textureArray, const XMFLOAT3& lightDirection, 
 											 const XMFLOAT4& diffuseColor )
@@ -392,7 +392,7 @@ bool BumpMapShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context
 	device_context->PSSetShaderResources(0, 2, textureArray);
 
 
-	result = device_context->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -406,19 +406,19 @@ bool BumpMapShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context
 	dataPtr2->lightDirection = lightDirection;
 
 	
-	device_context->Unmap(m_lightBuffer, 0);
+	device_context->Unmap(light_buffer_, 0);
 
 	
 	buffer_number = 0;
 
 	
-	device_context->PSSetConstantBuffers(buffer_number, 1, &m_lightBuffer);
+	device_context->PSSetConstantBuffers(buffer_number, 1, &light_buffer_);
 
 	return true;
 }
 
 
-void BumpMapShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
+void BumpMapShaderClass::RenderShader(int indexCount)
 {
 
 	device_context->IASetInputLayout(layout_);

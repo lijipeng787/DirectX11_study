@@ -21,7 +21,7 @@ void TextureClass::Shutdown() {
 
 	if (texture_) {
 		texture_->Release();
-		texture_ = 0;
+		texture_ = nullptr;
 	}
 }
 

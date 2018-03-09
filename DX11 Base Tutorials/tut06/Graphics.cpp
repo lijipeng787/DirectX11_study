@@ -15,7 +15,7 @@ GraphicsClass::GraphicsClass() {}
 
 GraphicsClass::~GraphicsClass() {}
 
-float GraphicsClass::rotation = 0.0f;
+float GraphicsClass::rotation_ = 0.0f;
 
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
@@ -95,7 +95,7 @@ void GraphicsClass::Shutdown() {
 	if (model_) {
 		model_->Shutdown();
 		delete model_;
-		model_ = 0;
+		model_ = nullptr;
 	}
 
 	if (camera_) {
@@ -104,9 +104,9 @@ void GraphicsClass::Shutdown() {
 		camera_ = 0;
 	}
 
-	if (directx_device_) {
-		directx_device_->Shutdown();
-		directx_device_->~DirectX11Device();
+	
+		
+		
 		_aligned_free(directx_device_);
 		directx_device_ = 0;
 	}
@@ -114,9 +114,9 @@ void GraphicsClass::Shutdown() {
 
 bool GraphicsClass::Frame() {
 
-	rotation += (float)XM_PI * 0.01f;
-	if (rotation > 360.0f) {
-		rotation -= 360.0f;
+	rotation_ += (float)XM_PI * 0.01f;
+	if (rotation_ > 360.0f) {
+		rotation_ -= 360.0f;
 	}
 
 	bool result = Render();
@@ -140,7 +140,7 @@ bool GraphicsClass::Render() {
 	directx_device_->GetWorldMatrix(worldMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
-	worldMatrix = XMMatrixRotationY(rotation);
+	worldMatrix = XMMatrixRotationY(rotation_);
 
 	model_->Render(directx_device_->GetDeviceContext());
 

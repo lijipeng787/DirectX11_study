@@ -6,11 +6,11 @@
 
 ParticleSystemClass::ParticleSystemClass()
 {
-	texture_ = 0;
+	texture_ = nullptr;
 	m_particleList = 0;
 	m_vertices = 0;
-	vertex_buffer_ = 0;
-	index_buffer_ = 0;
+	vertex_buffer_=nullptr;
+	index_buffer_=nullptr;
 }
 
 
@@ -24,7 +24,7 @@ ParticleSystemClass::~ParticleSystemClass()
 }
 
 
-bool ParticleSystemClass::Initialize(ID3D11Device* device, WCHAR* textureFilename)
+bool ParticleSystemClass::Initialize(WCHAR* textureFilename)
 {
 	bool result;
 
@@ -115,7 +115,7 @@ int ParticleSystemClass::GetIndexCount()
 }
 
 
-bool ParticleSystemClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
+bool ParticleSystemClass::LoadTexture(WCHAR* filename)
 {
 	bool result;
 
@@ -145,7 +145,7 @@ void ParticleSystemClass::ReleaseTexture()
 	{
 		texture_->Shutdown();
 		delete texture_;
-		texture_ = 0;
+		texture_ = nullptr;
 	}
 
 	
@@ -234,7 +234,7 @@ bool ParticleSystemClass::InitializeBuffers(ID3D11Device* device)
 	}
 
 	
-	indices = new unsigned long[index_count_];
+	auto indices = new unsigned long[index_count_];
 	if(!indices)
 	{
 		return false;
@@ -303,14 +303,14 @@ void ParticleSystemClass::ShutdownBuffers()
 	if(index_buffer_)
 	{
 		index_buffer_->Release();
-		index_buffer_ = 0;
+		index_buffer_=nullptr;
 	}
 
 	
 	if(vertex_buffer_)
 	{
 		vertex_buffer_->Release();
-		vertex_buffer_ = 0;
+		vertex_buffer_=nullptr;
 	}
 
 	

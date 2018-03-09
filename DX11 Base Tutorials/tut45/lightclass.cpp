@@ -42,14 +42,14 @@ void LightClass::SetDirection(float x, float y, float z)
 
 void LightClass::SetSpecularColor(float red, float green, float blue, float alpha)
 {
-	m_specularColor = XMFLOAT4(red, green, blue, alpha);
+	specular_color_ = XMFLOAT4(red, green, blue, alpha);
 	
 }
 
 
 void LightClass::SetSpecularPower(float power)
 {
-	m_specularPower = power;
+	specular_power_ = power;
 	
 }
 
@@ -74,11 +74,11 @@ XMFLOAT3 LightClass::GetDirection()
 
 XMFLOAT4 LightClass::GetSpecularColor()
 {
-	return m_specularColor;
+	return specular_color_;
 }
 
 
 float LightClass::GetSpecularPower()
 {
-	return m_specularPower;
+	return specular_power_;
 }

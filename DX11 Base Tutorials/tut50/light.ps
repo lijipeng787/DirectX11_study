@@ -1,24 +1,24 @@
 
-// Filename: light.ps
 
 
 
-////
-// GLOBALS //
-////
+
+
+
+
 Texture2D colorTexture : register(t0);
 Texture2D normalTexture : register(t1);
 
 
-/////
+/
 // SAMPLE STATES //
-/////
+/
 SamplerState SampleTypePoint : register(s0);
 
 
-////////
+
 // CONSTANT BUFFERS //
-////////
+
 cbuffer LightBuffer
 {
     float3 lightDirection;
@@ -27,7 +27,7 @@ cbuffer LightBuffer
 
 
 
-// TYPEDEFS //
+
 
 struct PixelInputType
 {
@@ -37,7 +37,7 @@ struct PixelInputType
 
 
 
-// Pixel Shader
+
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {

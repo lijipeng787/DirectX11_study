@@ -6,13 +6,13 @@
 
 SoftShadowShaderClass::SoftShadowShaderClass()
 {
-	vertex_shader_ = 0;
-	pixel_shader_ = 0;
-	layout_ = 0;
+	vertex_shader_ = nullptr;
+	pixel_shader_ = nullptr;
+	layout_ = nullptr;
 	m_sampleStateWrap = 0;
 	m_sampleStateClamp = 0;
-	matrix_buffer_ = 0;
-	m_lightBuffer = 0;
+	matrix_buffer_ = nullptr;
+	light_buffer_ = nullptr;
 	m_lightBuffer2 = 0;
 }
 
@@ -27,7 +27,7 @@ SoftShadowShaderClass::~SoftShadowShaderClass()
 }
 
 
-bool SoftShadowShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool SoftShadowShaderClass::Initialize(HWND hwnd)
 {
 	bool result;
 
@@ -52,7 +52,7 @@ void SoftShadowShaderClass::Shutdown()
 }
 
 
-bool SoftShadowShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool SoftShadowShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 								   const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* shadowTexture, 
 								   const XMFLOAT3& lightPosition, const XMFLOAT4& ambientColor, const XMFLOAT4& diffuseColor )
 {
@@ -74,7 +74,7 @@ bool SoftShadowShaderClass::Render(ID3D11DeviceContext* device_context, int inde
 }
 
 
-bool SoftShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool SoftShadowShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
@@ -237,7 +237,7 @@ bool SoftShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WC
 		return false;
 	}
 
-	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
+	
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
 	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -246,7 +246,7 @@ bool SoftShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WC
 	lightBufferDesc.StructureByteStride = 0;
 
 	// Create the constant buffer pointer so we can access the pixel shader constant buffer from within this class.
-	result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
+	result = device->CreateBuffer(&lightBufferDesc, NULL, &light_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -274,10 +274,10 @@ bool SoftShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WC
 void SoftShadowShaderClass::ShutdownShader()
 {
 	// Release the light constant buffers.
-	if(m_lightBuffer)
+	if(light_buffer_)
 	{
-		m_lightBuffer->Release();
-		m_lightBuffer = 0;
+		light_buffer_->Release();
+		light_buffer_ = nullptr;
 	}
 
 	if(m_lightBuffer2)
@@ -290,7 +290,7 @@ void SoftShadowShaderClass::ShutdownShader()
 	if(matrix_buffer_)
 	{
 		matrix_buffer_->Release();
-		matrix_buffer_ = 0;
+		matrix_buffer_ = nullptr;
 	}
 
 	// Release the sampler states.
@@ -310,21 +310,21 @@ void SoftShadowShaderClass::ShutdownShader()
 	if(layout_)
 	{
 		layout_->Release();
-		layout_ = 0;
+		layout_ = nullptr;
 	}
 
 	
 	if(pixel_shader_)
 	{
 		pixel_shader_->Release();
-		pixel_shader_ = 0;
+		pixel_shader_ = nullptr;
 	}
 
 	
 	if(vertex_shader_)
 	{
 		vertex_shader_->Release();
-		vertex_shader_ = 0;
+		vertex_shader_ = nullptr;
 	}
 
 	
@@ -367,7 +367,7 @@ void SoftShadowShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, H
 }
 
 
-bool SoftShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool SoftShadowShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 												const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* shadowTexture, 
 												const XMFLOAT3& lightPosition, const XMFLOAT4& ambientColor, const XMFLOAT4& diffuseColor )
 {
@@ -416,7 +416,7 @@ bool SoftShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
 	device_context->PSSetShaderResources(1, 1, &shadowTexture);
 
 
-	result = device_context->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -430,13 +430,13 @@ bool SoftShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
 	dataPtr2->diffuseColor = diffuseColor;
 
 	
-	device_context->Unmap(m_lightBuffer, 0);
+	device_context->Unmap(light_buffer_, 0);
 
 	
 	buffer_number = 0;
 
 	
-	device_context->PSSetConstantBuffers(buffer_number, 1, &m_lightBuffer);
+	device_context->PSSetConstantBuffers(buffer_number, 1, &light_buffer_);
 
 	// Lock the second light constant buffer so it can be written to.
 	result = device_context->Map(m_lightBuffer2, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -465,7 +465,7 @@ bool SoftShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_cont
 }
 
 
-void SoftShadowShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
+void SoftShadowShaderClass::RenderShader(int indexCount)
 {
 
 	device_context->IASetInputLayout(layout_);

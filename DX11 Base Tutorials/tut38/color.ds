@@ -3,9 +3,9 @@
 
 
 
-////
-// GLOBALS //
-////
+
+
+
 cbuffer MatrixBuffer
 {
     matrix worldMatrix;
@@ -15,7 +15,7 @@ cbuffer MatrixBuffer
 
 
 
-// TYPEDEFS //
+
 
 struct ConstantOutputType
 {

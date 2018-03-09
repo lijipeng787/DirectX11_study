@@ -28,7 +28,7 @@ public:
 
 	virtual bool Render()override;
 private:
-	bool RenderToTexture(float rotation);
+	bool RenderToTexture(float rotation_);
 private:
 	float rotation_ = 0.0f;
 

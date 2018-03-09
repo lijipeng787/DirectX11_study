@@ -85,7 +85,7 @@ void GraphicsClass::Shutdown() {
 	if (model_) {
 		model_->Shutdown();
 		delete model_;
-		model_ = 0;
+		model_ = nullptr;
 	}
 
 	if (camera_) {

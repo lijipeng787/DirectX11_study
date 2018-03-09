@@ -30,7 +30,7 @@ public:
 	DebugWindowClass(const DebugWindowClass&);
 	~DebugWindowClass();
 
-	bool Initialize(ID3D11Device*, int, int, int, int);
+	bool Initialize(int, int, int, int);
 	void Shutdown();
 	bool Render(int, int);
 

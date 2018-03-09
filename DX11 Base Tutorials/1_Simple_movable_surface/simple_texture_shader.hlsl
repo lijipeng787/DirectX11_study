@@ -19,10 +19,10 @@ struct PixelInputType
 
 PixelInputType TextureVertexShader(VertexInputType input)
 {
-	// Change the position vector to be 4 units for proper matrix calculations.
+
     input.position.w = 1.0f;
 
-	// Calculate the position of the vertex against the world, view, and projection matrices.
+	
 	PixelInputType output; 
 	output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
@@ -39,7 +39,7 @@ SamplerState SampleType;
 
 float4 TexturePixelShader(PixelInputType input) : SV_TARGET
 {
-    // Sample the pixel color from the texture using the sampler at this texture coordinate location.
+    
     float4 textureColor = shaderTexture.Sample(SampleType, input.tex);
 
     return textureColor;

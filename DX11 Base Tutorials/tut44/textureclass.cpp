@@ -6,7 +6,7 @@
 
 TextureClass::TextureClass()
 {
-	texture_ = 0;
+	texture_ = nullptr;
 }
 
 
@@ -20,7 +20,7 @@ TextureClass::~TextureClass()
 }
 
 
-bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename)
+bool TextureClass::Initialize(WCHAR* filename)
 {
 	HRESULT result;
 
@@ -42,7 +42,7 @@ void TextureClass::Shutdown()
 	if(texture_)
 	{
 		texture_->Release();
-		texture_ = 0;
+		texture_ = nullptr;
 	}
 
 	

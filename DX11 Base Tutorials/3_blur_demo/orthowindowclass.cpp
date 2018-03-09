@@ -54,12 +54,12 @@ bool OrthoWindowClass::InitializeBuffers(int windowWidth, int windowHeight) {
 	// Set the number of indices in the index array.
 	index_count_ = vertex_count_;
 
-	auto vertices = new VertexType[vertex_count_];
+	auto auto vertices = new VertexType[vertex_count_];
 	if (!vertices) {
 		return false;
 	}
 
-	auto indices = new unsigned long[index_count_];
+	auto auto indices = new unsigned long[index_count_];
 	if (!indices) {
 		return false;
 	}
@@ -145,12 +145,12 @@ void OrthoWindowClass::ShutdownBuffers() {
 
 	if (index_buffer_) {
 		index_buffer_->Release();
-		index_buffer_ = 0;
+		index_buffer_=nullptr;
 	}
 
 	if (vertex_buffer_) {
 		vertex_buffer_->Release();
-		vertex_buffer_ = 0;
+		vertex_buffer_=nullptr;
 	}
 }
 

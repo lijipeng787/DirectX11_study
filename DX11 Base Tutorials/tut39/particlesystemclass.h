@@ -45,7 +45,7 @@ public:
 	ParticleSystemClass(const ParticleSystemClass&);
 	~ParticleSystemClass();
 
-	bool Initialize(ID3D11Device*, WCHAR*);
+	bool Initialize(WCHAR*);
 	void Shutdown();
 	bool Frame(float, ID3D11DeviceContext*);
 	void Render(ID3D11DeviceContext*);
@@ -54,7 +54,7 @@ public:
 	int GetIndexCount();
 
 private:
-	bool LoadTexture(ID3D11Device*, WCHAR*);
+	bool LoadTexture(WCHAR*);
 	void ReleaseTexture();
 
 	bool InitializeParticleSystem();

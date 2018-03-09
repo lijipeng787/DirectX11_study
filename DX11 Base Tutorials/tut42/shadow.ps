@@ -9,14 +9,14 @@
 Texture2D depthMapTexture : register(t0);
 
 
-/////
+/
 // SAMPLE STATES //
-/////
+/
 SamplerState SampleTypeClamp : register(s0);
 
 
 
-// TYPEDEFS //
+
 
 struct PixelInputType
 {
@@ -29,7 +29,7 @@ struct PixelInputType
 
 
 
-// Pixel Shader
+
 
 float4 ShadowPixelShader(PixelInputType input) : SV_TARGET
 {

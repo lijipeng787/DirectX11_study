@@ -6,12 +6,12 @@
 
 GlowShaderClass::GlowShaderClass()
 {
-	vertex_shader_ = 0;
-	pixel_shader_ = 0;
-	layout_ = 0;
-	matrix_buffer_ = 0;
+	vertex_shader_ = nullptr;
+	pixel_shader_ = nullptr;
+	layout_ = nullptr;
+	matrix_buffer_ = nullptr;
 	m_glowBuffer = 0;
-	sample_state_ = 0;
+	sample_state_ = nullptr;
 }
 
 
@@ -25,7 +25,7 @@ GlowShaderClass::~GlowShaderClass()
 }
 
 
-bool GlowShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool GlowShaderClass::Initialize(HWND hwnd)
 {
 	bool result;
 
@@ -50,7 +50,7 @@ void GlowShaderClass::Shutdown()
 }
 
 
-bool GlowShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool GlowShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 							 const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* colorTexture, ID3D11ShaderResourceView* glowTexture, 
 							 float glowStrength)
 {
@@ -71,7 +71,7 @@ bool GlowShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount
 }
 
 
-bool GlowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool GlowShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
@@ -238,7 +238,7 @@ void GlowShaderClass::ShutdownShader()
 	if(sample_state_)
 	{
 		sample_state_->Release();
-		sample_state_ = 0;
+		sample_state_ = nullptr;
 	}
 
 
@@ -252,28 +252,28 @@ void GlowShaderClass::ShutdownShader()
 	if(matrix_buffer_)
 	{
 		matrix_buffer_->Release();
-		matrix_buffer_ = 0;
+		matrix_buffer_ = nullptr;
 	}
 
 	
 	if(layout_)
 	{
 		layout_->Release();
-		layout_ = 0;
+		layout_ = nullptr;
 	}
 
 	
 	if(pixel_shader_)
 	{
 		pixel_shader_->Release();
-		pixel_shader_ = 0;
+		pixel_shader_ = nullptr;
 	}
 
 	
 	if(vertex_shader_)
 	{
 		vertex_shader_->Release();
-		vertex_shader_ = 0;
+		vertex_shader_ = nullptr;
 	}
 
 	
@@ -316,7 +316,7 @@ void GlowShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hw
 }
 
 
-bool GlowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool GlowShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 										  const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* colorTexture, 
 										  ID3D11ShaderResourceView* glowTexture, float glowStrength)
 {
@@ -390,7 +390,7 @@ bool GlowShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, c
 }
 
 
-void GlowShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
+void GlowShaderClass::RenderShader(int indexCount)
 {
 
 	device_context->IASetInputLayout(layout_);

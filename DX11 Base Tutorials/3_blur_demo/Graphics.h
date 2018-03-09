@@ -30,11 +30,11 @@ public:
 
 	virtual bool Render()override;
 
-	inline void SetRotation(float rotation) {
-		rotation_ = rotation;
+	inline void SetRotation(float rotation_) {
+		rotation_ = rotation_;
 	}
 private:
-	bool RenderSceneToTexture(float rotation);
+	bool RenderSceneToTexture(float rotation_);
 
 	bool DownSampleTexture();
 

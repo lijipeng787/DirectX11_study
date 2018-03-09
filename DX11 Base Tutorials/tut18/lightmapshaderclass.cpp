@@ -6,11 +6,11 @@
 
 LightMapShaderClass::LightMapShaderClass()
 {
-	vertex_shader_ = 0;
-	pixel_shader_ = 0;
-	layout_ = 0;
-	matrix_buffer_ = 0;
-	sample_state_ = 0;
+	vertex_shader_ = nullptr;
+	pixel_shader_ = nullptr;
+	layout_ = nullptr;
+	matrix_buffer_ = nullptr;
+	sample_state_ = nullptr;
 }
 
 
@@ -24,7 +24,7 @@ LightMapShaderClass::~LightMapShaderClass()
 }
 
 
-bool LightMapShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool LightMapShaderClass::Initialize(HWND hwnd)
 {
 	bool result;
 
@@ -49,7 +49,7 @@ void LightMapShaderClass::Shutdown()
 }
 
 
-bool LightMapShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix,
+bool LightMapShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix,
 								 const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView** textureArray)
 {
 	bool result;
@@ -69,7 +69,7 @@ bool LightMapShaderClass::Render(ID3D11DeviceContext* device_context, int indexC
 }
 
 
-bool LightMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool LightMapShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
@@ -223,35 +223,35 @@ void LightMapShaderClass::ShutdownShader()
 	if(sample_state_)
 	{
 		sample_state_->Release();
-		sample_state_ = 0;
+		sample_state_ = nullptr;
 	}
 
 
 	if(matrix_buffer_)
 	{
 		matrix_buffer_->Release();
-		matrix_buffer_ = 0;
+		matrix_buffer_ = nullptr;
 	}
 
 	
 	if(layout_)
 	{
 		layout_->Release();
-		layout_ = 0;
+		layout_ = nullptr;
 	}
 
 	
 	if(pixel_shader_)
 	{
 		pixel_shader_->Release();
-		pixel_shader_ = 0;
+		pixel_shader_ = nullptr;
 	}
 
 	
 	if(vertex_shader_)
 	{
 		vertex_shader_->Release();
-		vertex_shader_ = 0;
+		vertex_shader_ = nullptr;
 	}
 
 	
@@ -294,7 +294,7 @@ void LightMapShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWN
 }
 
 
-bool LightMapShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix,
+bool LightMapShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix,
 											  const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, 
 											  ID3D11ShaderResourceView** textureArray)
 {
@@ -343,7 +343,7 @@ bool LightMapShaderClass::SetShaderParameters(ID3D11DeviceContext* device_contex
 }
 
 
-void LightMapShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
+void LightMapShaderClass::RenderShader(int indexCount)
 {
 
 	device_context->IASetInputLayout(layout_);

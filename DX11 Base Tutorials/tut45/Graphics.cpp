@@ -148,9 +148,9 @@ void GraphicsClass::Shutdown() {
 		camera_ = 0;
 	}
 
-	if (directx_device_) {
-		directx_device_->Shutdown();
-		delete directx_device_;
+	
+		
+		
 		directx_device_ = 0;
 	}
 }
@@ -158,13 +158,13 @@ void GraphicsClass::Shutdown() {
 bool GraphicsClass::Frame() {
 
 	bool result;
-	static float rotation = 0.0f;
+	static float rotation_ = 0.0f;
 
-	rotation += (float)XM_PI * 0.005f;
-	if (rotation > 360.0f) {
-		rotation -= 360.0f;
+	rotation_ += (float)XM_PI * 0.005f;
+	if (rotation_ > 360.0f) {
+		rotation_ -= 360.0f;
 	}
-	rotation_ = rotation;
+	rotation_ = rotation_;
 
 	result = Render();
 	if (!result) {

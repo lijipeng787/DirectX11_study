@@ -6,11 +6,11 @@
 
 WaterShaderClass::WaterShaderClass()
 {
-	vertex_shader_ = 0;
-	pixel_shader_ = 0;
-	layout_ = 0;
-	sample_state_ = 0;
-	matrix_buffer_ = 0;
+	vertex_shader_ = nullptr;
+	pixel_shader_ = nullptr;
+	layout_ = nullptr;
+	sample_state_ = nullptr;
+	matrix_buffer_ = nullptr;
 	m_reflectionBuffer = 0;
 	m_waterBuffer = 0;
 }
@@ -26,7 +26,7 @@ WaterShaderClass::~WaterShaderClass()
 }
 
 
-bool WaterShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool WaterShaderClass::Initialize(HWND hwnd)
 {
 	bool result;
 
@@ -51,7 +51,7 @@ void WaterShaderClass::Shutdown()
 }
 
 
-bool WaterShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool WaterShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 							  const XMMATRIX& projectionMatrix, const XMMATRIX& reflectionMatrix, 
 							  ID3D11ShaderResourceView* reflectionTexture, ID3D11ShaderResourceView* refractionTexture,
 							  ID3D11ShaderResourceView* normalTexture, float waterTranslation, float reflectRefractScale)
@@ -74,7 +74,7 @@ bool WaterShaderClass::Render(ID3D11DeviceContext* device_context, int indexCoun
 }
 
 
-bool WaterShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool WaterShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
@@ -274,35 +274,35 @@ void WaterShaderClass::ShutdownShader()
 	if(matrix_buffer_)
 	{
 		matrix_buffer_->Release();
-		matrix_buffer_ = 0;
+		matrix_buffer_ = nullptr;
 	}
 
 
 	if(sample_state_)
 	{
 		sample_state_->Release();
-		sample_state_ = 0;
+		sample_state_ = nullptr;
 	}
 
 	
 	if(layout_)
 	{
 		layout_->Release();
-		layout_ = 0;
+		layout_ = nullptr;
 	}
 
 	
 	if(pixel_shader_)
 	{
 		pixel_shader_->Release();
-		pixel_shader_ = 0;
+		pixel_shader_ = nullptr;
 	}
 
 	
 	if(vertex_shader_)
 	{
 		vertex_shader_->Release();
-		vertex_shader_ = 0;
+		vertex_shader_ = nullptr;
 	}
 
 	
@@ -345,7 +345,7 @@ void WaterShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND h
 }
 
 
-bool WaterShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool WaterShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 										   const XMMATRIX& projectionMatrix, const XMMATRIX& reflectionMatrix, 
 										   ID3D11ShaderResourceView* reflectionTexture, 
 										   ID3D11ShaderResourceView* refractionTexture, ID3D11ShaderResourceView* normalTexture,
@@ -452,7 +452,7 @@ bool WaterShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, 
 }
 
 
-void WaterShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
+void WaterShaderClass::RenderShader(int indexCount)
 {
 
 	device_context->IASetInputLayout(layout_);

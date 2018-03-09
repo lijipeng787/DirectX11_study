@@ -3,9 +3,9 @@
 
 
 
-////
-// GLOBALS //
-////
+
+
+
 cbuffer TessellationBuffer
 {
     float tessellationAmount;
@@ -14,7 +14,7 @@ cbuffer TessellationBuffer
 
 
 
-// TYPEDEFS //
+
 
 struct HullInputType
 {

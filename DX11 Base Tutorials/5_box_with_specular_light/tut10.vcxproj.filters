@@ -57,10 +57,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="light.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="light.ps">
+    <None Include="specular_light.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

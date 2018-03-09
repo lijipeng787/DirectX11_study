@@ -3,9 +3,9 @@
 
 
 
-////
-// GLOBALS //
-////
+
+
+
 SamplerState SampleType;
 Texture2D reflectionTexture;
 Texture2D refractionTexture;
@@ -20,7 +20,7 @@ cbuffer WaterBuffer
 
 
 
-// TYPEDEFS //
+
 
 struct PixelInputType
 {
@@ -32,7 +32,7 @@ struct PixelInputType
 
 
 
-// Pixel Shader
+
 
 float4 WaterPixelShader(PixelInputType input) : SV_TARGET
 {

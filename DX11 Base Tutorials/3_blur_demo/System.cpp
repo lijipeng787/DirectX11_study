@@ -43,13 +43,13 @@ bool System::Frame() {
 
 	auto delta_time = GetTimerComponent().GetTime();
 
-	static float rotation = 0.0f;
-	rotation += 0.1f;
-	if (rotation >= 360.000f) {
-		rotation -= 360.00f;
+	static float rotation_ = 0.0f;
+	rotation_ += 0.1f;
+	if (rotation_ >= 360.000f) {
+		rotation_ -= 360.00f;
 	}
 
-	m_Graphics->SetRotation(rotation);
+	m_Graphics->SetRotation(rotation_);
 
 	result = m_Graphics->Frame();
 	if (!result) {

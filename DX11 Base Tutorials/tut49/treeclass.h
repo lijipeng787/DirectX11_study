@@ -45,7 +45,7 @@ public:
 	TreeClass(const TreeClass&);
 	~TreeClass();
 
-	bool Initialize(ID3D11Device*, char*, WCHAR*, char*, WCHAR*, float);
+	bool Initialize(char*, WCHAR*, char*, WCHAR*, float);
 	void Shutdown();
 
 	void RenderTrunk(ID3D11DeviceContext*);
@@ -61,15 +61,15 @@ public:
 	void GetPosition(float&, float&, float&);
 
 private:
-	bool InitializeTrunkBuffers(ID3D11Device*, float);
-	bool InitializeLeafBuffers(ID3D11Device*, float);
+	bool InitializeTrunkBuffers(float);
+	bool InitializeLeafBuffers(float);
 
 	void ShutdownBuffers();
 
 	void RenderTrunkBuffers(ID3D11DeviceContext*);
 	void RenderLeafBuffers(ID3D11DeviceContext*);
 
-	bool LoadTextures(ID3D11Device*, WCHAR*, WCHAR*);
+	bool LoadTextures(WCHAR*, WCHAR*);
 	void ReleaseTextures();
 
 	bool LoadModel(char*);

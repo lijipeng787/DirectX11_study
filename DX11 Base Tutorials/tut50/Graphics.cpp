@@ -154,7 +154,7 @@ void GraphicsClass::Shutdown() {
 	if (model_) {
 		model_->Shutdown();
 		delete model_;
-		model_ = 0;
+		model_ = nullptr;
 	}
 
 	// Release the light object.
@@ -217,13 +217,13 @@ bool GraphicsClass::RenderSceneToTexture() {
 	camera_->GetViewMatrix(viewMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
-	static float rotation = 0.0f;
-	rotation += (float)XM_PI * 0.01f;
-	if (rotation > 360.0f) {
-		rotation -= 360.0f;
+	static float rotation_ = 0.0f;
+	rotation_ += (float)XM_PI * 0.01f;
+	if (rotation_ > 360.0f) {
+		rotation_ -= 360.0f;
 	}
 
-	worldMatrix = XMMatrixRotationY(rotation);
+	worldMatrix = XMMatrixRotationY(rotation_);
 
 	model_->Render(directx_device_->GetDeviceContext());
 

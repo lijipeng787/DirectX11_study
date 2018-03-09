@@ -6,9 +6,9 @@
 
 SimpleMoveableSurface::SimpleMoveableSurface()
 {
-	vertex_buffer_ = 0;
-	index_buffer_ = 0;
-	texture_ = 0;
+	vertex_buffer_=nullptr;
+	index_buffer_=nullptr;
+	texture_ = nullptr;
 }
 
 
@@ -22,7 +22,7 @@ SimpleMoveableSurface::~SimpleMoveableSurface()
 }
 
 
-bool SimpleMoveableSurface::Initialize(ID3D11Device* device, int screenWidth, int screenHeight, WCHAR* textureFilename, int bitmapWidth, int bitmapHeight)
+bool SimpleMoveableSurface::Initialize(int screenWidth, int screenHeight, WCHAR* textureFilename, int bitmapWidth, int bitmapHeight)
 {
 	bool result;
 
@@ -69,7 +69,7 @@ void SimpleMoveableSurface::Shutdown()
 }
 
 
-bool SimpleMoveableSurface::Render(ID3D11DeviceContext* device_context, int positionX, int positionY)
+bool SimpleMoveableSurface::Render(int positionX, int positionY)
 {
 	bool result;
 
@@ -117,14 +117,14 @@ bool SimpleMoveableSurface::InitializeBuffers(ID3D11Device* device)
 	index_count_ = vertex_count_;
 
 	
-	vertices = new VertexType[vertex_count_];
+	auto vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
 		return false;
 	}
 
 	
-	indices = new unsigned long[index_count_];
+	auto indices = new unsigned long[index_count_];
 	if(!indices)
 	{
 		return false;
@@ -196,21 +196,21 @@ void SimpleMoveableSurface::ShutdownBuffers()
 	if(index_buffer_)
 	{
 		index_buffer_->Release();
-		index_buffer_ = 0;
+		index_buffer_=nullptr;
 	}
 
 	
 	if(vertex_buffer_)
 	{
 		vertex_buffer_->Release();
-		vertex_buffer_ = 0;
+		vertex_buffer_=nullptr;
 	}
 
 	
 }
 
 
-bool SimpleMoveableSurface::UpdateBuffers(ID3D11DeviceContext* device_context, int positionX, int positionY)
+bool SimpleMoveableSurface::UpdateBuffers(int positionX, int positionY)
 {
 	float left, right, top, bottom;
 	VertexType* vertices;
@@ -243,7 +243,7 @@ bool SimpleMoveableSurface::UpdateBuffers(ID3D11DeviceContext* device_context, i
 	bottom = top - (float)m_bitmapHeight;
 
 	
-	vertices = new VertexType[vertex_count_];
+	auto vertices = new VertexType[vertex_count_];
 	if(!vertices)
 	{
 		return false;
@@ -317,7 +317,7 @@ void SimpleMoveableSurface::RenderBuffers(ID3D11DeviceContext* device_context)
 }
 
 
-bool SimpleMoveableSurface::LoadTexture(ID3D11Device* device, WCHAR* filename)
+bool SimpleMoveableSurface::LoadTexture(WCHAR* filename)
 {
 	bool result;
 
@@ -347,7 +347,7 @@ void SimpleMoveableSurface::ReleaseTexture()
 	{
 		texture_->Shutdown();
 		delete texture_;
-		texture_ = 0;
+		texture_ = nullptr;
 	}
 
 	

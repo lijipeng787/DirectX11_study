@@ -22,7 +22,7 @@ RenderTextureClass::~RenderTextureClass()
 }
 
 
-bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int textureHeight)
+bool RenderTextureClass::Initialize(int textureWidth, int textureHeight)
 {
 	D3D11_TEXTURE2D_DESC textureDesc;
 	HRESULT result;
@@ -105,7 +105,7 @@ void RenderTextureClass::Shutdown()
 }
 
 
-void RenderTextureClass::SetRenderTarget(ID3D11DeviceContext* device_context, ID3D11DepthStencilView* depthStencilView)
+void RenderTextureClass::SetRenderTarget(ID3D11DepthStencilView* depthStencilView)
 {
 
 	device_context->OMSetRenderTargets(1, &render_target_view_, depthStencilView);
@@ -114,7 +114,7 @@ void RenderTextureClass::SetRenderTarget(ID3D11DeviceContext* device_context, ID
 }
 
 
-void RenderTextureClass::ClearRenderTarget(ID3D11DeviceContext* device_context, ID3D11DepthStencilView* depthStencilView, 
+void RenderTextureClass::ClearRenderTarget(ID3D11DepthStencilView* depthStencilView, 
 										   float red, float green, float blue, float alpha)
 {
 	float color[4];

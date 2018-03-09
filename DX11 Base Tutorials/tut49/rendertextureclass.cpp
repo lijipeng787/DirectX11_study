@@ -24,7 +24,7 @@ RenderTextureClass::~RenderTextureClass()
 }
 
 
-bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int textureHeight, float screenDepth, float screenNear)
+bool RenderTextureClass::Initialize(int textureWidth, int textureHeight, float screenDepth, float screenNear)
 {
 	D3D11_TEXTURE2D_DESC textureDesc;
 	HRESULT result;
@@ -185,7 +185,7 @@ void RenderTextureClass::SetRenderTarget(ID3D11DeviceContext* device_context)
 }
 
 
-void RenderTextureClass::ClearRenderTarget(ID3D11DeviceContext* device_context, float red, float green, float blue, float alpha)
+void RenderTextureClass::ClearRenderTarget(float red, float green, float blue, float alpha)
 {
 	float color[4];
 

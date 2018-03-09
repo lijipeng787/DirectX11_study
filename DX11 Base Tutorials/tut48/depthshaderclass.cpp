@@ -6,10 +6,10 @@
 
 DepthShaderClass::DepthShaderClass()
 {
-	vertex_shader_ = 0;
-	pixel_shader_ = 0;
-	layout_ = 0;
-	matrix_buffer_ = 0;
+	vertex_shader_ = nullptr;
+	pixel_shader_ = nullptr;
+	layout_ = nullptr;
+	matrix_buffer_ = nullptr;
 }
 
 
@@ -23,7 +23,7 @@ DepthShaderClass::~DepthShaderClass()
 }
 
 
-bool DepthShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool DepthShaderClass::Initialize(HWND hwnd)
 {
 	bool result;
 
@@ -48,7 +48,7 @@ void DepthShaderClass::Shutdown()
 }
 
 
-bool DepthShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool DepthShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 							  const XMMATRIX& projectionMatrix)
 {
 	bool result;
@@ -68,7 +68,7 @@ bool DepthShaderClass::Render(ID3D11DeviceContext* device_context, int indexCoun
 }
 
 
-bool DepthShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool DepthShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
@@ -188,28 +188,28 @@ void DepthShaderClass::ShutdownShader()
 	if(matrix_buffer_)
 	{
 		matrix_buffer_->Release();
-		matrix_buffer_ = 0;
+		matrix_buffer_ = nullptr;
 	}
 
 	
 	if(layout_)
 	{
 		layout_->Release();
-		layout_ = 0;
+		layout_ = nullptr;
 	}
 
 	
 	if(pixel_shader_)
 	{
 		pixel_shader_->Release();
-		pixel_shader_ = 0;
+		pixel_shader_ = nullptr;
 	}
 
 	
 	if(vertex_shader_)
 	{
 		vertex_shader_->Release();
-		vertex_shader_ = 0;
+		vertex_shader_ = nullptr;
 	}
 
 	
@@ -252,7 +252,7 @@ void DepthShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND h
 }
 
 
-bool DepthShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,const XMMATRIX& projectionMatrix)
+bool DepthShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,const XMMATRIX& projectionMatrix)
 {
 	HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -296,7 +296,7 @@ bool DepthShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, 
 }
 
 
-void DepthShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
+void DepthShaderClass::RenderShader(int indexCount)
 {
 
 	device_context->IASetInputLayout(layout_);

@@ -185,27 +185,27 @@ void HorizontalBlurShaderClass::ShutdownShader() {
 
 	if (matrix_buffer_) {
 		matrix_buffer_->Release();
-		matrix_buffer_ = 0;
+		matrix_buffer_ = nullptr;
 	}
 
 	if (sample_state_) {
 		sample_state_->Release();
-		sample_state_ = 0;
+		sample_state_ = nullptr;
 	}
 
 	if (layout_) {
 		layout_->Release();
-		layout_ = 0;
+		layout_ = nullptr;
 	}
 
 	if (pixel_shader_) {
 		pixel_shader_->Release();
-		pixel_shader_ = 0;
+		pixel_shader_ = nullptr;
 	}
 
 	if (vertex_shader_) {
 		vertex_shader_->Release();
-		vertex_shader_ = 0;
+		vertex_shader_ = nullptr;
 	}
 }
 

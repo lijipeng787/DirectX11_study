@@ -232,10 +232,10 @@ void PositionClass::TurnLeft(bool keydown)
 		}
 	}
 
-	// Update the rotation.
+	// Update the rotation_.
 	m_rotationY -= m_leftTurnSpeed;
 
-	// Keep the rotation in the 0 to 360 range.
+	// Keep the rotation_ in the 0 to 360 range.
 	if(m_rotationY < 0.0f)
 	{
 		m_rotationY += 360.0f;
@@ -267,10 +267,10 @@ void PositionClass::TurnRight(bool keydown)
 		}
 	}
 
-	// Update the rotation.
+	// Update the rotation_.
 	m_rotationY += m_rightTurnSpeed;
 
-	// Keep the rotation in the 0 to 360 range.
+	// Keep the rotation_ in the 0 to 360 range.
 	if(m_rotationY > 360.0f)
 	{
 		m_rotationY -= 360.0f;
@@ -282,7 +282,7 @@ void PositionClass::TurnRight(bool keydown)
 
 void PositionClass::LookUpward(bool keydown)
 {
-	// Update the upward rotation speed movement based on the frame time and whether the user is holding the key down or not.
+	// Update the upward rotation_ speed movement based on the frame time and whether the user is holding the key down or not.
 	if(keydown)
 	{
 		m_lookUpSpeed += m_frameTime * 0.01f;
@@ -302,10 +302,10 @@ void PositionClass::LookUpward(bool keydown)
 		}
 	}
 
-	// Update the rotation.
+	// Update the rotation_.
 	m_rotationX -= m_lookUpSpeed;
 
-	// Keep the rotation maximum 90 degrees.
+	// Keep the rotation_ maximum 90 degrees.
 	if(m_rotationX > 90.0f)
 	{
 		m_rotationX = 90.0f;
@@ -317,7 +317,7 @@ void PositionClass::LookUpward(bool keydown)
 
 void PositionClass::LookDownward(bool keydown)
 {
-	// Update the downward rotation speed movement based on the frame time and whether the user is holding the key down or not.
+	// Update the downward rotation_ speed movement based on the frame time and whether the user is holding the key down or not.
 	if(keydown)
 	{
 		m_lookDownSpeed += m_frameTime * 0.01f;
@@ -337,10 +337,10 @@ void PositionClass::LookDownward(bool keydown)
 		}
 	}
 
-	// Update the rotation.
+	// Update the rotation_.
 	m_rotationX += m_lookDownSpeed;
 
-	// Keep the rotation maximum 90 degrees.
+	// Keep the rotation_ maximum 90 degrees.
 	if(m_rotationX < -90.0f)
 	{
 		m_rotationX = -90.0f;

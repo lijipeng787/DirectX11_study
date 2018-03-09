@@ -30,14 +30,14 @@ public:
 	OrthoWindowClass(const OrthoWindowClass&);
 	~OrthoWindowClass();
 
-	bool Initialize(ID3D11Device*, int, int);
+	bool Initialize(int, int);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
 	int GetIndexCount();
 
 private:
-	bool InitializeBuffers(ID3D11Device*, int, int);
+	bool InitializeBuffers(int, int);
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext*);
 

@@ -40,7 +40,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 		camera_->SetPosition(0.0f, 0.0f, -10.0f);
 		camera_->Render();
-		// Set the initial position and rotation of the camera.
+		// Set the initial position and rotation_ of the camera.
 		camera_->SetPosition(0.0f, 7.0f, -10.0f);
 		camera_->SetRotation(35.0f, 0.0f, 0.0f);
 	}
@@ -192,9 +192,9 @@ void GraphicsClass::Shutdown() {
 		camera_ = 0;
 	}
 
-	if (directx_device_) {
-		directx_device_->Shutdown();
-		delete directx_device_;
+	
+		
+		
 		directx_device_ = 0;
 	}
 }
