@@ -127,6 +127,7 @@ bool GraphicsClass::Render() {
 	XMMATRIX worldMatrix{}, viewMatrix{}, projectionMatrix{};
 
 	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
+	
 	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();

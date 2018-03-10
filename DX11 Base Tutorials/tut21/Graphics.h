@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -27,15 +26,11 @@ public:
 
 	virtual bool Render()override;
 private:
-	
-
 	Camera *camera_ = nullptr;
 
 	ModelClass *model_ = nullptr;
 
-	SpecMapShaderClass* m_SpecMapShader = nullptr;
+	SpecMapShaderClass* specularmap_shader_ = nullptr;
 
 	LightClass* light_ = nullptr;
 };
-
-#endif

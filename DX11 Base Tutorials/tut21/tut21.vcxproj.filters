@@ -57,10 +57,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="specmap.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="specmap.ps">
+    <None Include="specularmap.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

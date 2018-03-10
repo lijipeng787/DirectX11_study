@@ -12,6 +12,8 @@
 #include "lightclass.h"
 #include "specmapshaderclass.h"
 
+using namespace DirectX;
+
 GraphicsClass::GraphicsClass() {}
 
 GraphicsClass::~GraphicsClass() {}
@@ -22,11 +24,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	XMMATRIX baseViewMatrix;
 	
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -51,7 +51,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 		
 		result = model_->Initialize(
-			directx_device_->GetDevice(),
 			"../../tut21/data/cube.txt",
 			L"../../tut21/data/stone02.dds",
 			L"../../tut21/data/bump02.dds",
@@ -64,13 +63,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_SpecMapShader = (SpecMapShaderClass*)_aligned_malloc(sizeof(SpecMapShaderClass), 16);
-		new (m_SpecMapShader)SpecMapShaderClass();
-		if (!m_SpecMapShader) {
+		specularmap_shader_ = (SpecMapShaderClass*)_aligned_malloc(sizeof(SpecMapShaderClass), 16);
+		new (specularmap_shader_)SpecMapShaderClass();
+		if (!specularmap_shader_) {
 			return false;
 		}
 
-		result = m_SpecMapShader->Initialize(hwnd);
+		result = specularmap_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the specular map shader object.", L"Error", MB_OK);
 			return false;
@@ -94,22 +93,20 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 void GraphicsClass::Shutdown()
 {
-	// Release the light object.
+
 	if (light_)
 	{
 		delete light_;
 		light_ = nullptr;;
 	}
 
-	// Release the specular map shader object.
-	if (m_SpecMapShader)
+	if (specularmap_shader_)
 	{
-		m_SpecMapShader->Shutdown();
-		m_SpecMapShader->~SpecMapShaderClass();
-		_aligned_free(m_SpecMapShader);
-		m_SpecMapShader = 0;
+		specularmap_shader_->Shutdown();
+		specularmap_shader_->~SpecMapShaderClass();
+		_aligned_free(specularmap_shader_);
+		specularmap_shader_ = 0;
 	}
-
 
 	if (model_)
 	{
@@ -122,12 +119,6 @@ void GraphicsClass::Shutdown()
 		camera_->~Camera();
 		_aligned_free(camera_);
 		camera_ = nullptr;
-	}
-
-	
-		
-		
-		
 	}
 }
 
@@ -150,6 +141,8 @@ bool GraphicsClass::Render() {
 
 	camera_->SetPosition(0.0f, 0.0f, -5.0f);
 
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
 	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
@@ -166,8 +159,10 @@ bool GraphicsClass::Render() {
 
 	worldMatrix = XMMatrixRotationY(rotation_);
 
-	model_->Render(directx_device_->GetDeviceContext());
-	m_SpecMapShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+	model_->Render();
+
+	specularmap_shader_->Render(
+		model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		model_->GetTextureArray(), light_->GetDirection(), light_->GetDiffuseColor(),
 		camera_->GetPosition(), light_->GetSpecularColor(), light_->GetSpecularPower());
 	directx_device_->EndScene();
