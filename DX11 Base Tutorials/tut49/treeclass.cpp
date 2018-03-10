@@ -144,7 +144,7 @@ bool TreeClass::InitializeTrunkBuffers(float scale)
 	VertexType* vertices;
 	unsigned long* indices;
 	D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
-    D3D11_SUBRESOURCE_DATA vertex_date, indexData;
+    D3D11_SUBRESOURCE_DATA vertex_data, indexData;
 	HRESULT result;
 	int i;
 
@@ -182,12 +182,12 @@ bool TreeClass::InitializeTrunkBuffers(float scale)
 	vertex_buffer_desc.StructureByteStride = 0;
 
 	
-    vertex_date.pSysMem = vertices;
-	vertex_date.SysMemPitch = 0;
-	vertex_date.SysMemSlicePitch = 0;
+    vertex_data.pSysMem = vertices;
+	vertex_data.SysMemPitch = 0;
+	vertex_data.SysMemSlicePitch = 0;
 
 	
-    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_date, &m_trunkVertexBuffer);
+    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &m_trunkVertexBuffer);
 	if(FAILED(result))
 	{
 		return false;
@@ -229,7 +229,7 @@ bool TreeClass::InitializeLeafBuffers(float scale)
 	VertexType* vertices;
 	unsigned long* indices;
 	D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
-    D3D11_SUBRESOURCE_DATA vertex_date, indexData;
+    D3D11_SUBRESOURCE_DATA vertex_data, indexData;
 	HRESULT result;
 	int i;
 
@@ -267,12 +267,12 @@ bool TreeClass::InitializeLeafBuffers(float scale)
 	vertex_buffer_desc.StructureByteStride = 0;
 
 	
-    vertex_date.pSysMem = vertices;
-	vertex_date.SysMemPitch = 0;
-	vertex_date.SysMemSlicePitch = 0;
+    vertex_data.pSysMem = vertices;
+	vertex_data.SysMemPitch = 0;
+	vertex_data.SysMemSlicePitch = 0;
 
 	
-    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_date, &m_leafVertexBuffer);
+    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &m_leafVertexBuffer);
 	if(FAILED(result))
 	{
 		return false;

@@ -89,11 +89,11 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 	VertexType* vertices;
 	InstanceType* instances;
 	D3D11_BUFFER_DESC vertex_buffer_desc, instanceBufferDesc;
-    D3D11_SUBRESOURCE_DATA vertex_date, instanceData;
+    D3D11_SUBRESOURCE_DATA vertex_data, instanceData;
 	HRESULT result;
 
 
-	// Set the number of vertices in the vertex array.
+	
 	vertex_count_ = 3;
 
 	
@@ -122,12 +122,12 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 	vertex_buffer_desc.StructureByteStride = 0;
 
 	
-    vertex_date.pSysMem = vertices;
-	vertex_date.SysMemPitch = 0;
-	vertex_date.SysMemSlicePitch = 0;
+    vertex_data.pSysMem = vertices;
+	vertex_data.SysMemPitch = 0;
+	vertex_data.SysMemSlicePitch = 0;
 
 	
-    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_date, &vertex_buffer_);
+    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
 	if(FAILED(result))
 	{
 		return false;

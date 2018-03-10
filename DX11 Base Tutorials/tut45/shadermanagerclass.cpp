@@ -8,7 +8,7 @@
 ShaderManagerClass::ShaderManagerClass()
 {
 	m_TextureShader = 0;
-	light_shader_ = 0;
+	light_shader_ = nullptr;;
 	m_BumpMapShader = 0;
 }
 
@@ -97,7 +97,7 @@ void ShaderManagerClass::Shutdown()
 		light_shader_->Shutdown();
 		light_shader_->~LightShaderClass();
 		_aligned_free( light_shader_ );
-		light_shader_ = 0;
+		light_shader_ = nullptr;;
 	}
 
 	

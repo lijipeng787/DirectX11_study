@@ -164,7 +164,7 @@ void GraphicsClass::Shutdown() {
 	
 		
 		
-		directx_device_ = 0;
+		
 	}
 }
 

@@ -190,7 +190,7 @@ void GraphicsClass::Shutdown() {
 		light_shader_->Shutdown();
 		light_shader_->~LightShaderClass();
 		_aligned_free(light_shader_);
-		light_shader_ = 0;
+		light_shader_ = nullptr;;
 	}
 
 	if (reflection_texture_) {
@@ -207,7 +207,7 @@ void GraphicsClass::Shutdown() {
 
 	if (light_) {
 		delete light_;
-		light_ = 0;
+		light_ = nullptr;;
 	}
 
 	if (water_model_) {
@@ -243,7 +243,7 @@ void GraphicsClass::Shutdown() {
 	
 		
 		
-		directx_device_ = 0;
+		
 	}
 }
 

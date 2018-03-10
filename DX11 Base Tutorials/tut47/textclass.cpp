@@ -129,7 +129,7 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
 	VertexType* vertices;
 	unsigned long* indices;
 	D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
-    D3D11_SUBRESOURCE_DATA vertex_date, indexData;
+    D3D11_SUBRESOURCE_DATA vertex_data, indexData;
 	HRESULT result;
 	int i;
 
@@ -148,7 +148,7 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
 	// Set the maximum length of the sentence.
 	(*sentence)->maxLength = maxLength;
 
-	// Set the number of vertices in the vertex array.
+	
 	(*sentence)->vertexCount = 6 * maxLength;
 
 	// Set the number of indexes in the index array.
@@ -186,12 +186,12 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
 	vertex_buffer_desc.StructureByteStride = 0;
 
 	
-    vertex_date.pSysMem = vertices;
-	vertex_date.SysMemPitch = 0;
-	vertex_date.SysMemSlicePitch = 0;
+    vertex_data.pSysMem = vertices;
+	vertex_data.SysMemPitch = 0;
+	vertex_data.SysMemSlicePitch = 0;
 
 	// Create the vertex buffer.
-    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_date, &(*sentence)->vertexBuffer);
+    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &(*sentence)->vertexBuffer);
 	if(FAILED(result))
 	{
 		return false;

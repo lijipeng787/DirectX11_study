@@ -1,36 +1,32 @@
-
-
-
-
-
-
-
-
-
+#pragma once
 
 #include <DirectXMath.h>
-using namespace DirectX;
 
-
-
-
-
-class LightClass
-{
+class LightClass {
 public:
-	LightClass();
-	LightClass(const LightClass&);
-	~LightClass();
+	LightClass() {}
 
-	void SetDiffuseColor(float, float, float, float);
-	void SetDirection(float, float, float);
+	LightClass(const LightClass&) = delete;
 
-	XMFLOAT4 GetDiffuseColor();
-	XMFLOAT3 GetDirection();
+	~LightClass() {}
+public:
+	void LightClass::SetDiffuseColor(float red, float green, float blue, float alpha) {
+		diffuse_color_ = DirectX::XMFLOAT4(red, green, blue, alpha);
+	}
 
+	void LightClass::SetDirection(float x, float y, float z) {
+		direction_ = DirectX::XMFLOAT3(x, y, z);
+	}
+
+	inline DirectX::XMFLOAT4 LightClass::GetDiffuseColor()const {
+		return diffuse_color_;
+	}
+
+	inline DirectX::XMFLOAT3 LightClass::GetDirection()const {
+		return direction_;
+	}
 private:
-	XMFLOAT4 diffuse_color_;
-	XMFLOAT3 direction_;
-};
+	DirectX::XMFLOAT4 diffuse_color_{};
 
-#endif
+	DirectX::XMFLOAT3 direction_{};
+};

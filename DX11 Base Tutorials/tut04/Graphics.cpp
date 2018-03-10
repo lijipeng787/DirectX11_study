@@ -86,8 +86,8 @@ void GraphicsClass::Shutdown() {
 	
 		
 		
-		_aligned_free(directx_device_);
-		directx_device_ = 0;
+		
+		
 	}
 }
 

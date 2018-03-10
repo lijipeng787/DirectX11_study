@@ -67,7 +67,7 @@ bool OrthoWindowClass::InitializeBuffers(int windowWidth, int windowHeight)
 	VertexType* vertices;
 	unsigned long* indices;
 	D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
-    D3D11_SUBRESOURCE_DATA vertex_date, indexData;
+    D3D11_SUBRESOURCE_DATA vertex_data, indexData;
 	HRESULT result;
 	int i;
 
@@ -84,10 +84,10 @@ bool OrthoWindowClass::InitializeBuffers(int windowWidth, int windowHeight)
 	// Calculate the screen coordinates of the bottom of the window.
 	bottom = top - (float)windowHeight;
 	
-	// Set the number of vertices in the vertex array.
+	
 	vertex_count_ = 6;
 
-	// Set the number of indices in the index array.
+	
 	index_count_ = vertex_count_;
 
 	
@@ -138,11 +138,11 @@ bool OrthoWindowClass::InitializeBuffers(int windowWidth, int windowHeight)
     vertex_buffer_desc.MiscFlags = 0;
 	vertex_buffer_desc.StructureByteStride = 0;
 
-    vertex_date.pSysMem = vertices;
-	vertex_date.SysMemPitch = 0;
-	vertex_date.SysMemSlicePitch = 0;
+    vertex_data.pSysMem = vertices;
+	vertex_data.SysMemPitch = 0;
+	vertex_data.SysMemSlicePitch = 0;
 
-    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_date, &vertex_buffer_);
+    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
 	if(FAILED(result))
 	{
 		return false;

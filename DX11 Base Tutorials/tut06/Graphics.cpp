@@ -11,6 +11,8 @@
 #include "lightclass.h"
 #include "lightshaderclass.h"
 
+using namespace DirectX;
+
 GraphicsClass::GraphicsClass() {}
 
 GraphicsClass::~GraphicsClass() {}
@@ -22,11 +24,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	bool result;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -47,7 +47,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!model_) {
 			return false;
 		}
-		result = model_->Initialize(L"../../tut05/data/seafloor.dds");
+		result = model_->Initialize(L"../../tut06/data/seafloor.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
@@ -82,14 +82,14 @@ void GraphicsClass::Shutdown() {
 
 	if (light_) {
 		delete light_;
-		light_ = 0;
+		light_ = nullptr;;
 	}
 
 	if (light_shader_) {
 		light_shader_->Shutdown();
 		light_shader_->~LightShaderClass();
 		_aligned_free(light_shader_);
-		light_shader_ = 0;
+		light_shader_ = nullptr;;
 	}
 
 	if (model_) {
@@ -102,13 +102,6 @@ void GraphicsClass::Shutdown() {
 		camera_->~Camera();
 		_aligned_free(camera_);
 		camera_ = nullptr;
-	}
-
-	
-		
-		
-		_aligned_free(directx_device_);
-		directx_device_ = 0;
 	}
 }
 
@@ -130,7 +123,8 @@ bool GraphicsClass::Frame() {
 bool GraphicsClass::Render() {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	bool result;
+
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
 	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -142,9 +136,9 @@ bool GraphicsClass::Render() {
 
 	worldMatrix = XMMatrixRotationY(rotation_);
 
-	model_->Render(directx_device_->GetDeviceContext());
+	model_->Render();
 
-	result = light_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+	auto result = light_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		model_->GetTexture(), light_->GetDirection(), light_->GetDiffuseColor());
 
 	directx_device_->EndScene();

@@ -98,7 +98,7 @@ void GraphicsClass::Shutdown()
 	if (light_)
 	{
 		delete light_;
-		light_ = 0;
+		light_ = nullptr;;
 	}
 
 	// Release the specular map shader object.
@@ -127,7 +127,7 @@ void GraphicsClass::Shutdown()
 	
 		
 		
-		directx_device_ = 0;
+		
 	}
 }
 

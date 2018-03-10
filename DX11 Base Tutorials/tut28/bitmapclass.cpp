@@ -88,15 +88,15 @@ bool SimpleMoveableSurface::InitializeBuffers(ID3D11Device* device)
 	VertexType* vertices;
 	unsigned long* indices;
 	D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
-	D3D11_SUBRESOURCE_DATA vertex_date, indexData;
+	D3D11_SUBRESOURCE_DATA vertex_data, indexData;
 	HRESULT result;
 	int i;
 
 
-	// Set the number of vertices in the vertex array.
+	
 	vertex_count_ = 6;
 
-	// Set the number of indices in the index array.
+	
 	index_count_ = vertex_count_;
 
 	
@@ -131,12 +131,12 @@ bool SimpleMoveableSurface::InitializeBuffers(ID3D11Device* device)
 	vertex_buffer_desc.StructureByteStride = 0;
 
 	
-    vertex_date.pSysMem = vertices;
-	vertex_date.SysMemPitch = 0;
-	vertex_date.SysMemSlicePitch = 0;
+    vertex_data.pSysMem = vertices;
+	vertex_data.SysMemPitch = 0;
+	vertex_data.SysMemSlicePitch = 0;
 
 	
-    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_date, &vertex_buffer_);
+    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
 	if(FAILED(result))
 	{
 		return false;

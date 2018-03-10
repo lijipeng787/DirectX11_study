@@ -48,10 +48,10 @@ bool OrthoWindowClass::InitializeBuffers(int windowWidth, int windowHeight) {
 	// Calculate the screen coordinates of the bottom of the window.
 	auto bottom = top - static_cast<float>(windowHeight);
 
-	// Set the number of vertices in the vertex array.
+	
 	vertex_count_ = 6;
 
-	// Set the number of indices in the index array.
+	
 	index_count_ = vertex_count_;
 
 	auto auto vertices = new VertexType[vertex_count_];
@@ -99,15 +99,15 @@ bool OrthoWindowClass::InitializeBuffers(int windowWidth, int windowHeight) {
 	vertex_buffer_desc.MiscFlags = 0;
 	vertex_buffer_desc.StructureByteStride = 0;
 
-	D3D11_SUBRESOURCE_DATA vertex_date;
+	D3D11_SUBRESOURCE_DATA vertex_data;
 
-	vertex_date.pSysMem = vertices;
-	vertex_date.SysMemPitch = 0;
-	vertex_date.SysMemSlicePitch = 0;
+	vertex_data.pSysMem = vertices;
+	vertex_data.SysMemPitch = 0;
+	vertex_data.SysMemSlicePitch = 0;
 
 	auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
-	auto result = device->CreateBuffer(&vertex_buffer_desc, &vertex_date, &vertex_buffer_);
+	auto result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
 	if (FAILED(result)) {
 		return false;
 	}

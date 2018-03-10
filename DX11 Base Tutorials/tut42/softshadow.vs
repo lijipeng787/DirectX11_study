@@ -67,10 +67,10 @@ PixelInputType SoftShadowVertexShader(VertexInputType input)
 	
     output.tex = input.tex;
     
-	// Calculate the normal vector against the world matrix only.
+	
     output.normal = mul(input.normal, (float3x3)worldMatrix);
 	
-    // Normalize the normal vector.
+    
     output.normal = normalize(output.normal);
 
     // Calculate the position of the vertex in the world.

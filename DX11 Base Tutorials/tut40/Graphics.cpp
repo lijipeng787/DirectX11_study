@@ -174,7 +174,7 @@ void GraphicsClass::Shutdown() {
 	{
 		light_->~LightClass();
 		_aligned_free(light_);
-		light_ = 0;
+		light_ = nullptr;;
 	}
 
 	// Release the ground model object.
@@ -210,7 +210,7 @@ void GraphicsClass::Shutdown() {
 	
 		
 		
-		directx_device_ = 0;
+		
 	}
 }
 

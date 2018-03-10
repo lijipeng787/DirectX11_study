@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{93AB4C10-8C84-4D50-ADED-58140388F43E}</ProjectGuid>
     <RootNamespace>tut18</RootNamespace>
-    <ProjectName>7_light_map_demo</ProjectName>
+    <ProjectName>7_light_map_demo_unrename</ProjectName>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

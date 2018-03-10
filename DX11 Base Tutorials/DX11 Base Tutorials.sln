@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simple_triangle", "tut04\tut04.vcxproj", "{D36D235F-C167-40C4-9665-574154B32FD9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "triangle_with_texture", "tut05\tut05.vcxproj", "{98487793-B73C-4411-8EEB-26524EEE47CB}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "triangle_with_diffuse_light", "tut06\tut06.vcxproj", "{1D52B0C1-E53B-4486-B670-155F2782BD7B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "model_converter", "tut08\tut08.vcxproj", "{D5B981E8-E847-49E7-AF5F-25E4AB64298E}"
@@ -17,7 +15,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "frustum_culling", "tut16\tu
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multiple_textures", "tut17\tut17.vcxproj", "{B7FF2621-92BE-4B91-B904-9E4A168BD572}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "light_map", "tut18\tut18.vcxproj", "{93AB4C10-8C84-4D50-ADED-58140388F43E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7_light_map_demo_unrename", "tut18\tut18.vcxproj", "{93AB4C10-8C84-4D50-ADED-58140388F43E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bump_map", "tut20\tut20.vcxproj", "{BB880C53-09E3-4209-A067-92725E0AE2D2}"
 EndProject
@@ -107,14 +105,6 @@ Global
 		{D36D235F-C167-40C4-9665-574154B32FD9}.Release|Win32.Build.0 = Release|Win32
 		{D36D235F-C167-40C4-9665-574154B32FD9}.Release|x64.ActiveCfg = Release|x64
 		{D36D235F-C167-40C4-9665-574154B32FD9}.Release|x64.Build.0 = Release|x64
-		{98487793-B73C-4411-8EEB-26524EEE47CB}.Debug|Win32.ActiveCfg = Debug|Win32
-		{98487793-B73C-4411-8EEB-26524EEE47CB}.Debug|Win32.Build.0 = Debug|Win32
-		{98487793-B73C-4411-8EEB-26524EEE47CB}.Debug|x64.ActiveCfg = Debug|x64
-		{98487793-B73C-4411-8EEB-26524EEE47CB}.Debug|x64.Build.0 = Debug|x64
-		{98487793-B73C-4411-8EEB-26524EEE47CB}.Release|Win32.ActiveCfg = Release|Win32
-		{98487793-B73C-4411-8EEB-26524EEE47CB}.Release|Win32.Build.0 = Release|Win32
-		{98487793-B73C-4411-8EEB-26524EEE47CB}.Release|x64.ActiveCfg = Release|x64
-		{98487793-B73C-4411-8EEB-26524EEE47CB}.Release|x64.Build.0 = Release|x64
 		{1D52B0C1-E53B-4486-B670-155F2782BD7B}.Debug|Win32.ActiveCfg = Debug|Win32
 		{1D52B0C1-E53B-4486-B670-155F2782BD7B}.Debug|Win32.Build.0 = Debug|Win32
 		{1D52B0C1-E53B-4486-B670-155F2782BD7B}.Debug|x64.ActiveCfg = Debug|x64

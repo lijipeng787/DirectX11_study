@@ -96,7 +96,7 @@ void GraphicsClass::Shutdown(){
 	if(light_)
 	{
 		delete light_;
-		light_ = 0;
+		light_ = nullptr;;
 	}
 
 	if(m_BumpMapShader)
@@ -123,7 +123,7 @@ void GraphicsClass::Shutdown(){
 	
 		
 		
-		directx_device_ = 0;
+		
 	}
 
 	
