@@ -38,9 +38,9 @@ private:
 	
 	LightClass* light_;
 	
-	ModelClass* m_Model1;
+	ModelClass* model_1_;
 	
-	ModelClass* m_Model2;
+	ModelClass* model_2_;
 	
 	BumpModelClass* m_Model3;
 };

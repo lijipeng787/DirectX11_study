@@ -70,15 +70,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 void GraphicsClass::Shutdown() {
 
-	// Release the color shader object.
 	if (color_shader_)
 	{
 		color_shader_->Shutdown();
 		color_shader_->~ColorShaderClass();
 		_aligned_free(color_shader_);
-color_shader_ = nullptr
+		color_shader_ = nullptr;
 	}
-
 
 	if (model_)
 	{
@@ -91,12 +89,6 @@ color_shader_ = nullptr
 		camera_->~Camera();
 		_aligned_free(camera_);
 		camera_ = nullptr;
-	}
-
-	
-		
-		
-		
 	}
 }
 

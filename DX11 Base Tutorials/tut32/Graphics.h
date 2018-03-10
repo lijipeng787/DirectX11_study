@@ -42,7 +42,7 @@ private:
 
 	RenderTextureClass* m_RenderTexture;
 
-	TextureShaderClass* m_TextureShader;
+	TextureShaderClass* texture_shader_;
 
 	GlassShaderClass* m_GlassShader;
 };

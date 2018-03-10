@@ -11,6 +11,8 @@
 #include "textureshaderclass.h"
 #include "transparentshaderclass.h"
 
+using namespace DirectX;
+
 GraphicsClass::GraphicsClass() {}
 
 GraphicsClass::~GraphicsClass() {}
@@ -21,11 +23,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	XMMATRIX baseViewMatrix;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -44,23 +44,23 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Model1 = new ModelClass();
-		if (!m_Model1) {
+		model_1_ = new ModelClass();
+		if (!model_1_) {
 			return false;
 		}
 
-		result = m_Model1->Initialize(L"../../tut26/data/dirt01.dds", "../../tut26/data/square.txt");
+		result = model_1_->Initialize(L"../../tut26/data/dirt01.dds", "../../tut26/data/square.txt");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the first model object.", L"Error", MB_OK);
 			return false;
 		}
 
-		m_Model2 = new ModelClass();
-		if (!m_Model2) {
+		model_2_ = new ModelClass();
+		if (!model_2_) {
 			return false;
 		}
 
-		result = m_Model2->Initialize(L"../../tut26/data/stone01.dds", "../../tut26/data/square.txt");
+		result = model_2_->Initialize(L"../../tut26/data/stone01.dds", "../../tut26/data/square.txt");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the second model object.", L"Error", MB_OK);
 			return false;
@@ -68,13 +68,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_TextureShader = (TextureShaderClass*)_aligned_malloc(sizeof(TextureShaderClass), 16);
-		new (m_TextureShader)TextureShaderClass();
-		if (!m_TextureShader) {
+		texture_shader_ = (TextureShaderClass*)_aligned_malloc(sizeof(TextureShaderClass), 16);
+		new (texture_shader_)TextureShaderClass();
+		if (!texture_shader_) {
 			return false;
 		}
 
-		result = m_TextureShader->Initialize(hwnd);
+		result = texture_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -82,13 +82,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_TransparentShader = (TransparentShaderClass*)_aligned_malloc(sizeof(TransparentShaderClass), 16);
-		new (m_TransparentShader)TransparentShaderClass();
-		if (!m_TransparentShader) {
+		transparent_shader_ = (TransparentShaderClass*)_aligned_malloc(sizeof(TransparentShaderClass), 16);
+		new (transparent_shader_)TransparentShaderClass();
+		if (!transparent_shader_) {
 			return false;
 		}
 
-		result = m_TransparentShader->Initialize(hwnd);
+		result = transparent_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the transparent shader object.", L"Error", MB_OK);
 			return false;
@@ -99,50 +99,41 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 }
 
 void GraphicsClass::Shutdown() {
-	// Release the transparent shader object.
-	if (m_TransparentShader)
-	{
-		m_TransparentShader->Shutdown();
-		m_TransparentShader->~TransparentShaderClass();
-		_aligned_free(m_TransparentShader);
-		m_TransparentShader = 0;
-	}
-
 	
-	if (m_TextureShader)
+	if (transparent_shader_)
 	{
-		m_TextureShader->Shutdown();
-		m_TextureShader->~TextureShaderClass();
-		_aligned_free(m_TextureShader);
-		m_TextureShader = 0;
+		transparent_shader_->Shutdown();
+		transparent_shader_->~TransparentShaderClass();
+		_aligned_free(transparent_shader_);
+		transparent_shader_ = 0;
 	}
 
-	// Release the second model object.
-	if (m_Model2)
+	if (texture_shader_)
 	{
-		m_Model2->Shutdown();
-		delete m_Model2;
-		m_Model2 = 0;
+		texture_shader_->Shutdown();
+		texture_shader_->~TextureShaderClass();
+		_aligned_free(texture_shader_);
+		texture_shader_ = 0;
 	}
 
-	// Release the first model object.
-	if (m_Model1)
+	if (model_2_)
 	{
-		m_Model1->Shutdown();
-		delete m_Model1;
-		m_Model1 = 0;
+		model_2_->Shutdown();
+		delete model_2_;
+		model_2_ = 0;
+	}
+
+	if (model_1_)
+	{
+		model_1_->Shutdown();
+		delete model_1_;
+		model_1_ = 0;
 	}
 
 	if (camera_) {
 		camera_->~Camera();
 		_aligned_free(camera_);
 		camera_ = nullptr;
-	}
-
-	
-		
-		
-		
 	}
 }
 
@@ -164,8 +155,9 @@ bool GraphicsClass::Render() {
 	bool result;
 	float blendAmount;
 
-
 	blendAmount = 0.5f;
+
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
 	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -175,11 +167,10 @@ bool GraphicsClass::Render() {
 	camera_->GetViewMatrix(viewMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
+	model_1_->Render();
 
-	m_Model1->Render(directx_device_->GetDeviceContext());
-
-	result = m_TextureShader->Render(directx_device_->GetDeviceContext(), m_Model1->GetIndexCount(), worldMatrix, viewMatrix,
-		projectionMatrix, m_Model1->GetTexture());
+	result = texture_shader_->Render(model_1_->GetIndexCount(), worldMatrix, viewMatrix,
+		projectionMatrix, model_1_->GetTexture());
 	if (!result) {
 		return false;
 	}
@@ -188,10 +179,10 @@ bool GraphicsClass::Render() {
 
 	directx_device_->TurnOnAlphaBlending();
 
-	m_Model2->Render(directx_device_->GetDeviceContext());
+	model_2_->Render();
 
-	result = m_TransparentShader->Render(directx_device_->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix,
-		projectionMatrix, m_Model2->GetTexture(), blendAmount);
+	result = transparent_shader_->Render(model_2_->GetIndexCount(), worldMatrix, viewMatrix,
+		projectionMatrix, model_2_->GetTexture(), blendAmount);
 	if (!result) {
 		return false;
 	}

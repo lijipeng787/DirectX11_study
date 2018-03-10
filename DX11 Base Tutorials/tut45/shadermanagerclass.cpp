@@ -7,7 +7,7 @@
 
 ShaderManagerClass::ShaderManagerClass()
 {
-	m_TextureShader = 0;
+	texture_shader_ = 0;
 	light_shader_ = nullptr;;
 	m_BumpMapShader = 0;
 }
@@ -29,15 +29,15 @@ bool ShaderManagerClass::Initialize(HWND hwnd)
 
 
 	// Create the texture shader object.
-	m_TextureShader = ( TextureShaderClass* )_aligned_malloc( sizeof( TextureShaderClass ), 16 );
-	new ( m_TextureShader )TextureShaderClass();
-	if(!m_TextureShader)
+	texture_shader_ = ( TextureShaderClass* )_aligned_malloc( sizeof( TextureShaderClass ), 16 );
+	new ( texture_shader_ )TextureShaderClass();
+	if(!texture_shader_)
 	{
 		return false;
 	}
 
 	// Initialize the texture shader object.
-	result = m_TextureShader->Initialize(device, hwnd);
+	result = texture_shader_->Initialize(device, hwnd);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
@@ -101,12 +101,12 @@ void ShaderManagerClass::Shutdown()
 	}
 
 	
-	if(m_TextureShader)
+	if(texture_shader_)
 	{
-		m_TextureShader->Shutdown();
-		m_TextureShader->~TextureShaderClass();
-		_aligned_free( m_TextureShader );
-		m_TextureShader = 0;
+		texture_shader_->Shutdown();
+		texture_shader_->~TextureShaderClass();
+		_aligned_free( texture_shader_ );
+		texture_shader_ = 0;
 	}
 
 	
@@ -120,7 +120,7 @@ bool ShaderManagerClass::RenderTextureShader(ID3D11DeviceContext* device, int in
 
 
 	// Render the model using the texture shader.
-	result = m_TextureShader->Render(device, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture);
+	result = texture_shader_->Render(device, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture);
 	if(!result)
 	{
 		return false;

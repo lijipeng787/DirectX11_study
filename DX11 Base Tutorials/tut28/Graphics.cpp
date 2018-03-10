@@ -58,12 +58,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_TextureShader = (TextureShaderClass*)_aligned_malloc(sizeof(TextureShaderClass), 16);
-		new (m_TextureShader)TextureShaderClass();
-		if (!m_TextureShader) {
+		texture_shader_ = (TextureShaderClass*)_aligned_malloc(sizeof(TextureShaderClass), 16);
+		new (texture_shader_)TextureShaderClass();
+		if (!texture_shader_) {
 			return false;
 		}
-		result = m_TextureShader->Initialize(hwnd);
+		result = texture_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -139,12 +139,12 @@ void GraphicsClass::Shutdown() {
 	}
 
 	
-	if (m_TextureShader)
+	if (texture_shader_)
 	{
-		m_TextureShader->Shutdown();
-		m_TextureShader->~TextureShaderClass();
-		_aligned_free(m_TextureShader);
-		m_TextureShader = 0;
+		texture_shader_->Shutdown();
+		texture_shader_->~TextureShaderClass();
+		_aligned_free(texture_shader_);
+		texture_shader_ = 0;
 	}
 
 
@@ -248,7 +248,7 @@ bool GraphicsClass::RenderToTexture(float rotation_) {
 
 	model_->Render(directx_device_->GetDeviceContext());
 
-	result = m_TextureShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix,
+	result = texture_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix,
 		projectionMatrix, model_->GetTexture());
 	if (!result) {
 		return false;
@@ -309,7 +309,7 @@ bool GraphicsClass::RenderNormalScene(float rotation_) {
 
 	model_->Render(directx_device_->GetDeviceContext());
 
-	result = m_TextureShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix,
+	result = texture_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix,
 		projectionMatrix, model_->GetTexture());
 	if (!result) {
 		return false;

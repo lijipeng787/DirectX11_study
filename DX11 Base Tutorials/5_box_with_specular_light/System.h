@@ -18,7 +18,7 @@ public:
 
 	virtual bool Frame()override;
 private:
-	GraphicsClass *m_Graphics;
+	GraphicsClass *graphics_;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

@@ -38,7 +38,7 @@ private:
 
 	ModelClass *model_ = nullptr;
 
-	TextureShaderClass* m_TextureShader = nullptr;
+	TextureShaderClass* texture_shader_ = nullptr;
 
 	RenderTextureClass* m_RenderTexture = nullptr;
 

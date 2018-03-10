@@ -48,7 +48,7 @@ private:
 
 	DebugWindowClass* m_DebugWindow = nullptr;
 
-	TextureShaderClass* m_TextureShader = nullptr;
+	TextureShaderClass* texture_shader_ = nullptr;
 };
 
 #endif

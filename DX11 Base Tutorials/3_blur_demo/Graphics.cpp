@@ -63,12 +63,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_TextureShader = (TextureShaderClass*)_aligned_malloc(sizeof(TextureShaderClass), 16);
-		new (m_TextureShader)TextureShaderClass();
-		if (!m_TextureShader) {
+		texture_shader_ = (TextureShaderClass*)_aligned_malloc(sizeof(TextureShaderClass), 16);
+		new (texture_shader_)TextureShaderClass();
+		if (!texture_shader_) {
 			return false;
 		}
-		result = m_TextureShader->Initialize(hwnd);
+		result = texture_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -256,12 +256,12 @@ void GraphicsClass::Shutdown(){
 		m_HorizontalBlurShader = 0;
 	}
 
-	if(m_TextureShader)
+	if(texture_shader_)
 	{
-		m_TextureShader->Shutdown();
-		m_TextureShader->~TextureShaderClass();
-		_aligned_free( m_TextureShader );
-		m_TextureShader = 0;
+		texture_shader_->Shutdown();
+		texture_shader_->~TextureShaderClass();
+		_aligned_free( texture_shader_ );
+		texture_shader_ = 0;
 	}
 
 	if(model_)
@@ -354,7 +354,7 @@ bool GraphicsClass::RenderSceneToTexture(float rotation_) {
 
 	model_->Render();
 
-	auto result = m_TextureShader->Render(model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+	auto result = texture_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		model_->GetTexture());
 	if (!result) {
 		return false;
@@ -388,7 +388,7 @@ bool GraphicsClass::DownSampleTexture() {
 
 	m_SmallWindow->Render();
 
-	auto result = m_TextureShader->Render(m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+	auto result = texture_shader_->Render(m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_RenderTexture->GetShaderResourceView());
 	if (!result) {
 		return false;
@@ -499,7 +499,7 @@ bool GraphicsClass::UpSampleTexture() {
 
 	m_FullScreenWindow->Render();
 
-	auto result = m_TextureShader->Render(m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+	auto result = texture_shader_->Render(m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_VerticalBlurTexture->GetShaderResourceView());
 	if (!result) {
 		return false;
@@ -531,7 +531,7 @@ bool GraphicsClass::Render2DTextureScene() {
 
 	m_FullScreenWindow->Render();
 
-    auto result = m_TextureShader->Render(m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+    auto result = texture_shader_->Render(m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_UpSampleTexure->GetShaderResourceView());
 	if (!result) {
 		return false;

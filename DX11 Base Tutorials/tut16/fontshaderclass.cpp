@@ -9,7 +9,7 @@ FontShaderClass::FontShaderClass()
 	vertex_shader_ = nullptr;
 	pixel_shader_ = nullptr;
 	layout_ = nullptr;
-	m_constantBuffer = 0;
+	constant_buffer_ = nullptr;
 	sample_state_ = nullptr;
 	m_pixelBuffer = 0;
 }
@@ -187,7 +187,7 @@ bool FontShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFi
 	constantBufferDesc.StructureByteStride = 0;
 
 	
-	result = device->CreateBuffer(&constantBufferDesc, NULL, &m_constantBuffer);
+	result = device->CreateBuffer(&constantBufferDesc, NULL, &constant_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -250,11 +250,11 @@ void FontShaderClass::ShutdownShader()
 		sample_state_ = nullptr;
 	}
 
-	// Release the constant buffer.
-	if(m_constantBuffer)
+	
+	if(constant_buffer_)
 	{
-		m_constantBuffer->Release();
-		m_constantBuffer = 0;
+		constant_buffer_->Release();
+		constant_buffer_ = nullptr;
 	}
 
 	
@@ -337,7 +337,7 @@ bool FontShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMM
 	projectionMatrixCopy = XMMatrixTranspose( projectionMatrix );
 
 
-	result = device_context->Map(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(constant_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -352,13 +352,13 @@ bool FontShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMM
 	dataPtr->projection = projectionMatrixCopy;
 
 	
-    device_context->Unmap(m_constantBuffer, 0);
+    device_context->Unmap(constant_buffer_, 0);
 
 	
 	buffer_number = 0;
 
 	
-    device_context->VSSetConstantBuffers(buffer_number, 1, &m_constantBuffer);
+    device_context->VSSetConstantBuffers(buffer_number, 1, &constant_buffer_);
 
 	
 	device_context->PSSetShaderResources(0, 1, &texture);

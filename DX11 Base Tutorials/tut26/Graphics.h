@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -31,17 +30,13 @@ private:
 
 	bool RenderScene();
 private:
-	
-
 	Camera *camera_ = nullptr;
 
-	ModelClass *m_Model1 = nullptr;
+	ModelClass *model_1_ = nullptr;
 
-	ModelClass *m_Model2 = nullptr;
+	ModelClass *model_2_ = nullptr;
 
-	TextureShaderClass* m_TextureShader = nullptr;
+	TextureShaderClass* texture_shader_ = nullptr;
 
-	TransparentShaderClass* m_TransparentShader = nullptr;
+	TransparentShaderClass* transparent_shader_ = nullptr;
 };
-
-#endif

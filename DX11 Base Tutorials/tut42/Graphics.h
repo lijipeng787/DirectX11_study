@@ -85,7 +85,7 @@ private:
 
 	OrthoWindowClass *m_SmallWindow, *m_FullScreenWindow;
 
-	TextureShaderClass* m_TextureShader;
+	TextureShaderClass* texture_shader_;
 
 	HorizontalBlurShaderClass* m_HorizontalBlurShader;
 

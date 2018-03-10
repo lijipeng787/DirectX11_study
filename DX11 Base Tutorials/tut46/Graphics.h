@@ -51,7 +51,7 @@ private:
 
 	Camera *camera_ = nullptr;
 
-	TextureShaderClass* m_TextureShader;
+	TextureShaderClass* texture_shader_;
 
 	SimpleMoveableSurface* m_Bitmap;
 

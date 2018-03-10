@@ -24,7 +24,7 @@ public:
 private:
 	bool HandleInput(float frame_time);
 private:
-	GraphicsClass *m_Graphics;
+	GraphicsClass *graphics_;
 
 	PositionClass *m_Position;
 };

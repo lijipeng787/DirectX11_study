@@ -22,11 +22,11 @@ bool System::Initialize() {
 	//GetScreenWidthAndHeight(screenWidth, screenHeight);
 
 	{
-		m_Graphics = new GraphicsClass();
-		if (!m_Graphics) {
+		graphics_ = new GraphicsClass();
+		if (!graphics_) {
 			return false;
 		}
-		bool result = m_Graphics->Initialize(screenWidth, screenHeight, GetApplicationHandle());
+		bool result = graphics_->Initialize(screenWidth, screenHeight, GetApplicationHandle());
 		if (!result) {
 			return false;
 		}
@@ -66,18 +66,18 @@ bool System::Frame() {
 	m_Position->GetPosition(posX, posY, posZ);
 	m_Position->GetRotation(rotX, rotY, rotZ);
 
-	m_Graphics->SetPosition(posX, posY, posZ);
-	m_Graphics->SetRotation(rotX, rotY, rotZ);
+	graphics_->SetPosition(posX, posY, posZ);
+	graphics_->SetRotation(rotX, rotY, rotZ);
 
 	auto delta_time = GetTimerComponent().GetTime();
-	m_Graphics->SetDeltaTime(delta_time);
+	graphics_->SetDeltaTime(delta_time);
 
-	result = m_Graphics->Frame();
+	result = graphics_->Frame();
 	if (!result) {
 		return false;
 	}
 
-	result = m_Graphics->Render();
+	result = graphics_->Render();
 	if (!result) {
 		return false;
 	}
@@ -124,10 +124,10 @@ void System::Shutdown() {
 
 	SystemBase::Shutdown();
 
-	if (m_Graphics) {
-		m_Graphics->Shutdown();
-		delete m_Graphics;
-		m_Graphics = 0;
+	if (graphics_) {
+		graphics_->Shutdown();
+		delete graphics_;
+		graphics_ = 0;
 	}
 }
 

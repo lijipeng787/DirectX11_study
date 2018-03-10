@@ -27,7 +27,7 @@ private:
 
 	int m_screenWidth = 0, m_screenHeight = 0;
 
-	GraphicsClass *m_Graphics;
+	GraphicsClass *graphics_;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

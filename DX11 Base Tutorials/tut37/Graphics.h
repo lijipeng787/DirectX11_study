@@ -32,7 +32,7 @@ private:
 
 	ModelClass* model_;
 
-	TextureShaderClass* m_TextureShader;
+	TextureShaderClass* texture_shader_;
 };
 
 #endif

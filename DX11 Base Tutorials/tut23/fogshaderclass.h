@@ -57,7 +57,7 @@ private:
 	ID3D11VertexShader* vertex_shader_;
 	ID3D11PixelShader* pixel_shader_;
 	ID3D11InputLayout* layout_;
-	ID3D11Buffer* m_constantBuffer;
+	ID3D11Buffer* constant_buffer_;
 	ID3D11SamplerState* sample_state_;
 	ID3D11Buffer* m_fogBuffer;
 };

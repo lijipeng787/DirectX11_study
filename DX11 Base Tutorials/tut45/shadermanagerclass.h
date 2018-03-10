@@ -35,7 +35,7 @@ public:
 							 ID3D11ShaderResourceView*, const XMFLOAT3&, const XMFLOAT4& );
 
 private:
-	TextureShaderClass* m_TextureShader;
+	TextureShaderClass* texture_shader_;
 	LightShaderClass* light_shader_;
 	BumpMapShaderClass* m_BumpMapShader;
 };

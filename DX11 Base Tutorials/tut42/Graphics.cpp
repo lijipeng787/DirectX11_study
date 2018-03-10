@@ -220,14 +220,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 	{
 		// Create the texture shader object.
-		m_TextureShader = (TextureShaderClass*)_aligned_malloc(sizeof(TextureShaderClass), 16);
-		new (m_TextureShader)TextureShaderClass();
-		if (!m_TextureShader) {
+		texture_shader_ = (TextureShaderClass*)_aligned_malloc(sizeof(TextureShaderClass), 16);
+		new (texture_shader_)TextureShaderClass();
+		if (!texture_shader_) {
 			return false;
 		}
 
 		// Initialize the texture shader object.
-		result = m_TextureShader->Initialize(hwnd);
+		result = texture_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -413,12 +413,12 @@ void GraphicsClass::Shutdown() {
 	}
 
 	
-	if (m_TextureShader)
+	if (texture_shader_)
 	{
-		m_TextureShader->Shutdown();
-		m_TextureShader->~TextureShaderClass();
-		_aligned_free(m_TextureShader);
-		m_TextureShader = 0;
+		texture_shader_->Shutdown();
+		texture_shader_->~TextureShaderClass();
+		_aligned_free(texture_shader_);
+		texture_shader_ = 0;
 	}
 
 	
@@ -705,7 +705,7 @@ bool GraphicsClass::DownSampleTexture() {
 	m_SmallWindow->Render(directx_device_->GetDeviceContext());
 
 	// Render the small ortho window using the texture shader and the render to texture of the scene as the texture resource.
-	result = m_TextureShader->Render(directx_device_->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
+	result = texture_shader_->Render(directx_device_->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
 		m_BlackWhiteRenderTexture->GetShaderResourceView());
 	if (!result) {
 		return false;
@@ -853,7 +853,7 @@ bool GraphicsClass::UpSampleTexture(){
 	m_FullScreenWindow->Render(directx_device_->GetDeviceContext());
 
 	// Render the full screen ortho window using the texture shader and the small sized final blurred render to texture resource.
-	result = m_TextureShader->Render(directx_device_->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
+	result = texture_shader_->Render(directx_device_->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
 		m_VerticalBlurTexture->GetShaderResourceView());
 	if (!result) {
 		return false;

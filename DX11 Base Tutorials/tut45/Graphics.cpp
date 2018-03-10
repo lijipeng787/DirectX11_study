@@ -1,5 +1,3 @@
-#include "Graphics.h"
-
 #include <new>
 
 #include "../CommonFramework/TypeDefine.h"
@@ -7,6 +5,7 @@
 #include "../CommonFramework/Input.h"
 #include "../CommonFramework/Camera.h"
 
+#include "Graphics.h"
 #include "shadermanagerclass.h"
 #include "lightclass.h"
 #include "modelclass.h"
@@ -21,11 +20,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	bool result;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -68,11 +65,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Model1 = new ModelClass();
-		if (!m_Model1) {
+		model_1_ = new ModelClass();
+		if (!model_1_) {
 			return false;
 		}
-		result = m_Model1->Initialize("../../tut45/data/cube.txt", L"../../tut45/data/marble.dds");
+		result = model_1_->Initialize("../../tut45/data/cube.txt", L"../../tut45/data/marble.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the first model object.", L"Error", MB_OK);
 			return false;
@@ -80,11 +77,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Model2 = new ModelClass();
-		if (!m_Model2) {
+		model_2_ = new ModelClass();
+		if (!model_2_) {
 			return false;
 		}
-		result = m_Model2->Initialize("../../tut45/data/cube.txt", L"../../tut45/data/metal.dds");
+		result = model_2_->Initialize("../../tut45/data/cube.txt", L"../../tut45/data/metal.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the second model object.", L"Error", MB_OK);
 			return false;
@@ -110,16 +107,16 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 void GraphicsClass::Shutdown() {
 
 	// Release the model objects.
-	if (m_Model1) {
-		m_Model1->Shutdown();
-		delete m_Model1;
-		m_Model1 = 0;
+	if (model_1_) {
+		model_1_->Shutdown();
+		delete model_1_;
+		model_1_ = 0;
 	}
 
-	if (m_Model2) {
-		m_Model2->Shutdown();
-		delete m_Model2;
-		m_Model2 = 0;
+	if (model_2_) {
+		model_2_->Shutdown();
+		delete model_2_;
+		model_2_ = 0;
 	}
 
 	if (m_Model3) {
@@ -191,9 +188,9 @@ bool GraphicsClass::Render() {
 	translateMatrix = XMMatrixTranslation(-3.5f, 0.0f, 0.0f);
 	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
 
-	m_Model1->Render(directx_device_->GetDeviceContext());
-	result = m_ShaderManager->RenderTextureShader(directx_device_->GetDeviceContext(), m_Model1->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_Model1->GetTexture());
+	model_1_->Render(directx_device_->GetDeviceContext());
+	result = m_ShaderManager->RenderTextureShader(directx_device_->GetDeviceContext(), model_1_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		model_1_->GetTexture());
 	if (!result) {
 		return false;
 	}
@@ -203,9 +200,9 @@ bool GraphicsClass::Render() {
 	translateMatrix = XMMatrixTranslation(0.0f, 0.0f, 0.0f);
 	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
 
-	m_Model2->Render(directx_device_->GetDeviceContext());
-	result = m_ShaderManager->RenderLightShader(directx_device_->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_Model2->GetTexture(), light_->GetDirection(), light_->GetAmbientColor(), light_->GetDiffuseColor(),
+	model_2_->Render(directx_device_->GetDeviceContext());
+	result = m_ShaderManager->RenderLightShader(directx_device_->GetDeviceContext(), model_2_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		model_2_->GetTexture(), light_->GetDirection(), light_->GetAmbientColor(), light_->GetDiffuseColor(),
 		camera_->GetPosition(), light_->GetSpecularColor(), light_->GetSpecularPower());
 	if (!result) {
 		return false;

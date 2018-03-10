@@ -1,4 +1,3 @@
-#include "Graphics.h"
 #include <new>
 
 #include "../CommonFramework/TypeDefine.h"
@@ -6,6 +5,7 @@
 #include "../CommonFramework/Input.h"
 #include "../CommonFramework/Camera.h"
 
+#include "Graphics.h"
 #include "modelclass.h"
 #include "colorshaderclass.h"
 

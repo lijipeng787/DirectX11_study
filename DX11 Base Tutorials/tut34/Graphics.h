@@ -32,7 +32,7 @@ private:
 
 	Camera *camera_ = nullptr;
 
-	TextureShaderClass* m_TextureShader = nullptr;
+	TextureShaderClass* texture_shader_ = nullptr;
 
 	ModelClass *m_FloorModel = nullptr, *m_BillboardModel = nullptr;
 

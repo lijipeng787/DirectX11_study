@@ -1,64 +1,52 @@
-
-// Filename: transparentshaderclass.h
-
-#ifndef _TRANSPARENTSHADERCLASS_H_
-#define _TRANSPARENTSHADERCLASS_H_
-
-
-
-
+#pragma once
 
 #include <d3d11.h>
 #include <DirectXMath.h>
-#include <d3dcompiler.h>
-#include <fstream>
-using namespace std;
-using namespace DirectX;
 
+struct MatrixBufferType;
+struct TransparentBufferType;
 
-
-// Class name: TransparentShaderClass
-
-class TransparentShaderClass
-{
-private:
-	struct MatrixBufferType
-	{
-		XMMATRIX world;
-		XMMATRIX view;
-		XMMATRIX projection;
-	};
-
-	struct TransparentBufferType
-	{
-		float blendAmount;
-		XMFLOAT3 padding;
-	};
-
+class TransparentShaderClass {
 public:
-	TransparentShaderClass();
-	TransparentShaderClass(const TransparentShaderClass&);
-	~TransparentShaderClass();
+	TransparentShaderClass() {}
 
+	TransparentShaderClass(const TransparentShaderClass&) = delete;
+
+	~TransparentShaderClass() {}
+public:
 	bool Initialize(HWND);
-	void Shutdown();
-	bool Render(int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*, float);
 
+	void Shutdown();
+
+	bool Render(int,
+				const DirectX::XMMATRIX&,
+				const DirectX::XMMATRIX&,
+				const DirectX::XMMATRIX&,
+				ID3D11ShaderResourceView*,
+				float);
 private:
 	bool InitializeShader(HWND, WCHAR*, WCHAR*);
+
 	void ShutdownShader();
+
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*, float);
+	bool SetShaderParameters(
+		const DirectX::XMMATRIX&,
+		const DirectX::XMMATRIX&,
+		const DirectX::XMMATRIX&,
+		ID3D11ShaderResourceView*,
+		float);
+
 	void RenderShader(int);
-
 private:
-	ID3D11VertexShader* vertex_shader_;
-	ID3D11PixelShader* pixel_shader_;
-	ID3D11InputLayout* layout_;
-	ID3D11Buffer* matrix_buffer_;
-	ID3D11SamplerState* sample_state_;
-	ID3D11Buffer* m_transparentBuffer;
-};
+	ID3D11VertexShader * vertex_shader_ = nullptr;
 
-#endif
+	ID3D11PixelShader* pixel_shader_ = nullptr;
+
+	ID3D11InputLayout* layout_ = nullptr;
+
+	ID3D11Buffer* matrix_buffer_ = nullptr, *transparent_buffer_ = nullptr;
+
+	ID3D11SamplerState* sample_state_ = nullptr;
+};

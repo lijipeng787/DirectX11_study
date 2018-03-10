@@ -14,16 +14,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="transparent.ps">
+    <None Include="simple_texture.hlsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="transparent.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="texture.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="texture.vs">
+    <None Include="transparent.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

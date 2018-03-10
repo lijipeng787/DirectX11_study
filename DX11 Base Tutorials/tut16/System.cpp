@@ -21,11 +21,11 @@ bool System::Initialize() {
 	//GetScreenWidthAndHeight(screenWidth, screenHeight);
 
 	{
-		m_Graphics = new GraphicsClass();
-		if (!m_Graphics) {
+		graphics_ = new GraphicsClass();
+		if (!graphics_) {
 			return false;
 		}
-		bool result = m_Graphics->Initialize(screenWidth, screenHeight, GetApplicationHandle());
+		bool result = graphics_->Initialize(screenWidth, screenHeight, GetApplicationHandle());
 		if (!result) {
 			return false;
 		}
@@ -65,16 +65,16 @@ bool System::Frame() {
 	// Get the current view point rotation_.
 	m_Position->GetRotation(rotationY);
 
-	m_Graphics->SetRotation(rotationY);
+	graphics_->SetRotation(rotationY);
 
 	// Do the frame processing for the graphics object.
-	result = m_Graphics->Frame();
+	result = graphics_->Frame();
 	if (!result) {
 		return false;
 	}
 
 	// Finally render the graphics to the screen.
-	result = m_Graphics->Render();
+	result = graphics_->Render();
 	if (!result) {
 		return false;
 	}
@@ -86,10 +86,10 @@ void System::Shutdown() {
 
 	SystemBase::Shutdown();
 
-	if (m_Graphics) {
-		m_Graphics->Shutdown();
-		delete m_Graphics;
-		m_Graphics = 0;
+	if (graphics_) {
+		graphics_->Shutdown();
+		delete graphics_;
+		graphics_ = 0;
 	}
 }
 

@@ -1,21 +1,9 @@
-
-// Filename: texture.vs
-
-
-
-
-
-
-cbuffer PerFrameBuffer
+cbuffer MatrixBuffer
 {
 	matrix worldMatrix;
 	matrix viewMatrix;
 	matrix projectionMatrix;
 };
-
-
-
-
 
 struct VertexInputType
 {
@@ -29,25 +17,34 @@ struct PixelInputType
     float2 tex : TEXCOORD0;
 };
 
-
-
-
-
-PixelInputType TextureVertexShader(VertexInputType input)
+PixelInputType TransparentVertexShader(VertexInputType input)
 {
     PixelInputType output;
     
-
-
     input.position.w = 1.0f;
 
-	
     output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
-    
 	
 	output.tex = input.tex;
-    
+
     return output;
+}
+
+Texture2D shaderTexture;
+SamplerState SampleType;
+
+cbuffer TransparentBuffer {
+	float blendAmount;
+};
+
+float4 TransparentPixelShader(PixelInputType input) : SV_TARGET
+{
+	float4 color;
+
+	color = shaderTexture.Sample(SampleType, input.tex);
+	color.a = blendAmount;
+	
+	return color;
 }

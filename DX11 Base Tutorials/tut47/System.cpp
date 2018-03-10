@@ -20,11 +20,11 @@ bool System::Initialize() {
 	//GetScreenWidthAndHeight(screenWidth, screenHeight);
 
 	{
-		m_Graphics = new GraphicsClass();
-		if (!m_Graphics) {
+		graphics_ = new GraphicsClass();
+		if (!graphics_) {
 			return false;
 		}
-		bool result = m_Graphics->Initialize(screenWidth, screenHeight, GetApplicationHandle());
+		bool result = graphics_->Initialize(screenWidth, screenHeight, GetApplicationHandle());
 		if (!result) {
 			return false;
 		}
@@ -43,12 +43,12 @@ bool System::Frame() {
 
 	HandleInput();
 
-	result = m_Graphics->Frame();
+	result = graphics_->Frame();
 	if (!result) {
 		return false;
 	}
 
-	result = m_Graphics->Render();
+	result = graphics_->Render();
 	if (!result) {
 		return false;
 	}
@@ -61,7 +61,7 @@ bool System::HandleInput() {
 	int mouseX, mouseY;
 
 	GetInputComponent().GetMouseLocation(mouseX, mouseY);
-	m_Graphics->SetMousePosition(mouseX, mouseY);
+	graphics_->SetMousePosition(mouseX, mouseY);
 
 	// Check if the user pressed escape and wants to exit the application.
 	if (GetInputComponent().IsEscapePressed() == true) {
@@ -73,7 +73,7 @@ bool System::HandleInput() {
 		// If they have clicked on the screen with the mouse then perform an intersection test.
 		if (m_beginCheck == false) {
 			m_beginCheck = true;
-			m_Graphics->TestIntersection(mouseX, mouseY);
+			graphics_->TestIntersection(mouseX, mouseY);
 		}
 	}
 
@@ -89,10 +89,10 @@ void System::Shutdown() {
 
 	SystemBase::Shutdown();
 
-	if (m_Graphics) {
-		m_Graphics->Shutdown();
-		delete m_Graphics;
-		m_Graphics = 0;
+	if (graphics_) {
+		graphics_->Shutdown();
+		delete graphics_;
+		graphics_ = 0;
 	}
 }
 

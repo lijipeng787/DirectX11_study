@@ -62,12 +62,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_TextureShader = (TextureShaderClass*)_aligned_malloc(sizeof(TextureShaderClass), 16);
-		new (m_TextureShader)TextureShaderClass();
-		if (!m_TextureShader) {
+		texture_shader_ = (TextureShaderClass*)_aligned_malloc(sizeof(TextureShaderClass), 16);
+		new (texture_shader_)TextureShaderClass();
+		if (!texture_shader_) {
 			return false;
 		}
-		result = m_TextureShader->Initialize(hwnd);
+		result = texture_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 			return false;
@@ -157,11 +157,11 @@ void GraphicsClass::Shutdown() {
 	}
 
 	
-	if (m_TextureShader) {
-		m_TextureShader->Shutdown();
-		m_TextureShader->~TextureShaderClass();
-		_aligned_free(m_TextureShader);
-		m_TextureShader = 0;
+	if (texture_shader_) {
+		texture_shader_->Shutdown();
+		texture_shader_->~TextureShaderClass();
+		_aligned_free(texture_shader_);
+		texture_shader_ = 0;
 	}
 
 
@@ -316,7 +316,7 @@ bool GraphicsClass::Render() {
 	directx_device_->TurnOnAlphaBlending();
 
 	result = m_Bitmap->Render(directx_device_->GetDeviceContext(), mouse_x_, mouse_y_);  if (!result) { return false; }
-	result = m_TextureShader->Render(
+	result = texture_shader_->Render(
 		directx_device_->GetDeviceContext(), 
 		m_Bitmap->GetIndexCount(), 
 		worldMatrix, viewMatrix, orthoMatrix, 
