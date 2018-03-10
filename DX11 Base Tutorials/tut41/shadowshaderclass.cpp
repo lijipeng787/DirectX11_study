@@ -62,7 +62,7 @@ bool ShadowShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, cons
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, texture, 
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, texture, 
 								 depthMapTexture, lightPosition, ambientColor, diffuseColor, lightViewMatrix2, lightProjectionMatrix2, depthMapTexture2,
 								 lightPosition2, diffuseColor2);
 	if(!result)
@@ -71,7 +71,7 @@ bool ShadowShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, cons
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }
@@ -248,7 +248,7 @@ bool ShadowShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* ps
 	lightBufferDesc.MiscFlags = 0;
 	lightBufferDesc.StructureByteStride = 0;
 
-	// Create the constant buffer pointer so we can access the pixel shader constant buffer from within this class.
+
 	result = device->CreateBuffer(&lightBufferDesc, NULL, &light_buffer_);
 	if(FAILED(result))
 	{

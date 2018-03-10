@@ -56,14 +56,14 @@ bool TextureShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, con
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture);
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture);
 	if(!result)
 	{
 		return false;
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }
@@ -318,10 +318,10 @@ bool TextureShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const 
 		return false;
 	}
 
-	// Get a pointer to the data in the matrix constant buffer.
+	
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 
-	// Copy the matrices into the matrix constant buffer.
+	
 	dataPtr->world = worldMatrixCopy;
 	dataPtr->view = viewMatrixCopy;
 	dataPtr->projection = projectionMatrixCopy;

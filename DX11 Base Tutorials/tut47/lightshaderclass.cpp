@@ -57,14 +57,14 @@ bool LightShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection);
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection);
 	if(!result)
 	{
 		return false;
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }

@@ -62,7 +62,7 @@ bool FireShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const 
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, fireTexture, noiseTexture, alphaTexture, 
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, fireTexture, noiseTexture, alphaTexture, 
 								 frameTime, scrollSpeeds, scales, distortion1, distortion2, distortion3, distortionScale, 
 								 distortionBias);
 	if(!result)
@@ -71,7 +71,7 @@ bool FireShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const 
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }
@@ -408,10 +408,10 @@ bool FireShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMM
 		return false;
 	}
 
-	// Get a pointer to the data in the matrix constant buffer.
+	
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 
-	// Copy the matrices into the matrix constant buffer.
+	
 	dataPtr->world = worldMatrixCopy;
 	dataPtr->view = viewMatrixCopy;
 	dataPtr->projection = projectionMatrixCopy;

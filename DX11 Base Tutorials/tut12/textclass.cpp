@@ -135,14 +135,14 @@ bool TextClass::Render( const XMMATRIX& worldMatrix, const XMMATRIX& orthoMatrix
 
 
 	// Draw the first sentence.
-	result = RenderSentence(device_context, m_sentence1, worldMatrix, orthoMatrix);
+	result = RenderSentence(m_sentence1, worldMatrix, orthoMatrix);
 	if(!result)
 	{
 		return false;
 	}
 
 	// Draw the second sentence.
-	result = RenderSentence(device_context, m_sentence2, worldMatrix, orthoMatrix);
+	result = RenderSentence(m_sentence2, worldMatrix, orthoMatrix);
 	if(!result)
 	{
 		return false;
@@ -374,7 +374,7 @@ bool TextClass::RenderSentence( SentenceType* sentence, const XMMATRIX& worldMat
 	pixelColor = XMFLOAT4(sentence->red, sentence->green, sentence->blue, 1.0f);
 
 	// Render the text using the font shader.
-	result = m_FontShader->Render(device_context, sentence->indexCount, worldMatrix, m_baseViewMatrix, orthoMatrix, m_Font->GetTexture(), 
+	result = m_FontShader->Render(sentence->indexCount, worldMatrix, m_baseViewMatrix, orthoMatrix, m_Font->GetTexture(), 
 								  pixelColor);
 	if(!result)
 	{

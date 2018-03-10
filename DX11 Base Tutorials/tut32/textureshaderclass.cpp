@@ -56,14 +56,14 @@ bool TextureShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, con
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture);
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture);
 	if(!result)
 	{
 		return false;
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }
@@ -176,7 +176,7 @@ bool TextureShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* p
 	pixelShaderBuffer->Release();
 	pixelShaderBuffer = 0;
 
-    // Setup the description of the dynamic constant buffer that is in the vertex shader.
+    
     constantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	constantBufferDesc.ByteWidth = sizeof(ConstantBufferType);
     constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;

@@ -32,7 +32,7 @@ private:
 
 	ModelClass* model_ = nullptr;
 	
-	ColorShaderClass* m_ColorShader = nullptr;
+	ColorShaderClass* color_shader_ = nullptr;
 };
 
 #endif

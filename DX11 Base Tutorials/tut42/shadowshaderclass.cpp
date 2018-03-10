@@ -58,7 +58,7 @@ bool ShadowShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, cons
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix,  depthMapTexture, 
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix,  depthMapTexture, 
 								 lightPosition);
 	if(!result)
 	{
@@ -66,7 +66,7 @@ bool ShadowShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, cons
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }

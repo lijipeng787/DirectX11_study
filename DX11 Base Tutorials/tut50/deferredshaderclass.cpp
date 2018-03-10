@@ -56,14 +56,14 @@ bool DeferredShaderClass::Render( int indexCount, const XMMATRIX& worldMatrix, c
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture);
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture);
 	if(!result)
 	{
 		return false;
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }

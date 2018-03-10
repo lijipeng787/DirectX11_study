@@ -57,14 +57,14 @@ bool FadeShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const 
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture, fadeAmount);
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, fadeAmount);
 	if(!result)
 	{
 		return false;
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }
@@ -223,7 +223,7 @@ bool FadeShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFi
     fadeBufferDesc.MiscFlags = 0;
 	fadeBufferDesc.StructureByteStride = 0;
 
-	// Create the constant buffer pointer so we can access the pixel shader constant buffer from within this class.
+
 	result = device->CreateBuffer(&fadeBufferDesc, NULL, &m_fadeBuffer);
 	if(FAILED(result))
 	{
@@ -343,10 +343,10 @@ bool FadeShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMM
 		return false;
 	}
 
-	// Get a pointer to the data in the matrix constant buffer.
+	
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 
-	// Copy the matrices into the matrix constant buffer.
+	
 	dataPtr->world = worldMatrixCopy;
 	dataPtr->view = viewMatrixCopy;
 	dataPtr->projection = projectionMatrixCopy;

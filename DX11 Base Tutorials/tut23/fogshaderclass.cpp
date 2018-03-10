@@ -57,14 +57,14 @@ bool FogShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const X
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture, fogStart, fogEnd);
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, fogStart, fogEnd);
 	if(!result)
 	{
 		return false;
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }
@@ -178,7 +178,7 @@ bool FogShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFil
 	pixelShaderBuffer->Release();
 	pixelShaderBuffer = 0;
 
-    // Setup the description of the dynamic constant buffer that is in the vertex shader.
+    
     constantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	constantBufferDesc.ByteWidth = sizeof(ConstantBufferType);
     constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;

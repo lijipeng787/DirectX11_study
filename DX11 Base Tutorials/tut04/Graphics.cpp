@@ -13,16 +13,11 @@ GraphicsClass::GraphicsClass() {}
 
 GraphicsClass::~GraphicsClass() {}
 
-bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
-{
-	bool result;
+bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
-	directx_device_ = new DirectX11Device;
-	if (!directx_device_) {
-		return false;
-	}
+	auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
-	result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+	auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result) {
 		MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 		return false;
@@ -41,19 +36,19 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	result = model_->Initialize(directx_device_->GetDevice());
+	result = model_->Initialize();
 	if (!result) {
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
 
-	m_ColorShader = (ColorShaderClass*)_aligned_malloc(sizeof(ColorShaderClass), 16);
-	new (m_ColorShader)ColorShaderClass();
-	if (!m_ColorShader) {
+	color_shader_ = (ColorShaderClass*)_aligned_malloc(sizeof(ColorShaderClass), 16);
+	new (color_shader_)ColorShaderClass();
+	if (!color_shader_) {
 		return false;
 	}
 
-	result = m_ColorShader->Initialize(hwnd);
+	result = color_shader_->Initialize(hwnd);
 	if (!result) {
 		MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
 		return false;
@@ -64,11 +59,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void GraphicsClass::Shutdown() {
 
-	if (m_ColorShader) {
-		m_ColorShader->Shutdown();
-		m_ColorShader->~ColorShaderClass();
-		_aligned_free(m_ColorShader);
-		m_ColorShader = 0;
+	if (color_shader_) {
+		color_shader_->Shutdown();
+		color_shader_->~ColorShaderClass();
+		_aligned_free(color_shader_);
+		color_shader_ = nullptr;
 	}
 
 	if (model_) {
@@ -82,20 +77,11 @@ void GraphicsClass::Shutdown() {
 		_aligned_free(camera_);
 		camera_ = nullptr;
 	}
-
-	
-		
-		
-		
-		
-	}
 }
 
 bool GraphicsClass::Frame() {
 
-	bool result;
-
-	result = Render();
+	auto result = Render();
 	if (!result) {
 		return false;
 	}
@@ -106,7 +92,8 @@ bool GraphicsClass::Frame() {
 bool GraphicsClass::Render() {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	bool result;
+
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
 	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -116,9 +103,9 @@ bool GraphicsClass::Render() {
 	directx_device_->GetWorldMatrix(worldMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
-	model_->Render(directx_device_->GetDeviceContext());
+	model_->Render();
 
-	result = m_ColorShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+	auto result = color_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
 	if (!result) {
 		return false;
 	}

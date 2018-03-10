@@ -59,7 +59,7 @@ bool GlassShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, colorTexture, 
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, colorTexture, 
 								 normalTexture, refractionTexture, refractionScale);
 	if(!result)
 	{
@@ -67,7 +67,7 @@ bool GlassShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }
@@ -226,7 +226,7 @@ bool GlassShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psF
     glassBufferDesc.MiscFlags = 0;
 	glassBufferDesc.StructureByteStride = 0;
 
-	// Create the constant buffer pointer so we can access the pixel shader constant buffer from within this class.
+
 	result = device->CreateBuffer(&glassBufferDesc, NULL, &m_glassBuffer);
 	if(FAILED(result))
 	{
@@ -348,10 +348,10 @@ bool GlassShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XM
 		return false;
 	}
 
-	// Get a pointer to the data in the matrix constant buffer.
+	
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 
-	// Copy the matrices into the matrix constant buffer.
+	
 	dataPtr->world = worldMatrixCopy;
 	dataPtr->view = viewMatrixCopy;
 	dataPtr->projection = projectionMatrixCopy;

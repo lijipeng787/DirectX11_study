@@ -56,14 +56,14 @@ bool MultiTextureShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, textureArray);
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, textureArray);
 	if(!result)
 	{
 		return false;
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }

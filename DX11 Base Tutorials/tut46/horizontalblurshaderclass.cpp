@@ -57,14 +57,14 @@ bool HorizontalBlurShaderClass::Render(int indexCount, const XMMATRIX& worldMatr
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture, screenWidth);
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, screenWidth);
 	if(!result)
 	{
 		return false;
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }

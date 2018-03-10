@@ -31,5 +31,5 @@ private:
 
 	ModelClass *model_;
 
-	ColorShaderClass *m_ColorShader;
+	ColorShaderClass *color_shader_;
 };

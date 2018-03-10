@@ -58,7 +58,7 @@ bool ReflectionShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix,
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture, reflectionTexture, 
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, reflectionTexture, 
 								 reflectionMatrix);
 	if(!result)
 	{
@@ -66,7 +66,7 @@ bool ReflectionShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix,
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }
@@ -351,10 +351,10 @@ bool ReflectionShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, con
 		return false;
 	}
 
-	// Get a pointer to the data in the matrix constant buffer.
+	
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 
-	// Copy the matrices into the matrix constant buffer.
+	
 	dataPtr->world = worldMatrixCopy;
 	dataPtr->view = viewMatrixCopy;
 	dataPtr->projection = projectionMatrixCopy;
@@ -375,7 +375,7 @@ bool ReflectionShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, con
 		return false;
 	}
 
-	// Get a pointer to the data in the matrix constant buffer.
+	
 	dataPtr2 = (ReflectionBufferType*)mappedResource.pData;
 
 	// Copy the matrix into the reflection constant buffer.

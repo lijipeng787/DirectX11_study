@@ -56,14 +56,14 @@ bool TextureShaderClass::Render(int vertexCount, int instanceCount, const XMMATR
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture);
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture);
 	if(!result)
 	{
 		return false;
 	}
 
 
-	RenderShader(device_context, vertexCount, instanceCount);
+	RenderShader(vertexCount, instanceCount);
 
 	return true;
 }

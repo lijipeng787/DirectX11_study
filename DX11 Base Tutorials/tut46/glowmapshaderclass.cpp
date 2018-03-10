@@ -56,14 +56,14 @@ bool GlowMapShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, con
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture, glowMap);
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, glowMap);
 	if(!result)
 	{
 		return false;
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }

@@ -58,14 +58,14 @@ bool LightShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture, diffuseColor, lightPosition);
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, diffuseColor, lightPosition);
 	if(!result)
 	{
 		return false;
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }
@@ -233,14 +233,14 @@ bool LightShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psF
 	lightColorBufferDesc.MiscFlags = 0;
 	lightColorBufferDesc.StructureByteStride = 0;
 
-	// Create the constant buffer pointer so we can access the pixel shader constant buffer from within this class.
+
 	result = device->CreateBuffer(&lightColorBufferDesc, NULL, &m_lightColorBuffer);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Setup the description of the dynamic constant buffer that is in the vertex shader.
+	
 	lightPositionBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	lightPositionBufferDesc.ByteWidth = sizeof(LightPositionBufferType);
 	lightPositionBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;

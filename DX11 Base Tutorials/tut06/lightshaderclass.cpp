@@ -292,6 +292,7 @@ bool LightShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XM
 }
 
 void LightShaderClass::RenderShader(int indexCount) {
+
 	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
 	device_context->IASetInputLayout(layout_);

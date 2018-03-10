@@ -138,7 +138,7 @@ bool ShaderManagerClass::RenderLightShader(int indexCount, const XMMATRIX& world
 
 
 	// Render the model using the light shader.
-	result = light_shader_->Render(device_context, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, ambient, diffuse, cameraPosition, 
+	result = light_shader_->Render(indexCount, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, ambient, diffuse, cameraPosition, 
 								   specular, specularPower);
 	if(!result)
 	{
@@ -157,7 +157,7 @@ bool ShaderManagerClass::RenderBumpMapShader(int indexCount, const XMMATRIX& wor
 
 
 	// Render the model using the bump map shader.
-	result = m_BumpMapShader->Render(device_context, indexCount, worldMatrix, viewMatrix, projectionMatrix, colorTexture, normalTexture, lightDirection, diffuse);
+	result = m_BumpMapShader->Render(indexCount, worldMatrix, viewMatrix, projectionMatrix, colorTexture, normalTexture, lightDirection, diffuse);
 	if(!result)
 	{
 		return false;

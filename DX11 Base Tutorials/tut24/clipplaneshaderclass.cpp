@@ -58,14 +58,14 @@ bool ClipPlaneShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix,
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture, clipPlane);
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, clipPlane);
 	if(!result)
 	{
 		return false;
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }
@@ -179,7 +179,7 @@ bool ClipPlaneShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR*
 	pixelShaderBuffer->Release();
 	pixelShaderBuffer = 0;
 
-    // Setup the description of the dynamic constant buffer that is in the vertex shader.
+    
     matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
     matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -345,15 +345,15 @@ bool ClipPlaneShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, cons
 		return false;
 	}
 
-	// Get a pointer to the data in the matrix constant buffer.
+	
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 
-	// Copy the matrices into the matrix constant buffer.
+	
 	dataPtr->world = worldMatrixCopy;
 	dataPtr->view = viewMatrixCopy;
 	dataPtr->projection = projectionMatrixCopy;
 
-	// Unlock the buffer.
+	
     device_context->Unmap(matrix_buffer_, 0);
 
 	
@@ -378,7 +378,7 @@ bool ClipPlaneShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, cons
 	// Copy the clip plane into the clip plane constant buffer.
 	dataPtr2->clipPlane = clipPlane;
 
-	// Unlock the buffer.
+	
     device_context->Unmap(m_clipPlaneBuffer, 0);
 
 	// Set the position of the clip plane constant buffer in the vertex shader.

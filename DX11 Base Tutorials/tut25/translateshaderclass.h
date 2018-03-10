@@ -1,64 +1,52 @@
-
-// Filename: translateshaderclass.h
-
-#ifndef _TRANSLATESHADERCLASS_H_
-#define _TRANSLATESHADERCLASS_H_
-
-
-
-
+#pragma once
 
 #include <d3d11.h>
 #include <DirectXMath.h>
-#include <d3dcompiler.h>
-#include <fstream>
-using namespace std;
-using namespace DirectX;
 
+struct MatrixBufferType;
+struct TranslateBufferType;
 
-
-// Class name: TranslateShaderClass
-
-class TranslateShaderClass
-{
-private:
-	struct MatrixBufferType
-	{
-		XMMATRIX world;
-		XMMATRIX view;
-		XMMATRIX projection;
-	};
-
-	struct TranslateBufferType
-	{
-		float translation;
-		XMFLOAT3 padding;
-	};
-
+class TranslateShaderClass {
 public:
-	TranslateShaderClass();
-	TranslateShaderClass(const TranslateShaderClass&);
-	~TranslateShaderClass();
+	TranslateShaderClass() {}
 
+	TranslateShaderClass(const TranslateShaderClass&) = delete;
+
+	~TranslateShaderClass() {}
+public:
 	bool Initialize(HWND);
-	void Shutdown();
-	bool Render(int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*, float);
 
+	void Shutdown();
+
+	bool Render(int,
+				const DirectX::XMMATRIX&,
+				const DirectX::XMMATRIX&,
+				const DirectX::XMMATRIX&,
+				ID3D11ShaderResourceView*,
+				float);
 private:
 	bool InitializeShader(HWND, WCHAR*, WCHAR*);
+
 	void ShutdownShader();
+
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*, float);
+	bool SetShaderParameters(
+		const DirectX::XMMATRIX&,
+		const DirectX::XMMATRIX&,
+		const DirectX::XMMATRIX&,
+		ID3D11ShaderResourceView*,
+		float);
+
 	void RenderShader(int);
-
 private:
-	ID3D11VertexShader* vertex_shader_;
-	ID3D11PixelShader* pixel_shader_;
-	ID3D11InputLayout* layout_;
-	ID3D11Buffer* matrix_buffer_;
-	ID3D11SamplerState* sample_state_;
-	ID3D11Buffer* m_translateBuffer;
-};
+	ID3D11VertexShader * vertex_shader_ = nullptr;
 
-#endif
+	ID3D11PixelShader* pixel_shader_ = nullptr;
+
+	ID3D11InputLayout* layout_ = nullptr;
+
+	ID3D11Buffer* matrix_buffer_ = nullptr, *m_translateBuffer = nullptr;
+
+	ID3D11SamplerState* sample_state_ = nullptr;
+};

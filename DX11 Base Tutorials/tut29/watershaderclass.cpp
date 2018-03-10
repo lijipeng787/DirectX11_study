@@ -60,7 +60,7 @@ bool WaterShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, reflectionMatrix, reflectionTexture, 
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, reflectionMatrix, reflectionTexture, 
 								 refractionTexture, normalTexture, waterTranslation, reflectRefractScale);
 	if(!result)
 	{
@@ -68,7 +68,7 @@ bool WaterShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }
@@ -243,7 +243,7 @@ bool WaterShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psF
 	waterBufferDesc.MiscFlags = 0;
 	waterBufferDesc.StructureByteStride = 0;
 
-	// Create the constant buffer pointer so we can access the pixel shader constant buffer from within this class.
+
 	result = device->CreateBuffer(&waterBufferDesc, NULL, &m_waterBuffer);
 	if(FAILED(result))
 	{

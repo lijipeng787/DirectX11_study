@@ -1,36 +1,33 @@
 #pragma once
 
 #include <d3d11.h>
-#include <DirectXMath.h>
 
 using namespace DirectX;
 
-class ModelClass
-{
-private:
-	struct VertexType
-	{
-		XMFLOAT3 position;
-	    XMFLOAT4 color;
-	};
+struct VertexType;
 
+class ModelClass {
 public:
-	ModelClass();
-	ModelClass(const ModelClass&);
-	~ModelClass();
+	ModelClass() {}
 
-	bool Initialize(ID3D11Device*);
+	ModelClass(const ModelClass&) = delete;
+
+	~ModelClass() {}
+public:
+	bool Initialize();
+
 	void Shutdown();
-	void Render(ID3D11DeviceContext*);
+
+	void Render();
 
 	int GetIndexCount();
-
 private:
-	bool InitializeBuffers(ID3D11Device*);
+	bool InitializeBuffers();
+
 	void ShutdownBuffers();
-	void RenderBuffers(ID3D11DeviceContext*);
 
+	void RenderBuffers();
 private:
-	ID3D11Buffer *vertex_buffer_, *index_buffer_;
-	int vertex_count_, index_count_;
+	ID3D11Buffer * vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
+	int vertex_count_ = 0, index_count_ = 0;
 };

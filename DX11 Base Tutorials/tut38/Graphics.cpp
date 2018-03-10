@@ -53,12 +53,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_ColorShader = (ColorShaderClass*)_aligned_malloc(sizeof(ColorShaderClass), 16);
-		new (m_ColorShader)ColorShaderClass();
-		if (!m_ColorShader) {
+		color_shader_ = (ColorShaderClass*)_aligned_malloc(sizeof(ColorShaderClass), 16);
+		new (color_shader_)ColorShaderClass();
+		if (!color_shader_) {
 			return false;
 		}
-		result = m_ColorShader->Initialize(hwnd);
+		result = color_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
 			return false;
@@ -71,12 +71,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 void GraphicsClass::Shutdown() {
 
 	// Release the color shader object.
-	if (m_ColorShader)
+	if (color_shader_)
 	{
-		m_ColorShader->Shutdown();
-		m_ColorShader->~ColorShaderClass();
-		_aligned_free(m_ColorShader);
-		m_ColorShader = 0;
+		color_shader_->Shutdown();
+		color_shader_->~ColorShaderClass();
+		_aligned_free(color_shader_);
+color_shader_ = nullptr
 	}
 
 
@@ -127,7 +127,7 @@ bool GraphicsClass::Render() {
 
 	model_->Render(directx_device_->GetDeviceContext());
 
-	result = m_ColorShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 12.0f);
+	result = color_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 12.0f);
 	if (!result) {
 		return false;
 	}

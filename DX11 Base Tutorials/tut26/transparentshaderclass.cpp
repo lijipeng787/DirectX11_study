@@ -58,14 +58,14 @@ bool TransparentShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix,
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture, blend);
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, blend);
 	if(!result)
 	{
 		return false;
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }
@@ -179,7 +179,7 @@ bool TransparentShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHA
 	pixelShaderBuffer->Release();
 	pixelShaderBuffer = 0;
 
-    // Setup the description of the dynamic constant buffer that is in the vertex shader.
+    
     matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
     matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -224,7 +224,7 @@ bool TransparentShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHA
     transparentBufferDesc.MiscFlags = 0;
 	transparentBufferDesc.StructureByteStride = 0;
 
-	// Create the constant buffer pointer so we can access the pixel shader constant buffer from within this class.
+
 	result = device->CreateBuffer(&transparentBufferDesc, NULL, &m_transparentBuffer);
 	if(FAILED(result))
 	{
@@ -344,15 +344,15 @@ bool TransparentShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, co
 		return false;
 	}
 
-	// Get a pointer to the data in the matrix constant buffer.
+	
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 
-	// Copy the matrices into the matrix constant buffer.
+	
 	dataPtr->world = worldMatrixCopy;
 	dataPtr->view = viewMatrixCopy;
 	dataPtr->projection = projectionMatrixCopy;
 
-	// Unlock the buffer.
+	
     device_context->Unmap(matrix_buffer_, 0);
 
 	
@@ -377,13 +377,13 @@ bool TransparentShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, co
 	// Copy the blend amount value into the transparent constant buffer.
 	dataPtr2->blendAmount = blend;
 
-	// Unlock the buffer.
+	
     device_context->Unmap(m_transparentBuffer, 0);
 
 	// Set the position of the transparent constant buffer in the pixel shader.
 	buffer_number = 0;
 
-	// Now set the texture translation constant buffer in the pixel shader with the updated values.
+	
     device_context->PSSetConstantBuffers(buffer_number, 1, &m_transparentBuffer);
 
 	return true;

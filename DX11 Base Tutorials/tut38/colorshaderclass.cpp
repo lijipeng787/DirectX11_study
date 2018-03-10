@@ -58,14 +58,14 @@ bool ColorShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, tessellationAmount);
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, tessellationAmount);
 	if(!result)
 	{
 		return false;
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }
@@ -386,7 +386,7 @@ bool ColorShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XM
 		return false;
 	}
 
-	// Get a pointer to the data in the matrix constant buffer.
+	
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 
 	

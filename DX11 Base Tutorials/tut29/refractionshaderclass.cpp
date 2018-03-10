@@ -60,7 +60,7 @@ bool RefractionShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix,
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, ambientColor, 
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, ambientColor, 
 								 diffuseColor, clipPlane);
 	if(!result)
 	{
@@ -68,7 +68,7 @@ bool RefractionShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix,
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }
@@ -439,7 +439,7 @@ bool RefractionShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, con
 	// Copy the clip plane into the clip plane constant buffer.
 	dataPtr3->clipPlane = clipPlane;
 
-	// Unlock the buffer.
+	
 	device_context->Unmap(m_clipPlaneBuffer, 0);
 
 	// Set the position of the clip plane constant buffer in the vertex shader.

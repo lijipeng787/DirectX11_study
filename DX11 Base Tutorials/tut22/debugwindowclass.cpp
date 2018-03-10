@@ -64,7 +64,7 @@ bool DebugWindowClass::Render(int positionX, int positionY)
 
 
 	// Re-build the dynamic vertex buffer for rendering to possibly a different location on the screen.
-	result = UpdateBuffers(device_context, positionX, positionY);
+	result = UpdateBuffers(positionX, positionY);
 	if(!result)
 	{
 		return false;

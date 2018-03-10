@@ -58,7 +58,7 @@ bool BumpMapShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, con
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, textureArray, lightDirection, 
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, textureArray, lightDirection, 
 								 diffuseColor);
 	if(!result)
 	{
@@ -66,7 +66,7 @@ bool BumpMapShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, con
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }

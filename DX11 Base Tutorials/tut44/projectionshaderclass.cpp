@@ -60,7 +60,7 @@ bool ProjectionShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, 
 
 
 
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture, ambientColor, diffuseColor, lightPosition, 
+	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, ambientColor, diffuseColor, lightPosition, 
 								 viewMatrix2, projectionMatrix2, projectionTexture);
 	if(!result)
 	{
@@ -68,7 +68,7 @@ bool ProjectionShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, 
 	}
 
 
-	RenderShader(device_context, indexCount);
+	RenderShader(indexCount);
 
 	return true;
 }
@@ -233,7 +233,7 @@ bool ProjectionShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR
 	lightBufferDesc.MiscFlags = 0;
 	lightBufferDesc.StructureByteStride = 0;
 
-	// Create the constant buffer pointer so we can access the pixel shader constant buffer from within this class.
+
 	result = device->CreateBuffer(&lightBufferDesc, NULL, &light_buffer_);
 	if(FAILED(result))
 	{

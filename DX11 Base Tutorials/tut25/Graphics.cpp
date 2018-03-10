@@ -10,6 +10,8 @@
 #include "modelclass.h"
 #include "translateshaderclass.h"
 
+using namespace DirectX;
+
 GraphicsClass::GraphicsClass() {}
 
 GraphicsClass::~GraphicsClass() {}
@@ -20,11 +22,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	XMMATRIX baseViewMatrix;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -56,12 +56,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_TranslateShader = (TranslateShaderClass*)_aligned_malloc(sizeof(TranslateShaderClass), 16);
-		new (m_TranslateShader)TranslateShaderClass();
-		if (!m_TranslateShader) {
+		translation_shader_ = (TranslateShaderClass*)_aligned_malloc(sizeof(TranslateShaderClass), 16);
+		new (translation_shader_)TranslateShaderClass();
+		if (!translation_shader_) {
 			return false;
 		}
-		result = m_TranslateShader->Initialize(hwnd);
+		result = translation_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the texture translation shader object.", L"Error", MB_OK);
 			return false;
@@ -72,15 +72,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 }
 
 void GraphicsClass::Shutdown() {
-	// Release the texture translation shader object.
-	if (m_TranslateShader)
-	{
-		m_TranslateShader->Shutdown();
-		m_TranslateShader->~TranslateShaderClass();
-		_aligned_free(m_TranslateShader);
-		m_TranslateShader = 0;
-	}
 
+	if (translation_shader_)
+	{
+		translation_shader_->Shutdown();
+		translation_shader_->~TranslateShaderClass();
+		_aligned_free(translation_shader_);
+		translation_shader_ = nullptr;
+	}
 
 	if (model_)
 	{
@@ -93,12 +92,6 @@ void GraphicsClass::Shutdown() {
 		camera_->~Camera();
 		_aligned_free(camera_);
 		camera_ = nullptr;
-	}
-
-	
-		
-		
-		
 	}
 }
 
@@ -115,15 +108,17 @@ bool GraphicsClass::Frame() {
 }
 
 bool GraphicsClass::Render() {
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	bool result;
-	static float textureTranslation = 0.0f;
 
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+
+	static float textureTranslation = 0.0f;
 
 	textureTranslation += 0.01f;
 	if (textureTranslation > 1.0f) {
 		textureTranslation -= 1.0f;
 	}
+
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
 	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -134,9 +129,9 @@ bool GraphicsClass::Render() {
 	camera_->GetViewMatrix(viewMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
-	model_->Render(directx_device_->GetDeviceContext());
+	model_->Render();
 
-	result = m_TranslateShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix,
+	auto result = translation_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix,
 		projectionMatrix, model_->GetTexture(), textureTranslation);
 	if (!result) {
 		return false;
