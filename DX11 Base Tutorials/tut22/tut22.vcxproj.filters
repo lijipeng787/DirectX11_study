@@ -75,16 +75,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="texture.ps">
+    <None Include="light.hlsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="light.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="texture.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="light.ps">
+    <None Include="texture.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

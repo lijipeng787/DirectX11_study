@@ -147,7 +147,7 @@ void GraphicsClass::Shutdown() {
 		m_ProjectionShader = 0;
 	}
 
-	// Release the light object.
+
 	if (light_) {
 		light_->~LightClass();
 		_aligned_free(light_);

@@ -103,11 +103,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_RenderTexture = new RenderTextureClass();
-		if (!m_RenderTexture) {
+		render_texture_ = new RenderTextureClass();
+		if (!render_texture_) {
 			return false;
 		}
-		result = m_RenderTexture->Initialize(screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
+		result = render_texture_->Initialize(screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
 			return false;
@@ -233,11 +233,11 @@ void GraphicsClass::Shutdown(){
 		m_DownSampleTexure = 0;
 	}
 	
-	if(m_RenderTexture)
+	if(render_texture_)
 	{
-		m_RenderTexture->Shutdown();
-		delete m_RenderTexture;
-		m_RenderTexture = 0;
+		render_texture_->Shutdown();
+		delete render_texture_;
+		render_texture_ = 0;
 	}
 	
 	if(m_VerticalBlurShader)
@@ -338,9 +338,9 @@ bool GraphicsClass::RenderSceneToTexture(float rotation_) {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	
-	m_RenderTexture->SetRenderTarget();
+	render_texture_->SetRenderTarget();
 
-	m_RenderTexture->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
+	render_texture_->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
@@ -389,7 +389,7 @@ bool GraphicsClass::DownSampleTexture() {
 	m_SmallWindow->Render();
 
 	auto result = texture_shader_->Render(m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
-		m_RenderTexture->GetShaderResourceView());
+		render_texture_->GetShaderResourceView());
 	if (!result) {
 		return false;
 	}

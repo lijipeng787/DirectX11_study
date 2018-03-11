@@ -1,8 +1,8 @@
 
-// Filename: rendertextureclass.h
 
-#ifndef _RENDERTEXTURECLASS_H_
-#define _RENDERTEXTURECLASS_H_
+
+
+
 
 
 
@@ -12,7 +12,7 @@
 
 
 
-// Class name: RenderTextureClass
+
 
 class RenderTextureClass
 {

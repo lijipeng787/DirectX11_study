@@ -72,7 +72,7 @@ private:
 
 	TreeClass* m_Tree;
 
-	RenderTextureClass* m_RenderTexture;
+	RenderTextureClass* render_texture_;
 
 	DepthShaderClass* m_DepthShader;
 

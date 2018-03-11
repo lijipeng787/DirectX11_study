@@ -82,12 +82,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_RenderTexture = (RenderTextureClass*)_aligned_malloc(sizeof(RenderTextureClass), 16);
-		new (m_RenderTexture)RenderTextureClass();
-		if (!m_RenderTexture) {
+		render_texture_ = (RenderTextureClass*)_aligned_malloc(sizeof(RenderTextureClass), 16);
+		new (render_texture_)RenderTextureClass();
+		if (!render_texture_) {
 			return false;
 		}
-		result = m_RenderTexture->Initialize(SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
+		result = render_texture_->Initialize(SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
 			return false;
@@ -163,11 +163,11 @@ void GraphicsClass::Shutdown() {
 	}
 
 	
-	if (m_RenderTexture) {
-		m_RenderTexture->Shutdown();
-		m_RenderTexture->~RenderTextureClass();
-		_aligned_free(m_RenderTexture);
-		m_RenderTexture = 0;
+	if (render_texture_) {
+		render_texture_->Shutdown();
+		render_texture_->~RenderTextureClass();
+		_aligned_free(render_texture_);
+		render_texture_ = 0;
 	}
 
 	// Release the tree object.
@@ -184,7 +184,7 @@ void GraphicsClass::Shutdown() {
 		m_GroundModel = 0;
 	}
 
-	// Release the light object.
+
 	if (light_) {
 		light_->~LightClass();
 		_aligned_free(light_);
@@ -266,7 +266,7 @@ bool GraphicsClass::Render() {
 		m_GroundModel->GetIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
 		lightOrthoMatrix, m_GroundModel->GetTexture(),
-		m_RenderTexture->GetShaderResourceView(),
+		render_texture_->GetShaderResourceView(),
 		light_->GetDirection(),ambientColor, diffuseColor
 	);
 
@@ -281,7 +281,7 @@ bool GraphicsClass::Render() {
 		m_Tree->GetTrunkIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
 		lightOrthoMatrix, m_Tree->GetTrunkTexture(),
-		m_RenderTexture->GetShaderResourceView(), light_->GetDirection(),ambientColor, diffuseColor
+		render_texture_->GetShaderResourceView(), light_->GetDirection(),ambientColor, diffuseColor
 	);
 
 	directx_device_->TurnOnAlphaBlending();
@@ -292,7 +292,7 @@ bool GraphicsClass::Render() {
 		m_Tree->GetLeafIndexCount(), 
 		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
 		lightOrthoMatrix, m_Tree->GetLeafTexture(), 
-		m_RenderTexture->GetShaderResourceView(), 
+		render_texture_->GetShaderResourceView(), 
 		light_->GetDirection(),ambientColor, diffuseColor
 	);
 
@@ -309,9 +309,9 @@ bool GraphicsClass::RenderSceneToTexture() {
 	float posX, posY, posZ;
 	bool result;
 
-	m_RenderTexture->SetRenderTarget(directx_device_->GetDeviceContext());
+	render_texture_->SetRenderTarget(directx_device_->GetDeviceContext());
 
-	m_RenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	render_texture_->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	directx_device_->GetWorldMatrix(worldMatrix);
 

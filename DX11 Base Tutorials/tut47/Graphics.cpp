@@ -141,14 +141,14 @@ void GraphicsClass::Shutdown() {
 		m_Text = 0;
 	}
 
-	// Release the light object.
+
 	if (light_) {
 		light_->~LightClass();
 		_aligned_free(light_);
 		light_ = nullptr;;
 	}
 
-	// Release the light shader object.
+
 	if (light_shader_) {
 		light_shader_->Shutdown();
 		light_shader_->~LightShaderClass();

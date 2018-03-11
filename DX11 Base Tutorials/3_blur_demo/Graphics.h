@@ -59,7 +59,7 @@ private:
 	VerticalBlurShaderClass* m_VerticalBlurShader = nullptr;
 
 	RenderTextureClass 
-		*m_RenderTexture = nullptr, 
+		*render_texture_ = nullptr, 
 		*m_DownSampleTexure = nullptr,
 		*m_HorizontalBlurTexture = nullptr, 
 		*m_VerticalBlurTexture = nullptr,

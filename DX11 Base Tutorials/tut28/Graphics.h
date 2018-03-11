@@ -53,7 +53,7 @@ private:
 
 	TextureShaderClass* texture_shader_ = nullptr;
 
-	RenderTextureClass* m_RenderTexture = nullptr;
+	RenderTextureClass* render_texture_ = nullptr;
 
 	SimpleMoveableSurface* m_Bitmap = nullptr;
 

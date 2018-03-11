@@ -128,7 +128,7 @@ void GraphicsClass::Shutdown() {
 		m_Light4 = 0;
 	}
 
-	// Release the light shader object.
+
 	if (light_shader_)
 	{
 		light_shader_->Shutdown();

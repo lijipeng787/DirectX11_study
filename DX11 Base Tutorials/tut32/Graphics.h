@@ -40,7 +40,7 @@ private:
 
 	ModelClass* m_WindowModel;
 
-	RenderTextureClass* m_RenderTexture;
+	RenderTextureClass* render_texture_;
 
 	TextureShaderClass* texture_shader_;
 

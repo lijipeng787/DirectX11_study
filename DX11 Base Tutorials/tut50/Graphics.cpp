@@ -157,7 +157,7 @@ void GraphicsClass::Shutdown() {
 		model_ = nullptr;
 	}
 
-	// Release the light object.
+
 	if (light_) {
 		delete light_;
 		light_ = nullptr;;

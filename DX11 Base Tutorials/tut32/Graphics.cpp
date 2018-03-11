@@ -67,11 +67,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_RenderTexture = new RenderTextureClass();
-		if (!m_RenderTexture) {
+		render_texture_ = new RenderTextureClass();
+		if (!render_texture_) {
 			return false;
 		}
-		result = m_RenderTexture->Initialize(screenWidth, screenHeight);
+		result = render_texture_->Initialize(screenWidth, screenHeight);
 		if (!result) {
 			return false;
 		}
@@ -127,11 +127,11 @@ void GraphicsClass::Shutdown() {
 	}
 
 	
-	if (m_RenderTexture)
+	if (render_texture_)
 	{
-		m_RenderTexture->Shutdown();
-		delete m_RenderTexture;
-		m_RenderTexture = 0;
+		render_texture_->Shutdown();
+		delete render_texture_;
+		render_texture_ = 0;
 	}
 
 	// Release the window model object.
@@ -199,9 +199,9 @@ bool GraphicsClass::RenderToTexture(float rotation_) {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	bool result;
 
-	m_RenderTexture->SetRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView());
+	render_texture_->SetRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView());
 
-	m_RenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
+	render_texture_->ClearRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
@@ -256,7 +256,7 @@ bool GraphicsClass::Render() {
 	m_WindowModel->Render(directx_device_->GetDeviceContext());
 
 	result = m_GlassShader->Render(directx_device_->GetDeviceContext(), m_WindowModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_WindowModel->GetTexture(), m_WindowModel->GetNormalMap(), m_RenderTexture->GetShaderResourceView(),
+		m_WindowModel->GetTexture(), m_WindowModel->GetNormalMap(), render_texture_->GetShaderResourceView(),
 		refractionScale);
 	if (!result) {
 		return false;

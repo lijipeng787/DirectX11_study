@@ -18,17 +18,17 @@ GraphicsClass::GraphicsClass() {}
 
 GraphicsClass::~GraphicsClass() {}
 
+using namespace DirectX;
+
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 	bool result;
 	XMMATRIX baseViewMatrix;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -53,7 +53,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		result = model_->Initialize(
-			directx_device_->GetDevice(),
 			L"../../tut22/data/seafloor.dds",
 			"../../tut22/data/cube.txt"
 		);
@@ -88,24 +87,24 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_RenderTexture = new RenderTextureClass();
-		if (!m_RenderTexture) {
+		render_texture_ = new RenderTextureClass();
+		if (!render_texture_) {
 			return false;
 		}
 
-		result = m_RenderTexture->Initialize(screenWidth, screenHeight);
+		result = render_texture_->Initialize(screenWidth, screenHeight);
 		if (!result) {
 			return false;
 		}
 	}
 
 	{
-		m_DebugWindow = new DebugWindowClass();
-		if (!m_DebugWindow) {
+		debug_window_ = new DebugWindowClass();
+		if (!debug_window_) {
 			return false;
 		}
 
-		result = m_DebugWindow->Initialize(screenWidth, screenHeight, 100, 100);
+		result = debug_window_->Initialize(screenWidth, screenHeight, 100, 100);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the debug window object.", L"Error", MB_OK);
 			return false;
@@ -132,50 +131,38 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 void GraphicsClass::Shutdown() {
 
-	
-	if (texture_shader_)
-	{
+	if (texture_shader_) {
 		texture_shader_->Shutdown();
 		texture_shader_->~TextureShaderClass();
 		_aligned_free(texture_shader_);
 		texture_shader_ = 0;
 	}
 
-	// Release the debug window object.
-	if (m_DebugWindow)
-	{
-		m_DebugWindow->Shutdown();
-		delete m_DebugWindow;
-		m_DebugWindow = 0;
+	if (debug_window_) {
+		debug_window_->Shutdown();
+		delete debug_window_;
+		debug_window_ = 0;
 	}
 
-	
-	if (m_RenderTexture)
-	{
-		m_RenderTexture->Shutdown();
-		delete m_RenderTexture;
-		m_RenderTexture = 0;
+	if (render_texture_) {
+		render_texture_->Shutdown();
+		delete render_texture_;
+		render_texture_ = 0;
 	}
 
-	// Release the light object.
-	if (light_)
-	{
+	if (light_) {
 		delete light_;
 		light_ = nullptr;;
 	}
 
-	// Release the light shader object.
-	if (light_shader_)
-	{
+	if (light_shader_) {
 		light_shader_->Shutdown();
 		light_shader_->~LightShaderClass();
 		_aligned_free(light_shader_);
 		light_shader_ = nullptr;;
 	}
 
-
-	if (model_)
-	{
+	if (model_) {
 		model_->Shutdown();
 		delete model_;
 		model_ = nullptr;
@@ -185,12 +172,6 @@ void GraphicsClass::Shutdown() {
 		camera_->~Camera();
 		_aligned_free(camera_);
 		camera_ = nullptr;
-	}
-
-	
-		
-		
-		
 	}
 }
 
@@ -218,6 +199,8 @@ bool GraphicsClass::Render() {
 		return false;
 	}
 
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
 	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	result = RenderScene();
@@ -231,13 +214,13 @@ bool GraphicsClass::Render() {
 	camera_->GetViewMatrix(viewMatrix);
 	directx_device_->GetOrthoMatrix(orthoMatrix);
 
-	result = m_DebugWindow->Render(directx_device_->GetDeviceContext(), 50, 50);
+	result = debug_window_->Render(50, 50);
 	if (!result) {
 		return false;
 	}
 
-	result = texture_shader_->Render(directx_device_->GetDeviceContext(), m_DebugWindow->GetIndexCount(), worldMatrix, viewMatrix,
-		orthoMatrix, m_RenderTexture->GetShaderResourceView());
+	result = texture_shader_->Render(debug_window_->GetIndexCount(), worldMatrix, viewMatrix,
+									 orthoMatrix, render_texture_->GetShaderResourceView());
 	if (!result) {
 		return false;
 	}
@@ -249,16 +232,15 @@ bool GraphicsClass::Render() {
 	return true;
 }
 
-
 bool GraphicsClass::RenderToTexture() {
 
-	bool result;
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
-	m_RenderTexture->SetRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView());
+	render_texture_->SetRenderTarget(directx_device_->GetDepthStencilView());
 
-	m_RenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView(), 0.0f, 0.0f, 1.0f, 1.0f);
+	render_texture_->ClearRenderTarget(directx_device_->GetDepthStencilView(), 0.0f, 0.0f, 1.0f, 1.0f);
 
-	result = RenderScene();
+	auto result = RenderScene();
 	if (!result) {
 		return false;
 	}
@@ -268,7 +250,6 @@ bool GraphicsClass::RenderToTexture() {
 	return true;
 }
 
-
 bool GraphicsClass::RenderScene() {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
@@ -277,21 +258,22 @@ bool GraphicsClass::RenderScene() {
 
 	camera_->Render();
 
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
 	directx_device_->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
 	rotation_ += (float)XM_PI * 0.005f;
-	if (rotation_ > 360.0f)
-	{
+	if (rotation_ > 360.0f) {
 		rotation_ -= 360.0f;
 	}
 
 	worldMatrix = XMMatrixRotationY(rotation_);
 
-	model_->Render(directx_device_->GetDeviceContext());
-	result = light_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		model_->GetTexture(), light_->GetDirection(), light_->GetDiffuseColor());
+	model_->Render();
+	result = light_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+								   model_->GetTexture(), light_->GetDirection(), light_->GetDiffuseColor());
 	if (!result) {
 		return false;
 	}

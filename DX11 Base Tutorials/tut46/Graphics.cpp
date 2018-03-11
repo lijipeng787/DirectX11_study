@@ -72,12 +72,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_RenderTexture = (RenderTextureClass*)_aligned_malloc(sizeof(RenderTextureClass), 16);
-		new (m_RenderTexture)RenderTextureClass();
-		if (!m_RenderTexture) {
+		render_texture_ = (RenderTextureClass*)_aligned_malloc(sizeof(RenderTextureClass), 16);
+		new (render_texture_)RenderTextureClass();
+		if (!render_texture_) {
 			return false;
 		}
-		result = m_RenderTexture->Initialize(screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
+		result = render_texture_->Initialize(screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
 			return false;
@@ -296,11 +296,11 @@ void GraphicsClass::Shutdown() {
 	}
 
 	
-	if (m_RenderTexture) {
-		m_RenderTexture->Shutdown();
-		m_RenderTexture->~RenderTextureClass();
-		_aligned_free(m_RenderTexture);
-		m_RenderTexture = 0;
+	if (render_texture_) {
+		render_texture_->Shutdown();
+		render_texture_->~RenderTextureClass();
+		_aligned_free(render_texture_);
+		render_texture_ = 0;
 	}
 
 	// Release the bitmap object.
@@ -393,9 +393,9 @@ bool GraphicsClass::RenderGlowMapToTexture() {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 	bool result;
 
-	m_RenderTexture->SetRenderTarget(directx_device_->GetDeviceContext());
+	render_texture_->SetRenderTarget(directx_device_->GetDeviceContext());
 
-	m_RenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	render_texture_->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
@@ -443,7 +443,7 @@ bool GraphicsClass::DownSampleTexture() {
 	m_SmallWindow->Render(directx_device_->GetDeviceContext());
 
 	result = texture_shader_->Render(directx_device_->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
-		m_RenderTexture->GetShaderResourceView());
+		render_texture_->GetShaderResourceView());
 	if (!result) {
 		return false;
 	}
@@ -573,9 +573,9 @@ bool GraphicsClass::RenderUIElementsToTexture() {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 	bool result;
 
-	m_RenderTexture->SetRenderTarget(directx_device_->GetDeviceContext());
+	render_texture_->SetRenderTarget(directx_device_->GetDeviceContext());
 
-	m_RenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	render_texture_->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
@@ -621,7 +621,7 @@ bool GraphicsClass::RenderGlowScene() {
 	m_FullScreenWindow->Render(directx_device_->GetDeviceContext());
 
 	m_GlowShader->Render(directx_device_->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
-		m_RenderTexture->GetShaderResourceView(), m_UpSampleTexure->GetShaderResourceView(), 3.0f);
+		render_texture_->GetShaderResourceView(), m_UpSampleTexure->GetShaderResourceView(), 3.0f);
 
 	directx_device_->TurnZBufferOn();
 

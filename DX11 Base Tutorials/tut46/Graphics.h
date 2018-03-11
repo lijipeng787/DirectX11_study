@@ -56,7 +56,7 @@ private:
 	SimpleMoveableSurface* m_Bitmap;
 
 	RenderTextureClass
-		*m_RenderTexture = nullptr,
+		*render_texture_ = nullptr,
 		*m_DownSampleTexure = nullptr,
 		*m_HorizontalBlurTexture = nullptr,
 		*m_VerticalBlurTexture = nullptr,

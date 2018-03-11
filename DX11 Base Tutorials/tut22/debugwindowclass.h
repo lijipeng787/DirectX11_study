@@ -1,53 +1,40 @@
-
-// Filename: debugwindowclass.h
-
-#ifndef _DEBUGWINDOWCLASS_H_
-#define _DEBUGWINDOWCLASS_H_
-
-
-
-
+#pragma once
 
 #include <d3d11.h>
-#include <DirectXMath.h>
-using namespace DirectX;
 
+struct VertexType;
 
-
-// Class name: DebugWindowClass
-
-class DebugWindowClass
-{
-private:
-	struct VertexType
-	{
-		XMFLOAT3 position;
-	    XMFLOAT2 texture;
-	};
-
+class DebugWindowClass {
 public:
-	DebugWindowClass();
-	DebugWindowClass(const DebugWindowClass&);
-	~DebugWindowClass();
+	DebugWindowClass() {}
 
+	DebugWindowClass(const DebugWindowClass&) = delete;
+
+	~DebugWindowClass() {}
+public:
 	bool Initialize(int, int, int, int);
+
 	void Shutdown();
+
 	bool Render(int, int);
 
 	int GetIndexCount();
-
 private:
-	bool InitializeBuffers(ID3D11Device*);
+	bool InitializeBuffers();
+
 	void ShutdownBuffers();
+
 	bool UpdateBuffers(int, int);
-	void RenderBuffers(ID3D11DeviceContext*);
 
+	void RenderBuffers();
 private:
-	ID3D11Buffer *vertex_buffer_, *index_buffer_;
-	int vertex_count_, index_count_;
-	int m_screenWidth, m_screenHeight;
-	int m_bitmapWidth, m_bitmapHeight;
-	int m_previousPosX, m_previousPosY;
-};
+	ID3D11Buffer * vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
 
-#endif
+	int vertex_count_ = 0, index_count_ = 0;
+
+	int m_screenWidth = 0, m_screenHeight = 0;
+
+	int m_bitmapWidth = 0, m_bitmapHeight = 0;
+
+	int m_previousPosX = 0, m_previousPosY = 0;
+};

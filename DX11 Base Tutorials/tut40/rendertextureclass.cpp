@@ -1,5 +1,5 @@
 
-// Filename: rendertextureclass.cpp
+
 
 #include "rendertextureclass.h"
 

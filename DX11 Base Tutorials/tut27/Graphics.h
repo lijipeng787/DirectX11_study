@@ -40,7 +40,7 @@ private:
 
 	TextureShaderClass* texture_shader_ = nullptr;
 
-	RenderTextureClass* m_RenderTexture = nullptr;
+	RenderTextureClass* render_texture_ = nullptr;
 
 	ModelClass* m_FloorModel = nullptr;
 

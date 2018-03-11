@@ -27,15 +27,15 @@ bool SimpleMoveableSurface::Initialize(int screenWidth, int screenHeight, WCHAR*
 	bool result;
 
 
-	// Store the screen size.
+	
 	m_screenWidth = screenWidth;
 	m_screenHeight = screenHeight;
 
-	// Store the size in pixels that this bitmap should be rendered at.
+	
 	m_bitmapWidth = bitmapWidth;
 	m_bitmapHeight = bitmapHeight;
 
-	// Initialize the previous rendering position to negative one.
+	
 	m_previousPosX = -1;
 	m_previousPosY = -1;
 
@@ -130,7 +130,7 @@ bool SimpleMoveableSurface::InitializeBuffers(ID3D11Device* device)
 		return false;
 	}
 
-	// Initialize vertex array to zeros at first.
+	
 	memset(vertices, 0, (sizeof(VertexType) * vertex_count_));
 
 	
@@ -270,23 +270,23 @@ bool SimpleMoveableSurface::UpdateBuffers(int positionX, int positionY)
 	vertices[5].position = XMFLOAT3(right, bottom, 0.0f);  // Bottom right.
 	vertices[5].texture = XMFLOAT2(1.0f, 1.0f);
 
-	// Lock the vertex buffer so it can be written to.
+	
 	result = device_context->Map(vertex_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Get a pointer to the data in the vertex buffer.
+	
 	verticesPtr = (VertexType*)mappedResource.pData;
 
-	// Copy the data into the vertex buffer.
+	
 	memcpy(verticesPtr, (void*)vertices, (sizeof(VertexType) * vertex_count_));
 
-	// Unlock the vertex buffer.
+	
 	device_context->Unmap(vertex_buffer_, 0);
 
-	// Release the vertex array as it is no longer needed.
+	
 	delete [] vertices;
 	vertices = 0;
 

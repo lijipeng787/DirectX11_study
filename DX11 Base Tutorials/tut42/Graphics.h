@@ -75,7 +75,7 @@ private:
 
 	LightClass* light_;
 
-	RenderTextureClass *m_RenderTexture, *m_BlackWhiteRenderTexture, *m_DownSampleTexure;
+	RenderTextureClass *render_texture_, *m_BlackWhiteRenderTexture, *m_DownSampleTexure;
 
 	RenderTextureClass *m_HorizontalBlurTexture, *m_VerticalBlurTexture, *m_UpSampleTexure;
 

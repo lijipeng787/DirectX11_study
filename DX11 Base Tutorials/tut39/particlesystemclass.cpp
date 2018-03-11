@@ -240,7 +240,7 @@ bool ParticleSystemClass::InitializeBuffers(ID3D11Device* device)
 		return false;
 	}
 
-	// Initialize vertex array to zeros at first.
+	
 	memset(m_vertices, 0, (sizeof(VertexType) * vertex_count_));
 
 	// Initialize the index array.
@@ -457,7 +457,7 @@ bool ParticleSystemClass::UpdateBuffers(ID3D11DeviceContext* device_context)
 	VertexType* verticesPtr;
 
 
-	// Initialize vertex array to zeros at first.
+	
 	memset(m_vertices, 0, (sizeof(VertexType) * vertex_count_));
 
 	// Now build the vertex array from the particle list array.  Each particle is a quad made out of two triangles.
@@ -509,13 +509,13 @@ bool ParticleSystemClass::UpdateBuffers(ID3D11DeviceContext* device_context)
 		return false;
 	}
 
-	// Get a pointer to the data in the vertex buffer.
+	
 	verticesPtr = (VertexType*)mappedResource.pData;
 
-	// Copy the data into the vertex buffer.
+	
 	memcpy(verticesPtr, (void*)m_vertices, (sizeof(VertexType) * vertex_count_));
 
-	// Unlock the vertex buffer.
+	
 	device_context->Unmap(vertex_buffer_, 0);
 
 	return true;

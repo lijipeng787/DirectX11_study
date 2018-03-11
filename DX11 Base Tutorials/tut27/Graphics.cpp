@@ -73,11 +73,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_RenderTexture = new RenderTextureClass();
-		if (!m_RenderTexture) {
+		render_texture_ = new RenderTextureClass();
+		if (!render_texture_) {
 			return false;
 		}
-		result = m_RenderTexture->Initialize(screenWidth, screenHeight);
+		result = render_texture_->Initialize(screenWidth, screenHeight);
 		if (!result) {
 			return false;
 		}
@@ -130,11 +130,11 @@ void GraphicsClass::Shutdown() {
 	}
 
 	
-	if (m_RenderTexture)
+	if (render_texture_)
 	{
-		m_RenderTexture->Shutdown();
-		delete m_RenderTexture;
-		m_RenderTexture = 0;
+		render_texture_->Shutdown();
+		delete render_texture_;
+		render_texture_ = 0;
 	}
 
 	
@@ -201,9 +201,9 @@ bool GraphicsClass::RenderToTexture() {
 	static float rotation_ = 0.0f;
 
 
-	m_RenderTexture->SetRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView());
+	render_texture_->SetRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView());
 
-	m_RenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
+	render_texture_->ClearRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->RenderReflection(-1.5f);
 
@@ -264,7 +264,7 @@ bool GraphicsClass::RenderScene() {
 	m_FloorModel->Render(directx_device_->GetDeviceContext());
 
 	result = m_ReflectionShader->Render(directx_device_->GetDeviceContext(), m_FloorModel->GetIndexCount(), worldMatrix, viewMatrix,
-		projectionMatrix, m_FloorModel->GetTexture(), m_RenderTexture->GetShaderResourceView(),
+		projectionMatrix, m_FloorModel->GetTexture(), render_texture_->GetShaderResourceView(),
 		reflectionMatrix);
 
 	directx_device_->EndScene();

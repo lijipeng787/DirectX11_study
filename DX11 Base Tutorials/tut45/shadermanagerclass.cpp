@@ -91,7 +91,7 @@ void ShaderManagerClass::Shutdown()
 		bumpmap_shader_ = 0;
 	}
 
-	// Release the light shader object.
+
 	if(light_shader_)
 	{
 		light_shader_->Shutdown();

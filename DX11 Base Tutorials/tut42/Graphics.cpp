@@ -121,14 +121,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 	{
 		// Create the render to texture object.
-		m_RenderTexture = (RenderTextureClass*)_aligned_malloc(sizeof(RenderTextureClass), 16);
-		new (m_RenderTexture)RenderTextureClass();
-		if (!m_RenderTexture) {
+		render_texture_ = (RenderTextureClass*)_aligned_malloc(sizeof(RenderTextureClass), 16);
+		new (render_texture_)RenderTextureClass();
+		if (!render_texture_) {
 			return false;
 		}
 
 		// Initialize the render to texture object.
-		result = m_RenderTexture->Initialize(SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
+		result = render_texture_->Initialize(SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
 			return false;
@@ -466,15 +466,15 @@ void GraphicsClass::Shutdown() {
 	}
 
 	
-	if (m_RenderTexture)
+	if (render_texture_)
 	{
-		m_RenderTexture->Shutdown();
-		m_RenderTexture->~RenderTextureClass();
-		_aligned_free(m_RenderTexture);
-		m_RenderTexture = 0;
+		render_texture_->Shutdown();
+		render_texture_->~RenderTextureClass();
+		_aligned_free(render_texture_);
+		render_texture_ = 0;
 	}
 
-	// Release the light object.
+
 	if (light_)
 	{
 		light_->~LightClass();
@@ -551,9 +551,9 @@ bool GraphicsClass::RenderSceneToTexture() {
 	float posX, posY, posZ;
 	bool result;
 
-	m_RenderTexture->SetRenderTarget(directx_device_->GetDeviceContext());
+	render_texture_->SetRenderTarget(directx_device_->GetDeviceContext());
 
-	m_RenderTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	render_texture_->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	light_->GenerateViewMatrix();
 
@@ -633,7 +633,7 @@ bool GraphicsClass::RenderBlackAndWhiteShadows() {
 	// Render the cube model using the shadow shader.
 	m_CubeModel->Render(directx_device_->GetDeviceContext());
 	result = m_ShadowShader->Render(directx_device_->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
-		lightProjectionMatrix, m_RenderTexture->GetShaderResourceView(), light_->GetPosition());
+		lightProjectionMatrix, render_texture_->GetShaderResourceView(), light_->GetPosition());
 	if (!result)
 	{
 		return false;
@@ -649,7 +649,7 @@ bool GraphicsClass::RenderBlackAndWhiteShadows() {
 	// Render the sphere model using the shadow shader.
 	m_SphereModel->Render(directx_device_->GetDeviceContext());
 	result = m_ShadowShader->Render(directx_device_->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
-		lightProjectionMatrix, m_RenderTexture->GetShaderResourceView(), light_->GetPosition());
+		lightProjectionMatrix, render_texture_->GetShaderResourceView(), light_->GetPosition());
 	if (!result) {
 		return false;
 	}
@@ -664,7 +664,7 @@ bool GraphicsClass::RenderBlackAndWhiteShadows() {
 	// Render the ground model using the shadow shader.
 	m_GroundModel->Render(directx_device_->GetDeviceContext());
 	result = m_ShadowShader->Render(directx_device_->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
-		lightProjectionMatrix, m_RenderTexture->GetShaderResourceView(), light_->GetPosition());
+		lightProjectionMatrix, render_texture_->GetShaderResourceView(), light_->GetPosition());
 	if (!result) {
 		return false;
 	}

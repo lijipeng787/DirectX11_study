@@ -169,7 +169,7 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
 		return false;
 	}
 
-	// Initialize vertex array to zeros at first.
+	
 	memset(vertices, 0, (sizeof(VertexType) * (*sentence)->vertexCount));
 
 	// Initialize the index array.
@@ -218,7 +218,7 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
 		return false;
 	}
 
-	// Release the vertex array as it is no longer needed.
+	
 	delete [] vertices;
 	vertices = 0;
 
@@ -262,7 +262,7 @@ bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int positionX
 		return false;
 	}
 
-	// Initialize vertex array to zeros at first.
+	
 	memset(vertices, 0, (sizeof(VertexType) * sentence->vertexCount));
 
 	// Calculate the X and Y pixel position on the screen to start drawing to.
@@ -272,23 +272,23 @@ bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int positionX
 	// Use the font class to build the vertex array from the sentence text and sentence draw location.
 	m_Font->BuildVertexArray((void*)vertices, text, drawX, drawY);
 
-	// Lock the vertex buffer so it can be written to.
+	
 	result = device_context->Map(sentence->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Get a pointer to the data in the vertex buffer.
+	
 	verticesPtr = (VertexType*)mappedResource.pData;
 
-	// Copy the data into the vertex buffer.
+	
 	memcpy(verticesPtr, (void*)vertices, (sizeof(VertexType) * sentence->vertexCount));
 
-	// Unlock the vertex buffer.
+	
 	device_context->Unmap(sentence->vertexBuffer, 0);
 
-	// Release the vertex array as it is no longer needed.
+	
 	delete [] vertices;
 	vertices = 0;
 

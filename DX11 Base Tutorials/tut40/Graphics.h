@@ -58,7 +58,7 @@ private:
 
 	LightClass* light_;
 
-	RenderTextureClass* m_RenderTexture;
+	RenderTextureClass* render_texture_;
 
 	DepthShaderClass* m_DepthShader;
 
