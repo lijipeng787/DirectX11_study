@@ -1,23 +1,18 @@
-
-// Filename: bumpmap.ps
-
-
-
-
-
-
-Texture2D shaderTextures[2];
-SamplerState SampleType;
-
-cbuffer LightBuffer
+cbuffer MatrixBuffer
 {
-	float4 diffuseColor;
-	float3 lightDirection;
+	matrix worldMatrix;
+	matrix viewMatrix;
+	matrix projectionMatrix;
 };
 
-
-
-
+struct VertexInputType
+{
+    float4 position : POSITION;
+    float2 tex : TEXCOORD0;
+	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
+	float3 binormal : BINORMAL;
+};
 
 struct PixelInputType
 {
@@ -28,9 +23,41 @@ struct PixelInputType
 	float3 binormal : BINORMAL;
 };
 
+PixelInputType BumpMapVertexShader(VertexInputType input)
+{
+    PixelInputType output;
 
+    input.position.w = 1.0f;
 
+    output.position = mul(input.position, worldMatrix);
+    output.position = mul(output.position, viewMatrix);
+    output.position = mul(output.position, projectionMatrix);
+    
+	output.tex = input.tex;
+    
+    // Calculate the normal vector against the world matrix only and then normalize the final value.
+    output.normal = mul(input.normal, (float3x3)worldMatrix);
+    output.normal = normalize(output.normal);
 
+	// Calculate the tangent vector against the world matrix only and then normalize the final value.
+    output.tangent = mul(input.tangent, (float3x3)worldMatrix);
+    output.tangent = normalize(output.tangent);
+
+    // Calculate the binormal vector against the world matrix only and then normalize the final value.
+    output.binormal = mul(input.binormal, (float3x3)worldMatrix);
+    output.binormal = normalize(output.binormal);
+
+    return output;
+}
+
+Texture2D shaderTextures[2];
+SamplerState SampleType;
+
+cbuffer LightBuffer
+{
+	float4 diffuseColor;
+	float3 lightDirection;
+};
 
 float4 BumpMapPixelShader(PixelInputType input) : SV_TARGET
 {
@@ -40,7 +67,6 @@ float4 BumpMapPixelShader(PixelInputType input) : SV_TARGET
     float3 lightDir;
     float lightIntensity;
     float4 color;
-
 
     // Sample the texture pixel at this location.
     textureColor = shaderTextures[0].Sample(SampleType, input.tex);

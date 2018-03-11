@@ -24,11 +24,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	XMMATRIX baseViewMatrix;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -53,7 +51,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		result = model_->Initialize(
-			directx_device_->GetDevice(),
 			"../../tut20/data/cube.txt",
 			L"../../tut20/data/stone01.dds",
 			L"../../tut20/data/bump01.dds"
@@ -65,14 +62,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_BumpMapShader = (BumpMapShaderClass*)_aligned_malloc(sizeof(BumpMapShaderClass), 16);
-		new (m_BumpMapShader)BumpMapShaderClass();
-		if (!m_BumpMapShader) {
+		bumpmap_shader_ = (BumpMapShaderClass*)_aligned_malloc(sizeof(BumpMapShaderClass), 16);
+		new (bumpmap_shader_)BumpMapShaderClass();
+		if (!bumpmap_shader_) {
 			return false;
 		}
 
 
-		result = m_BumpMapShader->Initialize(hwnd);
+		result = bumpmap_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the bump map shader object.", L"Error", MB_OK);
 			return false;
@@ -91,24 +88,21 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	return true;
 }
 
-void GraphicsClass::Shutdown(){
+void GraphicsClass::Shutdown() {
 
-	if(light_)
-	{
+	if (light_) {
 		delete light_;
 		light_ = nullptr;;
 	}
 
-	if(m_BumpMapShader)
-	{
-		m_BumpMapShader->Shutdown();
-		m_BumpMapShader->~BumpMapShaderClass();
-		_aligned_free( m_BumpMapShader );
-		m_BumpMapShader = 0;
+	if (bumpmap_shader_) {
+		bumpmap_shader_->Shutdown();
+		bumpmap_shader_->~BumpMapShaderClass();
+		_aligned_free(bumpmap_shader_);
+		bumpmap_shader_ = 0;
 	}
 
-	if(model_)
-	{
+	if (model_) {
 		model_->Shutdown();
 		delete model_;
 		model_ = nullptr;
@@ -119,14 +113,6 @@ void GraphicsClass::Shutdown(){
 		_aligned_free(camera_);
 		camera_ = nullptr;
 	}
-
-	
-		
-		
-		
-	}
-
-	
 }
 
 bool GraphicsClass::Frame() {
@@ -148,6 +134,8 @@ bool GraphicsClass::Render() {
 
 	camera_->SetPosition(0.0f, 0.0f, -5.0f);
 
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
 	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
@@ -164,10 +152,10 @@ bool GraphicsClass::Render() {
 
 	worldMatrix = XMMatrixRotationY(rotation_);
 
-	model_->Render(directx_device_->GetDeviceContext());
+	model_->Render();
 
-	m_BumpMapShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		model_->GetTextureArray(), light_->GetDirection(), light_->GetDiffuseColor());
+	bumpmap_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+							model_->GetTextureArray(), light_->GetDirection(), light_->GetDiffuseColor());
 
 	directx_device_->EndScene();
 

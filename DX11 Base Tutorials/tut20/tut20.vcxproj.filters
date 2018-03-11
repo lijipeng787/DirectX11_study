@@ -14,10 +14,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="bumpmap.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="bumpmap.vs">
+    <None Include="bumpmap.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

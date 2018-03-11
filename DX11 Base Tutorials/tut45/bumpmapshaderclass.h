@@ -1,8 +1,8 @@
 
-// Filename: bumpmapshaderclass.h
 
-#ifndef _BUMPMAPSHADERCLASS_H_
-#define _BUMPMAPSHADERCLASS_H_
+
+
+
 
 
 
@@ -17,7 +17,7 @@ using namespace DirectX;
 
 
 
-// Class name: BumpMapShaderClass
+
 
 class BumpMapShaderClass
 {

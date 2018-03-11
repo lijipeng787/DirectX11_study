@@ -9,7 +9,7 @@ ShaderManagerClass::ShaderManagerClass()
 {
 	texture_shader_ = 0;
 	light_shader_ = nullptr;;
-	m_BumpMapShader = 0;
+	bumpmap_shader_ = 0;
 }
 
 
@@ -61,15 +61,15 @@ bool ShaderManagerClass::Initialize(HWND hwnd)
 	}
 
 	// Create the bump map shader object.
-	m_BumpMapShader = ( BumpMapShaderClass* )_aligned_malloc( sizeof( BumpMapShaderClass ), 16 );
-	new ( m_BumpMapShader )BumpMapShaderClass();
-	if(!m_BumpMapShader)
+	bumpmap_shader_ = ( BumpMapShaderClass* )_aligned_malloc( sizeof( BumpMapShaderClass ), 16 );
+	new ( bumpmap_shader_ )BumpMapShaderClass();
+	if(!bumpmap_shader_)
 	{
 		return false;
 	}
 
 	// Initialize the bump map shader object.
-	result = m_BumpMapShader->Initialize(device, hwnd);
+	result = bumpmap_shader_->Initialize(device, hwnd);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the bump map shader object.", L"Error", MB_OK);
@@ -83,12 +83,12 @@ bool ShaderManagerClass::Initialize(HWND hwnd)
 void ShaderManagerClass::Shutdown()
 {
 	// Release the bump map shader object.
-	if(m_BumpMapShader)
+	if(bumpmap_shader_)
 	{
-		m_BumpMapShader->Shutdown();
-		m_BumpMapShader->~BumpMapShaderClass();
-		_aligned_free( m_BumpMapShader );
-		m_BumpMapShader = 0;
+		bumpmap_shader_->Shutdown();
+		bumpmap_shader_->~BumpMapShaderClass();
+		_aligned_free( bumpmap_shader_ );
+		bumpmap_shader_ = 0;
 	}
 
 	// Release the light shader object.
@@ -157,7 +157,7 @@ bool ShaderManagerClass::RenderBumpMapShader(int indexCount, const XMMATRIX& wor
 
 
 	// Render the model using the bump map shader.
-	result = m_BumpMapShader->Render(indexCount, worldMatrix, viewMatrix, projectionMatrix, colorTexture, normalTexture, lightDirection, diffuse);
+	result = bumpmap_shader_->Render(indexCount, worldMatrix, viewMatrix, projectionMatrix, colorTexture, normalTexture, lightDirection, diffuse);
 	if(!result)
 	{
 		return false;

@@ -37,7 +37,7 @@ public:
 private:
 	TextureShaderClass* texture_shader_;
 	LightShaderClass* light_shader_;
-	BumpMapShaderClass* m_BumpMapShader;
+	BumpMapShaderClass* bumpmap_shader_;
 };
 
 #endif

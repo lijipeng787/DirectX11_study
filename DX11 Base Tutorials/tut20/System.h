@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/SystemBase.h"
 
@@ -27,6 +26,3 @@ private:
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 static System* ApplicationInstance = nullptr;
-
-
-#endif
