@@ -66,7 +66,7 @@ private:
 	ID3D11InputLayout* layout_;
 	ID3D11SamplerState* sample_state_;
 	ID3D11Buffer* matrix_buffer_;
-	ID3D11Buffer* m_reflectionBuffer;
+	ID3D11Buffer* reflection_buffer_;
 	ID3D11Buffer* m_waterBuffer;
 };
 

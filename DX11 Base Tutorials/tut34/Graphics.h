@@ -34,7 +34,7 @@ private:
 
 	TextureShaderClass* texture_shader_ = nullptr;
 
-	ModelClass *m_FloorModel = nullptr, *m_BillboardModel = nullptr;
+	ModelClass *floor_model_ = nullptr, *m_BillboardModel = nullptr;
 
 	float x_ = 0.0f, y_ = 0.0f, z_ = 0.0f;
 };

@@ -37,16 +37,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="texture.ps">
+    <None Include="reflection.hlsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="reflection.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="texture.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="reflection.ps">
+    <None Include="texture.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

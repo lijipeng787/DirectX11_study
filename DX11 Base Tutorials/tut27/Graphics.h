@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -32,9 +31,7 @@ private:
 
 	bool RenderScene();
 private:
-	
-
-	Camera *camera_ = nullptr;
+	Camera * camera_ = nullptr;
 
 	ModelClass *model_ = nullptr;
 
@@ -42,9 +39,7 @@ private:
 
 	RenderTextureClass* render_texture_ = nullptr;
 
-	ModelClass* m_FloorModel = nullptr;
+	ModelClass* floor_model_ = nullptr;
 
-	ReflectionShaderClass* m_ReflectionShader = nullptr;
+	ReflectionShaderClass* reflection_model_ = nullptr;
 };
-
-#endif

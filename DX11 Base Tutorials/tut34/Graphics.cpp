@@ -55,11 +55,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_FloorModel = new ModelClass();
-		if (!m_FloorModel) {
+		floor_model_ = new ModelClass();
+		if (!floor_model_) {
 			return false;
 		}
-		result = m_FloorModel->Initialize("../../tut34/data/floor.txt", L"../../tut34/data/grid01.dds");
+		result = floor_model_->Initialize("../../tut34/data/floor.txt", L"../../tut34/data/grid01.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the floor model object.", L"Error", MB_OK);
 			return false;
@@ -92,11 +92,11 @@ void GraphicsClass::Shutdown() {
 	}
 
 	// Release the floor model object.
-	if (m_FloorModel)
+	if (floor_model_)
 	{
-		m_FloorModel->Shutdown();
-		delete m_FloorModel;
-		m_FloorModel = 0;
+		floor_model_->Shutdown();
+		delete floor_model_;
+		floor_model_ = 0;
 	}
 
 	
@@ -152,10 +152,10 @@ bool GraphicsClass::Render() {
 	directx_device_->GetWorldMatrix(worldMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
-	m_FloorModel->Render(directx_device_->GetDeviceContext());
+	floor_model_->Render(directx_device_->GetDeviceContext());
 
-	result = texture_shader_->Render(directx_device_->GetDeviceContext(), m_FloorModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_FloorModel->GetTexture());
+	result = texture_shader_->Render(directx_device_->GetDeviceContext(), floor_model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		floor_model_->GetTexture());
 	if (!result) {
 		return false;
 	}

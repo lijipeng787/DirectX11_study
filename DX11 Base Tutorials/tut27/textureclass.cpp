@@ -1,55 +1,29 @@
+#include <DDSTextureLoader.h>
 
-
-
+#include "../CommonFramework/DirectX11Device.h"
 #include "textureclass.h"
 
+using namespace DirectX;
 
-TextureClass::TextureClass()
-{
-	texture_ = nullptr;
-}
+bool TextureClass::Initialize(WCHAR* filename) {
 
-
-TextureClass::TextureClass(const TextureClass& other)
-{
-}
-
-
-TextureClass::~TextureClass()
-{
-}
-
-
-bool TextureClass::Initialize(WCHAR* filename)
-{
-	HRESULT result;
-
-
-	
-	result = CreateDDSTextureFromFile( device, filename, NULL, &texture_ );
-	if(FAILED(result))
-	{
+	auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
+	auto result = CreateDDSTextureFromFile(device, filename, NULL, &texture_);
+	if (FAILED(result)) {
 		return false;
 	}
 
 	return true;
 }
 
+void TextureClass::Shutdown() {
 
-void TextureClass::Shutdown()
-{
-	
-	if(texture_)
-	{
+	if (texture_) {
 		texture_->Release();
 		texture_ = nullptr;
 	}
-
-	
 }
 
-
-ID3D11ShaderResourceView* TextureClass::GetTexture()
-{
+ID3D11ShaderResourceView* TextureClass::GetTexture() {
 	return texture_;
 }

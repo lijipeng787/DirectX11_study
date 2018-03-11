@@ -13,6 +13,8 @@
 #include "rendertextureclass.h"
 #include "reflectionshaderclass.h"
 
+using namespace DirectX;
+
 GraphicsClass::GraphicsClass() {}
 
 GraphicsClass::~GraphicsClass() {}
@@ -23,11 +25,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	XMMATRIX baseViewMatrix;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -84,11 +84,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_FloorModel = new ModelClass();
-		if (!m_FloorModel) {
+		floor_model_ = new ModelClass();
+		if (!floor_model_) {
 			return false;
 		}
-		result = m_FloorModel->Initialize(L"../../tut27/data/blue01.dds", "../../tut27/data/floor.txt");
+		result = floor_model_->Initialize(L"../../tut27/data/blue01.dds", "../../tut27/data/floor.txt");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the floor model object.", L"Error", MB_OK);
 			return false;
@@ -96,12 +96,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_ReflectionShader = (ReflectionShaderClass*)_aligned_malloc(sizeof(ReflectionShaderClass), 16);
-		new (m_ReflectionShader)ReflectionShaderClass();
-		if (!m_ReflectionShader) {
+		reflection_model_ = (ReflectionShaderClass*)_aligned_malloc(sizeof(ReflectionShaderClass), 16);
+		new (reflection_model_)ReflectionShaderClass();
+		if (!reflection_model_) {
 			return false;
 		}
-		result = m_ReflectionShader->Initialize(hwnd);
+		result = reflection_model_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the reflection shader object.", L"Error", MB_OK);
 			return false;
@@ -112,31 +112,28 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 }
 
 void GraphicsClass::Shutdown() {
-	// Release the reflection shader object.
-	if (m_ReflectionShader)
+
+	if (reflection_model_)
 	{
-		m_ReflectionShader->Shutdown();
-		m_ReflectionShader->~ReflectionShaderClass();
-		_aligned_free(m_ReflectionShader);
-		m_ReflectionShader = 0;
+		reflection_model_->Shutdown();
+		reflection_model_->~ReflectionShaderClass();
+		_aligned_free(reflection_model_);
+		reflection_model_ = 0;
 	}
 
-	// Release the floor model object.
-	if (m_FloorModel)
+	if (floor_model_)
 	{
-		m_FloorModel->Shutdown();
-		delete m_FloorModel;
-		m_FloorModel = 0;
+		floor_model_->Shutdown();
+		delete floor_model_;
+		floor_model_ = 0;
 	}
 
-	
 	if (render_texture_)
 	{
 		render_texture_->Shutdown();
 		delete render_texture_;
 		render_texture_ = 0;
 	}
-
 	
 	if (texture_shader_)
 	{
@@ -145,7 +142,6 @@ void GraphicsClass::Shutdown() {
 		_aligned_free(texture_shader_);
 		texture_shader_ = 0;
 	}
-
 
 	if (model_)
 	{
@@ -158,12 +154,6 @@ void GraphicsClass::Shutdown() {
 		camera_->~Camera();
 		_aligned_free(camera_);
 		camera_ = nullptr;
-	}
-
-	
-		
-		
-		
 	}
 }
 
@@ -200,10 +190,11 @@ bool GraphicsClass::RenderToTexture() {
 	XMMATRIX worldMatrix, reflectionViewMatrix, projectionMatrix;
 	static float rotation_ = 0.0f;
 
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
-	render_texture_->SetRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView());
+	render_texture_->SetRenderTarget(directx_device_->GetDepthStencilView());
 
-	render_texture_->ClearRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
+	render_texture_->ClearRenderTarget(directx_device_->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->RenderReflection(-1.5f);
 
@@ -218,9 +209,9 @@ bool GraphicsClass::RenderToTexture() {
 	}
 	worldMatrix = XMMatrixRotationY(rotation_);
 
-	model_->Render(directx_device_->GetDeviceContext());
+	model_->Render();
 
-	texture_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, reflectionViewMatrix,
+	texture_shader_->Render(model_->GetIndexCount(), worldMatrix, reflectionViewMatrix,
 		projectionMatrix, model_->GetTexture());
 
 	directx_device_->SetBackBufferRenderTarget();
@@ -229,13 +220,16 @@ bool GraphicsClass::RenderToTexture() {
 }
 
 bool GraphicsClass::RenderScene() {
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, reflectionMatrix;
-	bool result;
+
 	static float rotation_ = 0.0f;
+
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
 	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
+
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, reflectionMatrix;
 
 	directx_device_->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
@@ -248,10 +242,10 @@ bool GraphicsClass::RenderScene() {
 
 	worldMatrix = XMMatrixRotationY(rotation_);
 
-	model_->Render(directx_device_->GetDeviceContext());
+	model_->Render();
 
-	result = texture_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix,
-		projectionMatrix, model_->GetTexture());
+	auto result = texture_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix,
+									 projectionMatrix, model_->GetTexture());
 	if (!result) {
 		return false;
 	}
@@ -261,11 +255,11 @@ bool GraphicsClass::RenderScene() {
 
 	reflectionMatrix = camera_->GetReflectionViewMatrix();
 
-	m_FloorModel->Render(directx_device_->GetDeviceContext());
+	floor_model_->Render();
 
-	result = m_ReflectionShader->Render(directx_device_->GetDeviceContext(), m_FloorModel->GetIndexCount(), worldMatrix, viewMatrix,
-		projectionMatrix, m_FloorModel->GetTexture(), render_texture_->GetShaderResourceView(),
-		reflectionMatrix);
+	result = reflection_model_->Render(floor_model_->GetIndexCount(), worldMatrix, viewMatrix,
+									   projectionMatrix, floor_model_->GetTexture(), render_texture_->GetShaderResourceView(),
+									   reflectionMatrix);
 
 	directx_device_->EndScene();
 

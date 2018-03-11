@@ -240,6 +240,7 @@ bool TextureShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const 
 }
 
 void TextureShaderClass::RenderShader(int indexCount) {
+
 	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
 	device_context->IASetInputLayout(layout_);

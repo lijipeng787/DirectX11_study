@@ -11,7 +11,7 @@ WaterShaderClass::WaterShaderClass()
 	layout_ = nullptr;
 	sample_state_ = nullptr;
 	matrix_buffer_ = nullptr;
-	m_reflectionBuffer = 0;
+	reflection_buffer_ = 0;
 	m_waterBuffer = 0;
 }
 
@@ -229,7 +229,7 @@ bool WaterShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psF
 	reflectionBufferDesc.StructureByteStride = 0;
 
 	
-	result = device->CreateBuffer(&reflectionBufferDesc, NULL, &m_reflectionBuffer);
+	result = device->CreateBuffer(&reflectionBufferDesc, NULL, &reflection_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -263,11 +263,11 @@ void WaterShaderClass::ShutdownShader()
 		m_waterBuffer = 0;
 	}
 
-	// Release the reflection constant buffer.
-	if(m_reflectionBuffer)
+	
+	if(reflection_buffer_)
 	{
-		m_reflectionBuffer->Release();
-		m_reflectionBuffer = 0;
+		reflection_buffer_->Release();
+		reflection_buffer_ = 0;
 	}
 
 
@@ -394,7 +394,7 @@ bool WaterShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XM
     device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
 	// Lock the reflection constant buffer so it can be written to.
-	result = device_context->Map(m_reflectionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(reflection_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -407,13 +407,13 @@ bool WaterShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XM
 	dataPtr2->reflection = reflectionMatrixCopy;
 
 	
-	device_context->Unmap(m_reflectionBuffer, 0);
+	device_context->Unmap(reflection_buffer_, 0);
 
 	// Set the position of the reflection constant buffer in the vertex shader.
 	buffer_number = 1;
 
 	// Finally set the reflection constant buffer in the vertex shader with the updated values.
-	device_context->VSSetConstantBuffers(buffer_number, 1, &m_reflectionBuffer);
+	device_context->VSSetConstantBuffers(buffer_number, 1, &reflection_buffer_);
 
 	// Set the reflection texture resource in the pixel shader.
 	device_context->PSSetShaderResources(0, 1, &reflectionTexture);
