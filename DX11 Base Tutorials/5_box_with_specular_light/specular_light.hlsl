@@ -81,13 +81,13 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 
-	// Set the default output color to the ambient light value for all pixels.
+
     color = ambientColor;
 
 	// Initialize the specular color.
 	specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
-	// Invert the light direction for calculations.
+
     lightDir = -lightDirection;
 
     // Calculate the amount of light on this pixel.
@@ -95,7 +95,7 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 
 	if(lightIntensity > 0.0f)
     {
-        // Determine the final diffuse color based on the diffuse color and the amount of light intensity.
+
         color += (diffuseColor * lightIntensity);
 
 	    // Saturate the ambient and diffuse color.

@@ -255,10 +255,6 @@ bool ReflectionShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, con
 	dataPtr->view = viewMatrixCopy;
 	dataPtr->projection = projectionMatrixCopy;
 
-	dataPtr->world = worldMatrixCopy;
-	dataPtr->view = viewMatrixCopy;
-	dataPtr->projection = projectionMatrixCopy;
-
 	device_context->Unmap(matrix_buffer_, 0);
 
 	unsigned int buffer_number = 0;

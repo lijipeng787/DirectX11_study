@@ -89,7 +89,7 @@ float4 SpecMapPixelShader(PixelInputType input) : SV_TARGET
     float3 reflection;
     float4 specular;
 
-	// Sample the texture pixel at this location.
+
     textureColor = shaderTextures[0].Sample(SampleType, input.tex);
 	
     // Sample the pixel in the bump map.

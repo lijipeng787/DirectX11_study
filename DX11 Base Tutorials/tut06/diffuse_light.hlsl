@@ -56,10 +56,10 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 	
-	// Invert the light direction for calculations.
+
 	lightDir = -lightDirection;
 	
-	// Calculate the amount of light on this pixel.
+
 	lightIntensity = saturate(dot(input.normal, lightDir));
 	
 	// Determine the final amount of diffuse color based on the diffuse color combined with the light intensity.

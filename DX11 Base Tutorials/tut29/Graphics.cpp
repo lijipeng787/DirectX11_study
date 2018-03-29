@@ -14,6 +14,8 @@
 #include "refractionshaderclass.h"
 #include "watershaderclass.h"
 
+using namespace DirectX;
+
 GraphicsClass::GraphicsClass() {}
 
 GraphicsClass::~GraphicsClass() {}
@@ -24,11 +26,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	XMMATRIX baseViewMatrix;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -239,12 +239,6 @@ void GraphicsClass::Shutdown() {
 		_aligned_free(camera_);
 		camera_ = nullptr;
 	}
-
-	
-		
-		
-		
-	}
 }
 
 bool GraphicsClass::Frame() {
@@ -290,14 +284,14 @@ bool GraphicsClass::RenderRefractionToTexture() {
 
 	auto clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, water_height_ + 0.1f);
 
+	auto directx_device = DirectX11Device::GetD3d11DeviceInstance();
+
 	refraction_texture_->SetRenderTarget(
-		directx_device_->GetDeviceContext(),
-		directx_device_->GetDepthStencilView()
+		directx_device->GetDepthStencilView()
 	);
 
 	refraction_texture_->ClearRenderTarget(
-		directx_device_->GetDeviceContext(),
-		directx_device_->GetDepthStencilView(),
+		directx_device->GetDepthStencilView(),
 		0.0f, 0.0f, 0.0f, 1.0f
 	);
 
@@ -305,16 +299,16 @@ bool GraphicsClass::RenderRefractionToTexture() {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetProjectionMatrix(projectionMatrix);
+	directx_device->GetProjectionMatrix(projectionMatrix);
 
 	worldMatrix = XMMatrixTranslation(0.0f, 2.0f, 0.0f);
 
-	bath_model_->Render(directx_device_->GetDeviceContext());
+	bath_model_->Render();
 
 	result = refraction_shader_->Render(
-		directx_device_->GetDeviceContext(), bath_model_->GetIndexCount(),
+		bath_model_->GetIndexCount(),
 		worldMatrix, viewMatrix, projectionMatrix,
 		bath_model_->GetTexture(),
 		light_->GetDirection(), light_->GetAmbientColor(), light_->GetDiffuseColor(),
@@ -324,24 +318,21 @@ bool GraphicsClass::RenderRefractionToTexture() {
 		return false;
 	}
 
-	directx_device_->SetBackBufferRenderTarget();
+	directx_device->SetBackBufferRenderTarget();
 
 	return true;
 }
 
 bool GraphicsClass::RenderReflectionToTexture() {
 
-	bool result;
-
+	auto directx_device = DirectX11Device::GetD3d11DeviceInstance();
 
 	reflection_texture_->SetRenderTarget(
-		directx_device_->GetDeviceContext(),
-		directx_device_->GetDepthStencilView()
+		directx_device->GetDepthStencilView()
 	);
 
 	reflection_texture_->ClearRenderTarget(
-		directx_device_->GetDeviceContext(),
-		directx_device_->GetDepthStencilView(),
+		directx_device->GetDepthStencilView(),
 		0.0f, 0.0f, 0.0f, 1.0f
 	);
 
@@ -350,15 +341,14 @@ bool GraphicsClass::RenderReflectionToTexture() {
 	XMMATRIX reflectionViewMatrix, worldMatrix, projectionMatrix;
 
 	reflectionViewMatrix = camera_->GetReflectionViewMatrix();
-	directx_device_->GetWorldMatrix(worldMatrix);
-	directx_device_->GetProjectionMatrix(projectionMatrix);
+	directx_device->GetWorldMatrix(worldMatrix);
+	directx_device->GetProjectionMatrix(projectionMatrix);
 
 	worldMatrix = XMMatrixTranslation(0.0f, 6.0f, 8.0f);
 
-	wall_model_->Render(directx_device_->GetDeviceContext());
+	wall_model_->Render();
 
-	result = light_shader_->Render(
-		directx_device_->GetDeviceContext(),
+	auto result = light_shader_->Render(
 		wall_model_->GetIndexCount(),
 		worldMatrix, reflectionViewMatrix, projectionMatrix,
 		wall_model_->GetTexture(),
@@ -368,31 +358,30 @@ bool GraphicsClass::RenderReflectionToTexture() {
 		return false;
 	}
 
-	directx_device_->SetBackBufferRenderTarget();
+	directx_device->SetBackBufferRenderTarget();
 
 	return true;
 }
 
 bool GraphicsClass::RenderScene() {
 
-	bool result;
+	auto directx_device = DirectX11Device::GetD3d11DeviceInstance();
 
-	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	directx_device->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, reflectionMatrix;
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetProjectionMatrix(projectionMatrix);
+	directx_device->GetProjectionMatrix(projectionMatrix);
 
 	worldMatrix = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
 
-	ground_model_->Render(directx_device_->GetDeviceContext());
+	ground_model_->Render();
 
-	result = light_shader_->Render(
-		directx_device_->GetDeviceContext(),
+	auto result = light_shader_->Render(
 		ground_model_->GetIndexCount(),
 		worldMatrix, viewMatrix, projectionMatrix,
 		ground_model_->GetTexture(),
@@ -402,14 +391,13 @@ bool GraphicsClass::RenderScene() {
 		return false;
 	}
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device->GetWorldMatrix(worldMatrix);
 
 	worldMatrix = XMMatrixTranslation(0.0f, 6.0f, 8.0f);
 
-	wall_model_->Render(directx_device_->GetDeviceContext());
+	wall_model_->Render();
 
 	result = light_shader_->Render(
-		directx_device_->GetDeviceContext(),
 		wall_model_->GetIndexCount(),
 		worldMatrix, viewMatrix, projectionMatrix,
 		wall_model_->GetTexture(),
@@ -419,14 +407,13 @@ bool GraphicsClass::RenderScene() {
 		return false;
 	}
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device->GetWorldMatrix(worldMatrix);
 
 	worldMatrix = XMMatrixTranslation(0.0f, 2.0f, 0.0f);
 
-	bath_model_->Render(directx_device_->GetDeviceContext());
+	bath_model_->Render();
 
 	result = light_shader_->Render(
-		directx_device_->GetDeviceContext(),
 		bath_model_->GetIndexCount(),
 		worldMatrix, viewMatrix, projectionMatrix,
 		bath_model_->GetTexture(),
@@ -436,16 +423,15 @@ bool GraphicsClass::RenderScene() {
 		return false;
 	}
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device->GetWorldMatrix(worldMatrix);
 
 	reflectionMatrix = camera_->GetReflectionViewMatrix();
 
 	worldMatrix = XMMatrixTranslation(0.0f, water_height_, 0.0f);
 
-	water_model_->Render(directx_device_->GetDeviceContext());
+	water_model_->Render();
 
 	result = water_shader_->Render(
-		directx_device_->GetDeviceContext(),
 		water_model_->GetIndexCount(),
 		worldMatrix, viewMatrix, projectionMatrix, reflectionMatrix,
 		reflection_texture_->GetShaderResourceView(),
@@ -458,7 +444,7 @@ bool GraphicsClass::RenderScene() {
 		return false;
 	}
 
-	directx_device_->EndScene();
+	directx_device->EndScene();
 
 	return true;
 }

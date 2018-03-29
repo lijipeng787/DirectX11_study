@@ -58,7 +58,7 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	color3 = diffuseColor[2] * lightIntensity3;
 	color4 = diffuseColor[3] * lightIntensity4;
 
-	// Sample the texture pixel at this location.
+
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 
 	// Multiply the texture pixel by the combination of all four light colors to get the final result.

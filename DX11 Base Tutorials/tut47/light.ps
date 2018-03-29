@@ -41,7 +41,7 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 
-	// Invert the light direction for calculations.
+
     lightDir = -lightDirection;
 
     // Calculate the amount of light on this pixel.

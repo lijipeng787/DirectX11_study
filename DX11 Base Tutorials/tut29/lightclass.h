@@ -1,45 +1,44 @@
-
-
-
-
-
-
-
-
-
+#pragma once
 
 #include <DirectXMath.h>
-using namespace DirectX;
 
-
-
-
-
-class LightClass
-{
+class LightClass {
 public:
 	LightClass();
-	LightClass(const LightClass&);
+
+	LightClass(const LightClass& rhs) = delete;
+
+	LightClass& operator=(const LightClass& rhs) = delete;
+
 	~LightClass();
+public:
+	void SetAmbientColor(float red, float green, float blue, float alpha);
 
-	void SetAmbientColor(float, float, float, float);
-	void SetDiffuseColor(float, float, float, float);
+	void SetDiffuseColor(float red, float green, float blue, float alpha);
+
+	void SetDirection(float x, float y, float z);
+
 	void SetSpecularColor(float, float, float, float);
+
 	void SetSpecularPower(float);
-	void SetDirection(float, float, float);
 
-	XMFLOAT4 GetAmbientColor();
-	XMFLOAT4 GetDiffuseColor();
-	XMFLOAT4 GetSpecularColor();
+	DirectX::XMFLOAT4 GetAmbientColor();
+
+	DirectX::XMFLOAT4 GetDiffuseColor();
+
+	DirectX::XMFLOAT3 GetDirection();
+
+	DirectX::XMFLOAT4 GetSpecularColor();
+
 	float GetSpecularPower();
-	XMFLOAT3 GetDirection();
-
 private:
-	XMFLOAT4 ambient_color_;
-	XMFLOAT4 diffuse_color_;
-	XMFLOAT4 specular_color_;
-	float specular_power_;
-	XMFLOAT3 direction_;
-};
+	DirectX::XMFLOAT4 ambient_color_ = {};
 
-#endif
+	DirectX::XMFLOAT4 diffuse_color_ = {};
+
+	DirectX::XMFLOAT3 light_direction_ = {};
+
+	DirectX::XMFLOAT4 specular_color_;
+
+	float specular_power_;
+};

@@ -237,7 +237,7 @@ bool ClipPlaneShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR*
 
 void ClipPlaneShaderClass::ShutdownShader()
 {
-	// Release the clip plane constant buffer.
+
 	if(m_clipPlaneBuffer)
 	{
 		m_clipPlaneBuffer->Release();

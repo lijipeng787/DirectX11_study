@@ -54,7 +54,7 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	// Sample the normals from the normal render texture using the point sampler at this texture coordinate location.
 	normals = normalTexture.Sample(SampleTypePoint, input.tex);
 	
-	// Invert the light direction for calculations.
+
     lightDir = -lightDirection;
 
     // Calculate the amount of light on this pixel.

@@ -1,6 +1,3 @@
-
-
-
 #include "../CommonFramework/GraphicsBase.h"
 
 class DirectX11Device;
@@ -42,8 +39,6 @@ private:
 
 	float water_height_ = 0.0f, water_translation_ = 0.0f;
 
-	
-
 	Camera *camera_ = nullptr;
 
 	ModelClass
@@ -64,5 +59,3 @@ private:
 
 	WaterShaderClass* water_shader_ = nullptr;
 };
-
-#endif

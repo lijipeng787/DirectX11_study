@@ -75,22 +75,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="refraction.ps">
+    <None Include="light.hlsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="water.ps">
+    <None Include="refraction.hlsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="light.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="refraction.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="water.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="light.ps">
+    <None Include="water.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

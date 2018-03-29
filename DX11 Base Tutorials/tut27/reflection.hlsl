@@ -53,7 +53,7 @@ float4 ReflectionPixelShader(PixelInputType input) : SV_TARGET
 	float4 reflectionColor;
 	float4 color;
 
-	// Sample the texture pixel at this location.
+
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 
 	// Calculate the projected reflection texture coordinates.
