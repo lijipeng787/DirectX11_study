@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -30,13 +29,9 @@ private:
 
 	bool RenderScene();
 private:
-	
-
 	Camera *camera_ = nullptr;
 
 	ModelClass *model_ = nullptr;
 
-	ClipPlaneShaderClass* m_ClipPlaneShader = nullptr;
+	ClipPlaneShaderClass* clipplane_shader_ = nullptr;
 };
-
-#endif

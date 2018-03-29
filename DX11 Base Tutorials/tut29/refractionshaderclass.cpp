@@ -199,7 +199,7 @@ bool RefractionShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR
 	clipPlaneBufferDesc.MiscFlags = 0;
 	clipPlaneBufferDesc.StructureByteStride = 0;
 
-	result = device->CreateBuffer(&clipPlaneBufferDesc, NULL, &m_clipPlaneBuffer);
+	result = device->CreateBuffer(&clipPlaneBufferDesc, NULL, &clipplane_buffer_);
 	if (FAILED(result)) {
 		return false;
 	}
@@ -209,9 +209,9 @@ bool RefractionShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR
 
 void RefractionShaderClass::ShutdownShader() {
 
-	if (m_clipPlaneBuffer) {
-		m_clipPlaneBuffer->Release();
-		m_clipPlaneBuffer = 0;
+	if (clipplane_buffer_) {
+		clipplane_buffer_->Release();
+		clipplane_buffer_ = 0;
 	}
 
 	if (light_buffer_) {
@@ -319,7 +319,7 @@ bool RefractionShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, con
 
 	device_context->PSSetConstantBuffers(buffer_number, 1, &light_buffer_);
 
-	result = device_context->Map(m_clipPlaneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(clipplane_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result)) {
 		return false;
 	}
@@ -329,11 +329,11 @@ bool RefractionShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, con
 
 	dataPtr3->clipPlane = clipPlane;
 
-	device_context->Unmap(m_clipPlaneBuffer, 0);
+	device_context->Unmap(clipplane_buffer_, 0);
 
 	buffer_number = 1;
 
-	device_context->VSSetConstantBuffers(buffer_number, 1, &m_clipPlaneBuffer);
+	device_context->VSSetConstantBuffers(buffer_number, 1, &clipplane_buffer_);
 
 	return true;
 }

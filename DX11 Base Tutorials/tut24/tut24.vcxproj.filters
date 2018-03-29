@@ -51,10 +51,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="clipplane.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="clipplane.vs">
+    <None Include="clipplane.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

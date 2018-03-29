@@ -43,5 +43,5 @@ private:
 	ID3D11InputLayout* layout_ = nullptr;
 
 	ID3D11SamplerState* sample_state_ = nullptr;
-	ID3D11Buffer* matrix_buffer_ = nullptr, *light_buffer_ = nullptr, *m_clipPlaneBuffer = nullptr;
+	ID3D11Buffer* matrix_buffer_ = nullptr, *light_buffer_ = nullptr, *clipplane_buffer_ = nullptr;
 };

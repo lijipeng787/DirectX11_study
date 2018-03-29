@@ -1,11 +1,3 @@
-
-// Filename: clipplane.vs
-
-
-
-
-
-
 cbuffer MatrixBuffer
 {
 	matrix worldMatrix;
@@ -17,10 +9,6 @@ cbuffer ClipPlaneBuffer
 {
 	float4 clipPlane;
 };
-
-
-
-
 
 struct VertexInputType
 {
@@ -35,28 +23,28 @@ struct PixelInputType
 	float clip : SV_ClipDistance0;
 };
 
-
-
-
-
 PixelInputType ClipPlaneVertexShader(VertexInputType input)
 {
     PixelInputType output;
     
-
-
     input.position.w = 1.0f;
-
 	
     output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
-	
 	output.tex = input.tex;
 
     // Set the clipping plane.
     output.clip = dot(mul(input.position, worldMatrix), clipPlane);
 
     return output;
+}
+
+Texture2D shaderTexture;
+SamplerState SampleType;
+
+float4 ClipPlanePixelShader(PixelInputType input) : SV_TARGET
+{
+	return shaderTexture.Sample(SampleType, input.tex);
 }

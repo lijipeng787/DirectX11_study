@@ -1,63 +1,45 @@
-
-// Filename: clipplaneshaderclass.h
-
-#ifndef _CLIPPLANESHADERCLASS_H_
-#define _CLIPPLANESHADERCLASS_H_
-
-
-
-
+#pragma once
 
 #include <d3d11.h>
 #include <DirectXMath.h>
-#include <d3dcompiler.h>
-#include <fstream>
-using namespace std;
-using namespace DirectX;
 
+struct MatrixBufferType;
+struct ClipPlaneBufferType;
 
-
-// Class name: ClipPlaneShaderClass
-
-class ClipPlaneShaderClass
-{
-private:
-	struct MatrixBufferType
-	{
-		XMMATRIX world;
-		XMMATRIX view;
-		XMMATRIX projection;
-	};
-
-	struct ClipPlaneBufferType
-	{
-		XMFLOAT4 clipPlane;
-	};
-
+class ClipPlaneShaderClass {
 public:
-	ClipPlaneShaderClass();
-	ClipPlaneShaderClass(const ClipPlaneShaderClass&);
-	~ClipPlaneShaderClass();
+	ClipPlaneShaderClass() {}
 
+	ClipPlaneShaderClass(const ClipPlaneShaderClass& rhs) = delete;
+
+	~ClipPlaneShaderClass() {}
+public:
 	bool Initialize(HWND);
-	void Shutdown();
-	bool Render(int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*, const XMFLOAT4& );
 
+	void Shutdown();
+
+	bool Render(int,
+				const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&,
+				ID3D11ShaderResourceView*, const DirectX::XMFLOAT4&);
 private:
 	bool InitializeShader(HWND, WCHAR*, WCHAR*);
+
 	void ShutdownShader();
+
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*, const XMFLOAT4& );
+	bool SetShaderParameters(const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&,
+							 ID3D11ShaderResourceView*, const DirectX::XMFLOAT4&);
+
 	void RenderShader(int);
-
 private:
-	ID3D11VertexShader* vertex_shader_;
-	ID3D11PixelShader* pixel_shader_;
-	ID3D11InputLayout* layout_;
-	ID3D11Buffer* matrix_buffer_;
-	ID3D11SamplerState* sample_state_;
-	ID3D11Buffer* m_clipPlaneBuffer;
-};
+	ID3D11VertexShader * vertex_shader_ = nullptr;
 
-#endif
+	ID3D11PixelShader* pixel_shader_ = nullptr;
+
+	ID3D11InputLayout* layout_ = nullptr;
+
+	ID3D11Buffer* matrix_buffer_ = nullptr, *clipplane_buffer_ = nullptr;
+
+	ID3D11SamplerState* sample_state_ = nullptr;
+};
