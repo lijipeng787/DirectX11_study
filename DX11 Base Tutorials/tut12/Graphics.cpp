@@ -11,20 +11,14 @@
 
 using namespace DirectX;
 
-GraphicsClass::GraphicsClass() {}
-
-GraphicsClass::~GraphicsClass() {}
-
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 	bool result;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -44,13 +38,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Text = (TextClass*)_aligned_malloc(sizeof(TextClass), 16);
-		new (m_Text)TextClass();
-		if (!m_Text) {
+		text_ = (TextClass*)_aligned_malloc(sizeof(TextClass), 16);
+		new (text_)TextClass();
+		if (!text_) {
 			return false;
 		}
-		
-		result = m_Text->Initialize(directx_device_->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
+
+		result = text_->Initialize(hwnd, screenWidth, screenHeight, baseViewMatrix);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
 			return false;
@@ -67,13 +61,6 @@ void GraphicsClass::Shutdown() {
 		_aligned_free(camera_);
 		camera_ = nullptr;
 	}
-
-	
-		
-		
-		
-		
-	}
 }
 
 bool GraphicsClass::Frame() {
@@ -88,31 +75,32 @@ bool GraphicsClass::Frame() {
 
 bool GraphicsClass::Render() {
 
-	XMMATRIX worldMatrix, viewMatrix, orthoMatrix, projectionMatrix;
-	bool result;
+	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 
-	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	auto directx_device = DirectX11Device::GetD3d11DeviceInstance();
+
+	directx_device->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetWorldMatrix(worldMatrix);
-	directx_device_->GetOrthoMatrix(orthoMatrix);
+	directx_device->GetWorldMatrix(worldMatrix);
+	directx_device->GetOrthoMatrix(orthoMatrix);
 
-	directx_device_->TurnZBufferOff();
+	directx_device->TurnZBufferOff();
 
-	directx_device_->TurnOnAlphaBlending();
+	directx_device->TurnOnAlphaBlending();
 
-	result = m_Text->Render(directx_device_->GetDeviceContext(), worldMatrix, orthoMatrix);
-	if (!result){
+	auto result = text_->Render(worldMatrix, orthoMatrix);
+	if (!result) {
 		return false;
 	}
 
-	directx_device_->TurnOffAlphaBlending();
+	directx_device->TurnOffAlphaBlending();
 
-	directx_device_->TurnZBufferOn();
+	directx_device->TurnZBufferOn();
 
-	directx_device_->EndScene();
+	directx_device->EndScene();
 
 	return true;
 }

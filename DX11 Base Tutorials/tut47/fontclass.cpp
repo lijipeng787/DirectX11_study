@@ -1,12 +1,12 @@
 
-// Filename: fontclass.cpp
+
 
 #include "fontclass.h"
 
 
 FontClass::FontClass()
 {
-	m_Font = 0;
+	font_ = 0;
 	texture_ = nullptr;
 }
 
@@ -64,8 +64,8 @@ bool FontClass::LoadFontData(char* filename)
 
 
 	// Create the font spacing buffer.
-	m_Font = new FontType[95];
-	if(!m_Font)
+	font_ = new FontType[95];
+	if(!font_)
 	{
 		return false;
 	}
@@ -91,9 +91,9 @@ bool FontClass::LoadFontData(char* filename)
 			fin.get(temp);
 		}
 
-		fin >> m_Font[i].left;
-		fin >> m_Font[i].right;
-		fin >> m_Font[i].size;
+		fin >> font_[i].left;
+		fin >> font_[i].right;
+		fin >> font_[i].size;
 	}
 
 	
@@ -106,10 +106,10 @@ bool FontClass::LoadFontData(char* filename)
 void FontClass::ReleaseFontData()
 {
 	// Release the font data array.
-	if(m_Font)
+	if(font_)
 	{
-		delete [] m_Font;
-		m_Font = 0;
+		delete [] font_;
+		font_ = 0;
 	}
 
 	
@@ -168,7 +168,7 @@ void FontClass::BuildVertexArray(void* vertices, char* sentence, float drawX, fl
 	// Coerce the input vertices into a VertexType structure.
 	vertexPtr = (VertexType*)vertices;
 
-	// Get the number of letters in the sentence.
+
 	numLetters = (int)strlen(sentence);
 
 	// Initialize the index to the vertex array.
@@ -188,32 +188,32 @@ void FontClass::BuildVertexArray(void* vertices, char* sentence, float drawX, fl
 		{
 			// First triangle in quad.
 			vertexPtr[index].position = XMFLOAT3(drawX, drawY, 0.0f);  // Top left.
-			vertexPtr[index].texture = XMFLOAT2(m_Font[letter].left, 0.0f);
+			vertexPtr[index].texture = XMFLOAT2(font_[letter].left, 0.0f);
 			index++;
 
-			vertexPtr[index].position = XMFLOAT3((drawX + m_Font[letter].size), (drawY - 16), 0.0f);  // Bottom right.
-			vertexPtr[index].texture = XMFLOAT2(m_Font[letter].right, 1.0f);
+			vertexPtr[index].position = XMFLOAT3((drawX + font_[letter].size), (drawY - 16), 0.0f);  // Bottom right.
+			vertexPtr[index].texture = XMFLOAT2(font_[letter].right, 1.0f);
 			index++;
 
 			vertexPtr[index].position = XMFLOAT3(drawX, (drawY - 16), 0.0f);  // Bottom left.
-			vertexPtr[index].texture = XMFLOAT2(m_Font[letter].left, 1.0f);
+			vertexPtr[index].texture = XMFLOAT2(font_[letter].left, 1.0f);
 			index++;
 
 			// Second triangle in quad.
 			vertexPtr[index].position = XMFLOAT3(drawX, drawY, 0.0f);  // Top left.
-			vertexPtr[index].texture = XMFLOAT2(m_Font[letter].left, 0.0f);
+			vertexPtr[index].texture = XMFLOAT2(font_[letter].left, 0.0f);
 			index++;
 
-			vertexPtr[index].position = XMFLOAT3(drawX + m_Font[letter].size, drawY, 0.0f);  // Top right.
-			vertexPtr[index].texture = XMFLOAT2(m_Font[letter].right, 0.0f);
+			vertexPtr[index].position = XMFLOAT3(drawX + font_[letter].size, drawY, 0.0f);  // Top right.
+			vertexPtr[index].texture = XMFLOAT2(font_[letter].right, 0.0f);
 			index++;
 
-			vertexPtr[index].position = XMFLOAT3((drawX + m_Font[letter].size), (drawY - 16), 0.0f);  // Bottom right.
-			vertexPtr[index].texture = XMFLOAT2(m_Font[letter].right, 1.0f);
+			vertexPtr[index].position = XMFLOAT3((drawX + font_[letter].size), (drawY - 16), 0.0f);  // Bottom right.
+			vertexPtr[index].texture = XMFLOAT2(font_[letter].right, 1.0f);
 			index++;
 
 			// Update the x location for drawing by the size of the letter and one pixel.
-			drawX = drawX + m_Font[letter].size + 1.0f;
+			drawX = drawX + font_[letter].size + 1.0f;
 		}
 	}
 

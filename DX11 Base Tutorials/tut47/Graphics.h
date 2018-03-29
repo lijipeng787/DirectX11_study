@@ -52,11 +52,11 @@ private:
 
 	LightClass* light_;
 
-	TextClass* m_Text;
+	TextClass* text_;
 
 	SimpleMoveableSurface* m_Bitmap;
 
-	int m_screenWidth = 0, m_screenHeight = 0;
+	int screen_width_ = 0, screen_height_ = 0;
 
 	int mouse_x_, mouse_y_;
 };

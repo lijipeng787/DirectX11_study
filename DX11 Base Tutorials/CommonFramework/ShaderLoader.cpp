@@ -45,7 +45,7 @@ bool ShaderLoader::CreateVSFromFile(WCHAR * vs_filename) {
 	}
 
 	vertex_shader_container.push_back(vertex_shader_blob);
-	unsigned int index = vertex_shader_container.size() - 1;
+	unsigned int index = static_cast<unsigned int>(vertex_shader_container.size() - 1);
 
 	vs_index_container_.insert(make_pair(vs_string, index));
 
@@ -79,7 +79,7 @@ bool ShaderLoader::CreatePSFromFile(WCHAR * ps_filename) {
 	}
 
 	pixel_shader_container.push_back(pixel_shader_blob);
-	unsigned int index = pixel_shader_container.size() - 1;
+	unsigned int index = static_cast<unsigned int>(pixel_shader_container.size() - 1);
 
 	ps_index_container_.insert(make_pair(ps_string, index));
 

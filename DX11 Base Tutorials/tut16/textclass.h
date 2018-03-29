@@ -1,8 +1,8 @@
 
-// Filename: textclass.h
 
-#ifndef _TEXTCLASS_H_
-#define _TEXTCLASS_H_
+
+
+
 
 
 
@@ -12,7 +12,7 @@
 
 
 
-// Class name: TextClass
+
 
 class TextClass
 {
@@ -48,11 +48,11 @@ private:
 	bool RenderSentence(SentenceType*, const XMMATRIX&, const XMMATRIX& );
 
 private:
-	FontClass* m_Font;
-	FontShaderClass* m_FontShader;
-	int m_screenWidth, m_screenHeight;
-	XMMATRIX m_baseViewMatrix;
-	SentenceType* m_sentence1;
+	FontClass* font_;
+	FontShaderClass* font_shader_;
+	int screen_width_, screen_height_;
+	XMMATRIX base_view_matrix_;
+	SentenceType* sentence_1_;
 };
 
 #endif

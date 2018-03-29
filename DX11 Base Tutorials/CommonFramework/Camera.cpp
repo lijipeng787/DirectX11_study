@@ -144,9 +144,9 @@ void Camera::RenderBaseViewMatrix() {
 	lookAt.m128_f32[2] = cosf(radians) + position_z_;
 
 	// Create the base view matrix from the three vectors.
-	m_baseViewMatrix = XMMatrixLookAtLH(position, lookAt, up);
+	base_view_matrix_ = XMMatrixLookAtLH(position, lookAt, up);
 }
 
 void Camera::GetBaseViewMatrix(XMMATRIX& outViewMatrix) {
-	outViewMatrix = m_baseViewMatrix;
+	outViewMatrix = base_view_matrix_;
 }

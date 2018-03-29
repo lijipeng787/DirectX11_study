@@ -243,13 +243,13 @@ bool ParticleSystemClass::InitializeBuffers(ID3D11Device* device)
 	
 	memset(m_vertices, 0, (sizeof(VertexType) * vertex_count_));
 
-	// Initialize the index array.
+
 	for(i=0; i<index_count_; i++)
 	{
 		indices[i] = i;
 	}
 
-	// Set up the description of the dynamic vertex buffer.
+
     vertex_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
     vertex_buffer_desc.ByteWidth = sizeof(VertexType) * vertex_count_;
     vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;

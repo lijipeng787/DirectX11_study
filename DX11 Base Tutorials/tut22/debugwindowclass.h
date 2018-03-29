@@ -32,7 +32,7 @@ private:
 
 	int vertex_count_ = 0, index_count_ = 0;
 
-	int m_screenWidth = 0, m_screenHeight = 0;
+	int screen_width_ = 0, screen_height_ = 0;
 
 	int m_bitmapWidth = 0, m_bitmapHeight = 0;
 

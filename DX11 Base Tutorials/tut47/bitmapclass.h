@@ -56,7 +56,7 @@ private:
 	ID3D11Buffer *vertex_buffer_, *index_buffer_;
 	int vertex_count_, index_count_;
 	TextureClass* texture_;
-	int m_screenWidth, m_screenHeight;
+	int screen_width_, screen_height_;
 	int m_bitmapWidth, m_bitmapHeight;
 	int m_previousPosX, m_previousPosY;
 };

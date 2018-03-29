@@ -42,7 +42,7 @@ private:
 	
 	DirectX::XMMATRIX m_reflectionViewMatrix;
 
-	DirectX::XMMATRIX m_baseViewMatrix;
+	DirectX::XMMATRIX base_view_matrix_;
 
 	DirectX::XMMATRIX view_matrix_ = {};
 };

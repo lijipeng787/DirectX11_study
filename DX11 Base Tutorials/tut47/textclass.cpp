@@ -1,14 +1,14 @@
 
-// Filename: textclass.cpp
+
 
 #include "textclass.h"
 
 
 TextClass::TextClass()
 {
-	m_Font = 0;
-	m_FontShader = 0;
-	m_sentence1 = 0;
+	font_ = 0;
+	font_shader_ = 0;
+	sentence_1_ = 0;
 }
 
 
@@ -28,52 +28,52 @@ bool TextClass::Initialize(HWND hwnd, int screenWidth, int screenHeight,
 	bool result;
 
 
-	// Store the screen width and height.
-	m_screenWidth = screenWidth;
-	m_screenHeight = screenHeight;
 
-	// Store the base view matrix.
-	m_baseViewMatrix = baseViewMatrix;
+	screen_width_ = screenWidth;
+	screen_height_ = screenHeight;
 
-	// Create the font object.
-	m_Font = new FontClass();
-	if(!m_Font)
+
+	base_view_matrix_ = baseViewMatrix;
+
+
+	font_ = new FontClass();
+	if(!font_)
 	{
 		return false;
 	}
 
-	// Initialize the font object.
-	result = m_Font->Initialize(device, "../../tut47/data/fontdata.txt", L"../../tut47/data/font.dds");
+
+	result = font_->Initialize(device, "../../tut47/data/fontdata.txt", L"../../tut47/data/font.dds");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the font object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// Create the font shader object.
-	m_FontShader = new FontShaderClass();
-	if(!m_FontShader)
+
+	font_shader_ = new FontShaderClass();
+	if(!font_shader_)
 	{
 		return false;
 	}
 
-	// Initialize the font shader object.
-	result = m_FontShader->Initialize(device, hwnd);
+
+	result = font_shader_->Initialize(device, hwnd);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the font shader object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// Initialize the first sentence.
-	result = InitializeSentence(&m_sentence1, 32, device);
+
+	result = InitializeSentence(&sentence_1_, 32, device);
 	if(!result)
 	{
 		return false;
 	}
 
-	// Now update the sentence vertex buffer with the new string information.
-	result = UpdateSentence(m_sentence1, "Intersection: No", 20, 20, 1.0f, 0.0f, 0.0f, device_context);
+
+	result = UpdateSentence(sentence_1_, "Intersection: No", 20, 20, 1.0f, 0.0f, 0.0f, device_context);
 	if(!result)
 	{
 		return false;
@@ -85,23 +85,23 @@ bool TextClass::Initialize(HWND hwnd, int screenWidth, int screenHeight,
 
 void TextClass::Shutdown()
 {
-	// Release the first sentence.
-	ReleaseSentence(&m_sentence1);
 
-	// Release the font shader object.
-	if(m_FontShader)
+	ReleaseSentence(&sentence_1_);
+
+
+	if(font_shader_)
 	{
-		m_FontShader->Shutdown();
-		delete m_FontShader;
-		m_FontShader = 0;
+		font_shader_->Shutdown();
+		delete font_shader_;
+		font_shader_ = 0;
 	}
 
-	// Release the font object.
-	if(m_Font)
+
+	if(font_)
 	{
-		m_Font->Shutdown();
-		delete m_Font;
-		m_Font = 0;
+		font_->Shutdown();
+		delete font_;
+		font_ = 0;
 	}
 
 	
@@ -113,8 +113,8 @@ bool TextClass::Render(const XMMATRIX& worldMatrix, const XMMATRIX& orthoMatrix 
 	bool result;
 
 
-	// Draw the first sentence.
-	result = RenderSentence(m_sentence1, worldMatrix, orthoMatrix);
+
+	result = RenderSentence(sentence_1_, worldMatrix, orthoMatrix);
 	if(!result)
 	{
 		return false;
@@ -134,24 +134,24 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
 	int i;
 
 
-	// Create a new sentence object.
+
 	*sentence = new SentenceType;
 	if(!*sentence)
 	{
 		return false;
 	}
 
-	// Initialize the sentence buffers to null.
+
 	(*sentence)->vertexBuffer = 0;
 	(*sentence)->indexBuffer = 0;
 
-	// Set the maximum length of the sentence.
+
 	(*sentence)->maxLength = maxLength;
 
 	
 	(*sentence)->vertexCount = 6 * maxLength;
 
-	// Set the number of indexes in the index array.
+
 	(*sentence)->indexCount = (*sentence)->vertexCount;
 
 	
@@ -171,13 +171,13 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
 	
 	memset(vertices, 0, (sizeof(VertexType) * (*sentence)->vertexCount));
 
-	// Initialize the index array.
+
 	for(i=0; i<(*sentence)->indexCount; i++)
 	{
 		indices[i] = i;
 	}
 
-	// Set up the description of the dynamic vertex buffer.
+
     vertex_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
     vertex_buffer_desc.ByteWidth = sizeof(VertexType) * (*sentence)->vertexCount;
     vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -190,7 +190,7 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
 	vertex_data.SysMemPitch = 0;
 	vertex_data.SysMemSlicePitch = 0;
 
-	// Create the vertex buffer.
+
     result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &(*sentence)->vertexBuffer);
 	if(FAILED(result))
 	{
@@ -221,7 +221,7 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
 	delete [] vertices;
 	vertices = 0;
 
-	// Release the index array as it is no longer needed.
+
 	delete [] indices;
 	indices = 0;
 
@@ -240,15 +240,15 @@ bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int positionX
 	VertexType* verticesPtr;
 
 
-	// Store the color of the sentence.
+
 	sentence->red = red;
 	sentence->green = green;
 	sentence->blue = blue;
 
-	// Get the number of letters in the sentence.
+
 	numLetters = (int)strlen(text);
 
-	// Check for possible buffer overflow.
+
 	if(numLetters > sentence->maxLength)
 	{
 		return false;
@@ -264,12 +264,12 @@ bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int positionX
 	
 	memset(vertices, 0, (sizeof(VertexType) * sentence->vertexCount));
 
-	// Calculate the X and Y pixel position on the screen to start drawing to.
-	drawX = (float)(((m_screenWidth / 2) * -1) + positionX);
-	drawY = (float)((m_screenHeight / 2) - positionY);
 
-	// Use the font class to build the vertex array from the sentence text and sentence draw location.
-	m_Font->BuildVertexArray((void*)vertices, text, drawX, drawY);
+	drawX = (float)(((screen_width_ / 2) * -1) + positionX);
+	drawY = (float)((screen_height_ / 2) - positionY);
+
+
+	font_->BuildVertexArray((void*)vertices, text, drawX, drawY);
 
 	
 	result = device_context->Map(sentence->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -299,21 +299,21 @@ void TextClass::ReleaseSentence(SentenceType** sentence)
 {
 	if(*sentence)
 	{
-		// Release the sentence vertex buffer.
+
 		if((*sentence)->vertexBuffer)
 		{
 			(*sentence)->vertexBuffer->Release();
 			(*sentence)->vertexBuffer = 0;
 		}
 
-		// Release the sentence index buffer.
+
 		if((*sentence)->indexBuffer)
 		{
 			(*sentence)->indexBuffer->Release();
 			(*sentence)->indexBuffer = 0;
 		}
 
-		// Release the sentence.
+
 		delete *sentence;
 		*sentence = 0;
 	}
@@ -343,11 +343,11 @@ bool TextClass::RenderSentence(SentenceType* sentence, const XMMATRIX& worldMatr
     
 	device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// Create a pixel color vector with the input sentence color.
+
 	pixelColor = XMFLOAT4(sentence->red, sentence->green, sentence->blue, 1.0f);
 
-	// Render the text using the font shader.
-	result = m_FontShader->Render(sentence->indexCount, worldMatrix, m_baseViewMatrix, orthoMatrix, m_Font->GetTexture(), 
+
+	result = font_shader_->Render(sentence->indexCount, worldMatrix, base_view_matrix_, orthoMatrix, font_->GetTexture(), 
 								  pixelColor);
 	if(!result)
 	{
@@ -367,12 +367,12 @@ bool TextClass::SetIntersection(bool intersection, ID3D11DeviceContext* device_c
 	if(intersection)
 	{
 		strcpy_s(intersectionString, "Intersection: Yes");
-		result = UpdateSentence(m_sentence1, intersectionString, 20, 20, 0.0f, 1.0f, 0.0f, device_context);
+		result = UpdateSentence(sentence_1_, intersectionString, 20, 20, 0.0f, 1.0f, 0.0f, device_context);
 	}
 	else
 	{
 		strcpy_s(intersectionString, "Intersection: No");
-		result = UpdateSentence(m_sentence1, intersectionString, 20, 20, 1.0f, 0.0f, 0.0f, device_context);
+		result = UpdateSentence(sentence_1_, intersectionString, 20, 20, 1.0f, 0.0f, 0.0f, device_context);
 	}
 
 	return result;

@@ -1,8 +1,8 @@
 
-// Filename: fontclass.h
 
-#ifndef _FONTCLASS_H_
-#define _FONTCLASS_H_
+
+
+
 
 
 
@@ -22,7 +22,7 @@ using namespace DirectX;
 
 
 
-// Class name: FontClass
+
 
 class FontClass
 {
@@ -58,7 +58,7 @@ private:
 	void ReleaseTexture();
 
 private:
-	FontType* m_Font;
+	FontType* font_;
 	TextureClass* texture_;
 };
 

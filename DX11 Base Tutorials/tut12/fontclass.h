@@ -1,65 +1,37 @@
-
-// Filename: fontclass.h
-
-#ifndef _FONTCLASS_H_
-#define _FONTCLASS_H_
-
-
-
-
+#pragma once
 
 #include <d3d11.h>
-#include <DirectXMath.h>
-#include <fstream>
-using namespace std;
-using namespace DirectX;
 
+struct FontType;
+struct VertexType;
 
+class TextureClass;
 
-
-
-#include "textureclass.h"
-
-
-
-// Class name: FontClass
-
-class FontClass
-{
-private:
-	struct FontType
-	{
-		float left, right;
-		int size;
-	};
-
-	struct VertexType
-	{
-		XMFLOAT3 position;
-	    XMFLOAT2 texture;
-	};
-
+class FontClass {
 public:
-	FontClass();
-	FontClass(const FontClass&);
-	~FontClass();
+	FontClass() {}
 
+	FontClass(const FontClass& rhs) = delete;
+
+	~FontClass() {}
+public:
 	bool Initialize(char*, WCHAR*);
+
 	void Shutdown();
 
 	ID3D11ShaderResourceView* GetTexture();
 
 	void BuildVertexArray(void*, char*, float, float);
-
 private:
 	bool LoadFontData(char*);
+
 	void ReleaseFontData();
+
 	bool LoadTexture(WCHAR*);
+
 	void ReleaseTexture();
-
 private:
-	FontType* m_Font;
-	TextureClass* texture_;
-};
+	FontType * font_ = nullptr;
 
-#endif
+	TextureClass* texture_ = nullptr;
+};

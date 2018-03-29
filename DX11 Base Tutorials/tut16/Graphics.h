@@ -40,7 +40,7 @@ private:
 
 	ModelClass *model_ = nullptr;
 
-	TextClass* m_Text = nullptr;
+	TextClass* text_ = nullptr;
 
 	LightShaderClass* light_shader_ = nullptr;
 

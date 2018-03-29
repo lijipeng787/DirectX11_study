@@ -1,8 +1,8 @@
 
-// Filename: fontshaderclass.h
 
-#ifndef _FONTSHADERCLASS_H_
-#define _FONTSHADERCLASS_H_
+
+
+
 
 
 
@@ -17,7 +17,7 @@ using namespace DirectX;
 
 
 
-// Class name: FontShaderClass
+
 
 class FontShaderClass
 {

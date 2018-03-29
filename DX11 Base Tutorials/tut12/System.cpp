@@ -44,8 +44,7 @@ bool System::Frame() {
 
 	SystemBase::Frame();
 
-	if (GetInputComponent().IsKeyDown(VK_ESCAPE))
-	{
+	if (GetInputComponent().IsKeyDown(VK_ESCAPE)) {
 		return false;
 	}
 
@@ -61,23 +60,22 @@ bool System::Frame() {
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam) {
 
-	switch (umessage)
-	{
-	case WM_DESTROY:
-	{
-		PostQuitMessage(0);
-		return 0;
-	}
+	switch (umessage) {
+		case WM_DESTROY:
+		{
+			PostQuitMessage(0);
+			return 0;
+		}
 
-	case WM_CLOSE:
-	{
-		PostQuitMessage(0);
-		return 0;
-	}
+		case WM_CLOSE:
+		{
+			PostQuitMessage(0);
+			return 0;
+		}
 
-	default:
-	{
-		return ApplicationInstance->MessageHandler(hwnd, umessage, wparam, lparam);
-	}
+		default:
+		{
+			return ApplicationInstance->MessageHandler(hwnd, umessage, wparam, lparam);
+		}
 	}
 }

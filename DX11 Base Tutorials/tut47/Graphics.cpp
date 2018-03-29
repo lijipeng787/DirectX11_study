@@ -46,8 +46,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		camera_->GetViewMatrix(baseViewMatrix);
 	}
 
-	m_screenWidth = screenWidth;
-	m_screenHeight = screenHeight;
+	screen_width_ = screenWidth;
+	screen_height_ = screenHeight;
 
 	{
 		model_ = new ModelClass();
@@ -97,12 +97,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Text = (TextClass*)_aligned_malloc(sizeof(TextClass), 16);
-		new (m_Text)TextClass();
-		if (!m_Text) {
+		text_ = (TextClass*)_aligned_malloc(sizeof(TextClass), 16);
+		new (text_)TextClass();
+		if (!text_) {
 			return false;
 		}
-		result = m_Text->Initialize(directx_device_->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
+		result = text_->Initialize(directx_device_->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
 			return false;
@@ -134,11 +134,11 @@ void GraphicsClass::Shutdown() {
 	}
 
 	// Release the text object.
-	if (m_Text) {
-		m_Text->Shutdown();
-		m_Text->~TextClass();
-		_aligned_free(m_Text);
-		m_Text = 0;
+	if (text_) {
+		text_->Shutdown();
+		text_->~TextClass();
+		_aligned_free(text_);
+		text_ = 0;
 	}
 
 
@@ -204,8 +204,8 @@ void GraphicsClass::TestIntersection(int mouseX, int mouseY) {
 
 
 	// Move the mouse cursor coordinates into the -1 to +1 range.
-	pointX = ((2.0f * (float)mouseX) / (float)m_screenWidth) - 1.0f;
-	pointY = (((2.0f * (float)mouseY) / (float)m_screenHeight) - 1.0f) * -1.0f;
+	pointX = ((2.0f * (float)mouseX) / (float)screen_width_) - 1.0f;
+	pointY = (((2.0f * (float)mouseY) / (float)screen_height_) - 1.0f) * -1.0f;
 
 	// Adjust the points using the projection matrix to account for the aspect ratio of the viewport.
 	directx_device_->GetProjectionMatrix(projectionMatrix);
@@ -252,11 +252,11 @@ void GraphicsClass::TestIntersection(int mouseX, int mouseY) {
 
 	if (intersect == true) {
 		// If it does intersect then set the intersection to "yes" in the text string that is displayed to the screen.
-		result = m_Text->SetIntersection(true, directx_device_->GetDeviceContext());
+		result = text_->SetIntersection(true, directx_device_->GetDeviceContext());
 	}
 	else {
 		// If not then set the intersection to "No".
-		result = m_Text->SetIntersection(false, directx_device_->GetDeviceContext());
+		result = text_->SetIntersection(false, directx_device_->GetDeviceContext());
 	}
 }
 
@@ -323,7 +323,7 @@ bool GraphicsClass::Render() {
 		m_Bitmap->GetTexture()
 	);
 
-	result = m_Text->Render(directx_device_->GetDeviceContext(), worldMatrix, orthoMatrix);
+	result = text_->Render(directx_device_->GetDeviceContext(), worldMatrix, orthoMatrix);
 	if (!result) {
 		return false;
 	}

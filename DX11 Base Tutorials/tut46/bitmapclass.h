@@ -58,7 +58,7 @@ private:
 	int vertex_count_, index_count_;
 	TextureClass* texture_;
 	TextureClass* m_GlowMap;
-	int m_screenWidth, m_screenHeight;
+	int screen_width_, screen_height_;
 	int m_bitmapWidth, m_bitmapHeight;
 	int m_previousPosX, m_previousPosY;
 };

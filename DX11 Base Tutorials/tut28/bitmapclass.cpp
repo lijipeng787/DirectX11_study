@@ -27,8 +27,8 @@ bool SimpleMoveableSurface::Initialize(int screenWidth, int screenHeight, int bi
 
 
 	
-	m_screenWidth = screenWidth;
-	m_screenHeight = screenHeight;
+	screen_width_ = screenWidth;
+	screen_height_ = screenHeight;
 
 	
 	m_bitmapWidth = bitmapWidth;
@@ -214,13 +214,13 @@ bool SimpleMoveableSurface::UpdateBuffers(int positionX, int positionY)
 	m_previousPosY = positionY;
 
 	// Calculate the screen coordinates of the left side of the bitmap.
-	left = (float)((m_screenWidth / 2) * -1) + (float)positionX;
+	left = (float)((screen_width_ / 2) * -1) + (float)positionX;
 
 	// Calculate the screen coordinates of the right side of the bitmap.
 	right = left + (float)m_bitmapWidth;
 
 	// Calculate the screen coordinates of the top of the bitmap.
-	top = (float)(m_screenHeight / 2) - (float)positionY;
+	top = (float)(screen_height_ / 2) - (float)positionY;
 
 	// Calculate the screen coordinates of the bottom of the bitmap.
 	bottom = top - (float)m_bitmapHeight;

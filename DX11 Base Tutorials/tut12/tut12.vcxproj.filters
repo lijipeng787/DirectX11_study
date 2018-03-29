@@ -14,10 +14,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="font.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="font.vs">
+    <None Include="font.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

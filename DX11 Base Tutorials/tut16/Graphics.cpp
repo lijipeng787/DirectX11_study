@@ -48,14 +48,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Text = (TextClass*)_aligned_malloc(sizeof(TextClass), 16);
-		new (m_Text)TextClass();
-		if (!m_Text)
+		text_ = (TextClass*)_aligned_malloc(sizeof(TextClass), 16);
+		new (text_)TextClass();
+		if (!text_)
 		{
 			return false;
 		}
 
-		result = m_Text->Initialize(directx_device_->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
+		result = text_->Initialize(directx_device_->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
 		if (!result)
 		{
 			MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
@@ -157,11 +157,11 @@ void GraphicsClass::Shutdown() {
 		model_ = nullptr;
 	}
 
-	if (m_Text) {
-		m_Text->Shutdown();
-		m_Text->~TextClass();
-		_aligned_free(m_Text);
-		m_Text = 0;
+	if (text_) {
+		text_->Shutdown();
+		text_->~TextClass();
+		_aligned_free(text_);
+		text_ = 0;
 	}
 
 	if (camera_) {
@@ -233,7 +233,7 @@ bool GraphicsClass::Render() {
 		}
 	}
 
-	result = m_Text->SetRenderCount(renderCount, directx_device_->GetDeviceContext());
+	result = text_->SetRenderCount(renderCount, directx_device_->GetDeviceContext());
 	if (!result) {
 		return false;
 	}
@@ -241,7 +241,7 @@ bool GraphicsClass::Render() {
 	directx_device_->TurnZBufferOff();
 	directx_device_->TurnOnAlphaBlending();
 
-	result = m_Text->Render(directx_device_->GetDeviceContext(), worldMatrix, orthoMatrix);
+	result = text_->Render(directx_device_->GetDeviceContext(), worldMatrix, orthoMatrix);
 	if (!result) {
 		return false;
 	}
