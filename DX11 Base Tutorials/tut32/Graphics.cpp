@@ -176,7 +176,7 @@ bool GraphicsClass::Frame() {
 	}
 	rotation_ = rotation_;
 
-	// Set the position of the camera.
+
 	camera_->SetPosition(0.0f, 0.0f, -10.0f);
 
 	// Render the scene to texture first.

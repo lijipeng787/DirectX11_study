@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -41,11 +40,9 @@ private:
 private:
 	float frame_time_ = 0.0f;
 
-	float m_fadeInTime = 0.0f, m_accumulatedTime = 0.0f, m_fadePercentage = 0.0f;
+	float fadein_time_ = 0.0f, accumulated_time_ = 0.0f, fade_percentage_ = 0.0f;
 
-	bool m_fadeDone = false;
-
-	
+	bool is_fade_done_ = false;
 
 	Camera *camera_ = nullptr;
 
@@ -55,9 +52,7 @@ private:
 
 	RenderTextureClass* render_texture_ = nullptr;
 
-	SimpleMoveableSurface* m_Bitmap = nullptr;
+	SimpleMoveableSurface* bitmap_ = nullptr;
 
-	FadeShaderClass* m_FadeShader = nullptr;
+	FadeShaderClass* fade_shader_ = nullptr;
 };
-
-#endif

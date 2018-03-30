@@ -60,11 +60,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Bitmap = new SimpleMoveableSurface();
-		if (!m_Bitmap) {
+		bitmap_ = new SimpleMoveableSurface();
+		if (!bitmap_) {
 			return false;
 		}
-		result = m_Bitmap->Initialize(screenWidth, screenHeight, L"../../tut46/data/test.dds", L"../../tut46/data/glowmap.dds", 256, 32);
+		result = bitmap_->Initialize(screenWidth, screenHeight, L"../../tut46/data/test.dds", L"../../tut46/data/glowmap.dds", 256, 32);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
 			return false;
@@ -304,10 +304,10 @@ void GraphicsClass::Shutdown() {
 	}
 
 	// Release the bitmap object.
-	if (m_Bitmap) {
-		m_Bitmap->Shutdown();
-		delete m_Bitmap;
-		m_Bitmap = 0;
+	if (bitmap_) {
+		bitmap_->Shutdown();
+		delete bitmap_;
+		bitmap_ = 0;
 	}
 
 	
@@ -405,13 +405,13 @@ bool GraphicsClass::RenderGlowMapToTexture() {
 
 	directx_device_->TurnZBufferOff();
 
-	result = m_Bitmap->Render(directx_device_->GetDeviceContext(), 100, 100);
+	result = bitmap_->Render(directx_device_->GetDeviceContext(), 100, 100);
 	if (!result) {
 		return false;
 	}
 
-	m_GlowMapShader->Render(directx_device_->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
-		m_Bitmap->GetTexture(), m_Bitmap->GetGlowMap());
+	m_GlowMapShader->Render(directx_device_->GetDeviceContext(), bitmap_->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+		bitmap_->GetTexture(), bitmap_->GetGlowMap());
 
 	directx_device_->TurnZBufferOn();
 
@@ -585,12 +585,12 @@ bool GraphicsClass::RenderUIElementsToTexture() {
 
 	directx_device_->TurnZBufferOff();
 
-	result = m_Bitmap->Render(directx_device_->GetDeviceContext(), 100, 100);
+	result = bitmap_->Render(directx_device_->GetDeviceContext(), 100, 100);
 	if (!result) {
 		return false;
 	}
 
-	result = texture_shader_->Render(directx_device_->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
+	result = texture_shader_->Render(directx_device_->GetDeviceContext(), bitmap_->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, bitmap_->GetTexture());
 	if (!result) {
 		return false;
 	}

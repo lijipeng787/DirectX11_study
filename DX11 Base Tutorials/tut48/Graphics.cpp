@@ -210,7 +210,7 @@ bool GraphicsClass::Frame() {
 	float radians;
 	static float lightPosX = 9.0f;
 
-	// Set the position of the camera.
+
 	camera_->SetPosition(pos_x_, pos_y_, pos_z_);
 	camera_->SetRotation(rot_x_, rot_y_, rot_z_);
 

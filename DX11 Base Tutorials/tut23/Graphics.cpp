@@ -121,14 +121,14 @@ bool GraphicsClass::Render() {
 	fogStart = 0.0f;
 	fogEnd = 10.0f;
 
-	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
+	auto directx_device = DirectX11Device::GetD3d11DeviceInstance();
 
-	directx_device_->BeginScene(fogColor, fogColor, fogColor, 1.0f);
+	directx_device->BeginScene(fogColor, fogColor, fogColor, 1.0f);
 
 	camera_->Render();
-	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetProjectionMatrix(projectionMatrix);
+	directx_device->GetProjectionMatrix(projectionMatrix);
 	rotation_ += (float)XM_PI * 0.005f;
 	if (rotation_ > 360.0f) {
 		rotation_ -= 360.0f;
@@ -144,7 +144,7 @@ bool GraphicsClass::Render() {
 		return false;
 	}
 
-	directx_device_->EndScene();
+	directx_device->EndScene();
 
 	return true;
 }

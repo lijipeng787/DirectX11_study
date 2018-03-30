@@ -1,56 +1,44 @@
-
-// Filename: bitmapclass.h
-
-#ifndef _BITMAPCLASS_H_
-#define _BITMAPCLASS_H_
-
-
-
-
+#pragma once
 
 #include <d3d11.h>
-#include <DirectXMath.h>
-using namespace DirectX;
 
+struct VertexType;
 
-
-// Class name: BitmapClass
-
-class SimpleMoveableSurface
-{
-private:
-	struct VertexType
-	{
-		XMFLOAT3 position;
-	    XMFLOAT2 texture;
-	};
-
+class SimpleMoveableSurface {
 public:
-	SimpleMoveableSurface();
-	SimpleMoveableSurface(const SimpleMoveableSurface&);
-	~SimpleMoveableSurface();
+	SimpleMoveableSurface() {}
 
+	SimpleMoveableSurface(const SimpleMoveableSurface& rhs) = delete;
+
+	~SimpleMoveableSurface() {}
+public:
 	bool Initialize(int, int, int, int);
+
 	void Shutdown();
+
 	bool Render(int, int);
 
 	int GetIndexCount();
-
 private:
-	bool InitializeBuffers(ID3D11Device*);
+	bool InitializeBuffers();
+
 	void ShutdownBuffers();
+
 	bool UpdateBuffers(int, int);
-	void RenderBuffers(ID3D11DeviceContext*);
+
+	void RenderBuffers();
 
 	bool LoadTexture(WCHAR*);
+
 	void ReleaseTexture();
-
 private:
-	ID3D11Buffer *vertex_buffer_, *index_buffer_;
-	int vertex_count_, index_count_;
-	int screen_width_, screen_height_;
-	int m_bitmapWidth, m_bitmapHeight;
-	int m_previousPosX, m_previousPosY;
-};
+	ID3D11Buffer * vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
 
-#endif
+	int vertex_count_ = 0, index_count_ = 0;
+
+	int screen_width_ = 0, screen_height_ = 0;
+
+	int bitmap_width_ = 0, bitmap_height_ = 0;
+
+	int previous_pos_x_ = 0, previous_pos_y_ = 0;
+};

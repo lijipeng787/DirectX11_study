@@ -53,7 +53,7 @@ private:
 
 	TextureShaderClass* texture_shader_;
 
-	SimpleMoveableSurface* m_Bitmap;
+	SimpleMoveableSurface* bitmap_;
 
 	RenderTextureClass
 		*render_texture_ = nullptr,

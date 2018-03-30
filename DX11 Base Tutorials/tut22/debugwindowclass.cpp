@@ -15,11 +15,11 @@ bool DebugWindowClass::Initialize(int screenWidth, int screenHeight, int bitmapW
 	screen_width_ = screenWidth;
 	screen_height_ = screenHeight;
 
-	m_bitmapWidth = bitmapWidth;
-	m_bitmapHeight = bitmapHeight;
+	bitmap_width_ = bitmapWidth;
+	bitmap_height_ = bitmapHeight;
 
-	m_previousPosX = -1;
-	m_previousPosY = -1;
+	previous_pos_x_ = -1;
+	previous_pos_y_ = -1;
 
 	auto result = InitializeBuffers();
 	if (!result) {
@@ -142,25 +142,25 @@ bool DebugWindowClass::UpdateBuffers(int positionX, int positionY) {
 
 	// If the position we are rendering this bitmap to has not changed then don't update the vertex buffer since it
 	// currently has the correct parameters.
-	if ((positionX == m_previousPosX) && (positionY == m_previousPosY)) {
+	if ((positionX == previous_pos_x_) && (positionY == previous_pos_y_)) {
 		return true;
 	}
 
 	// If it has changed then update the position it is being rendered to.
-	m_previousPosX = positionX;
-	m_previousPosY = positionY;
+	previous_pos_x_ = positionX;
+	previous_pos_y_ = positionY;
 
 	// Calculate the screen coordinates of the left side of the bitmap.
 	left = (float)((screen_width_ / 2) * -1) + (float)positionX;
 
 	// Calculate the screen coordinates of the right side of the bitmap.
-	right = left + (float)m_bitmapWidth;
+	right = left + (float)bitmap_width_;
 
 	// Calculate the screen coordinates of the top of the bitmap.
 	top = (float)(screen_height_ / 2) - (float)positionY;
 
 	// Calculate the screen coordinates of the bottom of the bitmap.
-	bottom = top - (float)m_bitmapHeight;
+	bottom = top - (float)bitmap_height_;
 
 	auto vertices = new VertexType[vertex_count_];
 	if (!vertices) {

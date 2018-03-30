@@ -192,7 +192,7 @@ bool ParticleSystemClass::InitializeParticleSystem()
 	m_currentParticleCount = 0;
 
 	// Clear the initial accumulated time for the particle per second emission rate.
-	m_accumulatedTime = 0.0f;
+	accumulated_time_ = 0.0f;
 
 	return true;
 }
@@ -325,15 +325,15 @@ void ParticleSystemClass::EmitParticles(float frameTime)
 
 
 	// Increment the frame time.
-	m_accumulatedTime += frameTime;
+	accumulated_time_ += frameTime;
 
 	// Set emit particle to false for now.
 	emitParticle = false;
 	
 	// Check if it is time to emit a new particle or not.
-	if(m_accumulatedTime > (1000.0f / m_particlesPerSecond))
+	if(accumulated_time_ > (1000.0f / m_particlesPerSecond))
 	{
-		m_accumulatedTime = 0.0f;
+		accumulated_time_ = 0.0f;
 		emitParticle = true;
 	}
 

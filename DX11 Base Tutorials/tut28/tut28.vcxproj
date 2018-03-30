@@ -21,7 +21,8 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{44562013-B007-4D53-A3A4-4A688ECFB370}</ProjectGuid>
     <RootNamespace>tut28</RootNamespace>
-    <ProjectName>fading</ProjectName>
+    <ProjectName>21_fading</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -105,7 +106,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>E:\Code\local_git\DirectX11\DX11 Base Tutorials\x64\Debug;..\..\DirectXTK\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\x64\Debug;..\..\DirectXTK\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>CommonFramework.lib;d3d11.lib;d3dcompiler.lib;dinput8.lib;DirectXTK.lib;dsound.lib;dxgi.lib;dxguid.lib;pdh.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -149,10 +150,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="fade.ps" />
-    <None Include="fade.vs" />
-    <None Include="texture.ps" />
-    <None Include="texture.vs" />
+    <None Include="fade.hlsl" />
+    <None Include="texture.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bitmapclass.cpp" />

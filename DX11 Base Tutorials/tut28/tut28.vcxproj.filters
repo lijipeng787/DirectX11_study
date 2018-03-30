@@ -14,16 +14,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="fade.ps">
+    <None Include="fade.hlsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="texture.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="fade.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="texture.vs">
+    <None Include="texture.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

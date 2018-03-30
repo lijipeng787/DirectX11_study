@@ -1,8 +1,8 @@
 
-// Filename: bitmapclass.h
 
-#ifndef _BITMAPCLASS_H_
-#define _BITMAPCLASS_H_
+
+
+
 
 
 
@@ -20,7 +20,7 @@ using namespace DirectX;
 
 
 
-// Class name: BitmapClass
+
 
 class SimpleMoveableSurface
 {
@@ -59,8 +59,8 @@ private:
 	TextureClass* texture_;
 	TextureClass* m_GlowMap;
 	int screen_width_, screen_height_;
-	int m_bitmapWidth, m_bitmapHeight;
-	int m_previousPosX, m_previousPosY;
+	int bitmap_width_, bitmap_height_;
+	int previous_pos_x_, previous_pos_y_;
 };
 
 #endif

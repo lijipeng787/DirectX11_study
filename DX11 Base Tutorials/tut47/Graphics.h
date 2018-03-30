@@ -54,7 +54,7 @@ private:
 
 	TextClass* text_;
 
-	SimpleMoveableSurface* m_Bitmap;
+	SimpleMoveableSurface* bitmap_;
 
 	int screen_width_ = 0, screen_height_ = 0;
 

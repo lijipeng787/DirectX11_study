@@ -110,11 +110,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Bitmap = new SimpleMoveableSurface();
-		if (!m_Bitmap) {
+		bitmap_ = new SimpleMoveableSurface();
+		if (!bitmap_) {
 			return false;
 		}
-		result = m_Bitmap->Initialize(screenWidth, screenHeight, L"../../tut47/data/mouse.dds", 32, 32);
+		result = bitmap_->Initialize(screenWidth, screenHeight, L"../../tut47/data/mouse.dds", 32, 32);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
 			return false;
@@ -127,10 +127,10 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 void GraphicsClass::Shutdown() {
 
 	// Release the bitmap object.
-	if (m_Bitmap) {
-		m_Bitmap->Shutdown();
-		delete m_Bitmap;
-		m_Bitmap = 0;
+	if (bitmap_) {
+		bitmap_->Shutdown();
+		delete bitmap_;
+		bitmap_ = 0;
 	}
 
 	// Release the text object.
@@ -315,12 +315,12 @@ bool GraphicsClass::Render() {
 
 	directx_device_->TurnOnAlphaBlending();
 
-	result = m_Bitmap->Render(directx_device_->GetDeviceContext(), mouse_x_, mouse_y_);  if (!result) { return false; }
+	result = bitmap_->Render(directx_device_->GetDeviceContext(), mouse_x_, mouse_y_);  if (!result) { return false; }
 	result = texture_shader_->Render(
 		directx_device_->GetDeviceContext(), 
-		m_Bitmap->GetIndexCount(), 
+		bitmap_->GetIndexCount(), 
 		worldMatrix, viewMatrix, orthoMatrix, 
-		m_Bitmap->GetTexture()
+		bitmap_->GetTexture()
 	);
 
 	result = text_->Render(directx_device_->GetDeviceContext(), worldMatrix, orthoMatrix);

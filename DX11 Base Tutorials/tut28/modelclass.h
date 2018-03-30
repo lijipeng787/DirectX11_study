@@ -1,73 +1,49 @@
-
-
-
-
-
-
-
-
-
+#pragma once
 
 #include <d3d11.h>
-#include <DirectXMath.h>
-#include <fstream>
-using namespace std;
-using namespace DirectX;
 
+struct VertexType;
+struct ModelType;
 
+class TextureClass;
 
-
-
-#include "textureclass.h"
-
-
-
-
-
-class ModelClass
-{
-private:
-	struct VertexType
-	{
-		XMFLOAT3 position;
-	    XMFLOAT2 texture;
-	};
-
-	struct ModelType
-	{
-		float x, y, z;
-		float tu, tv;
-		float nx, ny, nz;
-	};
-
+class ModelClass {
 public:
-	ModelClass();
-	ModelClass(const ModelClass&);
-	~ModelClass();
+	ModelClass() {}
 
+	ModelClass(const ModelClass& rhs) = delete;
+
+	~ModelClass() {}
+public:
 	bool Initialize(WCHAR*, char*);
+
 	void Shutdown();
-	void Render(ID3D11DeviceContext*);
+
+	void Render();
 
 	int GetIndexCount();
-	ID3D11ShaderResourceView* GetTexture();
 
+	ID3D11ShaderResourceView* GetTexture();
 private:
-	bool InitializeBuffers(ID3D11Device*);
+	bool InitializeBuffers();
+
 	void ShutdownBuffers();
-	void RenderBuffers(ID3D11DeviceContext*);
+
+	void RenderBuffers();
 
 	bool LoadTexture(WCHAR*);
+
 	void ReleaseTexture();
 
 	bool LoadModel(char*);
+
 	void ReleaseModel();
-
 private:
-	ID3D11Buffer *vertex_buffer_, *index_buffer_;
-	int vertex_count_, index_count_;
-	TextureClass* texture_;
-	ModelType* model_;
-};
+	ID3D11Buffer * vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
 
-#endif
+	int vertex_count_ = 0, index_count_ = 0;
+
+	TextureClass* texture_ = nullptr;
+
+	ModelType* model_ = nullptr;
+};

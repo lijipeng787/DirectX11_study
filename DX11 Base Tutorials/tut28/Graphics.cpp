@@ -13,21 +13,22 @@
 #include "fadeshaderclass.h"
 #include "bitmapclass.h"
 
+using namespace DirectX;
+
 GraphicsClass::GraphicsClass() {}
 
 GraphicsClass::~GraphicsClass() {}
 
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
+
 	bool result;
 
 	XMMATRIX baseViewMatrix;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -82,11 +83,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Bitmap = new SimpleMoveableSurface();
-		if (!m_Bitmap) {
+		bitmap_ = new SimpleMoveableSurface();
+		if (!bitmap_) {
 			return false;
 		}
-		result = m_Bitmap->Initialize(screenWidth, screenHeight, screenWidth, screenHeight);
+		result = bitmap_->Initialize(screenWidth, screenHeight, screenWidth, screenHeight);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
 			return false;
@@ -95,14 +96,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_fadeInTime = 7000.0f;
+		fadein_time_ = 7000.0f;
 
-		m_FadeShader = (FadeShaderClass*)_aligned_malloc(sizeof(FadeShaderClass), 16);
-		new (m_FadeShader)FadeShaderClass();
-		if (!m_FadeShader) {
+		fade_shader_ = (FadeShaderClass*)_aligned_malloc(sizeof(FadeShaderClass), 16);
+		new (fade_shader_)FadeShaderClass();
+		if (!fade_shader_) {
 			return false;
 		}
-		result = m_FadeShader->Initialize(hwnd);
+		result = fade_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the fade shader object.", L"Error", MB_OK);
 			return false;
@@ -113,43 +114,34 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 }
 
 void GraphicsClass::Shutdown() {
-	// Release the fade shader object.
-	if (m_FadeShader)
-	{
-		m_FadeShader->Shutdown();
-		m_FadeShader->~FadeShaderClass();
-		_aligned_free(m_FadeShader);
-		m_FadeShader = 0;
+
+	if (fade_shader_) {
+		fade_shader_->Shutdown();
+		fade_shader_->~FadeShaderClass();
+		_aligned_free(fade_shader_);
+		fade_shader_ = 0;
 	}
 
-	// Release the bitmap object.
-	if (m_Bitmap)
-	{
-		m_Bitmap->Shutdown();
-		delete m_Bitmap;
-		m_Bitmap = 0;
+	if (bitmap_) {
+		bitmap_->Shutdown();
+		delete bitmap_;
+		bitmap_ = 0;
 	}
 
-	
-	if (render_texture_)
-	{
+	if (render_texture_) {
 		render_texture_->Shutdown();
 		delete render_texture_;
 		render_texture_ = 0;
 	}
 
-	
-	if (texture_shader_)
-	{
+	if (texture_shader_) {
 		texture_shader_->Shutdown();
 		texture_shader_->~TextureShaderClass();
 		_aligned_free(texture_shader_);
 		texture_shader_ = 0;
 	}
 
-
-	if (model_)
-	{
+	if (model_) {
 		model_->Shutdown();
 		delete model_;
 		model_ = nullptr;
@@ -160,12 +152,6 @@ void GraphicsClass::Shutdown() {
 		_aligned_free(camera_);
 		camera_ = nullptr;
 	}
-
-	
-		
-		
-		
-	}
 }
 
 void GraphicsClass::SetFameTime(float frame_time) {
@@ -175,25 +161,24 @@ void GraphicsClass::SetFameTime(float frame_time) {
 
 bool GraphicsClass::Frame() {
 
-	if (!m_fadeDone) {
+	if (!is_fade_done_) {
 		// Update the accumulated time with the extra frame time addition.
-		m_accumulatedTime += frame_time_;
+		accumulated_time_ += frame_time_;
 
 		// While the time goes on increase the fade in amount by the time that is passing each frame.
-		if (m_accumulatedTime < m_fadeInTime) {
+		if (accumulated_time_ < fadein_time_) {
 			// Calculate the percentage that the screen should be faded in based on the accumulated time.
-			m_fadePercentage = m_accumulatedTime / m_fadeInTime;
+			fade_percentage_ = accumulated_time_ / fadein_time_;
 		}
 		else {
 			// If the fade in time is complete then turn off the fade effect and render the scene normally.
-			m_fadeDone = true;
+			is_fade_done_ = true;
 
 			// Set the percentage to 100%.
-			m_fadePercentage = 1.0f;
+			fade_percentage_ = 1.0f;
 		}
 	}
 
-	// Set the position of the camera.
 	camera_->SetPosition(0.0f, 0.0f, -10.0f);
 
 	return true;
@@ -201,7 +186,6 @@ bool GraphicsClass::Frame() {
 
 bool GraphicsClass::Render() {
 
-	bool result;
 	static float rotation_ = 0.0f;
 
 	rotation_ += (float)XM_PI * 0.005f;
@@ -209,13 +193,13 @@ bool GraphicsClass::Render() {
 		rotation_ -= 360.0f;
 	}
 
-	if (m_fadeDone) {
+	if (is_fade_done_) {
 
 		RenderNormalScene(rotation_);
 	}
 	else {
 
-		result = RenderToTexture(rotation_);
+		auto result = RenderToTexture(rotation_);
 		if (!result) {
 			return false;
 		}
@@ -232,29 +216,30 @@ bool GraphicsClass::Render() {
 bool GraphicsClass::RenderToTexture(float rotation_) {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	bool result;
 
-	render_texture_->SetRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView());
+	auto directx_device = DirectX11Device::GetD3d11DeviceInstance();
 
-	render_texture_->ClearRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
+	render_texture_->SetRenderTarget(directx_device->GetDepthStencilView());
+
+	render_texture_->ClearRenderTarget(directx_device->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetProjectionMatrix(projectionMatrix);
+	directx_device->GetProjectionMatrix(projectionMatrix);
 
 	worldMatrix = XMMatrixRotationY(rotation_);
 
-	model_->Render(directx_device_->GetDeviceContext());
+	model_->Render();
 
-	result = texture_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix,
-		projectionMatrix, model_->GetTexture());
+	auto result = texture_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix,
+										  projectionMatrix, model_->GetTexture());
 	if (!result) {
 		return false;
 	}
 
-	directx_device_->SetBackBufferRenderTarget();
+	directx_device->SetBackBufferRenderTarget();
 
 	return true;
 }
@@ -262,32 +247,33 @@ bool GraphicsClass::RenderToTexture(float rotation_) {
 bool GraphicsClass::RenderFadingScene() {
 
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
-	bool result;
 
-	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	auto directx_device = DirectX11Device::GetD3d11DeviceInstance();
+
+	directx_device->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetOrthoMatrix(orthoMatrix);
+	directx_device->GetOrthoMatrix(orthoMatrix);
 
-	directx_device_->TurnZBufferOff();
+	directx_device->TurnZBufferOff();
 
-	result = m_Bitmap->Render(directx_device_->GetDeviceContext(), 0, 0);
+	auto result = bitmap_->Render(0, 0);
 	if (!result) {
 		return false;
 	}
 
-	result = m_FadeShader->Render(directx_device_->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
-		render_texture_->GetShaderResourceView(), m_fadePercentage);
+	result = fade_shader_->Render(bitmap_->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+								  render_texture_->GetShaderResourceView(), fade_percentage_);
 	if (!result) {
 		return false;
 	}
 
-	directx_device_->TurnZBufferOn();
+	directx_device->TurnZBufferOn();
 
-	directx_device_->EndScene();
+	directx_device->EndScene();
 
 	return true;
 }
@@ -295,27 +281,28 @@ bool GraphicsClass::RenderFadingScene() {
 bool GraphicsClass::RenderNormalScene(float rotation_) {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	bool result;
 
-	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	auto directx_device = DirectX11Device::GetD3d11DeviceInstance();
+
+	directx_device->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetProjectionMatrix(projectionMatrix);
+	directx_device->GetProjectionMatrix(projectionMatrix);
 
 	worldMatrix = XMMatrixRotationY(rotation_);
 
-	model_->Render(directx_device_->GetDeviceContext());
+	model_->Render();
 
-	result = texture_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix,
-		projectionMatrix, model_->GetTexture());
+	auto result = texture_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix,
+										  projectionMatrix, model_->GetTexture());
 	if (!result) {
 		return false;
 	}
 
-	directx_device_->EndScene();
+	directx_device->EndScene();
 
 	return true;
 }

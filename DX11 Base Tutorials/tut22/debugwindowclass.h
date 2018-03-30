@@ -34,7 +34,7 @@ private:
 
 	int screen_width_ = 0, screen_height_ = 0;
 
-	int m_bitmapWidth = 0, m_bitmapHeight = 0;
+	int bitmap_width_ = 0, bitmap_height_ = 0;
 
-	int m_previousPosX = 0, m_previousPosY = 0;
+	int previous_pos_x_ = 0, previous_pos_y_ = 0;
 };

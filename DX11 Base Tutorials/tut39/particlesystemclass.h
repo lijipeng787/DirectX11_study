@@ -78,7 +78,7 @@ private:
 	int m_maxParticles;
 
 	int m_currentParticleCount;
-	float m_accumulatedTime;
+	float accumulated_time_;
 
 	TextureClass* texture_;
 	ParticleType* m_particleList;

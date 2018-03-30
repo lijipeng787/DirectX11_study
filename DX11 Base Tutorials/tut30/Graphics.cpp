@@ -162,7 +162,7 @@ bool GraphicsClass::Frame() {
 
 	bool result;
 
-	// Set the position of the camera.
+
 	camera_->SetPosition(0.0f, 2.0f, -12.0f);
 
 	// Render the scene.
