@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1D29997F-58B4-4F4E-B1F4-62C5D8AB97BA}</ProjectGuid>
     <RootNamespace>tut12</RootNamespace>
-    <ProjectName>18_font</ProjectName>
+    <ProjectName>19_font</ProjectName>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

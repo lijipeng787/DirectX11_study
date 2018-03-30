@@ -1,65 +1,45 @@
-
-// Filename: fogshaderclass.h
-
-#ifndef _FOGSHADERCLASS_H_
-#define _FOGSHADERCLASS_H_
-
-
-
-
+#pragma once
 
 #include <d3d11.h>
 #include <DirectXMath.h>
-#include <d3dcompiler.h>
-#include <fstream>
-using namespace std;
-using namespace DirectX;
 
+struct ConstantBufferType;
+struct FogBufferType;
 
-
-// Class name: FogShaderClass
-
-class FogShaderClass
-{
-private:
-	struct ConstantBufferType
-	{
-		XMMATRIX world;
-		XMMATRIX view;
-		XMMATRIX projection;
-	};
-
-	struct FogBufferType
-	{
-		float fogStart;
-		float fogEnd;
-		float padding1, padding2;
-	};
-
+class FogShaderClass {
 public:
-	FogShaderClass();
-	FogShaderClass(const FogShaderClass&);
-	~FogShaderClass();
+	FogShaderClass() {}
 
+	FogShaderClass(const FogShaderClass& rhs) = delete;
+
+	~FogShaderClass() {}
+public:
 	bool Initialize(HWND);
-	void Shutdown();
-	bool Render(int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*, float, float);
 
+	void Shutdown();
+
+	bool Render(int,
+				const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&,
+				ID3D11ShaderResourceView*, float, float);
 private:
 	bool InitializeShader(HWND, WCHAR*, WCHAR*);
+
 	void ShutdownShader();
+
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,  ID3D11ShaderResourceView*, float, float);
+	bool SetShaderParameters(const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&,
+							 ID3D11ShaderResourceView*, float, float);
+
 	void RenderShader(int);
-
 private:
-	ID3D11VertexShader* vertex_shader_;
-	ID3D11PixelShader* pixel_shader_;
-	ID3D11InputLayout* layout_;
-	ID3D11Buffer* constant_buffer_;
-	ID3D11SamplerState* sample_state_;
-	ID3D11Buffer* m_fogBuffer;
-};
+	ID3D11VertexShader * vertex_shader_ = nullptr;
 
-#endif
+	ID3D11PixelShader* pixel_shader_ = nullptr;
+
+	ID3D11InputLayout* layout_ = nullptr;
+
+	ID3D11Buffer* constant_buffer_ = nullptr, *fog_buffer_ = nullptr;
+
+	ID3D11SamplerState* sample_state_ = nullptr;
+};

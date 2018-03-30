@@ -209,33 +209,26 @@ void AlphaMapShaderClass::ShutdownShader() {
 }
 
 void AlphaMapShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename) {
+	
 	char* compileErrors;
 	SIZE_T bufferSize, i;
 	ofstream fout;
 
-
-	
 	compileErrors = (char*)(errorMessage->GetBufferPointer());
-
 
 	bufferSize = errorMessage->GetBufferSize();
 
-	
 	fout.open("shader-error.txt");
-
 
 	for (i = 0; i < bufferSize; i++) {
 		fout << compileErrors[i];
 	}
 
-	
 	fout.close();
 
-	
 	errorMessage->Release();
 	errorMessage = 0;
 
-	
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 }
 
@@ -243,45 +236,32 @@ bool AlphaMapShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix,
 											  const XMMATRIX& viewMatrix,
 											  const XMMATRIX& projectionMatrix,
 											  ID3D11ShaderResourceView** textureArray) {
-	HRESULT result;
+
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	MatrixBufferType* dataPtr;
-	unsigned int buffer_number;
-
-	XMMATRIX worldMatrixCopy = worldMatrix;
-	XMMATRIX viewMatrixCopy = viewMatrix;
-	XMMATRIX projectionMatrixCopy = projectionMatrix;
-
-
-	worldMatrixCopy = XMMatrixTranspose(worldMatrix);
-	viewMatrixCopy = XMMatrixTranspose(viewMatrix);
-	projectionMatrixCopy = XMMatrixTranspose(projectionMatrix);
 
 	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-
-	result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result)) {
 		return false;
 	}
 
-	
+	MatrixBufferType* dataPtr;
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 
-	
+	XMMATRIX worldMatrixCopy = XMMatrixTranspose(worldMatrix);
+	XMMATRIX viewMatrixCopy = XMMatrixTranspose(viewMatrix);
+	XMMATRIX projectionMatrixCopy = XMMatrixTranspose(projectionMatrix);
+
 	dataPtr->world = worldMatrixCopy;
 	dataPtr->view = viewMatrixCopy;
 	dataPtr->projection = projectionMatrixCopy;
 
-	
 	device_context->Unmap(matrix_buffer_, 0);
 
-	
-	buffer_number = 0;
+	unsigned int buffer_number = 0;
 
-	
 	device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
-
 	
 	device_context->PSSetShaderResources(0, 3, textureArray);
 
@@ -289,17 +269,16 @@ bool AlphaMapShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix,
 }
 
 void AlphaMapShaderClass::RenderShader(int indexCount) {
+
 	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
 	device_context->IASetInputLayout(layout_);
 
-	// Set the vertex and pixel shaders that will be used to render this triangle.
 	device_context->VSSetShader(vertex_shader_, NULL, 0);
+
 	device_context->PSSetShader(pixel_shader_, NULL, 0);
 
-	
 	device_context->PSSetSamplers(0, 1, &sample_state_);
-
 	
 	device_context->DrawIndexed(indexCount, 0, 0);
 }

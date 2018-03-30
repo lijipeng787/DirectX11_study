@@ -10,21 +10,21 @@
 #include "modelclass.h"
 #include "fogshaderclass.h"
 
+using namespace DirectX;
+
 GraphicsClass::GraphicsClass() {}
 
 GraphicsClass::~GraphicsClass() {}
 
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
-	
+
 	bool result;
 	XMMATRIX baseViewMatrix;
-	
+
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -49,7 +49,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		result = model_->Initialize(
-			directx_device_->GetDevice(),
 			L"../../tut23/data/seafloor.dds",
 			"../../tut23/data/cube.txt");
 		if (!result) {
@@ -59,13 +58,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_FogShader = (FogShaderClass*)_aligned_malloc(sizeof(FogShaderClass), 16);
-		new (m_FogShader)FogShaderClass();
-		if (!m_FogShader) {
+		fog_shader_ = (FogShaderClass*)_aligned_malloc(sizeof(FogShaderClass), 16);
+		new (fog_shader_)FogShaderClass();
+		if (!fog_shader_) {
 			return false;
 		}
 
-		result = m_FogShader->Initialize(hwnd);
+		result = fog_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the fog shader object.", L"Error", MB_OK);
 			return false;
@@ -77,18 +76,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 void GraphicsClass::Shutdown() {
 
-	// Release the fog shader object.
-	if (m_FogShader)
-	{
-		m_FogShader->Shutdown();
-		m_FogShader->~FogShaderClass();
-		_aligned_free(m_FogShader);
-		m_FogShader = 0;
+	if (fog_shader_) {
+		fog_shader_->Shutdown();
+		fog_shader_->~FogShaderClass();
+		_aligned_free(fog_shader_);
+		fog_shader_ = 0;
 	}
 
-
-	if (model_)
-	{
+	if (model_) {
 		model_->Shutdown();
 		delete model_;
 		model_ = nullptr;
@@ -98,12 +93,6 @@ void GraphicsClass::Shutdown() {
 		camera_->~Camera();
 		_aligned_free(camera_);
 		camera_ = nullptr;
-	}
-
-	
-		
-		
-		
 	}
 }
 
@@ -123,16 +112,16 @@ bool GraphicsClass::Render() {
 
 	float fogColor, fogStart, fogEnd;
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	bool result;
 	static float rotation_ = 0.0f;
 
 	camera_->SetPosition(0.0f, 0.0f, -10.0f);
-
 
 	fogColor = 0.5f;
 
 	fogStart = 0.0f;
 	fogEnd = 10.0f;
+
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
 	directx_device_->BeginScene(fogColor, fogColor, fogColor, 1.0f);
 
@@ -147,9 +136,10 @@ bool GraphicsClass::Render() {
 
 	worldMatrix = XMMatrixRotationY(rotation_);
 
-	model_->Render(directx_device_->GetDeviceContext());
-	result = m_FogShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		model_->GetTexture(), fogStart, fogEnd);
+	model_->Render();
+
+	auto result = fog_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+									  model_->GetTexture(), fogStart, fogEnd);
 	if (!result) {
 		return false;
 	}

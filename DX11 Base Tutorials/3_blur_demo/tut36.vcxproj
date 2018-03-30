@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{63C48593-72FD-48A8-B920-389D996A5C8F}</ProjectGuid>
     <RootNamespace>tut36</RootNamespace>
-    <ProjectName>3_blur_demo</ProjectName>
+    <ProjectName>18_blur_demo</ProjectName>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
