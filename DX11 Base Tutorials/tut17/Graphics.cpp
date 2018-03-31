@@ -10,20 +10,16 @@
 #include "modelclass.h"
 #include "multitextureshaderclass.h"
 
-GraphicsClass::GraphicsClass() {}
-
-GraphicsClass::~GraphicsClass() {}
+using namespace DirectX;
 
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 	bool result;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -45,7 +41,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 		result = model_->Initialize(
-			directx_device_->GetDevice(),
 			"../../tut17/data/square.txt",
 			L"../../tut17/data/stone01.dds",
 			L"../../tut17/data/dirt01.dds");
@@ -57,16 +52,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_MultiTextureShader = (MultiTextureShaderClass*)_aligned_malloc(sizeof(MultiTextureShaderClass), 16);
-		new (m_MultiTextureShader)MultiTextureShaderClass();
-		if (!m_MultiTextureShader)
-		{
+		multitexture_shader_ = (MultiTextureShaderClass*)_aligned_malloc(sizeof(MultiTextureShaderClass), 16);
+		new (multitexture_shader_)MultiTextureShaderClass();
+		if (!multitexture_shader_) {
 			return false;
 		}
 
-		result = m_MultiTextureShader->Initialize(hwnd);
-		if (!result)
-		{
+		result = multitexture_shader_->Initialize(hwnd);
+		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the multitexture shader object.", L"Error", MB_OK);
 			return false;
 		}
@@ -88,13 +81,6 @@ void GraphicsClass::Shutdown() {
 		_aligned_free(camera_);
 		camera_ = nullptr;
 	}
-
-	
-		
-		
-		
-		
-	}
 }
 
 bool GraphicsClass::Frame() {
@@ -109,27 +95,29 @@ bool GraphicsClass::Frame() {
 	return true;
 }
 
-bool GraphicsClass::Render()
-{
+bool GraphicsClass::Render() {
+
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 
 	camera_->SetPosition(0.0f, 0.0f, -5.0f);
 
-	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	auto directx_device = DirectX11Device::GetD3d11DeviceInstance();
+
+	directx_device->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	directx_device->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetProjectionMatrix(projectionMatrix);
-	directx_device_->GetOrthoMatrix(orthoMatrix);
+	directx_device->GetProjectionMatrix(projectionMatrix);
+	directx_device->GetOrthoMatrix(orthoMatrix);
 
-	model_->Render(directx_device_->GetDeviceContext());
+	model_->Render();
 
-	m_MultiTextureShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+	multitexture_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 								 model_->GetTextureArray());
 
-	directx_device_->EndScene();
+	directx_device->EndScene();
 
 	return true;
 }

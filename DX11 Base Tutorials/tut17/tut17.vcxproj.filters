@@ -51,10 +51,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="multitexture.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="multitexture.vs">
+    <None Include="multitexture.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
