@@ -48,7 +48,7 @@
     <None Include="depth.ps">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="depth.vs">
+    <None Include="depth.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

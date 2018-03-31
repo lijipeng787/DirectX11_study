@@ -80,7 +80,7 @@ private:
 
 	RenderTextureClass* render_texture_;
 
-	DepthShaderClass* m_DepthShader;
+	DepthShaderClass* depth_shader_;
 
 	ShadowShaderClass* m_ShadowShader;
 };

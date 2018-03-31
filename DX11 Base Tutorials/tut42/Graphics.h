@@ -79,7 +79,7 @@ private:
 
 	RenderTextureClass *m_HorizontalBlurTexture, *m_VerticalBlurTexture, *m_UpSampleTexure;
 
-	DepthShaderClass* m_DepthShader;
+	DepthShaderClass* depth_shader_;
 
 	ShadowShaderClass* m_ShadowShader;
 

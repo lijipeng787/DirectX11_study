@@ -107,12 +107,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_DepthShader = (DepthShaderClass*)_aligned_malloc(sizeof(DepthShaderClass), 16);
-		new (m_DepthShader)DepthShaderClass();
-		if (!m_DepthShader) {
+		depth_shader_ = (DepthShaderClass*)_aligned_malloc(sizeof(DepthShaderClass), 16);
+		new (depth_shader_)DepthShaderClass();
+		if (!depth_shader_) {
 			return false;
 		}
-		result = m_DepthShader->Initialize(hwnd);
+		result = depth_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK);
 			return false;
@@ -146,11 +146,11 @@ void GraphicsClass::Shutdown() {
 	}
 
 	// Release the depth shader object.
-	if (m_DepthShader) {
-		m_DepthShader->Shutdown();
-		m_DepthShader->~DepthShaderClass();
-		_aligned_free(m_DepthShader);
-		m_DepthShader = 0;
+	if (depth_shader_) {
+		depth_shader_->Shutdown();
+		depth_shader_->~DepthShaderClass();
+		_aligned_free(depth_shader_);
+		depth_shader_ = 0;
 	}
 
 	
@@ -264,7 +264,7 @@ bool GraphicsClass::RenderSceneToTexture() {
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
 	m_CubeModel->Render(directx_device_->GetDeviceContext());
-	result = m_DepthShader->Render(directx_device_->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightOrthoMatrix);
+	result = depth_shader_->Render(directx_device_->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightOrthoMatrix);
 	if (!result) {
 		return false;
 	}
@@ -275,7 +275,7 @@ bool GraphicsClass::RenderSceneToTexture() {
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
 	m_SphereModel->Render(directx_device_->GetDeviceContext());
-	result = m_DepthShader->Render(directx_device_->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightOrthoMatrix);
+	result = depth_shader_->Render(directx_device_->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightOrthoMatrix);
 	if (!result) {
 		return false;
 	}
@@ -286,7 +286,7 @@ bool GraphicsClass::RenderSceneToTexture() {
 	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
 	m_GroundModel->Render(directx_device_->GetDeviceContext());
-	result = m_DepthShader->Render(directx_device_->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightOrthoMatrix);
+	result = depth_shader_->Render(directx_device_->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, lightViewMatrix, lightOrthoMatrix);
 	if (!result) {
 		return false;
 	}

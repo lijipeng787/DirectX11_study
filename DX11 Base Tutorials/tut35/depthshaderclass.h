@@ -1,56 +1,39 @@
-
-// Filename: depthshaderclass.h
-
-#ifndef _DEPTHSHADERCLASS_H_
-#define _DEPTHSHADERCLASS_H_
-
-
-
-
+#pragma once
 
 #include <d3d11.h>
 #include <DirectXMath.h>
-#include <d3dcompiler.h>
-#include <fstream>
-using namespace std;
-using namespace DirectX;
 
+struct MatrixBufferType;
 
-
-// Class name: DepthShaderClass
-
-class DepthShaderClass
-{
-private:
-	struct MatrixBufferType
-	{
-		XMMATRIX world;
-		XMMATRIX view;
-		XMMATRIX projection;
-	};
-
+class DepthShaderClass {
 public:
-	DepthShaderClass();
-	DepthShaderClass(const DepthShaderClass&);
-	~DepthShaderClass();
+	DepthShaderClass() {}
 
+	DepthShaderClass(const DepthShaderClass& rhs) = delete;
+
+	~DepthShaderClass() {}
+public:
 	bool Initialize(HWND);
-	void Shutdown();
-	bool Render( int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX& );
 
+	void Shutdown();
+
+	bool Render(int, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&);
 private:
 	bool InitializeShader(HWND, WCHAR*, WCHAR*);
+
 	void ShutdownShader();
+
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters( const XMMATRIX&, const XMMATRIX&, const XMMATRIX& );
+	bool SetShaderParameters(const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&);
+
 	void RenderShader(int);
-
 private:
-	ID3D11VertexShader* vertex_shader_;
-	ID3D11PixelShader* pixel_shader_;
-	ID3D11InputLayout* layout_;
-	ID3D11Buffer* matrix_buffer_;
-};
+	ID3D11VertexShader * vertex_shader_ = nullptr;
 
-#endif
+	ID3D11PixelShader* pixel_shader_ = nullptr;
+
+	ID3D11InputLayout* layout_ = nullptr;
+
+	ID3D11Buffer* matrix_buffer_ = nullptr;
+};
