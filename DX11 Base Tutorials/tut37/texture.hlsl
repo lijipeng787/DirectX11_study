@@ -1,21 +1,9 @@
-
-
-
-
-
-
-
-
 cbuffer MatrixBuffer
 {
 	matrix worldMatrix;
 	matrix viewMatrix;
 	matrix projectionMatrix;
 };
-
-
-
-
 
 struct VertexInputType
 {
@@ -30,16 +18,10 @@ struct PixelInputType
     float2 tex : TEXCOORD0;
 };
 
-
-
-
-
 PixelInputType TextureVertexShader(VertexInputType input)
 {
     PixelInputType output;
     
-
-
     input.position.w = 1.0f;
 
 	// Update the position of the vertices based on the data for this particular instance.
@@ -47,13 +29,23 @@ PixelInputType TextureVertexShader(VertexInputType input)
     input.position.y += input.instancePosition.y;
     input.position.z += input.instancePosition.z;
 
-	
     output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
-	
 	output.tex = input.tex;
     
     return output;
+}
+
+Texture2D shaderTexture;
+SamplerState SampleType;
+
+float4 TexturePixelShader(PixelInputType input) : SV_TARGET
+{
+	float4 textureColor;
+
+    textureColor = shaderTexture.Sample(SampleType, input.tex);
+
+    return textureColor;
 }

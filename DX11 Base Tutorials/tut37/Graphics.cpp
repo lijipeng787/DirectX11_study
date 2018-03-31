@@ -10,19 +10,15 @@
 #include "modelclass.h"
 #include "textureshaderclass.h"
 
-GraphicsClass::GraphicsClass() {}
-
-GraphicsClass::~GraphicsClass() {}
+using namespace DirectX;
 
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	bool result;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -69,18 +65,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 void GraphicsClass::Shutdown() {
 
-	
-	if (texture_shader_)
-	{
+	if (texture_shader_) {
 		texture_shader_->Shutdown();
 		texture_shader_->~TextureShaderClass();
 		_aligned_free(texture_shader_);
 		texture_shader_ = 0;
 	}
 
-
-	if (model_)
-	{
+	if (model_) {
 		model_->Shutdown();
 		delete model_;
 		model_ = nullptr;
@@ -90,13 +82,6 @@ void GraphicsClass::Shutdown() {
 		camera_->~Camera();
 		_aligned_free(camera_);
 		camera_ = nullptr;
-	}
-
-	
-		
-		
-		
-		
 	}
 }
 
@@ -116,25 +101,26 @@ bool GraphicsClass::Frame() {
 bool GraphicsClass::Render() {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	bool result;
 
-	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	auto directx_device = DirectX11Device::GetD3d11DeviceInstance();
+
+	directx_device->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetWorldMatrix(worldMatrix);
-	directx_device_->GetProjectionMatrix(projectionMatrix);
+	directx_device->GetWorldMatrix(worldMatrix);
+	directx_device->GetProjectionMatrix(projectionMatrix);
 
-	model_->Render(directx_device_->GetDeviceContext());
+	model_->Render();
 
-	result = texture_shader_->Render(directx_device_->GetDeviceContext(), model_->GetVertexCount(), model_->GetInstanceCount(), worldMatrix, viewMatrix,
-		projectionMatrix, model_->GetTexture());
+	auto result = texture_shader_->Render(model_->GetVertexCount(), model_->GetInstanceCount(), worldMatrix, viewMatrix,
+										  projectionMatrix, model_->GetTexture());
 	if (!result) {
 		return false;
 	}
 
-	directx_device_->EndScene();
+	directx_device->EndScene();
 
 	return true;
 }
