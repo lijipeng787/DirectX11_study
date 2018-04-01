@@ -26,7 +26,7 @@ private:
 private:
 	GraphicsClass *graphics_;
 
-	PositionClass *m_Position;
+	PositionClass *position_;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

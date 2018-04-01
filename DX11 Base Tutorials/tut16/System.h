@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/SystemBase.h"
 
@@ -8,13 +7,13 @@ class PositionClass;
 
 class System :public SystemBase {
 public:
-	System();
+	System() {}
 
 	System(const System& rhs) = delete;
 
 	System& operator=(const System& rhs) = delete;
 
-	virtual ~System();
+	virtual ~System() {}
 public:
 	virtual bool Initialize()override;
 
@@ -22,7 +21,7 @@ public:
 
 	virtual bool Frame()override;
 private:
-	PositionClass *m_Position;
+	PositionClass *position_;
 
 	GraphicsClass *graphics_;
 };
@@ -30,5 +29,3 @@ private:
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 static System* ApplicationInstance = nullptr;
-
-#endif

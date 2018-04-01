@@ -57,7 +57,7 @@ private:
 	ID3D11InputLayout* layout_;
 	ID3D11Buffer* constant_buffer_;
 	ID3D11SamplerState* sample_state_;
-	ID3D11Buffer* m_pixelBuffer;
+	ID3D11Buffer* pixel_buffer_;
 };
 
 #endif

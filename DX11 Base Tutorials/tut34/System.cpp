@@ -32,12 +32,12 @@ bool System::Initialize() {
 	}
 
 	{
-		m_Position = new PositionClass();
-		if (!m_Position)
+		position_ = new PositionClass();
+		if (!position_)
 		{
 			return false;
 		}
-		m_Position->SetPosition(0.0f, 3.0f, -10.0f);
+		position_->SetPosition(0.0f, 3.0f, -10.0f);
 	}
 
 	return true;
@@ -53,16 +53,16 @@ bool System::Frame() {
 
 	float time = GetTimerComponent().GetTime();
 	
-	m_Position->SetFrameTime(time);
+	position_->SetFrameTime(time);
 
 	keyDown = GetInputComponent().IsLeftArrowPressed();
-	m_Position->MoveLeft(keyDown);
+	position_->MoveLeft(keyDown);
 
 	keyDown = GetInputComponent().IsRightArrowPressed();
-	m_Position->MoveRight(keyDown);
+	position_->MoveRight(keyDown);
 
 	float x, y, z;
-	m_Position->GetPosition(x, y, z);
+	position_->GetPosition(x, y, z);
 
 	graphics_->SetPosition(x, y, z);
 

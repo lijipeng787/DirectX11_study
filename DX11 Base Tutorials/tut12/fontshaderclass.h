@@ -38,7 +38,7 @@ private:
 
 	ID3D11InputLayout* layout_ = nullptr;
 
-	ID3D11Buffer* constant_buffer_ = nullptr, *m_pixelBuffer = nullptr;
+	ID3D11Buffer* constant_buffer_ = nullptr, *pixel_buffer_ = nullptr;
 
 	ID3D11SamplerState* sample_state_ = nullptr;
 };

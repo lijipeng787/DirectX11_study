@@ -1,8 +1,8 @@
 
-// Filename: positionclass.h
 
-#ifndef _POSITIONCLASS_H_
-#define _POSITIONCLASS_H_
+
+
+
 
 
 
@@ -12,7 +12,7 @@
 
 
 
-// Class name: PositionClass
+
 
 class PositionClass
 {
@@ -34,9 +34,9 @@ public:
 
 private:
 	float m_positionX, m_positionY, m_positionZ;
-	float m_rotationX, m_rotationY, m_rotationZ;
+	float m_rotationX, rotation_y_, m_rotationZ;
 
-	float m_frameTime;
+	float frame_time_;
 
 	float m_leftSpeed, m_rightSpeed;
 };

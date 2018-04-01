@@ -167,7 +167,7 @@ bool FontShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFi
 	pixelBufferDesc.MiscFlags = 0;
 	pixelBufferDesc.StructureByteStride = 0;
 
-	result = device->CreateBuffer(&pixelBufferDesc, NULL, &m_pixelBuffer);
+	result = device->CreateBuffer(&pixelBufferDesc, NULL, &pixel_buffer_);
 	if (FAILED(result)) {
 		return false;
 	}
@@ -177,9 +177,9 @@ bool FontShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFi
 
 void FontShaderClass::ShutdownShader() {
 
-	if (m_pixelBuffer) {
-		m_pixelBuffer->Release();
-		m_pixelBuffer = 0;
+	if (pixel_buffer_) {
+		pixel_buffer_->Release();
+		pixel_buffer_ = 0;
 	}
 
 	if (sample_state_) {
@@ -261,7 +261,7 @@ bool FontShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMM
 
 	device_context->PSSetShaderResources(0, 1, &texture);
 
-	result = device_context->Map(m_pixelBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(pixel_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result)) {
 		return false;
 	}
@@ -272,11 +272,11 @@ bool FontShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMM
 
 	dataPtr2->pixelColor = pixelColor;
 
-	device_context->Unmap(m_pixelBuffer, 0);
+	device_context->Unmap(pixel_buffer_, 0);
 
 	buffer_number = 0;
 
-	device_context->PSSetConstantBuffers(buffer_number, 1, &m_pixelBuffer);
+	device_context->PSSetConstantBuffers(buffer_number, 1, &pixel_buffer_);
 
 	return true;
 }

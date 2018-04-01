@@ -1,45 +1,26 @@
-
-// Filename: modellistclass.h
-
-#ifndef _MODELLISTCLASS_H_
-#define _MODELLISTCLASS_H_
-
-
-
-
+#pragma once
 
 #include <DirectXMath.h>
-#include <stdlib.h>
-#include <time.h>
-using namespace DirectX;
 
+struct ModelInfoType;
 
-
-// Class name: ModelListClass
-
-class ModelListClass
-{
-private:
-	struct ModelInfoType
-	{
-		XMFLOAT4 color;
-		float positionX, positionY, positionZ;
-	};
-
+class ModelListClass {
 public:
-	ModelListClass();
-	ModelListClass(const ModelListClass&);
-	~ModelListClass();
+	ModelListClass() {}
 
+	ModelListClass(const ModelListClass& rhs) = delete;
+
+	~ModelListClass() {}
+public:
 	bool Initialize(int);
+
 	void Shutdown();
 
 	int GetModelCount();
-	void GetData(int, float&, float&, float&, XMFLOAT4& );
 
+	void GetData(int, float&, float&, float&, DirectX::XMFLOAT4&);
 private:
-	int m_modelCount;
-	ModelInfoType* m_ModelInfoList;
-};
+	int model_count_ = 0;
 
-#endif
+	ModelInfoType* model_info_list_ = nullptr;
+};

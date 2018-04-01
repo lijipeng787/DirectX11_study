@@ -114,7 +114,6 @@ void FontClass::BuildVertexArray(void* vertices, char* sentence, float drawX, fl
 	// Coerce the input vertices into a VertexType structure.
 	VertexType *vertexPtr = static_cast<VertexType*>(vertices);
 
-
 	auto numLetters = static_cast<int>(strlen(sentence));
 
 	// Initialize the index to the vertex array.

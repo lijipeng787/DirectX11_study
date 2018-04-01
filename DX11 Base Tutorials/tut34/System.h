@@ -22,7 +22,7 @@ public:
 
 	virtual bool Frame()override;
 private:
-	PositionClass *m_Position;
+	PositionClass *position_;
 
 	GraphicsClass *graphics_;
 };

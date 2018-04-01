@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -14,13 +13,13 @@ class FrustumClass;
 
 class GraphicsClass :public GraphicsBase {
 public:
-	GraphicsClass();
+	GraphicsClass() {}
 
 	GraphicsClass(const GraphicsClass& rhs) = delete;
 
 	GraphicsClass& operator=(const GraphicsClass& rhs) = delete;
 
-	virtual ~GraphicsClass();
+	virtual ~GraphicsClass() {}
 public:
 	virtual bool Initialize(int, int, HWND)override;
 
@@ -30,12 +29,10 @@ public:
 
 	virtual bool Render()override;
 public:
-	void SetRotation(float rotation_) {
-		rotationY = rotation_;
+	inline void SetRotation(float rotation_) {
+		rotation_y_ = rotation_;
 	}
 private:
-	
-
 	Camera *camera_ = nullptr;
 
 	ModelClass *model_ = nullptr;
@@ -46,11 +43,9 @@ private:
 
 	LightClass* light_ = nullptr;
 
-	ModelListClass* m_ModelList = nullptr;
+	ModelListClass* model_list_ = nullptr;
 
-	FrustumClass* m_Frustum = nullptr;
+	FrustumClass* frustum_ = nullptr;
 
-	float rotationY = 0.0f;
+	float rotation_y_ = 0.0f;
 };
-
-#endif

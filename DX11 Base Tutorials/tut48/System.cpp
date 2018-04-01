@@ -33,12 +33,12 @@ bool System::Initialize() {
 	}
 
 	{
-		m_Position = new PositionClass();
-		if (!m_Position){
+		position_ = new PositionClass();
+		if (!position_){
 			return false;
 		}
 		// Set the initial position of the viewer to the same as the initial camera position.
-		m_Position->SetPosition(0.0f, 2.0f, -10.0f);
+		position_->SetPosition(0.0f, 2.0f, -10.0f);
 	}
 
 	return true;
@@ -66,8 +66,8 @@ bool System::Frame() {
 
 	float posX, posY, posZ;
 	float rotX, rotY, rotZ;
-	m_Position->GetPosition(posX, posY, posZ);
-	m_Position->GetRotation(rotX, rotY, rotZ);
+	position_->GetPosition(posX, posY, posZ);
+	position_->GetRotation(rotX, rotY, rotZ);
 
 	auto delta_time = GetTimerComponent().GetTime();
 	graphics_->SetFrameTime(delta_time);
@@ -92,31 +92,31 @@ bool System::HandleInput(float frameTime) {
 
 	bool keyDown;
 
-	m_Position->SetFrameTime(frameTime);
+	position_->SetFrameTime(frameTime);
 
 	keyDown = GetInputComponent().IsLeftPressed();
-	m_Position->TurnLeft(keyDown);
+	position_->TurnLeft(keyDown);
 
 	keyDown = GetInputComponent().IsRightPressed();
-	m_Position->TurnRight(keyDown);
+	position_->TurnRight(keyDown);
 
 	keyDown = GetInputComponent().IsUpPressed();
-	m_Position->MoveForward(keyDown);
+	position_->MoveForward(keyDown);
 
 	keyDown = GetInputComponent().IsDownPressed();
-	m_Position->MoveBackward(keyDown);
+	position_->MoveBackward(keyDown);
 
 	keyDown = GetInputComponent().IsAPressed();
-	m_Position->MoveUpward(keyDown);
+	position_->MoveUpward(keyDown);
 
 	keyDown = GetInputComponent().IsZPressed();
-	m_Position->MoveDownward(keyDown);
+	position_->MoveDownward(keyDown);
 
 	keyDown = GetInputComponent().IsPgUpPressed();
-	m_Position->LookUpward(keyDown);
+	position_->LookUpward(keyDown);
 
 	keyDown = GetInputComponent().IsPgDownPressed();
-	m_Position->LookDownward(keyDown);
+	position_->LookDownward(keyDown);
 
 	return true;
 }

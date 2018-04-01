@@ -1,103 +1,53 @@
-
-// Filename: positionclass.cpp
-
 #include "positionclass.h"
 
+#include <math.h>
 
-PositionClass::PositionClass()
-{
-	m_frameTime = 0.0f;
-	m_rotationY = 0.0f;
-	m_leftTurnSpeed  = 0.0f;
-	m_rightTurnSpeed = 0.0f;
-}
+void PositionClass::TurnLeft(bool keydown) {
 
-
-PositionClass::PositionClass(const PositionClass& other)
-{
-}
-
-
-PositionClass::~PositionClass()
-{
-}
-
-
-void PositionClass::SetFrameTime(float time)
-{
-	m_frameTime = time;
-	
-}
-
-
-void PositionClass::GetRotation(float& y)
-{
-	y = m_rotationY;
-	
-}
-
-
-void PositionClass::TurnLeft(bool keydown)
-{
 	// If the key is pressed increase the speed at which the camera turns left.  If not slow down the turn speed.
-	if(keydown)
-	{
-		m_leftTurnSpeed += m_frameTime * 0.01f;
+	if (keydown) {
+		left_turning_speed_ += frame_time_ * 0.01f;
 
-		if(m_leftTurnSpeed > (m_frameTime * 0.15f))
-		{
-			m_leftTurnSpeed = m_frameTime * 0.15f;
+		if (left_turning_speed_ > (frame_time_ * 0.15f)) {
+			left_turning_speed_ = frame_time_ * 0.15f;
 		}
 	}
-	else
-	{
-		m_leftTurnSpeed -= m_frameTime* 0.005f;
+	else {
+		left_turning_speed_ -= frame_time_ * 0.005f;
 
-		if(m_leftTurnSpeed < 0.0f)
-		{
-			m_leftTurnSpeed = 0.0f;
+		if (left_turning_speed_ < 0.0f) {
+			left_turning_speed_ = 0.0f;
 		}
 	}
 
 	// Update the rotation_ using the turning speed.
-	m_rotationY -= m_leftTurnSpeed;
-	if(m_rotationY < 0.0f)
-	{
-		m_rotationY += 360.0f;
+	rotation_y_ -= left_turning_speed_;
+	if (rotation_y_ < 0.0f) {
+		rotation_y_ += 360.0f;
 	}
-
-	
 }
 
+void PositionClass::TurnRight(bool keydown) {
 
-void PositionClass::TurnRight(bool keydown)
-{
 	// If the key is pressed increase the speed at which the camera turns right.  If not slow down the turn speed.
-	if(keydown)
-	{
-		m_rightTurnSpeed += m_frameTime * 0.01f;
+	if (keydown) {
+		right_turning_speed_ += frame_time_ * 0.01f;
 
-		if(m_rightTurnSpeed > (m_frameTime * 0.15f))
-		{
-			m_rightTurnSpeed = m_frameTime * 0.15f;
+		if (right_turning_speed_ > (frame_time_ * 0.15f)) {
+			right_turning_speed_ = frame_time_ * 0.15f;
 		}
 	}
-	else
-	{
-		m_rightTurnSpeed -= m_frameTime* 0.005f;
+	else {
+		right_turning_speed_ -= frame_time_ * 0.005f;
 
-		if(m_rightTurnSpeed < 0.0f)
-		{
-			m_rightTurnSpeed = 0.0f;
+		if (right_turning_speed_ < 0.0f) {
+			right_turning_speed_ = 0.0f;
 		}
 	}
 
 	// Update the rotation_ using the turning speed.
-	m_rotationY += m_rightTurnSpeed;
-	if(m_rotationY > 360.0f)
-	{
-		m_rotationY -= 360.0f;
+	rotation_y_ += right_turning_speed_;
+	if (rotation_y_ > 360.0f) {
+		rotation_y_ -= 360.0f;
 	}
-
-	
 }

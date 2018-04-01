@@ -86,6 +86,7 @@ bool LightShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psF
 	}
 
 	auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
+	
 	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertex_shader_);
 	if (FAILED(result)) {
 		return false;
@@ -171,8 +172,6 @@ bool LightShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psF
 		return false;
 	}
 
-	
-	
 	D3D11_BUFFER_DESC lightBufferDesc;
 
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -303,6 +302,7 @@ bool LightShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix,
 }
 
 void LightShaderClass::RenderShader(int indexCount) {
+
 	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
 	device_context->IASetInputLayout(layout_);

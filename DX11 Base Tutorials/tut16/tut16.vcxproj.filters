@@ -93,16 +93,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="light.vs">
+    <None Include="font.hlsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="font.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="light.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="font.vs">
+    <None Include="light.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

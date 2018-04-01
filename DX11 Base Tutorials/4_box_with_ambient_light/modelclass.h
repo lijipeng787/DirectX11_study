@@ -2,7 +2,6 @@
 
 #include <d3d11.h>
 
-struct VertexType;
 struct ModelType;
 class TextureClass;
 

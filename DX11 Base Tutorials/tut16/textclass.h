@@ -1,58 +1,45 @@
+#pragma once
 
+#include <d3d11.h>
+#include <DirectXMath.h>
 
+struct SentenceType;
+struct VertexType;
 
+class FontClass;
+class FontShaderClass;
 
-
-
-
-
-
-#include "fontclass.h"
-#include "fontshaderclass.h"
-
-
-
-
-
-class TextClass
-{
-private:
-	struct SentenceType
-	{
-		ID3D11Buffer *vertexBuffer, *indexBuffer;
-		int vertexCount, indexCount, maxLength;
-		float red, green, blue;
-	};
-
-	struct VertexType
-	{
-		XMFLOAT3 position;
-	    XMFLOAT2 texture;
-	};
-
+class TextClass {
 public:
-	TextClass();
-	TextClass(const TextClass&);
-	~TextClass();
+	TextClass() {}
 
-	bool Initialize(HWND, int, int, const XMMATRIX& );
+	TextClass(const TextClass& rhs) = delete;
+
+	~TextClass() {}
+public:
+	bool Initialize(HWND, int, int, const DirectX::XMMATRIX&);
+
 	void Shutdown();
-	bool Render(const XMMATRIX&, const XMMATRIX& );
 
-	bool SetRenderCount(int, ID3D11DeviceContext*);
+	bool Render(const DirectX::XMMATRIX&, const DirectX::XMMATRIX&);
 
+	bool SetRenderCount(int);
 private:
-	bool InitializeSentence(SentenceType**, int, ID3D11Device*);
-	bool UpdateSentence(SentenceType*, char*, int, int, float, float, float, ID3D11DeviceContext*);
+	bool InitializeSentence(SentenceType**, int);
+
+	bool UpdateSentence(SentenceType*, char*, int, int, float, float, float);
+
 	void ReleaseSentence(SentenceType**);
-	bool RenderSentence(SentenceType*, const XMMATRIX&, const XMMATRIX& );
 
+	bool RenderSentence(SentenceType*, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&);
 private:
-	FontClass* font_;
-	FontShaderClass* font_shader_;
-	int screen_width_, screen_height_;
-	XMMATRIX base_view_matrix_;
-	SentenceType* sentence_1_;
-};
+	FontClass * font_ = nullptr;
 
-#endif
+	FontShaderClass* font_shader_ = nullptr;
+
+	int screen_width_ = 0, screen_height_ = 0;
+
+	DirectX::XMFLOAT4X4 base_view_matrix_{};
+
+	SentenceType* sentence_1_ = nullptr;
+};

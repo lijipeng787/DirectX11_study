@@ -11,7 +11,7 @@ FontShaderClass::FontShaderClass()
 	layout_ = nullptr;
 	constant_buffer_ = nullptr;
 	sample_state_ = nullptr;
-	m_pixelBuffer = 0;
+	pixel_buffer_ = 0;
 }
 
 
@@ -224,7 +224,7 @@ bool FontShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFi
 	pixelBufferDesc.StructureByteStride = 0;
 
 	// Create the pixel constant buffer pointer so we can access the pixel shader constant buffer from within this class.
-	result = device->CreateBuffer(&pixelBufferDesc, NULL, &m_pixelBuffer);
+	result = device->CreateBuffer(&pixelBufferDesc, NULL, &pixel_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -237,10 +237,10 @@ bool FontShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFi
 void FontShaderClass::ShutdownShader()
 {
 	// Release the pixel constant buffer.
-	if(m_pixelBuffer)
+	if(pixel_buffer_)
 	{
-		m_pixelBuffer->Release();
-		m_pixelBuffer = 0;
+		pixel_buffer_->Release();
+		pixel_buffer_ = 0;
 	}
 
 
@@ -364,7 +364,7 @@ bool FontShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMM
 	device_context->PSSetShaderResources(0, 1, &texture);
 
 	// Lock the pixel constant buffer so it can be written to.
-	result = device_context->Map(m_pixelBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(pixel_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -377,13 +377,13 @@ bool FontShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMM
 	dataPtr2->pixelColor = pixelColor;
 
 	// Unlock the pixel constant buffer.
-    device_context->Unmap(m_pixelBuffer, 0);
+    device_context->Unmap(pixel_buffer_, 0);
 
 	// Set the position of the pixel constant buffer in the pixel shader.
 	buffer_number = 0;
 
 	// Now set the pixel constant buffer in the pixel shader with the updated value.
-    device_context->PSSetConstantBuffers(buffer_number, 1, &m_pixelBuffer);
+    device_context->PSSetConstantBuffers(buffer_number, 1, &pixel_buffer_);
 
 	return true;
 }

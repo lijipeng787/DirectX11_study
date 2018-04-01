@@ -63,18 +63,17 @@ ID3D11ShaderResourceView* ModelClass::GetTexture() {
 
 bool ModelClass::InitializeBuffers() {
 
-	auto auto vertices = new VertexType[vertex_count_];
+	auto vertices = new VertexType[vertex_count_];
 	if (!vertices) {
 		return false;
 	}
 
-	auto auto indices = new unsigned long[index_count_];
+	auto indices = new unsigned long[index_count_];
 	if (!indices) {
 		return false;
 	}
 
-	int i = 0;
-	for (i = 0; i < vertex_count_; i++) {
+	for (int i = 0; i < vertex_count_; i++) {
 		vertices[i].position = XMFLOAT3(model_[i].x, model_[i].y, model_[i].z);
 		vertices[i].texture = XMFLOAT2(model_[i].tu, model_[i].tv);
 		vertices[i].normal = XMFLOAT3(model_[i].nx, model_[i].ny, model_[i].nz);
@@ -150,6 +149,7 @@ void ModelClass::RenderBuffers() {
 
 	unsigned int stride = sizeof(VertexType);
 	unsigned int offset = 0;
+
 	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
 	device_context->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);

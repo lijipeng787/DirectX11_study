@@ -15,9 +15,7 @@
 #include "textureclass.h"
 #include "textclass.h"
 
-GraphicsClass::GraphicsClass() {}
-
-GraphicsClass::~GraphicsClass() {}
+using namespace DirectX;
 
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
@@ -25,11 +23,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	XMMATRIX baseViewMatrix;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -50,14 +46,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	{
 		text_ = (TextClass*)_aligned_malloc(sizeof(TextClass), 16);
 		new (text_)TextClass();
-		if (!text_)
-		{
+		if (!text_) {
 			return false;
 		}
 
-		result = text_->Initialize(directx_device_->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
-		if (!result)
-		{
+		result = text_->Initialize(hwnd, screenWidth, screenHeight, baseViewMatrix);
+		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
 			return false;
 		}
@@ -68,8 +62,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!model_) {
 			return false;
 		}
-
-		result = model_->Initialize(L"../../tut16/data/seafloor.dds", "../../tut16/data/sphere.txt");
+		
+		result = model_->Initialize("../../tut16/data/sphere.txt", L"../../tut16/data/seafloor.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
@@ -84,8 +78,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		result = light_shader_->Initialize(hwnd);
-		if (!result)
-		{
+		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
 			return false;
 		}
@@ -102,12 +95,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_ModelList = new ModelListClass();
-		if (!m_ModelList) {
+		model_list_ = new ModelListClass();
+		if (!model_list_) {
 			return false;
 		}
 
-		result = m_ModelList->Initialize(25);
+		result = model_list_->Initialize(25);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model list object.", L"Error", MB_OK);
 			return false;
@@ -115,9 +108,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_Frustum = (FrustumClass*)_aligned_malloc(sizeof(FrustumClass), 16);
-		new (m_Frustum)FrustumClass();
-		if (!m_Frustum) {
+		frustum_ = (FrustumClass*)_aligned_malloc(sizeof(FrustumClass), 16);
+		new (frustum_)FrustumClass();
+		if (!frustum_) {
 			return false;
 		}
 	}
@@ -127,16 +120,16 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 void GraphicsClass::Shutdown() {
 
-	if (m_Frustum) {
-		m_Frustum->~FrustumClass();
-		_aligned_free(m_Frustum);
-		m_Frustum = 0;
+	if (frustum_) {
+		frustum_->~FrustumClass();
+		_aligned_free(frustum_);
+		frustum_ = 0;
 	}
 
-	if (m_ModelList) {
-		m_ModelList->Shutdown();
-		delete m_ModelList;
-		m_ModelList = 0;
+	if (model_list_) {
+		model_list_->Shutdown();
+		delete model_list_;
+		model_list_ = 0;
 	}
 
 	if (light_) {
@@ -169,63 +162,55 @@ void GraphicsClass::Shutdown() {
 		_aligned_free(camera_);
 		camera_ = nullptr;
 	}
-
-	
-		
-		
-	}
-
-	
 }
 
-bool GraphicsClass::Frame(){
+bool GraphicsClass::Frame() {
 
 	camera_->SetPosition(0.0f, 0.0f, -10.0f);
 
-	camera_->SetRotation(0.0f, rotationY, 0.0f);
+	camera_->SetRotation(0.0f, rotation_y_, 0.0f);
 
 	return true;
 }
 
-
 bool GraphicsClass::Render() {
 
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
-	int modelCount, renderCount, index;
-	float positionX, positionY, positionZ, radius;
-	XMFLOAT4 color;
-	bool renderModel, result;
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
 	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
+
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 
 	camera_->GetViewMatrix(viewMatrix);
 	directx_device_->GetWorldMatrix(worldMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 	directx_device_->GetOrthoMatrix(orthoMatrix);
 
-	m_Frustum->ConstructFrustum(SCREEN_DEPTH, projectionMatrix, viewMatrix);
+	frustum_->ConstructFrustum(SCREEN_DEPTH, projectionMatrix, viewMatrix);
 
-	modelCount = m_ModelList->GetModelCount();
+	int modelCount = model_list_->GetModelCount(), renderCount = 0;
+	auto renderModel = false;
+	XMFLOAT4 color{};
+	float positionX, positionY, positionZ, radius;
 
-	renderCount = 0;
+	for (int index = 0; index < modelCount; index++) {
 
-	for (index = 0; index < modelCount; index++) {
-		m_ModelList->GetData(index, positionX, positionY, positionZ, color);
+		model_list_->GetData(index, positionX, positionY, positionZ, color);
 
 		radius = 1.0f;
 
-		renderModel = m_Frustum->CheckSphere(positionX, positionY, positionZ, radius);
+		renderModel = frustum_->CheckSphere(positionX, positionY, positionZ, radius);
 
 		if (renderModel) {
-	
+
 			worldMatrix = XMMatrixTranslation(positionX, positionY, positionZ);
 
-			model_->Render(directx_device_->GetDeviceContext());
+			model_->Render();
 
-			light_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-				model_->GetTexture(), light_->GetDirection(), color);
+			light_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+								  model_->GetTexture(), light_->GetDirection(), color);
 
 			directx_device_->GetWorldMatrix(worldMatrix);
 
@@ -233,24 +218,25 @@ bool GraphicsClass::Render() {
 		}
 	}
 
-	result = text_->SetRenderCount(renderCount, directx_device_->GetDeviceContext());
+	auto result = text_->SetRenderCount(renderCount);
 	if (!result) {
 		return false;
 	}
 
 	directx_device_->TurnZBufferOff();
+
 	directx_device_->TurnOnAlphaBlending();
 
-	result = text_->Render(directx_device_->GetDeviceContext(), worldMatrix, orthoMatrix);
+	result = text_->Render(worldMatrix, orthoMatrix);
 	if (!result) {
 		return false;
 	}
 
 	directx_device_->TurnOffAlphaBlending();
+
 	directx_device_->TurnZBufferOn();
 
 	directx_device_->EndScene();
 
 	return true;
 }
-
