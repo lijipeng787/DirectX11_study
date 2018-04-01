@@ -80,7 +80,7 @@ private:
 	int vertex_count_, index_count_, m_trunkIndexCount, m_leafIndexCount;
 	TextureClass *m_TrunkTexture, *m_LeafTexture;
 	ModelType* model_;
-	float m_positionX, m_positionY, m_positionZ;
+	float position_x_, position_y_, position_z_;
 };
 
 #endif

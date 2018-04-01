@@ -1,44 +1,30 @@
+#pragma once
 
-
-
-
-
-
-
-
-
-
-#include <math.h>
-
-
-
-
-
-class PositionClass
-{
+class PositionClass {
 public:
-	PositionClass();
-	PositionClass(const PositionClass&);
-	~PositionClass();
+	PositionClass() {}
 
+	PositionClass(const PositionClass& rhs) = delete;
+
+	~PositionClass() {}
+public:
 	void SetPosition(float, float, float);
+
 	void SetRotation(float, float, float);
 
 	void GetPosition(float&, float&, float&);
+
 	void GetRotation(float&, float&, float&);
 
 	void SetFrameTime(float);
 
 	void MoveLeft(bool);
+
 	void MoveRight(bool);
-
 private:
-	float m_positionX, m_positionY, m_positionZ;
-	float m_rotationX, rotation_y_, m_rotationZ;
+	float position_x_ = 0.0f, position_y_ = 0.0f, position_z_ = 0.0f;
 
-	float frame_time_;
+	float rotation_x_ = 0.0f, rotation_y_ = 0.0f, rotation_z_ = 0.0f;
 
-	float m_leftSpeed, m_rightSpeed;
+	float frame_time_ = 0.0f, left_speed_ = 0.0f, right_speed_ = 0.0f;
 };
-
-#endif

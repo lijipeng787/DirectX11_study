@@ -1,5 +1,4 @@
 #include <DirectXMath.h>
-#include <DirectXMath.h>
 
 #include "../CommonFramework/DirectX11Device.h"
 #include "modelclass.h"

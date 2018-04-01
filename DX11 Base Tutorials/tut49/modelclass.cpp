@@ -328,17 +328,17 @@ void ModelClass::ReleaseModel()
 
 void ModelClass::SetPosition(float x, float y, float z)
 {
-	m_positionX = x;
-	m_positionY = y;
-	m_positionZ = z;
+	position_x_ = x;
+	position_y_ = y;
+	position_z_ = z;
 	
 }
 
 
 void ModelClass::GetPosition(float& x, float& y, float& z)
 {
-	x = m_positionX;
-	y = m_positionY;
-	z = m_positionZ;
+	x = position_x_;
+	y = position_y_;
+	z = position_z_;
 	
 }

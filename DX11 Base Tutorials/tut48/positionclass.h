@@ -39,8 +39,8 @@ public:
 	void LookDownward(bool);
 
 private:
-	float m_positionX, m_positionY, m_positionZ;
-	float m_rotationX, rotation_y_, m_rotationZ;
+	float position_x_, position_y_, position_z_;
+	float rotation_x_, rotation_y_, rotation_z_;
 
 	float frame_time_;
 

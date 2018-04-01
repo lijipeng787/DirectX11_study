@@ -29,5 +29,6 @@ private:
 	void RenderBuffers();
 private:
 	ID3D11Buffer * vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
+
 	int vertex_count_ = 0, index_count_ = 0;
 };

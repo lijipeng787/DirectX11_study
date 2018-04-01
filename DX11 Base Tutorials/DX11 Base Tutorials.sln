@@ -3,39 +3,39 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simple_triangle", "tut04\tut04.vcxproj", "{D36D235F-C167-40C4-9665-574154B32FD9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "10_simple_triangle", "tut04\tut04.vcxproj", "{D36D235F-C167-40C4-9665-574154B32FD9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "triangle_with_diffuse_light", "tut06\tut06.vcxproj", "{1D52B0C1-E53B-4486-B670-155F2782BD7B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "8_triangle_with_diffuse_light", "tut06\tut06.vcxproj", "{1D52B0C1-E53B-4486-B670-155F2782BD7B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "model_converter", "tut08\tut08.vcxproj", "{D5B981E8-E847-49E7-AF5F-25E4AB64298E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "3_model_converter", "tut08\tut08.vcxproj", "{D5B981E8-E847-49E7-AF5F-25E4AB64298E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "font", "tut12\tut12.vcxproj", "{1D29997F-58B4-4F4E-B1F4-62C5D8AB97BA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "19_font", "tut12\tut12.vcxproj", "{1D29997F-58B4-4F4E-B1F4-62C5D8AB97BA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "frustum_culling", "tut16\tut16.vcxproj", "{94E736DB-7974-42AD-8DE6-F0F6EFA0FB24}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "25_frustum_culling", "tut16\tut16.vcxproj", "{94E736DB-7974-42AD-8DE6-F0F6EFA0FB24}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multiple_textures", "tut17\tut17.vcxproj", "{B7FF2621-92BE-4B91-B904-9E4A168BD572}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "22_multiple_textures", "tut17\tut17.vcxproj", "{B7FF2621-92BE-4B91-B904-9E4A168BD572}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7_light_map_demo_unrename", "tut18\tut18.vcxproj", "{93AB4C10-8C84-4D50-ADED-58140388F43E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7_light_map_demo(unrename)", "tut18\tut18.vcxproj", "{93AB4C10-8C84-4D50-ADED-58140388F43E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bump_map", "tut20\tut20.vcxproj", "{BB880C53-09E3-4209-A067-92725E0AE2D2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "13_bumpmap", "tut20\tut20.vcxproj", "{BB880C53-09E3-4209-A067-92725E0AE2D2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "specular_map", "tut21\tut21.vcxproj", "{DBA3A7F9-72D2-4099-9CC7-88720D14DAA5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "12_specularmap", "tut21\tut21.vcxproj", "{DBA3A7F9-72D2-4099-9CC7-88720D14DAA5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "render_to_texture", "tut22\tut22.vcxproj", "{956F26C0-D04B-4460-B36F-F76E12994D4B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "14_render_to_texture", "tut22\tut22.vcxproj", "{956F26C0-D04B-4460-B36F-F76E12994D4B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "post_process_fog", "tut23\tut23.vcxproj", "{4834C8B2-2993-4AE2-88F3-3FB0E68B4DC9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "20_post_process_fog", "tut23\tut23.vcxproj", "{4834C8B2-2993-4AE2-88F3-3FB0E68B4DC9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "clip_plane", "tut24\tut24.vcxproj", "{3E8EB8F2-0144-456D-B6D3-84C6557035F0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "17_clipplane", "tut24\tut24.vcxproj", "{3E8EB8F2-0144-456D-B6D3-84C6557035F0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "texture_translation", "tut25\tut25.vcxproj", "{328BC987-971E-434A-86C2-E1CA5E5B8326}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "9_texture_translation", "tut25\tut25.vcxproj", "{328BC987-971E-434A-86C2-E1CA5E5B8326}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "transparent", "tut26\tut26.vcxproj", "{D8A36B6B-C6BD-4533-AE26-471C2483744D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "11_transparent", "tut26\tut26.vcxproj", "{D8A36B6B-C6BD-4533-AE26-471C2483744D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "reflection", "tut27\tut27.vcxproj", "{883F550C-5C5A-4EDB-A604-7C63F68447A0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "15_reflection_demo", "tut27\tut27.vcxproj", "{883F550C-5C5A-4EDB-A604-7C63F68447A0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fading", "tut28\tut28.vcxproj", "{44562013-B007-4D53-A3A4-4A688ECFB370}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "21_fading", "tut28\tut28.vcxproj", "{44562013-B007-4D53-A3A4-4A688ECFB370}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "water_refraction", "tut29\tut29.vcxproj", "{1393D6D0-B1F7-4040-BB76-3ED125971133}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "16_water_refraction", "tut29\tut29.vcxproj", "{1393D6D0-B1F7-4040-BB76-3ED125971133}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multiple_point_light", "tut30\tut30.vcxproj", "{FCB39ABB-515D-4D02-9F60-F9C8327CA6B1}"
 EndProject
@@ -45,11 +45,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fire", "tut33\tut33.vcxproj
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "billbord_software", "tut34\tut34.vcxproj", "{C50FBC69-2612-4E83-9E7A-7C218D7D890E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "depth", "tut35\tut35.vcxproj", "{27546B5D-234B-4316-BD2D-75581B4EDE25}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "24_depth_buffer", "tut35\tut35.vcxproj", "{27546B5D-234B-4316-BD2D-75581B4EDE25}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "draw_instance", "tut37\tut37.vcxproj", "{B81BEF9A-CA93-465A-B479-5CDBA3C3B166}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tessellation", "tut38\tut38.vcxproj", "{1AC782E9-4B9D-4FD4-9BFD-3DDDAFB92112}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "23_draw_instance", "tut37\tut37.vcxproj", "{B81BEF9A-CA93-465A-B479-5CDBA3C3B166}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "particle", "tut39\tut39.vcxproj", "{497E9C60-DF64-4D63-A7CD-84F165FB325C}"
 EndProject
@@ -81,11 +79,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "1_Simple_movable_surface", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "2_alpha_map_demo", "2_alphamap_demo\tut19.vcxproj", "{270CCB35-6B9D-42C5-82F8-D92BE5A68427}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "3_blur_demo", "3_blur_demo\tut36.vcxproj", "{63C48593-72FD-48A8-B920-389D996A5C8F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "18_blur_demo", "3_blur_demo\tut36.vcxproj", "{63C48593-72FD-48A8-B920-389D996A5C8F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "4_box_with_ambient_light", "4_box_with_ambient_light\tut09.vcxproj", "{62D0C605-FB17-4178-9427-4765ED968AA9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "5box_with_specular_light", "5_box_with_specular_light\tut10.vcxproj", "{A939E50A-94EF-40D0-939B-0069485436A4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "5_box_with_specular_light", "5_box_with_specular_light\tut10.vcxproj", "{A939E50A-94EF-40D0-939B-0069485436A4}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "6_box_with_texture", "6_box_with_texture\tut07.vcxproj", "{F4E4B210-76E7-453E-91B4-9B4EB3E74F8B}"
 EndProject
@@ -281,14 +279,6 @@ Global
 		{B81BEF9A-CA93-465A-B479-5CDBA3C3B166}.Release|Win32.Build.0 = Release|Win32
 		{B81BEF9A-CA93-465A-B479-5CDBA3C3B166}.Release|x64.ActiveCfg = Release|x64
 		{B81BEF9A-CA93-465A-B479-5CDBA3C3B166}.Release|x64.Build.0 = Release|x64
-		{1AC782E9-4B9D-4FD4-9BFD-3DDDAFB92112}.Debug|Win32.ActiveCfg = Debug|Win32
-		{1AC782E9-4B9D-4FD4-9BFD-3DDDAFB92112}.Debug|Win32.Build.0 = Debug|Win32
-		{1AC782E9-4B9D-4FD4-9BFD-3DDDAFB92112}.Debug|x64.ActiveCfg = Debug|x64
-		{1AC782E9-4B9D-4FD4-9BFD-3DDDAFB92112}.Debug|x64.Build.0 = Debug|x64
-		{1AC782E9-4B9D-4FD4-9BFD-3DDDAFB92112}.Release|Win32.ActiveCfg = Release|Win32
-		{1AC782E9-4B9D-4FD4-9BFD-3DDDAFB92112}.Release|Win32.Build.0 = Release|Win32
-		{1AC782E9-4B9D-4FD4-9BFD-3DDDAFB92112}.Release|x64.ActiveCfg = Release|x64
-		{1AC782E9-4B9D-4FD4-9BFD-3DDDAFB92112}.Release|x64.Build.0 = Release|x64
 		{497E9C60-DF64-4D63-A7CD-84F165FB325C}.Debug|Win32.ActiveCfg = Debug|Win32
 		{497E9C60-DF64-4D63-A7CD-84F165FB325C}.Debug|Win32.Build.0 = Debug|Win32
 		{497E9C60-DF64-4D63-A7CD-84F165FB325C}.Debug|x64.ActiveCfg = Debug|x64

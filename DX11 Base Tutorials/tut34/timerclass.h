@@ -1,36 +1,24 @@
-
-// Filename: timerclass.h
-
-#ifndef _TIMERCLASS_H_
-#define _TIMERCLASS_H_
-
-
-
-
+#pragma once
 
 #include <windows.h>
 
-
-
-// Class name: TimerClass
-
-class TimerClass
-{
+class TimerClass {
 public:
-	TimerClass();
-	TimerClass(const TimerClass&);
-	~TimerClass();
+	TimerClass() {}
 
+	TimerClass(const TimerClass& rhs) = delete;
+
+	~TimerClass() {}
+public:
 	bool Initialize();
+
 	void Frame();
 
 	float GetTime();
-
 private:
-	INT64 m_frequency;
-	float m_ticksPerMs;
-	INT64 m_startTime;
-	float frame_time_;
-};
+	INT64 frequency_;
 
-#endif
+	float ticks_per_ms_, frame_time_;
+
+	INT64 start_time_;
+};

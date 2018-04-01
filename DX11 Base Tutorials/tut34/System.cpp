@@ -5,10 +5,6 @@
 #include "Graphics.h"
 #include "positionclass.h"
 
-System::System() {}
-
-System::~System() {}
-
 bool System::Initialize() {
 
 	ApplicationInstance = this;
@@ -33,8 +29,7 @@ bool System::Initialize() {
 
 	{
 		position_ = new PositionClass();
-		if (!position_)
-		{
+		if (!position_) {
 			return false;
 		}
 		position_->SetPosition(0.0f, 3.0f, -10.0f);
@@ -52,7 +47,7 @@ bool System::Frame() {
 	GetInputComponent().Frame();
 
 	float time = GetTimerComponent().GetTime();
-	
+
 	position_->SetFrameTime(time);
 
 	keyDown = GetInputComponent().IsLeftArrowPressed();
@@ -94,23 +89,22 @@ void System::Shutdown() {
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam) {
 
-	switch (umessage)
-	{
-	case WM_DESTROY:
-	{
-		PostQuitMessage(0);
-		return 0;
-	}
+	switch (umessage) {
+		case WM_DESTROY:
+		{
+			PostQuitMessage(0);
+			return 0;
+		}
 
-	case WM_CLOSE:
-	{
-		PostQuitMessage(0);
-		return 0;
-	}
+		case WM_CLOSE:
+		{
+			PostQuitMessage(0);
+			return 0;
+		}
 
-	default:
-	{
-		return ApplicationInstance->MessageHandler(hwnd, umessage, wparam, lparam);
-	}
+		default:
+		{
+			return ApplicationInstance->MessageHandler(hwnd, umessage, wparam, lparam);
+		}
 	}
 }
