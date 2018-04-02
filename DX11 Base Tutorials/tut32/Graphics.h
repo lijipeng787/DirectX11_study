@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -12,13 +11,13 @@ class GlassShaderClass;
 
 class GraphicsClass :public GraphicsBase {
 public:
-	GraphicsClass();
+	GraphicsClass() {}
 
 	GraphicsClass(const GraphicsClass& rhs) = delete;
 
 	GraphicsClass& operator=(const GraphicsClass& rhs) = delete;
 
-	virtual ~GraphicsClass();
+	virtual ~GraphicsClass() {}
 public:
 	virtual bool Initialize(int, int, HWND)override;
 
@@ -32,19 +31,15 @@ private:
 private:
 	float rotation_ = 0.0f;
 
-	
-
 	Camera *camera_ = nullptr;
 
 	ModelClass* model_;
 
-	ModelClass* m_WindowModel;
+	ModelClass* window_model_;
 
 	RenderTextureClass* render_texture_;
 
 	TextureShaderClass* texture_shader_;
 
-	GlassShaderClass* m_GlassShader;
+	GlassShaderClass* glass_shader_;
 };
-
-#endif

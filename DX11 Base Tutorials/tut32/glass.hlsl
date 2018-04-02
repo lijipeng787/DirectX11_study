@@ -1,10 +1,45 @@
+cbuffer MatrixBuffer
+{
+	matrix worldMatrix;
+	matrix viewMatrix;
+	matrix projectionMatrix;
+};
 
-// Filename: glass.ps
+struct VertexInputType
+{
+    float4 position : POSITION;
+    float2 tex : TEXCOORD0;
+};
 
+struct PixelInputType
+{
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
+    float4 refractionPosition : TEXCOORD1;
+};
 
+PixelInputType GlassVertexShader(VertexInputType input)
+{
+    PixelInputType output;
+	matrix viewProjectWorld;
 
+    input.position.w = 1.0f;
 
+    output.position = mul(input.position, worldMatrix);
+    output.position = mul(output.position, viewMatrix);
+    output.position = mul(output.position, projectionMatrix);
+    	
+	output.tex = input.tex;
+    
+	// Create the view projection world matrix for refraction.
+    viewProjectWorld = mul(viewMatrix, projectionMatrix);
+    viewProjectWorld = mul(worldMatrix, viewProjectWorld);
+   
+    // Calculate the input position against the viewProjectWorld matrix.
+    output.refractionPosition = mul(input.position, viewProjectWorld);
 
+    return output;
+}
 
 SamplerState SampleType;
 Texture2D colorTexture : register(t0);
@@ -17,21 +52,6 @@ cbuffer GlassBuffer
     float3 padding;
 };
 
-
-
-
-
-struct PixelInputType
-{
-    float4 position : SV_POSITION;
-    float2 tex : TEXCOORD0;
-    float4 refractionPosition : TEXCOORD1;
-};
-
-
-
-
-
 float4 GlassPixelShader(PixelInputType input) : SV_TARGET
 {
 	float2 refractTexCoord;
@@ -41,7 +61,6 @@ float4 GlassPixelShader(PixelInputType input) : SV_TARGET
 	float4 textureColor;
 	float4 color;
 
-	
 	// Calculate the projected refraction texture coordinates.
     refractTexCoord.x = input.refractionPosition.x / input.refractionPosition.w / 2.0f + 0.5f;
     refractTexCoord.y = -input.refractionPosition.y / input.refractionPosition.w / 2.0f + 0.5f;

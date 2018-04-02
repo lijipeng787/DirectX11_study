@@ -1,35 +1,20 @@
-
-
-
-
-
-
-
-
-
+#pragma once
 
 #include <d3d11.h>
-#include <DDSTextureLoader.h>
-using namespace DirectX;
 
-
-
-
-
-class TextureClass
-{
+class TextureClass {
 public:
-	TextureClass();
-	TextureClass(const TextureClass&);
-	~TextureClass();
+	TextureClass() {}
 
+	TextureClass(const TextureClass&) = delete;
+
+	~TextureClass() {}
+public:
 	bool Initialize(WCHAR*);
+
 	void Shutdown();
 
 	ID3D11ShaderResourceView* GetTexture();
-
 private:
-	ID3D11ShaderResourceView* texture_;
+	ID3D11ShaderResourceView * texture_ = nullptr;
 };
-
-#endif

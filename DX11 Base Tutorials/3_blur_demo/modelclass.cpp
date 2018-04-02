@@ -62,12 +62,12 @@ ID3D11ShaderResourceView* ModelClass::GetTexture() {
 
 bool ModelClass::InitializeBuffers() {
 
-	auto auto vertices = new VertexType[vertex_count_];
+	auto vertices = new VertexType[vertex_count_];
 	if (!vertices) {
 		return false;
 	}
 
-	auto auto indices = new unsigned long[index_count_];
+	auto indices = new unsigned long[index_count_];
 	if (!indices) {
 		return false;
 	}

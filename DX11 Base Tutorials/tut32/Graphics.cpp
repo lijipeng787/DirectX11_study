@@ -12,9 +12,7 @@
 #include "textureshaderclass.h"
 #include "glassshaderclass.h"
 
-GraphicsClass::GraphicsClass() {}
-
-GraphicsClass::~GraphicsClass() {}
+using namespace DirectX;
 
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
@@ -22,11 +20,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	XMMATRIX baseViewMatrix;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -55,11 +51,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 			return false;
 		}
 
-		m_WindowModel = new ModelClass();
-		if (!m_WindowModel) {
+		window_model_ = new ModelClass();
+		if (!window_model_) {
 			return false;
 		}
-		result = m_WindowModel->Initialize("../../tut32/data/square.txt", L"../../tut32/data/glass01.dds", L"../../tut32/data/bump03.dds");
+		result = window_model_->Initialize("../../tut32/data/square.txt", L"../../tut32/data/glass01.dds", L"../../tut32/data/bump03.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the window model object.", L"Error", MB_OK);
 			return false;
@@ -91,12 +87,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 
 	{
-		m_GlassShader = (GlassShaderClass*)_aligned_malloc(sizeof(GlassShaderClass), 16);
-		new (m_GlassShader)GlassShaderClass();
-		if (!m_GlassShader) {
+		glass_shader_ = (GlassShaderClass*)_aligned_malloc(sizeof(GlassShaderClass), 16);
+		new (glass_shader_)GlassShaderClass();
+		if (!glass_shader_) {
 			return false;
 		}
-		result = m_GlassShader->Initialize(hwnd);
+		result = glass_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the glass shader object.", L"Error", MB_OK);
 			return false;
@@ -108,43 +104,33 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
 void GraphicsClass::Shutdown() {
 
-	// Release the glass shader object.
-	if (m_GlassShader)
-	{
-		m_GlassShader->Shutdown();
-		m_GlassShader->~GlassShaderClass();
-		_aligned_free(m_GlassShader);
-		m_GlassShader = 0;
+	if (glass_shader_) {
+		glass_shader_->Shutdown();
+		glass_shader_->~GlassShaderClass();
+		_aligned_free(glass_shader_);
+		glass_shader_ = 0;
 	}
 
-	
-	if (texture_shader_)
-	{
+	if (texture_shader_) {
 		texture_shader_->Shutdown();
 		texture_shader_->~TextureShaderClass();
 		_aligned_free(texture_shader_);
 		texture_shader_ = 0;
 	}
 
-	
-	if (render_texture_)
-	{
+	if (render_texture_) {
 		render_texture_->Shutdown();
 		delete render_texture_;
 		render_texture_ = 0;
 	}
 
-	// Release the window model object.
-	if (m_WindowModel)
-	{
-		m_WindowModel->Shutdown();
-		delete m_WindowModel;
-		m_WindowModel = 0;
+	if (window_model_) {
+		window_model_->Shutdown();
+		delete window_model_;
+		window_model_ = 0;
 	}
 
-
-	if (model_)
-	{
+	if (model_) {
 		model_->Shutdown();
 		delete model_;
 		model_ = nullptr;
@@ -155,19 +141,11 @@ void GraphicsClass::Shutdown() {
 		_aligned_free(camera_);
 		camera_ = nullptr;
 	}
-
-	
-		
-		
-		
-	}
 }
 
 bool GraphicsClass::Frame() {
 
 	static float rotation_ = 0.0f;
-	bool result;
-
 
 	// Update the rotation_ variable each frame.
 	rotation_ += (float)XM_PI * 0.005f;
@@ -176,11 +154,10 @@ bool GraphicsClass::Frame() {
 	}
 	rotation_ = rotation_;
 
-
 	camera_->SetPosition(0.0f, 0.0f, -10.0f);
 
 	// Render the scene to texture first.
-	result = RenderToTexture(rotation_);
+	auto result = RenderToTexture(rotation_);
 	if (!result) {
 		return false;
 	}
@@ -196,44 +173,45 @@ bool GraphicsClass::Frame() {
 
 bool GraphicsClass::RenderToTexture(float rotation_) {
 
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	bool result;
+	auto directx_device = DirectX11Device::GetD3d11DeviceInstance();
 
-	render_texture_->SetRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView());
+	render_texture_->SetRenderTarget(directx_device->GetDepthStencilView());
 
-	render_texture_->ClearRenderTarget(directx_device_->GetDeviceContext(), directx_device_->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
+	render_texture_->ClearRenderTarget(directx_device->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+
+	directx_device->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetProjectionMatrix(projectionMatrix);
+	directx_device->GetProjectionMatrix(projectionMatrix);
 
 	worldMatrix = XMMatrixRotationY(rotation_);
 
-	model_->Render(directx_device_->GetDeviceContext());
+	model_->Render();
 
-	result = texture_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, model_->GetTexture());
+	auto result = texture_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, model_->GetTexture());
 	if (!result) {
 		return false;
 	}
 
-	directx_device_->SetBackBufferRenderTarget();
+	directx_device->SetBackBufferRenderTarget();
 
 	return true;
 }
 
 bool GraphicsClass::Render() {
 
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	float refractionScale;
-	bool result;
+	float refractionScale = 0.01f;
 
-	refractionScale = 0.01f;
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
 	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
+
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 
 	directx_device_->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
@@ -241,10 +219,10 @@ bool GraphicsClass::Render() {
 
 	worldMatrix = XMMatrixRotationY(rotation_);
 
-	model_->Render(directx_device_->GetDeviceContext());
+	model_->Render();
 
-	result = texture_shader_->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		model_->GetTexture());
+	auto result = texture_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+										  model_->GetTexture());
 	if (!result) {
 		return false;
 	}
@@ -253,11 +231,11 @@ bool GraphicsClass::Render() {
 
 	worldMatrix = XMMatrixTranslation(0.0f, 0.0f, -1.5f);
 
-	m_WindowModel->Render(directx_device_->GetDeviceContext());
+	window_model_->Render();
 
-	result = m_GlassShader->Render(directx_device_->GetDeviceContext(), m_WindowModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_WindowModel->GetTexture(), m_WindowModel->GetNormalMap(), render_texture_->GetShaderResourceView(),
-		refractionScale);
+	result = glass_shader_->Render(window_model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+								   window_model_->GetTexture(), window_model_->GetNormalMap(), render_texture_->GetShaderResourceView(),
+								   refractionScale);
 	if (!result) {
 		return false;
 	}
