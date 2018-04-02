@@ -1,7 +1,7 @@
-#include <DDSTextureLoader.h>
-
-#include "../CommonFramework/DirectX11Device.h"
 #include "textureclass.h"
+#include "../CommonFramework/DirectX11Device.h"
+
+#include <DDSTextureLoader.h>
 
 using namespace DirectX;
 

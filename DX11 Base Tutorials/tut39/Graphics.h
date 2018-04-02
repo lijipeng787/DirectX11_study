@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -11,13 +10,13 @@ class ParticleSystemClass;
 
 class GraphicsClass :public GraphicsBase {
 public:
-	GraphicsClass();
+	GraphicsClass() {}
 
 	GraphicsClass(const GraphicsClass& rhs) = delete;
 
 	GraphicsClass& operator=(const GraphicsClass& rhs) = delete;
 
-	virtual ~GraphicsClass();
+	virtual ~GraphicsClass() {}
 public:
 	virtual bool Initialize(int, int, HWND)override;
 
@@ -27,21 +26,17 @@ public:
 
 	virtual bool Render()override;
 public:
-	void SetFrameTime(float frame_time) {
+	inline void SetFrameTime(float frame_time) {
 		frame_time_ = frame_time;
 	}
 private:
 	float frame_time_ = 0.0f;
 
-	
-
 	Camera *camera_ = nullptr;
 
 	ModelClass* model_ = nullptr;
 
-	ParticleShaderClass* m_ParticleShader;
+	ParticleShaderClass* particle_shader_;
 
-	ParticleSystemClass* m_ParticleSystem;
+	ParticleSystemClass* particle_system_;
 };
-
-#endif

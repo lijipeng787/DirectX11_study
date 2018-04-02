@@ -51,10 +51,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="particle.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="particle.ps">
+    <None Include="particle.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

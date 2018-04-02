@@ -10,20 +10,16 @@
 #include "particleshaderclass.h"
 #include "particlesystemclass.h"
 
-GraphicsClass::GraphicsClass() {}
-
-GraphicsClass::~GraphicsClass() {}
+using namespace DirectX;
 
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 
 	bool result;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -40,32 +36,28 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 		camera_->Render();
 	}
 
-	// Create the particle shader object.
-	m_ParticleShader = ( ParticleShaderClass* )_aligned_malloc( sizeof( ParticleShaderClass ), 16 );
-	new ( m_ParticleShader )ParticleShaderClass();
-	if(!m_ParticleShader)
+	particle_shader_ = ( ParticleShaderClass* )_aligned_malloc( sizeof( ParticleShaderClass ), 16 );
+	new ( particle_shader_ )ParticleShaderClass();
+	if(!particle_shader_)
 	{
 		return false;
 	}
 
-	// Initialize the particle shader object.
-	result = m_ParticleShader->Initialize(hwnd);
+	result = particle_shader_->Initialize(hwnd);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// Create the particle system object.
-	m_ParticleSystem = ( ParticleSystemClass* )_aligned_malloc( sizeof( ParticleSystemClass ), 16 );
-	new ( m_ParticleSystem )ParticleSystemClass();
-	if(!m_ParticleSystem)
+	particle_system_ = ( ParticleSystemClass* )_aligned_malloc( sizeof( ParticleSystemClass ), 16 );
+	new ( particle_system_ )ParticleSystemClass();
+	if(!particle_system_)
 	{
 		return false;
 	}
 
-	// Initialize the particle system object.
-	result = m_ParticleSystem->Initialize(L"../../tut39/data/star.dds");
+	result = particle_system_->Initialize(L"../../tut39/data/star.dds");
 	if(!result)
 	{
 		return false;
@@ -76,22 +68,20 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 
 void GraphicsClass::Shutdown() {
 
-	// Release the particle system object.
-	if (m_ParticleSystem)
+	if (particle_system_)
 	{
-		m_ParticleSystem->Shutdown();
-		m_ParticleSystem->~ParticleSystemClass();
-		_aligned_free(m_ParticleSystem);
-		m_ParticleSystem = 0;
+		particle_system_->Shutdown();
+		particle_system_->~ParticleSystemClass();
+		_aligned_free(particle_system_);
+		particle_system_ = 0;
 	}
 
-	// Release the particle shader object.
-	if (m_ParticleShader)
+	if (particle_shader_)
 	{
-		m_ParticleShader->Shutdown();
-		m_ParticleShader->~ParticleShaderClass();
-		_aligned_free(m_ParticleShader);
-		m_ParticleShader = 0;
+		particle_shader_->Shutdown();
+		particle_shader_->~ParticleShaderClass();
+		_aligned_free(particle_shader_);
+		particle_shader_ = 0;
 	}
 
 	if (camera_) {
@@ -99,21 +89,13 @@ void GraphicsClass::Shutdown() {
 		_aligned_free(camera_);
 		camera_ = nullptr;
 	}
-
-	
-		
-		
-		
-	}
 }
 
 bool GraphicsClass::Frame() {
 
-	bool result;
+	particle_system_->Frame(frame_time_);
 
-	m_ParticleSystem->Frame(frame_time_, directx_device_->GetDeviceContext());
-
-	result = Render();
+	auto result = Render();
 	if (!result) {
 		return false;
 	}
@@ -123,30 +105,31 @@ bool GraphicsClass::Frame() {
 
 bool GraphicsClass::Render() {
 
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	bool result;
+	auto directx_device = DirectX11Device::GetD3d11DeviceInstance();
 
-	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	directx_device->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetWorldMatrix(worldMatrix);
-	directx_device_->GetProjectionMatrix(projectionMatrix);
+	directx_device->GetWorldMatrix(worldMatrix);
+	directx_device->GetProjectionMatrix(projectionMatrix);
 
-	directx_device_->TurnOnAlphaBlending();
+	directx_device->TurnOnAlphaBlending();
 
-	m_ParticleSystem->Render(directx_device_->GetDeviceContext());
+	particle_system_->Render();
 
-	result = m_ParticleShader->Render(directx_device_->GetDeviceContext(), m_ParticleSystem->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_ParticleSystem->GetTexture());
+	auto result = particle_shader_->Render(particle_system_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		particle_system_->GetTexture());
 	if (!result) {
 		return false;
 	}
 
-	directx_device_->TurnOffAlphaBlending();
+	directx_device->TurnOffAlphaBlending();
 
-	directx_device_->EndScene();
+	directx_device->EndScene();
 
 	return true;
 }

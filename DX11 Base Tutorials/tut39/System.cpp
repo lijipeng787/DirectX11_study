@@ -4,10 +4,6 @@
 #include "../CommonFramework/Input.h"
 #include "Graphics.h"
 
-System::System() {}
-
-System::~System() {}
-
 bool System::Initialize() {
 
 	ApplicationInstance = this;
