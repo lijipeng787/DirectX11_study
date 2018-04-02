@@ -10,9 +10,7 @@
 #include "modelclass.h"
 #include "fireshaderclass.h"
 
-GraphicsClass::GraphicsClass() {}
-
-GraphicsClass::~GraphicsClass() {}
+using namespace DirectX;
 
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 
@@ -20,11 +18,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 	XMMATRIX baseViewMatrix;
 
 	{
-		directx_device_ = new DirectX11Device;
-		if (!directx_device_) {
-			return false;
-		}
-		result = directx_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+		auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+		auto result = directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 			return false;
@@ -48,7 +44,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 			return false;
 		}
 		result = model_->Initialize(
-			
 			"../../tut33/data/square.txt", 
 			L"../../tut33/data/fire01.dds",
 			L"../../tut33/data/noise01.dds", 
@@ -61,12 +56,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 	}
 
 	{
-		m_FireShader = (FireShaderClass*)_aligned_malloc(sizeof(FireShaderClass), 16);
-		new (m_FireShader)FireShaderClass();
-		if (!m_FireShader) {
+		fire_shader_ = (FireShaderClass*)_aligned_malloc(sizeof(FireShaderClass), 16);
+		new (fire_shader_)FireShaderClass();
+		if (!fire_shader_) {
 			return false;
 		}
-		result = m_FireShader->Initialize(hwnd);
+		result = fire_shader_->Initialize(hwnd);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the fire shader object.", L"Error", MB_OK);
 			return false;
@@ -78,14 +73,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd){
 
 void GraphicsClass::Shutdown() {
 
-	// Release the fire shader object.
-	if (m_FireShader)
+	if (fire_shader_)
 	{
-		m_FireShader->Shutdown();
-		m_FireShader->~FireShaderClass();
-		m_FireShader = 0;
+		fire_shader_->Shutdown();
+		fire_shader_->~FireShaderClass();
+		fire_shader_ = 0;
 	}
-
 
 	if (model_)
 	{
@@ -99,23 +92,13 @@ void GraphicsClass::Shutdown() {
 		_aligned_free(camera_);
 		camera_ = nullptr;
 	}
-
-	
-		
-		
-		
-	}
 }
 
 bool GraphicsClass::Frame() {
 
-	bool result;
-
-
 	camera_->SetPosition(0.0f, 0.0f, -10.0f);
 
-	// Render the scene.
-	result = Render();
+	auto result = Render();
 	if (!result) {
 		return false;
 	}
@@ -125,11 +108,6 @@ bool GraphicsClass::Frame() {
 
 bool GraphicsClass::Render() {
 
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	bool result;
-	XMFLOAT3 scrollSpeeds, scales;
-	XMFLOAT2 distortion1, distortion2, distortion3;
-	float distortionScale, distortionBias;
 	static float frameTime = 0.0f;
 
 	frameTime += 0.01f;
@@ -137,30 +115,34 @@ bool GraphicsClass::Render() {
 		frameTime = 0.0f;
 	}
 
-	scrollSpeeds = XMFLOAT3(1.3f, 2.1f, 2.3f);
+	XMFLOAT3 scrollSpeeds = XMFLOAT3(1.3f, 2.1f, 2.3f);
 
-	scales = XMFLOAT3(1.0f, 2.0f, 3.0f);
+	XMFLOAT3 scales = XMFLOAT3(1.0f, 2.0f, 3.0f);
 
-	distortion1 = XMFLOAT2(0.1f, 0.2f);
-	distortion2 = XMFLOAT2(0.1f, 0.3f);
-	distortion3 = XMFLOAT2(0.1f, 0.1f);
+	XMFLOAT2 distortion1 = XMFLOAT2(0.1f, 0.2f);
+	XMFLOAT2 distortion2 = XMFLOAT2(0.1f, 0.3f);
+	XMFLOAT2 distortion3 = XMFLOAT2(0.1f, 0.1f);
 
-	distortionScale = 0.8f;
-	distortionBias = 0.5f;
+	float distortionScale = 0.8f;
+	float distortionBias = 0.5f;
+
+	auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
 	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+	
 	directx_device_->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
 	directx_device_->GetProjectionMatrix(projectionMatrix);
 
 	directx_device_->TurnOnAlphaBlending();
 
-	model_->Render(directx_device_->GetDeviceContext());
+	model_->Render();
 
-	result = m_FireShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+	auto result = fire_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		model_->GetTexture1(), model_->GetTexture2(), model_->GetTexture3(), frameTime, scrollSpeeds,
 		scales, distortion1, distortion2, distortion3, distortionScale, distortionBias);
 	if (!result) {
