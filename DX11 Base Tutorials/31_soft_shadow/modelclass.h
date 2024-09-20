@@ -1,78 +1,58 @@
 
+#pragma once
 
-
-
-
-
-
-
-
-
-#include <d3d11.h>
 #include <DirectXMath.h>
+#include <d3d11.h>
 #include <fstream>
 using namespace std;
 using namespace DirectX;
 
-
-
-
-
 #include "textureclass.h"
 
-
-
-
-
-class ModelClass
-{
+class ModelClass {
 private:
-	struct VertexType
-	{
-		XMFLOAT3 position;
-	    XMFLOAT2 texture;
-		XMFLOAT3 normal;
-	};
+  struct VertexType {
+    XMFLOAT3 position;
+    XMFLOAT2 texture;
+    XMFLOAT3 normal;
+  };
 
-	struct ModelType
-	{
-		float x, y, z;
-		float tu, tv;
-		float nx, ny, nz;
-	};
+  struct ModelType {
+    float x, y, z;
+    float tu, tv;
+    float nx, ny, nz;
+  };
 
 public:
-	ModelClass();
-	ModelClass(const ModelClass&);
-	~ModelClass();
+  ModelClass();
+  ModelClass(const ModelClass &);
+  ~ModelClass();
 
-	bool Initialize(char*, WCHAR*);
-	void Shutdown();
-	void Render(ID3D11DeviceContext*);
+  bool Initialize(char *, WCHAR *);
+  void Shutdown();
+  void Render();
 
-	int GetIndexCount();
-	ID3D11ShaderResourceView* GetTexture();
+  int GetIndexCount();
+  ID3D11ShaderResourceView *GetTexture();
 
-	void SetPosition(float, float, float);
-	void GetPosition(float&, float&, float&);
-
-private:
-	bool InitializeBuffers(ID3D11Device*);
-	void ShutdownBuffers();
-	void RenderBuffers(ID3D11DeviceContext*);
-
-	bool LoadTexture(WCHAR*);
-	void ReleaseTexture();
-
-	bool LoadModel(char*);
-	void ReleaseModel();
+  void SetPosition(float, float, float);
+  void GetPosition(float &, float &, float &);
 
 private:
-	ID3D11Buffer *vertex_buffer_, *index_buffer_;
-	int vertex_count_, index_count_;
-	TextureClass* texture_;
-	ModelType* model_;
-	float position_x_, position_y_, position_z_;
+  bool InitializeBuffers();
+  void ShutdownBuffers();
+  void RenderBuffers();
+
+  bool LoadTexture(WCHAR *);
+  void ReleaseTexture();
+
+  bool LoadModel(char *);
+  void ReleaseModel();
+
+private:
+  ID3D11Buffer *vertex_buffer_, *index_buffer_;
+  int vertex_count_, index_count_;
+  TextureClass *texture_;
+  ModelType *model_;
+  float position_x_, position_y_, position_z_;
 };
-
-#endif

@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -19,79 +18,81 @@ class VerticalBlurShaderClass;
 class SoftShadowShaderClass;
 class TextureShaderClass;
 
-class GraphicsClass :public GraphicsBase {
+class GraphicsClass : public GraphicsBase {
 public:
-	GraphicsClass();
+  GraphicsClass();
 
-	GraphicsClass(const GraphicsClass& rhs) = delete;
+  GraphicsClass(const GraphicsClass &rhs) = delete;
 
-	GraphicsClass& operator=(const GraphicsClass& rhs) = delete;
+  GraphicsClass &operator=(const GraphicsClass &rhs) = delete;
 
-	virtual ~GraphicsClass();
+  virtual ~GraphicsClass();
+
 public:
-	virtual bool Initialize(int, int, HWND)override;
+  virtual bool Initialize(int, int, HWND) override;
 
-	virtual void Shutdown()override;
+  virtual void Shutdown() override;
 
-	virtual bool Frame()override;
+  virtual void Frame(float deltatime) override;
 
-	virtual bool Render()override;
+  virtual void Render() override;
+
 public:
-	void SetPosition(float x, float y, float z) {
-		pos_x_ = x;
-		pos_y_ = y;
-		pos_z_ = z;
-	}
+  void SetPosition(float x, float y, float z) {
+    pos_x_ = x;
+    pos_y_ = y;
+    pos_z_ = z;
+  }
 
-	void SetRotation(float x, float y, float z) {
-		rot_x_ = x;
-		rot_y_ = y;
-		rot_z_ = z;
-	}
+  void SetRotation(float x, float y, float z) {
+    rot_x_ = x;
+    rot_y_ = y;
+    rot_z_ = z;
+  }
+
 private:
-	bool RenderSceneToTexture();
+  bool RenderSceneToTexture();
 
-	bool RenderBlackAndWhiteShadows();
+  bool RenderBlackAndWhiteShadows();
 
-	bool DownSampleTexture();
+  bool DownSampleTexture();
 
-	bool RenderHorizontalBlurToTexture();
+  bool RenderHorizontalBlurToTexture();
 
-	bool RenderVerticalBlurToTexture();
+  bool RenderVerticalBlurToTexture();
 
-	bool UpSampleTexture();
+  bool UpSampleTexture();
 
-	bool RenderSceneToTexture2();
+  bool RenderSceneToTexture2();
+
 private:
-	float pos_x_ = 0.0f, pos_y_ = 0.0f, pos_z_ = 0.0f;
+  float pos_x_ = 0.0f, pos_y_ = 0.0f, pos_z_ = 0.0f;
 
-	float rot_x_ = 0.0f, rot_y_ = 0.0f, rot_z_ = 0.0f;
+  float rot_x_ = 0.0f, rot_y_ = 0.0f, rot_z_ = 0.0f;
 
-	
+  Camera *camera_ = nullptr;
 
-	Camera *camera_ = nullptr;
+  ModelClass *m_CubeModel, *m_GroundModel, *m_SphereModel;
 
-	ModelClass *m_CubeModel, *m_GroundModel, *m_SphereModel;
+  LightClass *light_;
 
-	LightClass* light_;
+  RenderTextureClass *render_texture_, *m_BlackWhiteRenderTexture,
+      *m_DownSampleTexure;
 
-	RenderTextureClass *render_texture_, *m_BlackWhiteRenderTexture, *m_DownSampleTexure;
+  RenderTextureClass *m_HorizontalBlurTexture, *m_VerticalBlurTexture,
+      *m_UpSampleTexure;
 
-	RenderTextureClass *m_HorizontalBlurTexture, *m_VerticalBlurTexture, *m_UpSampleTexure;
+  DepthShaderClass *depth_shader_;
 
-	DepthShaderClass* depth_shader_;
+  ShadowShaderClass *m_ShadowShader;
 
-	ShadowShaderClass* m_ShadowShader;
+  OrthoWindowClass *m_SmallWindow, *m_FullScreenWindow;
 
-	OrthoWindowClass *m_SmallWindow, *m_FullScreenWindow;
+  TextureShaderClass *texture_shader_;
 
-	TextureShaderClass* texture_shader_;
+  HorizontalBlurShaderClass *m_HorizontalBlurShader;
 
-	HorizontalBlurShaderClass* m_HorizontalBlurShader;
+  VerticalBlurShaderClass *m_VerticalBlurShader;
 
-	VerticalBlurShaderClass* m_VerticalBlurShader;
-
-	SoftShadowShaderClass* m_SoftShadowShader;
+  SoftShadowShaderClass *m_SoftShadowShader;
 };
-
-#endif

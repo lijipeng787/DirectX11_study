@@ -9,23 +9,23 @@
 
 class RenderPipeline {
 public:
-    RenderPipeline() = default;
+  RenderPipeline() = default;
 
-    RenderPipeline(const RenderPipeline&) = delete;
+  RenderPipeline(const RenderPipeline &) = delete;
 
-    RenderPipeline& operator=(const RenderPipeline&) = delete;
+  RenderPipeline &operator=(const RenderPipeline &) = delete;
 
-    ~RenderPipeline() = default;
+  ~RenderPipeline() = default;
 
 public:
-    bool Initialize(HWND hwnd);
-    
-    void Shutdown();
-    
-    bool Render(const Scene& scene) const;
+  bool Initialize(HWND hwnd);
 
-    void SetShader(std::unique_ptr<IShader> shader);
+  void Shutdown();
+
+  bool Render(const Scene &scene) const;
+
+  void SetShader(std::unique_ptr<IShader> shader);
 
 private:
-    std::unique_ptr<IShader> shader_;
+  std::unique_ptr<IShader> shader_;
 };

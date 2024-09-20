@@ -9,12 +9,12 @@
 
 class RenderSystem {
 public:
-    bool Initialize(HWND hwnd);
+  bool Initialize(HWND hwnd);
 
-    void Shutdown();
-    
-    void Render(const Scene& scene);
+  void Shutdown();
+
+  void Render(const Scene &scene);
 
 private:
-    std::unique_ptr<RenderPipeline> pipeline_;
+  std::unique_ptr<RenderPipeline> pipeline_;
 };

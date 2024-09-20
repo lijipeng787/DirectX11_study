@@ -5,25 +5,25 @@
 
 class TextureClass {
 public:
-    explicit TextureClass() = default;
+  explicit TextureClass() = default;
 
-    TextureClass(const TextureClass&) = delete;
+  TextureClass(const TextureClass &) = delete;
 
-    TextureClass& operator=(const TextureClass&) = delete;
+  TextureClass &operator=(const TextureClass &) = delete;
 
-    TextureClass(TextureClass&&) noexcept = default;
+  TextureClass(TextureClass &&) noexcept = default;
 
-    TextureClass& operator=(TextureClass&&) noexcept = default;
+  TextureClass &operator=(TextureClass &&) noexcept = default;
 
-    virtual ~TextureClass() = default;
+  virtual ~TextureClass() = default;
 
 public:
-    bool Initialize(const WCHAR* filename);
+  bool Initialize(const WCHAR *filename);
 
-    void Shutdown();
+  void Shutdown();
 
-    ID3D11ShaderResourceView* GetTexture() const;
+  ID3D11ShaderResourceView *GetTexture() const;
 
 private:
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture_;
+  Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture_;
 };
