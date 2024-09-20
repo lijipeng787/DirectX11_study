@@ -11,6 +11,7 @@ public:
 	Cpu& operator=(const Cpu& rhs) = delete;
 	
 	~Cpu() {}
+
 public:
 	void Initialize();
 	
@@ -19,14 +20,15 @@ public:
 	void Frame();
 	
 	int GetCpuPercentage();
+
 private:
-	bool can_read_cpu_;
+	bool can_read_cpu_ = false;
 	
-	HQUERY query_handle_;
+	HQUERY query_handle_{};
 	
-	HCOUNTER counter_handle_;
+	HCOUNTER counter_handle_{};
 	
-	unsigned long last_sample_time_;
+	unsigned long last_sample_time_ = 0;
 	
-	long cpu_usage_;
+	long cpu_usage_ = 0;
 };

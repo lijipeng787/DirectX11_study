@@ -1,23 +1,7 @@
-
-// Filename: projection.ps
-
-
-
-
-// TEXTURES //
-
 Texture2D shaderTexture : register(t0);
 Texture2D projectionTexture : register(t1);
 
-
-
-// SAMPLERS //
-
 SamplerState SampleType;
-
-
-
-// CONSTANT BUFFERS //
 
 cbuffer LightBuffer
 {
@@ -27,10 +11,6 @@ cbuffer LightBuffer
 	float padding;
 };
 
-
-
-
-
 struct PixelInputType
 {
     float4 position : SV_POSITION;
@@ -38,10 +18,6 @@ struct PixelInputType
 	float3 normal : NORMAL;
     float4 viewPosition : TEXCOORD1;
 };
-
-
-
-
 
 float4 ProjectionPixelShader(PixelInputType input) : SV_TARGET
 {
@@ -52,10 +28,7 @@ float4 ProjectionPixelShader(PixelInputType input) : SV_TARGET
 	float2 projectTexCoord;
 	float4 projectionColor;
 
-
-
     color = ambientColor;
-
 
     lightDir = -lightDirection;
 
@@ -70,7 +43,6 @@ float4 ProjectionPixelShader(PixelInputType input) : SV_TARGET
 
 	// Saturate the light color.
 	color = saturate(color);
-
 	
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 

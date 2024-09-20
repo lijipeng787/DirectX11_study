@@ -38,7 +38,7 @@ bool DirectX11Device::Initialize(
 	if (FAILED(result)) {
 		return false;
 	}
-	
+
 	DXGI_MODE_DESC* displayModeList = nullptr;
 	displayModeList = new DXGI_MODE_DESC[numModes];
 	if (!displayModeList) {
@@ -126,7 +126,7 @@ bool DirectX11Device::Initialize(
 	ZeroMemory(&featureLevel, sizeof(featureLevel));
 	featureLevel = D3D_FEATURE_LEVEL_11_0;
 
-	result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &featureLevel, 1,
+	result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_WARP, NULL, 0, &featureLevel, 1,
 		D3D11_SDK_VERSION, &swapChainDesc, &swap_chain_, &device_, NULL, &device_context_);
 	if (FAILED(result)) {
 		return false;
@@ -257,7 +257,7 @@ bool DirectX11Device::Initialize(
 	viewport_.TopLeftY = 0.0f;
 
 	device_context_->RSSetViewports(1, &viewport_);
-	
+
 	float fieldOfView = 0.0f, screenAspect = 0.0f;
 	{
 		fieldOfView = (float)XM_PI / 4.0f;
@@ -288,7 +288,7 @@ bool DirectX11Device::Initialize(
 	depthDisabledStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 	result = device_->CreateDepthStencilState(&depthDisabledStencilDesc, &depth_disabled_stencil_state_);
-	if (FAILED(result)){
+	if (FAILED(result)) {
 		return false;
 	}
 
@@ -305,35 +305,35 @@ bool DirectX11Device::Initialize(
 	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
 
 	// For particle effect
-	//blendStateDescription.AlphaToCoverageEnable = TRUE;
-	//blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
-	//blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-	//blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
-	//blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	//blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	//blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-	//blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	//blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
-
-	// For transparency
-	//blendStateDescription.AlphaToCoverageEnable = TRUE;
-	//blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
-	//blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-	//blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	//blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	//blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	//blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-	//blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	//blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+	blendStateDescription.AlphaToCoverageEnable = TRUE;
+	blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
+	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
 
 	result = device_->CreateBlendState(&blendStateDescription, &alpha_enable_blending_state_);
-	if (FAILED(result)){
+	if (FAILED(result)) {
 		return false;
 	}
 
+	// For transparency
+	blendStateDescription.AlphaToCoverageEnable = TRUE;
+	blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
+	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+
 	blendStateDescription.RenderTarget[0].BlendEnable = FALSE;
 	result = device_->CreateBlendState(&blendStateDescription, &alpha_disable_blending_state_);
-	if (FAILED(result)){
+	if (FAILED(result)) {
 		return false;
 	}
 
@@ -437,7 +437,7 @@ void DirectX11Device::TurnZBufferOff() {
 }
 
 void DirectX11Device::TurnOnAlphaBlending() {
-	
+
 	float blendFactor[4];
 
 	blendFactor[0] = 0.0f;
@@ -460,11 +460,11 @@ void DirectX11Device::TurnOffAlphaBlending() {
 	device_context_->OMSetBlendState(alpha_disable_blending_state_, blendFactor, 0xffffffff);
 }
 
-ID3D11Device* DirectX11Device::GetDevice(){
+ID3D11Device* DirectX11Device::GetDevice() {
 	return device_;
 }
 
-ID3D11DeviceContext* DirectX11Device::GetDeviceContext(){
+ID3D11DeviceContext* DirectX11Device::GetDeviceContext() {
 	return device_context_;
 }
 
@@ -485,7 +485,7 @@ void DirectX11Device::GetVideoCardInfo(char* cardName, int& memory) {
 	memory = videocard_Memory_;
 }
 
-ID3D11DepthStencilView* DirectX11Device::GetDepthStencilView()const{
+ID3D11DepthStencilView* DirectX11Device::GetDepthStencilView()const {
 	return depth_stencil_view_;
 }
 

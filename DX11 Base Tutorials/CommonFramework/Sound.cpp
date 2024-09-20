@@ -21,9 +21,9 @@ struct WaveHeaderType {
 
 SoundClass::SoundClass() {}
 
-SoundClass::~SoundClass(){}
+SoundClass::~SoundClass() {}
 
-bool SoundClass::Initialize(HWND hwnd, char *sound_filename) {
+bool SoundClass::Initialize(HWND hwnd, char* sound_filename) {
 
 	bool result;
 

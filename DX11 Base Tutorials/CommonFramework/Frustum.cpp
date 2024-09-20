@@ -4,9 +4,9 @@
 
 using namespace DirectX;
 
-FrustumClass::FrustumClass(){}
+FrustumClass::FrustumClass() {}
 
-FrustumClass::~FrustumClass(){}
+FrustumClass::~FrustumClass() {}
 
 void FrustumClass::ConstructFrustum(float screenDepth, const XMMATRIX& projectionMatrix, const XMMATRIX& viewMatrix) {
 

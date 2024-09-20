@@ -4,9 +4,9 @@
 
 using namespace DirectX;
 
-LightClass::LightClass(){}
+LightClass::LightClass() {}
 
-LightClass::~LightClass(){}
+LightClass::~LightClass() {}
 
 void LightClass::SetAmbientColor(float red, float green, float blue, float alpha) {
 	ambient_color_ = XMFLOAT4(red, green, blue, alpha);
@@ -40,10 +40,10 @@ XMFLOAT3 LightClass::GetDirection() {
 	return light_direction_;
 }
 
-XMFLOAT4 LightClass::GetSpecularColor(){
+XMFLOAT4 LightClass::GetSpecularColor() {
 	return specular_color_;
 }
 
-float LightClass::GetSpecularPower(){
+float LightClass::GetSpecularPower() {
 	return specular_power_;
 }

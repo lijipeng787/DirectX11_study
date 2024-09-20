@@ -1,23 +1,13 @@
-
-// Filename: glowmapshaderclass.h
-
 #ifndef _GLOWMAPSHADERCLASS_H_
 #define _GLOWMAPSHADERCLASS_H_
-
-
-
-
 
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
 #include <fstream>
+
 using namespace std;
 using namespace DirectX;
-
-
-
-// Class name: GlowMapShaderClass
 
 class GlowMapShaderClass
 {

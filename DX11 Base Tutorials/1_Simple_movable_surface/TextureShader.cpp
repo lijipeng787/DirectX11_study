@@ -13,8 +13,10 @@ bool TextureShader::Initialize(HWND hwnd) {
 
 	auto result = InitializeShader(
 		hwnd,
-		L"../../1_Simple_movable_surface/simple_texture_shader.hlsl",
-		L"../../1_Simple_movable_surface/simple_texture_shader.hlsl"
+		//L"../../1_Simple_movable_surface/simple_texture_shader.hlsl",
+		//L"../../1_Simple_movable_surface/simple_texture_shader.hlsl"
+		L"simple_texture_shader.hlsl",
+		L"simple_texture_shader.hlsl"
 	);
 
 	if (!result) {

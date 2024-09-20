@@ -22,13 +22,11 @@ PixelInputType TextureVertexShader(VertexInputType input)
 
     input.position.w = 1.0f;
 
-	
 	PixelInputType output; 
 	output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
-	
 	output.tex = input.tex;
     
     return output;
@@ -39,7 +37,6 @@ SamplerState SampleType;
 
 float4 TexturePixelShader(PixelInputType input) : SV_TARGET
 {
-    
     float4 textureColor = shaderTexture.Sample(SampleType, input.tex);
 
     return textureColor;

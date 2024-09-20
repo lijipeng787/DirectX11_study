@@ -25,7 +25,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	bool result;
 
 	{
-		directx_device_ = new DirectX11Device;
+		auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 		if (!directx_device_) {
 			return false;
 		}
@@ -64,7 +64,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!bitmap_) {
 			return false;
 		}
-		result = bitmap_->Initialize(screenWidth, screenHeight, L"../../tut46/data/test.dds", L"../../tut46/data/glowmap.dds", 256, 32);
+		result = bitmap_->Initialize(screenWidth, screenHeight, L"data/test.dds", L"data/glowmap.dds", 256, 32);
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
 			return false;
@@ -233,7 +233,6 @@ void GraphicsClass::Shutdown() {
 		m_GlowMapShader = 0;
 	}
 
-	buffer_number
 	if (m_FullScreenWindow) {
 		m_FullScreenWindow->Shutdown();
 		delete m_FullScreenWindow;
@@ -322,12 +321,6 @@ void GraphicsClass::Shutdown() {
 		_aligned_free(camera_);
 		camera_ = nullptr;
 	}
-
-	
-		
-		
-		
-	}
 }
 
 bool GraphicsClass::Frame() {
@@ -393,31 +386,34 @@ bool GraphicsClass::RenderGlowMapToTexture() {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 	bool result;
 
-	render_texture_->SetRenderTarget(directx_device_->GetDeviceContext());
+	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	render_texture_->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	render_texture_->SetRenderTarget();
+
+	render_texture_->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetOrthoMatrix(orthoMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetOrthoMatrix(orthoMatrix);
 
-	directx_device_->TurnZBufferOff();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOff();
 
-	result = bitmap_->Render(directx_device_->GetDeviceContext(), 100, 100);
+	result = bitmap_->Render(100, 100);
 	if (!result) {
 		return false;
 	}
 
-	m_GlowMapShader->Render(directx_device_->GetDeviceContext(), bitmap_->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+	m_GlowMapShader->Render(
+		bitmap_->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		bitmap_->GetTexture(), bitmap_->GetGlowMap());
 
-	directx_device_->TurnZBufferOn();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOn();
 
-	directx_device_->SetBackBufferRenderTarget();
+	DirectX11Device::GetD3d11DeviceInstance()->SetBackBufferRenderTarget();
 
-	directx_device_->ResetViewport();
+	DirectX11Device::GetD3d11DeviceInstance()->ResetViewport();
 
 	return true;
 }
@@ -427,32 +423,36 @@ bool GraphicsClass::DownSampleTexture() {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 	bool result;
 
-	m_DownSampleTexure->SetRenderTarget(directx_device_->GetDeviceContext());
+	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	m_DownSampleTexure->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 1.0f, 0.0f, 1.0f);
+	m_DownSampleTexure->SetRenderTarget();
+
+	m_DownSampleTexure->ClearRenderTarget(0.0f, 1.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
 
 	m_DownSampleTexure->GetOrthoMatrix(orthoMatrix);
 
-	directx_device_->TurnZBufferOff();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOff();
 
-	m_SmallWindow->Render(directx_device_->GetDeviceContext());
+	m_SmallWindow->Render();
 
-	result = texture_shader_->Render(directx_device_->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+	result = texture_shader_->Render(
+		m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		render_texture_->GetShaderResourceView());
+
 	if (!result) {
 		return false;
 	}
 
-	directx_device_->TurnZBufferOn();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOn();
 
-	directx_device_->SetBackBufferRenderTarget();
+	DirectX11Device::GetD3d11DeviceInstance()->SetBackBufferRenderTarget();
 
-	directx_device_->ResetViewport();
+	DirectX11Device::GetD3d11DeviceInstance()->ResetViewport();
 
 	return true;
 }
@@ -463,34 +463,38 @@ bool GraphicsClass::RenderHorizontalBlurToTexture() {
 	float screenSizeX;
 	bool result;
 
-	m_HorizontalBlurTexture->SetRenderTarget(directx_device_->GetDeviceContext());
+	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	m_HorizontalBlurTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_HorizontalBlurTexture->SetRenderTarget();
+
+	m_HorizontalBlurTexture->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetWorldMatrix(worldMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(worldMatrix);
 
 	m_HorizontalBlurTexture->GetOrthoMatrix(orthoMatrix);
 
-	directx_device_->TurnZBufferOff();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOff();
 
 	screenSizeX = (float)m_HorizontalBlurTexture->GetTextureWidth();
 
-	m_SmallWindow->Render(directx_device_->GetDeviceContext());
+	m_SmallWindow->Render();
 
-	result = m_HorizontalBlurShader->Render(directx_device_->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+	result = m_HorizontalBlurShader->Render(
+		m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_DownSampleTexure->GetShaderResourceView(), screenSizeX);
+	
 	if (!result) {
 		return false;
 	}
 
-	directx_device_->TurnZBufferOn();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOn();
 
-	directx_device_->SetBackBufferRenderTarget();
+	DirectX11Device::GetD3d11DeviceInstance()->SetBackBufferRenderTarget();
 
-	directx_device_->ResetViewport();
+	DirectX11Device::GetD3d11DeviceInstance()->ResetViewport();
 
 	return true;
 }
@@ -501,34 +505,35 @@ bool GraphicsClass::RenderVerticalBlurToTexture() {
 	float screenSizeY;
 	bool result;
 
-	m_VerticalBlurTexture->SetRenderTarget(directx_device_->GetDeviceContext());
+	m_VerticalBlurTexture->SetRenderTarget();
 
-	m_VerticalBlurTexture->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_VerticalBlurTexture->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetWorldMatrix(worldMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(worldMatrix);
 
 	m_VerticalBlurTexture->GetOrthoMatrix(orthoMatrix);
 
-	directx_device_->TurnZBufferOff();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOff();
 
 	screenSizeY = (float)m_VerticalBlurTexture->GetTextureHeight();
 
-	m_SmallWindow->Render(directx_device_->GetDeviceContext());
+	m_SmallWindow->Render();
 
-	result = m_VerticalBlurShader->Render(directx_device_->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+	result = m_VerticalBlurShader->Render(
+		m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_HorizontalBlurTexture->GetShaderResourceView(), screenSizeY);
 	if (!result) {
 		return false;
 	}
 
-	directx_device_->TurnZBufferOn();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOn();
 
-	directx_device_->SetBackBufferRenderTarget();
+	DirectX11Device::GetD3d11DeviceInstance()->SetBackBufferRenderTarget();
 
-	directx_device_->ResetViewport();
+	DirectX11Device::GetD3d11DeviceInstance()->ResetViewport();
 
 	return true;
 }
@@ -538,32 +543,33 @@ bool GraphicsClass::UpSampleTexture() {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 	bool result;
 
-	m_UpSampleTexure->SetRenderTarget(directx_device_->GetDeviceContext());
+	m_UpSampleTexure->SetRenderTarget();
 
-	m_UpSampleTexure->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_UpSampleTexure->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
 
 	m_UpSampleTexure->GetOrthoMatrix(orthoMatrix);
 
-	directx_device_->TurnZBufferOff();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOff();
 
-	m_FullScreenWindow->Render(directx_device_->GetDeviceContext());
+	m_FullScreenWindow->Render();
 
-	result = texture_shader_->Render(directx_device_->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+	result = texture_shader_->Render(
+		m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		m_VerticalBlurTexture->GetShaderResourceView());
 	if (!result) {
 		return false;
 	}
 
-	directx_device_->TurnZBufferOn();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOn();
 
-	directx_device_->SetBackBufferRenderTarget();
+	DirectX11Device::GetD3d11DeviceInstance()->SetBackBufferRenderTarget();
 
-	directx_device_->ResetViewport();
+	DirectX11Device::GetD3d11DeviceInstance()->ResetViewport();
 
 	return true;
 }
@@ -573,33 +579,33 @@ bool GraphicsClass::RenderUIElementsToTexture() {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 	bool result;
 
-	render_texture_->SetRenderTarget(directx_device_->GetDeviceContext());
+	render_texture_->SetRenderTarget();
 
-	render_texture_->ClearRenderTarget(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	render_texture_->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetOrthoMatrix(orthoMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetOrthoMatrix(orthoMatrix);
 
-	directx_device_->TurnZBufferOff();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOff();
 
-	result = bitmap_->Render(directx_device_->GetDeviceContext(), 100, 100);
+	result = bitmap_->Render(100, 100);
 	if (!result) {
 		return false;
 	}
 
-	result = texture_shader_->Render(directx_device_->GetDeviceContext(), bitmap_->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, bitmap_->GetTexture());
+	result = texture_shader_->Render(bitmap_->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, bitmap_->GetTexture());
 	if (!result) {
 		return false;
 	}
 
-	directx_device_->TurnZBufferOn();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOn();
 
-	directx_device_->SetBackBufferRenderTarget();
+	DirectX11Device::GetD3d11DeviceInstance()->SetBackBufferRenderTarget();
 
-	directx_device_->ResetViewport();
+	DirectX11Device::GetD3d11DeviceInstance()->ResetViewport();
 
 	return true;
 }
@@ -608,24 +614,25 @@ bool GraphicsClass::RenderGlowScene() {
 
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 
-	directx_device_->BeginScene(1.0f, 0.0f, 0.0f, 0.0f);
+	DirectX11Device::GetD3d11DeviceInstance()->BeginScene(1.0f, 0.0f, 0.0f, 0.0f);
 
 	camera_->Render();
 
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetWorldMatrix(worldMatrix);
-	directx_device_->GetOrthoMatrix(orthoMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(worldMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetOrthoMatrix(orthoMatrix);
 
-	directx_device_->TurnZBufferOff();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOff();
 
-	m_FullScreenWindow->Render(directx_device_->GetDeviceContext());
+	m_FullScreenWindow->Render();
 
-	m_GlowShader->Render(directx_device_->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+	m_GlowShader->Render(
+		m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
 		render_texture_->GetShaderResourceView(), m_UpSampleTexure->GetShaderResourceView(), 3.0f);
 
-	directx_device_->TurnZBufferOn();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOn();
 
-	directx_device_->EndScene();
+	DirectX11Device::GetD3d11DeviceInstance()->EndScene();
 
 	return true;
 }

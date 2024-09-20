@@ -4,18 +4,14 @@
 
 using namespace DirectX;
 
-Camera::Camera() {}
-
-Camera::~Camera(){}
-
-void Camera::GetWorldPosition(DirectX::XMMATRIX & wordMatrix) {
+void Camera::GetWorldPosition(DirectX::XMMATRIX& wordMatrix) {
 }
 
 void Camera::SetMoveRate(int rate) {
 }
 
 void Camera::SetPosition(float x, float y, float z) {
-	
+
 	position_x_ = x;
 	position_y_ = y;
 	position_z_ = z;
@@ -28,11 +24,19 @@ void Camera::SetRotation(float x, float y, float z) {
 	rotation_z_ = z;
 }
 
-XMFLOAT3 Camera::GetPosition() {
+void Camera::SetPosition(const XMFLOAT3& position) {
+	position_ = position;
+}
+
+void Camera::SetRotation(const XMFLOAT3& rotation) {
+	rotation_ = rotation;
+}
+
+XMFLOAT3 Camera::GetPosition() const {
 	return XMFLOAT3(position_x_, position_y_, position_z_);
 }
 
-XMFLOAT3 Camera::GetRotation() {
+XMFLOAT3 Camera::GetRotation() const {
 	return XMFLOAT3(rotation_x_, rotation_y_, rotation_z_);
 }
 
@@ -61,9 +65,9 @@ void Camera::Render() {
 	lookAt.m128_f32[3] = 1.0f;
 
 	// Set the yaw (Y axis), pitch (X axis), and roll (Z axis) rotations in radians.
-	pitch = rotation_x_ * 0.0174532925f;
-	yaw = rotation_y_ * 0.0174532925f;
-	roll = rotation_z_ * 0.0174532925f;
+	pitch = rotation_x_ * HALF_PI;
+	yaw = rotation_y_ * HALF_PI;
+	roll = rotation_z_ * HALF_PI;
 
 	// Create the rotation_ matrix from the yaw, pitch, and roll values.
 	rotationMatrix = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
@@ -79,7 +83,7 @@ void Camera::Render() {
 	view_matrix_ = XMMatrixLookAtLH(position, lookAt, up);
 }
 
-void Camera::GetViewMatrix(XMMATRIX& viewMatrix) {
+void Camera::GetViewMatrix(XMMATRIX& viewMatrix) const {
 	viewMatrix = view_matrix_;
 }
 
@@ -104,7 +108,7 @@ void Camera::RenderReflection(float height) {
 	position.m128_f32[3] = 1.0f;
 
 	// Calculate the rotation_ in radians.
-	radians = rotation_y_ * 0.0174532925f;
+	radians = rotation_y_ * HALF_PI;
 
 	// Setup where the camera is looking by default.
 	lookAt.m128_f32[0] = sinf(radians) + position_x_;
@@ -136,7 +140,7 @@ void Camera::RenderBaseViewMatrix() {
 	position.m128_f32[2] = position_z_;
 
 	// Calculate the rotation_ in radians.
-	radians = rotation_y_ * 0.0174532925f;
+	radians = rotation_y_ * HALF_PI;
 
 	// Setup where the camera is looking.
 	lookAt.m128_f32[0] = sinf(radians) + position_x_;
@@ -147,6 +151,6 @@ void Camera::RenderBaseViewMatrix() {
 	base_view_matrix_ = XMMatrixLookAtLH(position, lookAt, up);
 }
 
-void Camera::GetBaseViewMatrix(XMMATRIX& outViewMatrix) {
+void Camera::GetBaseViewMatrix(XMMATRIX& outViewMatrix) const {
 	outViewMatrix = base_view_matrix_;
 }

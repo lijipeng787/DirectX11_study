@@ -1,20 +1,8 @@
-
-
-
-
-
-
-
-
-
+#pragma once
 
 #include <d3d11.h>
 #include <DDSTextureLoader.h>
 using namespace DirectX;
-
-
-
-
 
 class TextureClass
 {
@@ -31,5 +19,3 @@ public:
 private:
 	ID3D11ShaderResourceView* texture_;
 };
-
-#endif

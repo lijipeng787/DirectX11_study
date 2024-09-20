@@ -7,29 +7,31 @@ class GraphicsBase;
 class Input;
 class Timer;
 
-class SystemBase{
+class SystemBase {
 public:
 	SystemBase();
 
 	SystemBase(const SystemBase& rhs) = delete;
 
 	SystemBase& operator=(const SystemBase& rhs) = delete;
-	
+
 	virtual ~SystemBase();
+
 public:
 	virtual bool PreInitialize();
 
 	virtual bool Initialize();
 
 	virtual bool PostInitialize();
-	
+
 	virtual void Shutdown();
-	
+
 	virtual void Run();
 
 	virtual bool Frame();
 
-	virtual void SetWindProc(LRESULT(CALLBACK *WindProc)(HWND, UINT, WPARAM, LPARAM));
+	virtual void SetWindProc(LRESULT(CALLBACK* WindProc)(HWND, UINT, WPARAM, LPARAM));
+
 public:
 	void GetScreenWidthAndHeight(unsigned int& width, unsigned int& height)const;
 
@@ -44,10 +46,11 @@ public:
 	Timer& GetTimerComponent()const;
 
 	void InitializeWindows(int& output_width, int& output_height);
-	
+
 	void ShutdownWindows();
 
 	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
+
 private:
 	unsigned int screen_width_ = 0, screen_height_ = 0;
 
@@ -56,10 +59,11 @@ private:
 	HINSTANCE hinstance_ = {};
 
 	HWND hwnd_ = {};
-private:
-	Input *input_ = nullptr;
 
-	Timer *timer_ = nullptr;
 private:
-	LRESULT(CALLBACK *windd_proc_)(HWND, UINT, WPARAM, LPARAM);
+	Input* input_ = nullptr;
+
+	Timer* timer_ = nullptr;
+private:
+	LRESULT(CALLBACK* windd_proc_)(HWND, UINT, WPARAM, LPARAM);
 };

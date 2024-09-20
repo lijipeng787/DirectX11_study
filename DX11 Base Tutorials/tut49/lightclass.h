@@ -38,8 +38,8 @@ public:
 	void GetOrthoMatrix(XMMATRIX&);
 
 private:
-	XMFLOAT3 direction_, m_position, m_lookAt;
-	XMMATRIX m_viewMatrix, projection_matrix_, ortho_matrix_;
+	XMFLOAT3 direction_, light_position_, light_look_at_;
+	XMMATRIX light_viewMatrix_, projection_matrix_, ortho_matrix_;
 };
 
 #endif

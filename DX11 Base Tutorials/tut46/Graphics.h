@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -47,8 +46,6 @@ private:
 
 	bool RenderGlowScene();
 private:
-	
-
 	Camera *camera_ = nullptr;
 
 	TextureShaderClass* texture_shader_;
@@ -72,5 +69,3 @@ private:
 
 	GlowShaderClass* m_GlowShader;
 };
-
-#endif

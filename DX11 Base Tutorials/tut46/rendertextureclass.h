@@ -1,20 +1,7 @@
-
-
-
-
-
-
-
-
-
-
 #include <d3d11.h>
 #include <DirectXMath.h>
+
 using namespace DirectX;
-
-
-
-
 
 class RenderTextureClass
 {
@@ -26,7 +13,7 @@ public:
 	bool Initialize(int, int, float, float);
 	void Shutdown();
 
-	void SetRenderTarget(ID3D11DeviceContext*);
+	void SetRenderTarget();
 	void ClearRenderTarget(float, float, float, float);
 	ID3D11ShaderResourceView* GetShaderResourceView();
 	void GetProjectionMatrix( XMMATRIX& );
@@ -47,5 +34,3 @@ private:
 	XMMATRIX ortho_matrix_;
 
 };
-
-#endif

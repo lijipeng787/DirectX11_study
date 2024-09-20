@@ -8,9 +8,9 @@
 
 SystemBase::SystemBase() {}
 
-SystemBase::~SystemBase(){}
+SystemBase::~SystemBase() {}
 
-bool SystemBase::PreInitialize(){
+bool SystemBase::PreInitialize() {
 	return true;
 }
 
@@ -44,7 +44,7 @@ bool SystemBase::Initialize() {
 	return true;
 }
 
-bool SystemBase::PostInitialize(){
+bool SystemBase::PostInitialize() {
 	return false;
 }
 
@@ -106,11 +106,11 @@ bool SystemBase::Frame() {
 	return true;
 }
 
-void SystemBase::SetWindProc(LRESULT(CALLBACK *WindProc)(HWND, UINT, WPARAM, LPARAM)){
+void SystemBase::SetWindProc(LRESULT(CALLBACK* WindProc)(HWND, UINT, WPARAM, LPARAM)) {
 	windd_proc_ = WindProc;
 }
 
-void SystemBase::GetScreenWidthAndHeight(unsigned int & width, unsigned int & height) const{
+void SystemBase::GetScreenWidthAndHeight(unsigned int& width, unsigned int& height) const {
 	width = screen_width_;
 	height = screen_height_;
 }

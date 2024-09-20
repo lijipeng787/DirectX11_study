@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -61,8 +60,6 @@ private:
 
 	float delta_time_ = 0.0f;
 
-	
-
 	Camera *camera_ = nullptr;
 
 	LightClass* light_;
@@ -77,5 +74,3 @@ private:
 
 	LightShaderClass* light_shader_;
 };
-
-#endif

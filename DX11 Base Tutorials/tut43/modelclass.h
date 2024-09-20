@@ -1,28 +1,13 @@
-
-
-
-
-
-
-
-
-
+#pragma once
 
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <fstream>
-using namespace std;
-using namespace DirectX;
-
-
-
-
 
 #include "textureclass.h"
 
-
-
-
+using namespace std;
+using namespace DirectX;
 
 class ModelClass
 {
@@ -48,16 +33,14 @@ public:
 
 	bool Initialize(char*, WCHAR*);
 	void Shutdown();
-	void Render(ID3D11DeviceContext*);
+	void Render();
 
 	int GetIndexCount();
 	ID3D11ShaderResourceView* GetTexture();
-
-
 private:
-	bool InitializeBuffers(ID3D11Device*);
+	bool InitializeBuffers();
 	void ShutdownBuffers();
-	void RenderBuffers(ID3D11DeviceContext*);
+	void RenderBuffers();
 
 	bool LoadTexture(WCHAR*);
 	void ReleaseTexture();
@@ -71,5 +54,3 @@ private:
 	TextureClass* texture_;
 	ModelType* model_;
 };
-
-#endif

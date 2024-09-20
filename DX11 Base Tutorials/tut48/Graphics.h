@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -70,8 +69,6 @@ private:
 
 	float frame_time_ = 0.0f;
 
-	
-
 	Camera *camera_ = nullptr;
 
 	ModelClass *m_CubeModel, *m_GroundModel, *m_SphereModel;
@@ -84,5 +81,3 @@ private:
 
 	ShadowShaderClass* m_ShadowShader;
 };
-
-#endif

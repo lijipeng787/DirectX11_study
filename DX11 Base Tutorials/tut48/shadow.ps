@@ -1,24 +1,8 @@
-
-// Filename: shadow.ps
-
-
-
-
-// TEXTURES //
-
 Texture2D shaderTexture : register(t0);
 Texture2D depthMapTexture : register(t1);
 
-
-/
-// SAMPLE STATES //
-/
 SamplerState SampleTypeClamp : register(s0);
 SamplerState SampleTypeWrap  : register(s1);
-
-
-
-// CONSTANT BUFFERS //
 
 cbuffer LightBuffer
 {
@@ -28,10 +12,6 @@ cbuffer LightBuffer
 	float padding;
 };
 
-
-
-
-
 struct PixelInputType
 {
     float4 position : SV_POSITION;
@@ -39,10 +19,6 @@ struct PixelInputType
 	float3 normal : NORMAL;
     float4 lightViewPosition : TEXCOORD1;
 };
-
-
-
-
 
 float4 ShadowPixelShader(PixelInputType input) : SV_TARGET
 {
@@ -55,13 +31,11 @@ float4 ShadowPixelShader(PixelInputType input) : SV_TARGET
 	float4 textureColor;
 	float3 lightDir;
 
-
 	// Invert the light direction.
     lightDir = -lightDirection;
 
 	// Set the bias value for fixing the floating point precision issues.
 	bias = 0.001f;
-
 
     color = ambientColor;
 
@@ -93,7 +67,6 @@ float4 ShadowPixelShader(PixelInputType input) : SV_TARGET
 				// Determine the final diffuse color based on the diffuse color and the amount of light intensity.
 				color += (diffuseColor * lightIntensity);
 
-			
 				color = saturate(color);
 			}
 		}
@@ -109,7 +82,6 @@ float4 ShadowPixelShader(PixelInputType input) : SV_TARGET
         }
     }
 
-	
 	textureColor = shaderTexture.Sample(SampleTypeWrap, input.tex);
 
 	// Combine the light and texture color.

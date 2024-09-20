@@ -1,6 +1,3 @@
-
-
-
 #include "../CommonFramework/SystemBase.h"
 
 class GraphicsClass;
@@ -27,6 +24,3 @@ private:
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 static System* ApplicationInstance = nullptr;
-
-
-#endif

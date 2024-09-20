@@ -1,20 +1,9 @@
-
-// Filename: orthowindowclass.h
-
 #ifndef _ORTHOWINDOWCLASS_H_
 #define _ORTHOWINDOWCLASS_H_
-
-
-
-
 
 #include <d3d11.h>
 #include <DirectXMath.h>
 using namespace DirectX;
-
-
-
-// Class name: OrthoWindowClass
 
 class OrthoWindowClass
 {
@@ -32,14 +21,14 @@ public:
 
 	bool Initialize(int, int);
 	void Shutdown();
-	void Render(ID3D11DeviceContext*);
+	void Render();
 
 	int GetIndexCount();
 
 private:
 	bool InitializeBuffers(int, int);
 	void ShutdownBuffers();
-	void RenderBuffers(ID3D11DeviceContext*);
+	void RenderBuffers();
 
 private:
 	ID3D11Buffer *vertex_buffer_, *index_buffer_;

@@ -1,23 +1,12 @@
-
-
-
-
-
-
-
-
-
+#pragma once
 
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
 #include <fstream>
+
 using namespace std;
 using namespace DirectX;
-
-
-
-
 
 class LightShaderClass
 {
@@ -60,5 +49,3 @@ private:
 	ID3D11Buffer* matrix_buffer_;
 	ID3D11Buffer* light_buffer_;
 };
-
-#endif

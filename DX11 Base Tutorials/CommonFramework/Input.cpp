@@ -2,9 +2,9 @@
 
 #include "Input.h"
 
-Input::Input(){}
+Input::Input() {}
 
-Input::~Input(){}
+Input::~Input() {}
 
 bool Input::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight) {
 
@@ -109,7 +109,7 @@ bool Input::ReadKeyboard() {
 
 	result = keyboard_->GetDeviceState(sizeof(keyboard_state_), (LPVOID)&keyboard_state_);
 	if (FAILED(result)) {
-		
+
 		if ((result == DIERR_INPUTLOST) || (result == DIERR_NOTACQUIRED)) {
 			keyboard_->Acquire();
 		}
@@ -127,7 +127,7 @@ bool Input::ReadMouse() {
 
 	result = mouse_->GetDeviceState(sizeof(DIMOUSESTATE), (LPVOID)&mouse_state_);
 	if (FAILED(result)) {
-		
+
 		if ((result == DIERR_INPUTLOST) || (result == DIERR_NOTACQUIRED)) {
 			mouse_->Acquire();
 		}

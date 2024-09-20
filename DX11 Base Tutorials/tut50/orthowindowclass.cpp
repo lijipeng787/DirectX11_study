@@ -1,8 +1,6 @@
-
-// Filename: orthowindowclass.cpp
-
 #include "orthowindowclass.h"
 
+#include "../CommonFramework/DirectX11Device.h"
 
 OrthoWindowClass::OrthoWindowClass()
 {
@@ -27,7 +25,7 @@ bool OrthoWindowClass::Initialize(int windowWidth, int windowHeight)
 
 
 	
-	result = InitializeBuffers(device, windowWidth, windowHeight);
+	result = InitializeBuffers(windowWidth, windowHeight);
 	if(!result)
 	{
 		return false;
@@ -46,10 +44,10 @@ void OrthoWindowClass::Shutdown()
 }
 
 
-void OrthoWindowClass::Render(ID3D11DeviceContext* device_context)
+void OrthoWindowClass::Render()
 {
 	
-	RenderBuffers(device_context);
+	RenderBuffers();
 
 	
 }
@@ -64,8 +62,6 @@ int OrthoWindowClass::GetIndexCount()
 bool OrthoWindowClass::InitializeBuffers(int windowWidth, int windowHeight)
 {
 	float left, right, top, bottom;
-	VertexType* vertices;
-	unsigned long* indices;
 	D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
     D3D11_SUBRESOURCE_DATA vertex_data, indexData;
 	HRESULT result;
@@ -142,6 +138,8 @@ bool OrthoWindowClass::InitializeBuffers(int windowWidth, int windowHeight)
 	vertex_data.SysMemPitch = 0;
 	vertex_data.SysMemSlicePitch = 0;
 
+	auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
+
     result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
 	if(FAILED(result))
 	{
@@ -194,17 +192,12 @@ void OrthoWindowClass::ShutdownBuffers()
 
 void OrthoWindowClass::RenderBuffers()
 {
-	device_context=
-	
+	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
     unsigned int stride = sizeof(VertexType); 
 	unsigned int offset = 0;
     
 	device_context->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
-
-    
     device_context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
-
-    
     device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

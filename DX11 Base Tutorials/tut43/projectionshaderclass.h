@@ -1,23 +1,13 @@
-
-// Filename: projectionshaderclass.h
-
 #ifndef _PROJECTIONSHADERCLASS_H_
 #define _PROJECTIONSHADERCLASS_H_
-
-
-
-
 
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
 #include <fstream>
+
 using namespace std;
 using namespace DirectX;
-
-
-
-// Class name: ProjectionShaderClass
 
 class ProjectionShaderClass
 {

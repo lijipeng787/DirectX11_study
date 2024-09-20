@@ -1,8 +1,6 @@
-
-
-
 #include "lightshaderclass.h"
 
+#include "../CommonFramework/DirectX11Device.h"
 
 LightShaderClass::LightShaderClass()
 {
@@ -31,7 +29,7 @@ bool LightShaderClass::Initialize(HWND hwnd)
 
 
 	
-	result = InitializeShader(device, hwnd, L"../../tut50/light.vs", L"../../tut50/light.ps");
+	result = InitializeShader(hwnd, L"light.vs", L"light.ps");
 	if(!result)
 	{
 		return false;
@@ -127,6 +125,7 @@ bool LightShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psF
 		return false;
 	}
 
+	auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertex_shader_);
 	if(FAILED(result))
@@ -316,7 +315,8 @@ void LightShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND h
 }
 
 
-bool LightShaderClass::SetShaderParameters( const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+bool LightShaderClass::SetShaderParameters(
+	const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
 	const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* colorTexture,
 	ID3D11ShaderResourceView* normalTexture, const XMFLOAT3& lightDirection )
 {
@@ -335,6 +335,7 @@ bool LightShaderClass::SetShaderParameters( const XMMATRIX& worldMatrix, const X
 	viewMatrixCopy = XMMatrixTranspose( viewMatrix );
 	projectionMatrixCopy = XMMatrixTranspose( projectionMatrix );
 
+	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
 	result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
@@ -359,7 +360,6 @@ bool LightShaderClass::SetShaderParameters( const XMMATRIX& worldMatrix, const X
 	
     device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
-	// Set shader texture resources in the pixel shader.
 	device_context->PSSetShaderResources(0, 1, &colorTexture);
 	device_context->PSSetShaderResources(1, 1, &normalTexture);
 
@@ -392,6 +392,7 @@ bool LightShaderClass::SetShaderParameters( const XMMATRIX& worldMatrix, const X
 
 void LightShaderClass::RenderShader(int indexCount)
 {
+	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
 	device_context->IASetInputLayout(layout_);
 

@@ -14,6 +14,7 @@ public:
 	DirectX11Device& operator=(const DirectX11Device& rhs) = delete;
 
 	~DirectX11Device() {}
+
 public:
 	inline static DirectX11Device* GetD3d11DeviceInstance() {
 
@@ -23,10 +24,12 @@ public:
 
 		return device_instance_;
 	}
+
 public:
 	inline unsigned int GetScreenWidth() { return screen_width_; }
 
 	inline unsigned int GetScreenHeight() { return screen_height_; }
+
 public:
 	bool Initialize(
 		unsigned int screenWidth, unsigned int screenHeight,
@@ -69,6 +72,7 @@ public:
 	void GetVideoCardInfo(char*, int&);
 
 	ID3D11DepthStencilView* GetDepthStencilView()const;
+
 private:
 	bool vsync_enabled_ = false;
 
@@ -78,7 +82,7 @@ private:
 
 	IDXGISwapChain* swap_chain_ = nullptr;
 
-	ID3D11Device *device_ = nullptr;
+	ID3D11Device* device_ = nullptr;
 
 	static DirectX11Device* device_instance_;
 
@@ -110,5 +114,5 @@ private:
 
 	D3D11_VIEWPORT viewport_ = {};
 
-	unsigned int screen_width_ = 0,screen_height_ = 0;
+	unsigned int screen_width_ = 0, screen_height_ = 0;
 };

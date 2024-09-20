@@ -32,14 +32,14 @@ public:
 
 	bool Initialize(int, int);
 	void Shutdown();
-	void Render(ID3D11DeviceContext*);
+	void Render();
 
 	int GetIndexCount();
 
 private:
 	bool InitializeBuffers(int, int);
 	void ShutdownBuffers();
-	void RenderBuffers(ID3D11DeviceContext*);
+	void RenderBuffers();
 
 private:
 	ID3D11Buffer *vertex_buffer_, *index_buffer_;

@@ -31,7 +31,6 @@ bool GraphicsModule::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	}
 	camera_->SetPosition(0.0f, 0.0f, -10.0f);
 
-
 	texture_shader_ = new TextureShader;
 	new (texture_shader_)TextureShader();
 	if (!texture_shader_) {
@@ -56,7 +55,7 @@ bool GraphicsModule::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		return false;
 	}
 
-	result = bitmap_->LoadTextureFromFile(L"../../1_Simple_movable_surface/data/seafloor.dds");
+	result = bitmap_->LoadTextureFromFile(L"data/seafloor.dds");
 	if (!result) {
 		MessageBox(hwnd, L"Could not initialize the bitmap texture.", L"Error", MB_OK);
 		return false;
@@ -111,9 +110,12 @@ bool GraphicsModule::Render() {
 
 	directx11_device_->TurnZBufferOff();
 
-	static float x_step = 0.5, y_step = 0.5;
-	bitmap_->SetPosition2D(100+x_step, 100+y_step);
-	++x_step, ++y_step;
+	static float x_step = -0.5, y_step = -0.5;
+
+	bitmap_->SetPosition2D(x_step, y_step);
+
+	++x_step;
+	++y_step;
 
 	auto result = bitmap_->Render();
 	if (!result) {

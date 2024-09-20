@@ -14,6 +14,8 @@
 #include "deferredshaderclass.h"
 #include "lightshaderclass.h"
 
+#include "../CommonFramework/DirectX11Device.h"
+
 GraphicsClass::GraphicsClass() {}
 
 GraphicsClass::~GraphicsClass() {}
@@ -23,7 +25,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	bool result;
 
 	{
-		directx_device_ = new DirectX11Device;
+		auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 		if (!directx_device_) {
 			return false;
 		}
@@ -59,7 +61,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		if (!model_) {
 			return false;
 		}
-		result = model_->Initialize("../../tut50/data/cube.txt", L"../../tut50/data/seafloor.dds");
+		result = model_->Initialize("data/cube.txt", L"data/seafloor.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
@@ -143,7 +145,6 @@ void GraphicsClass::Shutdown() {
 		m_DeferredBuffers = 0;
 	}
 
-	buffer_number
 	if (m_FullScreenWindow) {
 		m_FullScreenWindow->Shutdown();
 		delete m_FullScreenWindow;
@@ -184,23 +185,24 @@ bool GraphicsClass::Render() {
 		return false;
 	}
 
-	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	DirectX11Device::GetD3d11DeviceInstance()->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(worldMatrix);
 	camera_->GetBaseViewMatrix(baseViewMatrix);
-	directx_device_->GetOrthoMatrix(orthoMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetOrthoMatrix(orthoMatrix);
 
-	directx_device_->TurnZBufferOff();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOff();
 
-	m_FullScreenWindow->Render(directx_device_->GetDeviceContext());
+	m_FullScreenWindow->Render();
 
-	light_shader_->Render(directx_device_->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
+	light_shader_->Render(
+		m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
 		m_DeferredBuffers->GetShaderResourceView(0), m_DeferredBuffers->GetShaderResourceView(1),
 		light_->GetDirection());
 
-	directx_device_->TurnZBufferOn();
+	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOn();
 
-	directx_device_->EndScene();
+	DirectX11Device::GetD3d11DeviceInstance()->EndScene();
 
 	return true;
 }
@@ -209,13 +211,13 @@ bool GraphicsClass::RenderSceneToTexture() {
 
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 
-	m_DeferredBuffers->SetRenderTargets(directx_device_->GetDeviceContext());
+	m_DeferredBuffers->SetRenderTargets();
 
-	m_DeferredBuffers->ClearRenderTargets(directx_device_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_DeferredBuffers->ClearRenderTargets(0.0f, 0.0f, 0.0f, 1.0f);
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetProjectionMatrix(projectionMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetProjectionMatrix(projectionMatrix);
 
 	static float rotation_ = 0.0f;
 	rotation_ += (float)XM_PI * 0.01f;
@@ -225,13 +227,13 @@ bool GraphicsClass::RenderSceneToTexture() {
 
 	worldMatrix = XMMatrixRotationY(rotation_);
 
-	model_->Render(directx_device_->GetDeviceContext());
+	model_->Render();
 
-	m_DeferredShader->Render(directx_device_->GetDeviceContext(), model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, model_->GetTexture());
+	m_DeferredShader->Render(model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, model_->GetTexture());
 
-	directx_device_->SetBackBufferRenderTarget();
+	DirectX11Device::GetD3d11DeviceInstance()->SetBackBufferRenderTarget();
 
-	directx_device_->ResetViewport();
+	DirectX11Device::GetD3d11DeviceInstance()->ResetViewport();
 
 	return true;
 }

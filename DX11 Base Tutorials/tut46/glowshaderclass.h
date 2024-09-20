@@ -1,23 +1,13 @@
-
-// Filename: glowshaderclass.h
-
 #ifndef _GLOWSHADERCLASS_H_
 #define _GLOWSHADERCLASS_H_
-
-
-
-
 
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
 #include <fstream>
+
 using namespace std;
 using namespace DirectX;
-
-
-
-// Class name: GlowShaderClass
 
 class GlowShaderClass
 {

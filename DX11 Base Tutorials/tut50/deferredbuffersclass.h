@@ -1,29 +1,14 @@
-
-// Filename: deferredbuffersclass.h
-
 #ifndef _DEFERREDBUFFERSCLASS_H_
 #define _DEFERREDBUFFERSCLASS_H_
 
-
-
-// DEFINES //
-
 const int BUFFER_COUNT = 2;
-
-
-
-
 
 #include <d3d11.h>
 #include <DirectXMath.h>
+
 using namespace DirectX;
 
-
-
-// Class name: DeferredBuffersClass
-
-class DeferredBuffersClass
-{
+class DeferredBuffersClass {
 public:
 	DeferredBuffersClass();
 	DeferredBuffersClass(const DeferredBuffersClass&);
@@ -32,7 +17,7 @@ public:
 	bool Initialize(int, int, float, float);
 	void Shutdown();
 
-	void SetRenderTargets(ID3D11DeviceContext*);
+	void SetRenderTargets();
 	void ClearRenderTargets(float, float, float, float);
 
 	ID3D11ShaderResourceView* GetShaderResourceView(int);

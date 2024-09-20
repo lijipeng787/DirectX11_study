@@ -1,8 +1,8 @@
-
-
-
 #include "textureclass.h"
 
+#include "../../DirectXTK/Inc/DDSTextureLoader.h"
+
+#include "../CommonFramework/DirectX11Device.h"
 
 TextureClass::TextureClass()
 {
@@ -24,9 +24,9 @@ bool TextureClass::Initialize(WCHAR* filename)
 {
 	HRESULT result;
 
+	auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
-	
-	result = CreateDDSTextureFromFile( device, filename, NULL, &texture_ );
+	result = DirectX::CreateDDSTextureFromFile(device, filename, NULL, &texture_ );
 	if(FAILED(result))
 	{
 		return false;

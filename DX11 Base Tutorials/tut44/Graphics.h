@@ -1,5 +1,4 @@
-
-
+#pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
 
@@ -33,8 +32,6 @@ private:
 
 	bool RenderScene();
 private:
-	
-
 	Camera *camera_ = nullptr;
 
 	ModelClass *m_GroundModel, *m_CubeModel;
@@ -47,5 +44,3 @@ private:
 	
 	ViewPointClass* m_ViewPoint;
 };
-
-#endif

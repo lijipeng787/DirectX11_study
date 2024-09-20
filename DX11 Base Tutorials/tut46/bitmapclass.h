@@ -1,26 +1,9 @@
-
-
-
-
-
-
-
-
-
-
 #include <d3d11.h>
 #include <DirectXMath.h>
+
 using namespace DirectX;
 
-
-
-
-
 #include "textureclass.h"
-
-
-
-
 
 class SimpleMoveableSurface
 {
@@ -45,10 +28,10 @@ public:
 	ID3D11ShaderResourceView* GetGlowMap();
 
 private:
-	bool InitializeBuffers(ID3D11Device*);
+	bool InitializeBuffers();
 	void ShutdownBuffers();
 	bool UpdateBuffers(int, int);
-	void RenderBuffers(ID3D11DeviceContext*);
+	void RenderBuffers();
 
 	bool LoadTextures(WCHAR*, WCHAR*);
 	void ReleaseTextures();
@@ -62,5 +45,3 @@ private:
 	int bitmap_width_, bitmap_height_;
 	int previous_pos_x_, previous_pos_y_;
 };
-
-#endif

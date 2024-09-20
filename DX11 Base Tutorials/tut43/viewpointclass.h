@@ -1,19 +1,9 @@
-
-// Filename: viewpointclass.h
-
 #ifndef _VIEWPOINTCLASS_H_
 #define _VIEWPOINTCLASS_H_
 
-
-
-
-
 #include <DirectXMath.h>
+
 using namespace DirectX;
-
-
-
-// Class name: ViewPointClass
 
 class ViewPointClass
 {

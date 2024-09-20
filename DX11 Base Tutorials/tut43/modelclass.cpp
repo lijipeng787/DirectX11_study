@@ -1,7 +1,6 @@
-
-
-
 #include "modelclass.h"
+
+#include "../CommonFramework/DirectX11Device.h"
 
 
 ModelClass::ModelClass()
@@ -36,14 +35,14 @@ bool ModelClass::Initialize(char* modelFilename, WCHAR* textureFilename)
 	}
 
 	
-	result = InitializeBuffers(device);
+	result = InitializeBuffers();
 	if(!result)
 	{
 		return false;
 	}
 
 	
-	result = LoadTexture(device, textureFilename);
+	result = LoadTexture(textureFilename);
 	if(!result)
 	{
 		return false;
@@ -68,10 +67,10 @@ void ModelClass::Shutdown()
 }
 
 
-void ModelClass::Render(ID3D11DeviceContext* device_context)
+void ModelClass::Render()
 {
 	
-	RenderBuffers(device_context);
+	RenderBuffers();
 
 	
 }
@@ -89,10 +88,8 @@ ID3D11ShaderResourceView* ModelClass::GetTexture()
 }
 
 
-bool ModelClass::InitializeBuffers(ID3D11Device* device)
+bool ModelClass::InitializeBuffers()
 {
-	VertexType* vertices;
-	unsigned long* indices;
 	D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
     D3D11_SUBRESOURCE_DATA vertex_data, indexData;
 	HRESULT result;
@@ -136,6 +133,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 	vertex_data.SysMemPitch = 0;
 	vertex_data.SysMemSlicePitch = 0;
 
+	auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 	
     result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
 	if(FAILED(result))
@@ -194,7 +192,7 @@ void ModelClass::ShutdownBuffers()
 }
 
 
-void ModelClass::RenderBuffers(ID3D11DeviceContext* device_context)
+void ModelClass::RenderBuffers()
 {
 	unsigned int stride;
 	unsigned int offset;
@@ -204,7 +202,8 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* device_context)
 	stride = sizeof(VertexType); 
 	offset = 0;
     
-	
+	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
+
 	device_context->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
 
     
@@ -230,7 +229,7 @@ bool ModelClass::LoadTexture(WCHAR* filename)
 	}
 
 
-	result = texture_->Initialize(device, filename);
+	result = texture_->Initialize(filename);
 	if(!result)
 	{
 		return false;

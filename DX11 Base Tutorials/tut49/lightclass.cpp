@@ -28,16 +28,16 @@ void LightClass::SetDirection(float x, float y, float z)
 
 void LightClass::SetPosition(float x, float y, float z)
 {
-	m_position = XMFLOAT3(x, y, z);
+	light_position_ = XMFLOAT3(x, y, z);
 	
 }
 
 
 void LightClass::SetLookAt(float x, float y, float z)
 {
-	m_lookAt.x = x;
-	m_lookAt.y = y;
-	m_lookAt.z = z;
+	light_look_at_.x = x;
+	light_look_at_.y = y;
+	light_look_at_.z = z;
 	
 }
 
@@ -50,7 +50,7 @@ XMFLOAT3 LightClass::GetDirection()
 
 XMFLOAT3 LightClass::GetPosition()
 {
-	return m_position;
+	return light_position_;
 }
 
 
@@ -66,18 +66,18 @@ void LightClass::GenerateViewMatrix()
 	up.m128_f32[ 2 ] = 0.0f;
 	up.m128_f32[ 3 ] = 1.0f;
 
-	position.m128_f32[ 0 ] = m_position.x;
-	position.m128_f32[ 1 ] = m_position.y;
-	position.m128_f32[ 2 ] = m_position.z;
+	position.m128_f32[ 0 ] = light_position_.x;
+	position.m128_f32[ 1 ] = light_position_.y;
+	position.m128_f32[ 2 ] = light_position_.z;
 	position.m128_f32[ 3 ] = 1.0f;
 
-	lookAt.m128_f32[ 0 ] = m_lookAt.x;
-	lookAt.m128_f32[ 1 ] = m_lookAt.y;
-	lookAt.m128_f32[ 2 ] = m_lookAt.z;
+	lookAt.m128_f32[ 0 ] = light_look_at_.x;
+	lookAt.m128_f32[ 1 ] = light_look_at_.y;
+	lookAt.m128_f32[ 2 ] = light_look_at_.z;
 	lookAt.m128_f32[ 3 ] = 1.0f;
 
 	// Create the view matrix from the three vectors.
-	m_viewMatrix = XMMatrixLookAtLH( position, lookAt, up );
+	light_viewMatrix_ = XMMatrixLookAtLH( position, lookAt, up );
 
 	
 }
@@ -111,7 +111,7 @@ void LightClass::GenerateOrthoMatrix(float width, float height, float screenDept
 
 void LightClass::GetViewMatrix(XMMATRIX& viewMatrix)
 {
-	viewMatrix = m_viewMatrix;
+	viewMatrix = light_viewMatrix_;
 	
 }
 

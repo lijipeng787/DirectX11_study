@@ -1,19 +1,6 @@
-
-
-
-
-
-
-
-
-
-
 #include <DirectXMath.h>
+
 using namespace DirectX;
-
-
-
-
 
 class LightClass
 {
@@ -35,5 +22,3 @@ private:
 	XMFLOAT4 diffuse_color_;
 	XMFLOAT3 direction_;
 };
-
-#endif

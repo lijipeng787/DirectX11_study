@@ -1,29 +1,17 @@
-
-// Filename: deferredshaderclass.h
-
 #ifndef _DEFERREDSHADERCLASS_H_
 #define _DEFERREDSHADERCLASS_H_
-
-
-
-
 
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
 #include <fstream>
+
 using namespace std;
 using namespace DirectX;
 
-
-
-// Class name: DeferredShaderClass
-
-class DeferredShaderClass
-{
+class DeferredShaderClass {
 private:
-	struct MatrixBufferType
-	{
+	struct MatrixBufferType {
 		XMMATRIX world;
 		XMMATRIX view;
 		XMMATRIX projection;
@@ -36,14 +24,14 @@ public:
 
 	bool Initialize(HWND);
 	void Shutdown();
-	bool Render( int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&, ID3D11ShaderResourceView* );
+	bool Render(int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&, ID3D11ShaderResourceView*);
 
 private:
 	bool InitializeShader(HWND, WCHAR*, WCHAR*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters( const XMMATRIX&, const XMMATRIX&, const XMMATRIX&, ID3D11ShaderResourceView* );
+	bool SetShaderParameters(const XMMATRIX&, const XMMATRIX&, const XMMATRIX&, ID3D11ShaderResourceView*);
 	void RenderShader(int);
 
 private:

@@ -1,11 +1,3 @@
-
-// Filename: projection.vs
-
-
-
-
-
-
 cbuffer MatrixBuffer
 {
 	matrix worldMatrix;
@@ -20,10 +12,6 @@ cbuffer LightPositionBuffer
     float3 lightPosition;
 	float padding;
 };
-
-
-
-
 
 struct VertexInputType
 {
@@ -41,19 +29,12 @@ struct PixelInputType
 	float3 lightPos : TEXCOORD2;
 };
 
-
-
-
-
 PixelInputType ProjectionVertexShader(VertexInputType input)
 {
     PixelInputType output;
 	float4 worldPosition;
     
-
-
     input.position.w = 1.0f;
-
 	
     output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
@@ -64,13 +45,10 @@ PixelInputType ProjectionVertexShader(VertexInputType input)
     output.viewPosition = mul(output.viewPosition, viewMatrix2);
     output.viewPosition = mul(output.viewPosition, projectionMatrix2);
 
-	
 	output.tex = input.tex;
     
-	
     output.normal = mul(input.normal, (float3x3)worldMatrix);
 	
-    
     output.normal = normalize(output.normal);
 
     // Calculate the position of the vertex in the world.

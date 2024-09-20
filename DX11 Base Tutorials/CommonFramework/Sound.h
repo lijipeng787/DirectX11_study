@@ -2,22 +2,24 @@
 
 #include <dsound.h>
 
-class SoundClass{
+class SoundClass {
 public:
 	SoundClass();
 
 	SoundClass(const SoundClass& rhs) = delete;
 
 	SoundClass& operator=(const SoundClass& rhs) = delete;
-	
+
 	~SoundClass();
+
 public:
-	bool Initialize(HWND, char *sound_filename);
+	bool Initialize(HWND, char* sound_filename);
 
 	void Shutdown();
+
 private:
 	bool InitializeDirectSound(HWND);
-	
+
 	void ShutdownDirectSound();
 
 	bool LoadWaveFile(char*, IDirectSoundBuffer8**, IDirectSound3DBuffer8**);
@@ -25,6 +27,7 @@ private:
 	void ShutdownWaveFile(IDirectSoundBuffer8**, IDirectSound3DBuffer8**);
 
 	bool PlayWaveFile();
+
 private:
 	IDirectSound8* sound_device_ = nullptr;
 

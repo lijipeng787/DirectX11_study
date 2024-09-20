@@ -1,8 +1,6 @@
-
-// Filename: projectionshaderclass.cpp
-
 #include "projectionshaderclass.h"
 
+#include "../CommonFramework/DirectX11Device.h"
 
 ProjectionShaderClass::ProjectionShaderClass()
 {
@@ -31,7 +29,7 @@ bool ProjectionShaderClass::Initialize(HWND hwnd)
 
 
 	
-	result = InitializeShader(device, hwnd, L"../../tut43/projection.vs", L"../../tut43/projection.ps");
+	result = InitializeShader(hwnd, L"projection.vs", L"projection.ps");
 	if(!result)
 	{
 		return false;
@@ -129,6 +127,7 @@ bool ProjectionShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR
 		return false;
 	}
 
+	auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertex_shader_);
 	if(FAILED(result))
@@ -350,6 +349,7 @@ bool ProjectionShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, con
 	viewMatrix2Copy = XMMatrixTranspose( viewMatrix2 );
 	projectionMatrix2Copy = XMMatrixTranspose( projectionMatrix2 );
 
+	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
 	result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
@@ -411,6 +411,8 @@ bool ProjectionShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, con
 
 void ProjectionShaderClass::RenderShader(int indexCount)
 {
+
+	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
 	device_context->IASetInputLayout(layout_);
 

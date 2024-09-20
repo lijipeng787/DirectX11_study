@@ -21,7 +21,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 	bool result;
 
 	{
-		directx_device_ = new DirectX11Device;
+		auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 		if (!directx_device_) {
 			return false;
 		}
@@ -53,7 +53,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the ground model object.
-		result = m_GroundModel->Initialize("../../tut43/data/floor.txt", L"../../tut43/data/stone.dds");
+		result = m_GroundModel->Initialize("data/floor.txt", L"data/stone.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
 			return false;
@@ -68,7 +68,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the cube model object.
-		result = m_CubeModel->Initialize("../../tut43/data/cube.txt", L"../../tut43/data/seafloor.dds");
+		result = m_CubeModel->Initialize("data/cube.txt", L"data/seafloor.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
 			return false;
@@ -114,7 +114,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 		}
 
 		// Initialize the projection texture object.
-		result = m_ProjectionTexture->Initialize(L"../../tut43/data/dx11.dds");
+		result = m_ProjectionTexture->Initialize(L"data/dx11.dds");
 		if (!result) {
 			MessageBox(hwnd, L"Could not initialize the projection texture object.", L"Error", MB_OK);
 			return false;
@@ -191,12 +191,6 @@ void GraphicsClass::Shutdown() {
 		_aligned_free(camera_);
 		camera_ = nullptr;
 	}
-
-	
-		
-		
-		
-	}
 }
 
 bool GraphicsClass::Frame() {
@@ -218,39 +212,42 @@ bool GraphicsClass::Render() {
 	XMMATRIX viewMatrix2, projectionMatrix2;
 	bool result;
 
-	directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	DirectX11Device::GetD3d11DeviceInstance()->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera_->Render();
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(worldMatrix);
 	camera_->GetViewMatrix(viewMatrix);
-	directx_device_->GetProjectionMatrix(projectionMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetProjectionMatrix(projectionMatrix);
 
 	m_ViewPoint->GetViewMatrix(viewMatrix2);
 	m_ViewPoint->GetProjectionMatrix(projectionMatrix2);
 
 	worldMatrix = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
 
-	m_GroundModel->Render(directx_device_->GetDeviceContext());
-	result = m_ProjectionShader->Render(directx_device_->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+	m_GroundModel->Render();
+
+	result = m_ProjectionShader->Render(
+		m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		m_GroundModel->GetTexture(), light_->GetAmbientColor(), light_->GetDiffuseColor(), light_->GetDirection(),
 		viewMatrix2, projectionMatrix2, m_ProjectionTexture->GetTexture());
 	if (!result) {
 		return false;
 	}
 
-	directx_device_->GetWorldMatrix(worldMatrix);
+	DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(worldMatrix);
 	worldMatrix = XMMatrixTranslation(0.0f, 2.0f, 0.0f);
 
-	m_CubeModel->Render(directx_device_->GetDeviceContext());
-	result = m_ProjectionShader->Render(directx_device_->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+	m_CubeModel->Render();
+	result = m_ProjectionShader->Render(
+		m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		m_CubeModel->GetTexture(), light_->GetAmbientColor(), light_->GetDiffuseColor(), light_->GetDirection(),
 		viewMatrix2, projectionMatrix2, m_ProjectionTexture->GetTexture());
 	if (!result) {
 		return false;
 	}
 
-	directx_device_->EndScene();
+	DirectX11Device::GetD3d11DeviceInstance()->EndScene();
 
 	return true;
 }
