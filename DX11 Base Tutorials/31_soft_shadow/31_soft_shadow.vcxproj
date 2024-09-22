@@ -22,6 +22,7 @@
     <ProjectGuid>{F5174FF9-C4D1-41F5-B0D4-4E3EE38F9197}</ProjectGuid>
     <RootNamespace>tut42</RootNamespace>
     <ProjectName>31_soft_shadow</ProjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -102,6 +103,7 @@
       <AdditionalIncludeDirectories>..\..\DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StructMemberAlignment>16Bytes</StructMemberAlignment>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -151,15 +153,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="depthshaderclass.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="horizontalblurshaderclass.h" />
+    <ClInclude Include="IRenderable.h" />
+    <ClInclude Include="IRenderGroup.h" />
+    <ClInclude Include="IShader.h" />
     <ClInclude Include="lightclass.h" />
     <ClInclude Include="modelclass.h" />
     <ClInclude Include="orthowindowclass.h" />
     <ClInclude Include="positionclass.h" />
+    <ClInclude Include="RenderPipeline.h" />
+    <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="rendertextureclass.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="ShaderParameterContainer.h" />
+    <ClInclude Include="ShaderParameterLayout.h" />
     <ClInclude Include="shadowshaderclass.h" />
     <ClInclude Include="softshadowshaderclass.h" />
+    <ClInclude Include="StandardRenderGroup.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="textureclass.h" />
     <ClInclude Include="textureshaderclass.h" />
@@ -174,7 +186,10 @@
     <ClCompile Include="modelclass.cpp" />
     <ClCompile Include="orthowindowclass.cpp" />
     <ClCompile Include="positionclass.cpp" />
+    <ClCompile Include="RenderPipeline.cpp" />
+    <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="rendertextureclass.cpp" />
+    <ClCompile Include="ShaderParameterContainer.cpp" />
     <ClCompile Include="shadowshaderclass.cpp" />
     <ClCompile Include="softshadowshaderclass.cpp" />
     <ClCompile Include="System.cpp" />

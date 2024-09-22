@@ -61,9 +61,10 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
                  MB_OK);
       return false;
     }
-
     // Set the position for the cube model.
-    m_CubeModel->SetPosition(-2.0f, 2.0f, 0.0f);
+    // m_CubeModel->SetPosition(-2.0f, 2.0f, 0.0f);
+    m_CubeModel->SetWorldMatrix(
+        std::move(XMMatrixTranslation(-2.0f, 2.0f, 0.0f)));
   }
 
   {
@@ -82,7 +83,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
     }
 
     // Set the position for the sphere model.
-    m_SphereModel->SetPosition(2.0f, 2.0f, 0.0f);
+    // m_SphereModel->SetPosition(2.0f, 2.0f, 0.0f);
+    m_SphereModel->SetWorldMatrix(
+        std::move(XMMatrixTranslation(2.0f, 2.0f, 0.0f)));
   }
 
   {
@@ -102,7 +105,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
     }
 
     // Set the position for the ground model.
-    m_GroundModel->SetPosition(0.0f, 1.0f, 0.0f);
+    // m_GroundModel->SetPosition(0.0f, 1.0f, 0.0f);
+    m_GroundModel->SetWorldMatrix(
+        std::move(XMMatrixTranslation(0.0f, 1.0f, 0.0f)));
   }
 
   {
@@ -551,10 +556,6 @@ void GraphicsClass::Frame(float deltatime) {
 
 bool GraphicsClass::RenderSceneToTexture() {
 
-  XMMATRIX worldMatrix, lightViewMatrix, lightProjectionMatrix;
-  float posX, posY, posZ;
-  bool result;
-
   auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
   render_texture_->SetRenderTarget(directx_device_->GetDeviceContext());
@@ -563,42 +564,28 @@ bool GraphicsClass::RenderSceneToTexture() {
 
   light_->GenerateViewMatrix();
 
-  directx_device_->GetWorldMatrix(worldMatrix);
-
+  XMMATRIX lightViewMatrix, lightProjectionMatrix;
   light_->GetViewMatrix(lightViewMatrix);
   light_->GetProjectionMatrix(lightProjectionMatrix);
 
-  m_CubeModel->GetPosition(posX, posY, posZ);
-  worldMatrix = XMMatrixTranslation(posX, posY, posZ);
+  auto worldMatrix = m_CubeModel->GetWorldMatrix();
 
-  m_CubeModel->Render();
-  result = depth_shader_->Render(m_CubeModel->GetIndexCount(), worldMatrix,
-                                 lightViewMatrix, lightProjectionMatrix);
-  if (!result) {
-    return false;
-  }
+  ShaderParameterContainer parameters;
+  parameters.SetMatrix("worldMatrix", worldMatrix);
+  parameters.SetMatrix("viewMatrix", lightViewMatrix);
+  parameters.SetMatrix("projectionMatrix", lightProjectionMatrix);
 
-  directx_device_->GetWorldMatrix(worldMatrix);
-  m_SphereModel->GetPosition(posX, posY, posZ);
-  worldMatrix = XMMatrixTranslation(posX, posY, posZ);
-  m_SphereModel->Render();
-  result = depth_shader_->Render(m_SphereModel->GetIndexCount(), worldMatrix,
-                                 lightViewMatrix, lightProjectionMatrix);
-  if (!result) {
-    return false;
-  }
+  m_CubeModel->Render(*depth_shader_, parameters);
 
-  directx_device_->GetWorldMatrix(worldMatrix);
+  worldMatrix = m_SphereModel->GetWorldMatrix();
+  parameters.SetMatrix("worldMatrix", worldMatrix);
 
-  m_GroundModel->GetPosition(posX, posY, posZ);
-  worldMatrix = XMMatrixTranslation(posX, posY, posZ);
+  m_SphereModel->Render(*depth_shader_, parameters);
 
-  m_GroundModel->Render();
-  result = depth_shader_->Render(m_GroundModel->GetIndexCount(), worldMatrix,
-                                 lightViewMatrix, lightProjectionMatrix);
-  if (!result) {
-    return false;
-  }
+  worldMatrix = m_GroundModel->GetWorldMatrix();
+  parameters.SetMatrix("worldMatrix", worldMatrix);
+
+  m_GroundModel->Render(*depth_shader_, parameters);
 
   directx_device_->SetBackBufferRenderTarget();
 
@@ -608,11 +595,6 @@ bool GraphicsClass::RenderSceneToTexture() {
 }
 
 bool GraphicsClass::RenderBlackAndWhiteShadows() {
-
-  XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-  XMMATRIX lightViewMatrix, lightProjectionMatrix;
-  float posX, posY, posZ;
-  bool result;
 
   auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
@@ -631,61 +613,39 @@ bool GraphicsClass::RenderBlackAndWhiteShadows() {
 
   // Get the world, view, and projection matrices from the camera and d3d
   // objects.
+  XMMATRIX viewMatrix, projectionMatrix;
   camera_->GetViewMatrix(viewMatrix);
-  directx_device_->GetWorldMatrix(worldMatrix);
   directx_device_->GetProjectionMatrix(projectionMatrix);
 
   // Get the light's view and projection matrices from the light object.
+  XMMATRIX lightViewMatrix, lightProjectionMatrix;
   light_->GetViewMatrix(lightViewMatrix);
   light_->GetProjectionMatrix(lightProjectionMatrix);
 
-  // Setup the translation matrix for the cube model.
-  m_CubeModel->GetPosition(posX, posY, posZ);
-  worldMatrix = XMMatrixTranslation(posX, posY, posZ);
+  // Setup the world matrix for the cube model.
+  auto worldMatrix = m_CubeModel->GetWorldMatrix();
 
+  ShaderParameterContainer parameters;
+  parameters.SetMatrix("worldMatrix", worldMatrix);
+  parameters.SetMatrix("viewMatrix", viewMatrix);
+  parameters.SetMatrix("projectionMatrix", projectionMatrix);
+  parameters.SetMatrix("lightViewMatrix", lightViewMatrix);
+  parameters.SetMatrix("lightProjectionMatrix", lightProjectionMatrix);
+  parameters.SetTexture("depthMapTexture",
+                        render_texture_->GetShaderResourceView());
+  parameters.SetVector3("lightPosition", light_->GetPosition());
   // Render the cube model using the shadow shader.
-  m_CubeModel->Render();
-  result = m_ShadowShader->Render(
-      m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-      lightViewMatrix, lightProjectionMatrix,
-      render_texture_->GetShaderResourceView(), light_->GetPosition());
-  if (!result) {
-    return false;
-  }
+  m_CubeModel->Render(*m_ShadowShader, parameters);
 
-  // Reset the world matrix.
-  directx_device_->GetWorldMatrix(worldMatrix);
+  worldMatrix = m_SphereModel->GetWorldMatrix();
+  parameters.SetMatrix("worldMatrix", worldMatrix);
 
-  // Setup the translation matrix for the sphere model.
-  m_SphereModel->GetPosition(posX, posY, posZ);
-  worldMatrix = XMMatrixTranslation(posX, posY, posZ);
+  m_SphereModel->Render(*m_ShadowShader, parameters);
 
-  // Render the sphere model using the shadow shader.
-  m_SphereModel->Render();
-  result = m_ShadowShader->Render(
-      m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-      lightViewMatrix, lightProjectionMatrix,
-      render_texture_->GetShaderResourceView(), light_->GetPosition());
-  if (!result) {
-    return false;
-  }
+  worldMatrix = m_GroundModel->GetWorldMatrix();
+  parameters.SetMatrix("worldMatrix", worldMatrix);
 
-  // Reset the world matrix.
-  directx_device_->GetWorldMatrix(worldMatrix);
-
-  // Setup the translation matrix for the ground model.
-  m_GroundModel->GetPosition(posX, posY, posZ);
-  worldMatrix = XMMatrixTranslation(posX, posY, posZ);
-
-  // Render the ground model using the shadow shader.
-  m_GroundModel->Render();
-  result = m_ShadowShader->Render(
-      m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-      lightViewMatrix, lightProjectionMatrix,
-      render_texture_->GetShaderResourceView(), light_->GetPosition());
-  if (!result) {
-    return false;
-  }
+  m_GroundModel->Render(*m_ShadowShader, parameters);
 
   // Reset the render target back to the original back buffer and not the render
   // to texture anymore.
@@ -699,9 +659,6 @@ bool GraphicsClass::RenderBlackAndWhiteShadows() {
 
 bool GraphicsClass::DownSampleTexture() {
 
-  XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
-  bool result;
-
   auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
   m_DownSampleTexure->SetRenderTarget(directx_device_->GetDeviceContext());
@@ -713,6 +670,7 @@ bool GraphicsClass::DownSampleTexture() {
   camera_->Render();
 
   // Get the world and view matrices from the camera and d3d objects.
+  XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
   directx_device_->GetWorldMatrix(worldMatrix);
   camera_->GetBaseViewMatrix(baseViewMatrix);
 
@@ -729,9 +687,15 @@ bool GraphicsClass::DownSampleTexture() {
 
   // Render the small ortho window using the texture shader and the render to
   // texture of the scene as the texture resource.
-  result = texture_shader_->Render(
-      m_SmallWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
-      m_BlackWhiteRenderTexture->GetShaderResourceView());
+  ShaderParameterContainer parameters;
+  parameters.SetMatrix("worldMatrix", worldMatrix);
+  parameters.SetMatrix("baseViewMatrix", baseViewMatrix);
+  parameters.SetMatrix("orthoMatrix", orthoMatrix);
+  parameters.SetTexture("texture",
+                        m_BlackWhiteRenderTexture->GetShaderResourceView());
+
+  auto result =
+      texture_shader_->Render(m_SmallWindow->GetIndexCount(), parameters);
   if (!result) {
     return false;
   }
@@ -751,13 +715,9 @@ bool GraphicsClass::DownSampleTexture() {
 
 bool GraphicsClass::RenderHorizontalBlurToTexture() {
 
-  XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
-  float screenSizeX;
-  bool result;
-
   // Store the screen width in a float that will be used in the horizontal blur
   // shader.
-  screenSizeX = (float)(SHADOWMAP_WIDTH / 2);
+  auto screenSizeX = (float)(SHADOWMAP_WIDTH / 2);
 
   auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
@@ -771,8 +731,9 @@ bool GraphicsClass::RenderHorizontalBlurToTexture() {
   camera_->Render();
 
   // Get the world and view matrices from the camera and d3d objects.
-  camera_->GetBaseViewMatrix(baseViewMatrix);
+  XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
   directx_device_->GetWorldMatrix(worldMatrix);
+  camera_->GetBaseViewMatrix(baseViewMatrix);
 
   // Get the ortho matrix from the render to texture since texture has different
   // dimensions.
@@ -787,9 +748,16 @@ bool GraphicsClass::RenderHorizontalBlurToTexture() {
 
   // Render the small ortho window using the horizontal blur shader and the down
   // sampled render to texture resource.
-  result = m_HorizontalBlurShader->Render(
-      m_SmallWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
-      m_DownSampleTexure->GetShaderResourceView(), screenSizeX);
+
+  ShaderParameterContainer parameters;
+  parameters.SetMatrix("worldMatrix", worldMatrix);
+  parameters.SetMatrix("viewMatrix", baseViewMatrix);
+  parameters.SetMatrix("projectionMatrix", orthoMatrix);
+  parameters.SetFloat("screenWidth", screenSizeX);
+  parameters.SetTexture("texture", m_DownSampleTexure->GetShaderResourceView());
+
+  auto result = m_HorizontalBlurShader->Render(m_SmallWindow->GetIndexCount(),
+                                               parameters);
   if (!result) {
     return false;
   }
@@ -809,13 +777,9 @@ bool GraphicsClass::RenderHorizontalBlurToTexture() {
 
 bool GraphicsClass::RenderVerticalBlurToTexture() {
 
-  XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
-  float screenSizeY;
-  bool result;
-
   // Store the screen height in a float that will be used in the vertical blur
   // shader.
-  screenSizeY = (float)(SHADOWMAP_HEIGHT / 2);
+  auto screenSizeY = (float)(SHADOWMAP_HEIGHT / 2);
 
   auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
@@ -829,8 +793,9 @@ bool GraphicsClass::RenderVerticalBlurToTexture() {
   camera_->Render();
 
   // Get the world and view matrices from the camera and d3d objects.
-  camera_->GetBaseViewMatrix(baseViewMatrix);
+  XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
   directx_device_->GetWorldMatrix(worldMatrix);
+  camera_->GetBaseViewMatrix(baseViewMatrix);
 
   // Get the ortho matrix from the render to texture since texture has different
   // dimensions.
@@ -843,11 +808,18 @@ bool GraphicsClass::RenderVerticalBlurToTexture() {
   // pipeline to prepare them for drawing.
   m_SmallWindow->Render(directx_device_->GetDeviceContext());
 
+  ShaderParameterContainer parameters;
+  parameters.SetMatrix("worldMatrix", worldMatrix);
+  parameters.SetMatrix("viewMatrix", baseViewMatrix);
+  parameters.SetMatrix("projectionMatrix", orthoMatrix);
+  parameters.SetFloat("screenHeight", screenSizeY);
+  parameters.SetTexture("texture",
+                        m_HorizontalBlurTexture->GetShaderResourceView());
+
   // Render the small ortho window using the vertical blur shader and the
   // horizontal blurred render to texture resource.
-  result = m_VerticalBlurShader->Render(
-      m_SmallWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
-      m_HorizontalBlurTexture->GetShaderResourceView(), screenSizeY);
+  auto result =
+      m_VerticalBlurShader->Render(m_SmallWindow->GetIndexCount(), parameters);
   if (!result) {
     return false;
   }
@@ -867,9 +839,6 @@ bool GraphicsClass::RenderVerticalBlurToTexture() {
 
 bool GraphicsClass::UpSampleTexture() {
 
-  XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
-  bool result;
-
   auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
   // Set the render target to be the render to texture.
@@ -882,8 +851,9 @@ bool GraphicsClass::UpSampleTexture() {
   camera_->Render();
 
   // Get the world and view matrices from the camera and d3d objects.
-  camera_->GetBaseViewMatrix(baseViewMatrix);
+  XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
   directx_device_->GetWorldMatrix(worldMatrix);
+  camera_->GetBaseViewMatrix(baseViewMatrix);
 
   // Get the ortho matrix from the render to texture since texture has different
   // dimensions.
@@ -898,9 +868,16 @@ bool GraphicsClass::UpSampleTexture() {
 
   // Render the full screen ortho window using the texture shader and the small
   // sized final blurred render to texture resource.
-  result = texture_shader_->Render(
-      m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix,
-      orthoMatrix, m_VerticalBlurTexture->GetShaderResourceView());
+
+  ShaderParameterContainer parameters;
+  parameters.SetMatrix("worldMatrix", worldMatrix);
+  parameters.SetMatrix("baseViewMatrix", baseViewMatrix);
+  parameters.SetMatrix("orthoMatrix", orthoMatrix);
+  parameters.SetTexture("texture",
+                        m_VerticalBlurTexture->GetShaderResourceView());
+
+  auto result =
+      texture_shader_->Render(m_FullScreenWindow->GetIndexCount(), parameters);
   if (!result) {
     return false;
   }
@@ -919,12 +896,9 @@ bool GraphicsClass::UpSampleTexture() {
 }
 
 void GraphicsClass::Render() {
-  bool result;
-  XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-  float posX, posY, posZ;
 
   // First render the scene to a texture.
-  result = RenderSceneToTexture();
+  auto result = RenderSceneToTexture();
   if (!result) {
     return;
   }
@@ -970,58 +944,43 @@ void GraphicsClass::Render() {
 
   // Get the world, view, and projection matrices from the camera and d3d
   // objects.
+  XMMATRIX viewMatrix, projectionMatrix;
   camera_->GetViewMatrix(viewMatrix);
-  directx_device_->GetWorldMatrix(worldMatrix);
   directx_device_->GetProjectionMatrix(projectionMatrix);
 
-  // Setup the translation matrix for the cube model.
-  m_CubeModel->GetPosition(posX, posY, posZ);
-  worldMatrix = XMMatrixTranslation(posX, posY, posZ);
+  // Setup the world matrix for the cube model.
+  auto worldMatrix = m_CubeModel->GetWorldMatrix();
+
+  ShaderParameterContainer parameters;
+  parameters.SetMatrix("worldMatrix", worldMatrix);
+  parameters.SetMatrix("viewMatrix", viewMatrix);
+  parameters.SetMatrix("projectionMatrix", projectionMatrix);
+  parameters.SetTexture("shadowTexture",
+                        m_UpSampleTexure->GetShaderResourceView());
+  parameters.SetVector3("lightPosition", light_->GetPosition());
+  parameters.SetTexture("texture", m_CubeModel->GetTexture());
+  parameters.SetVector4("diffuseColor", light_->GetDiffuseColor());
+  parameters.SetVector4("ambientColor", light_->GetAmbientColor());
 
   // Render the cube model using the soft shadow shader.
-  m_CubeModel->Render();
-  result = m_SoftShadowShader->Render(
-      m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-      m_CubeModel->GetTexture(), m_UpSampleTexure->GetShaderResourceView(),
-      light_->GetPosition(), light_->GetAmbientColor(),
-      light_->GetDiffuseColor());
-  if (!result) {
-    return;
-  }
+  m_CubeModel->Render(*m_SoftShadowShader, parameters);
 
-  // Reset the world matrix.
-  directx_device_->GetWorldMatrix(worldMatrix);
+  worldMatrix = m_SphereModel->GetWorldMatrix();
 
-  // Setup the translation matrix for the sphere model.
-  m_SphereModel->GetPosition(posX, posY, posZ);
-  worldMatrix = XMMatrixTranslation(posX, posY, posZ);
+  parameters.SetMatrix("worldMatrix", worldMatrix);
+  parameters.SetTexture("texture", m_SphereModel->GetTexture());
 
-  // Render the sphere model using the soft shadow shader.
-  m_SphereModel->Render();
+  m_SphereModel->Render(*m_SoftShadowShader, parameters);
 
-  result = m_SoftShadowShader->Render(
-      m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-      m_SphereModel->GetTexture(), m_UpSampleTexure->GetShaderResourceView(),
-      light_->GetPosition(), light_->GetAmbientColor(),
-      light_->GetDiffuseColor());
-  if (!result) {
-    return;
-  }
+  worldMatrix = m_GroundModel->GetWorldMatrix();
 
-  // Reset the world matrix.
-  directx_device_->GetWorldMatrix(worldMatrix);
+  parameters.SetMatrix("worldMatrix", worldMatrix);
+  parameters.SetTexture("texture", m_GroundModel->GetTexture());
 
-  // Setup the translation matrix for the ground model.
-  m_GroundModel->GetPosition(posX, posY, posZ);
-  worldMatrix = XMMatrixTranslation(posX, posY, posZ);
+  m_GroundModel->Render(*m_SoftShadowShader, parameters);
 
-  // Render the ground model using the soft shadow shader.
-  m_GroundModel->Render();
-  result = m_SoftShadowShader->Render(
-      m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-      m_GroundModel->GetTexture(), m_UpSampleTexure->GetShaderResourceView(),
-      light_->GetPosition(), light_->GetAmbientColor(),
-      light_->GetDiffuseColor());
+  result =
+      m_SoftShadowShader->Render(m_GroundModel->GetIndexCount(), parameters);
   if (!result) {
     return;
   }

@@ -1,46 +1,55 @@
-
-
 #ifndef _DEPTHSHADERCLASS_H_
 #define _DEPTHSHADERCLASS_H_
 
 #include <DirectXMath.h>
 #include <d3d11.h>
-#include <d3dcompiler.h>
-#include <fstream>
-using namespace std;
-using namespace DirectX;
+#include <wrl/client.h>
 
-class DepthShaderClass {
+#include "IShader.h"
+
+class DepthShaderClass : public IShader {
 private:
   struct MatrixBufferType {
-    XMMATRIX world;
-    XMMATRIX view;
-    XMMATRIX projection;
+    DirectX::XMMATRIX world;
+    DirectX::XMMATRIX view;
+    DirectX::XMMATRIX projection;
   };
 
 public:
-  DepthShaderClass();
-  DepthShaderClass(const DepthShaderClass &);
-  ~DepthShaderClass();
+  DepthShaderClass() = default;
 
-  bool Initialize(HWND);
-  void Shutdown();
-  bool Render(int, const XMMATRIX &, const XMMATRIX &, const XMMATRIX &);
+  DepthShaderClass(const DepthShaderClass &) = delete;
+
+  ~DepthShaderClass() = default;
+
+public:
+  bool Initialize(HWND) override;
+
+  void Shutdown() override;
+
+  bool
+  Render(int,
+         const ShaderParameterContainer &parameterContainer) const override;
 
 private:
   bool InitializeShader(HWND, WCHAR *, WCHAR *);
+
   void ShutdownShader();
+
   void OutputShaderErrorMessage(ID3D10Blob *, HWND, WCHAR *);
 
-  bool SetShaderParameters(const XMMATRIX &, const XMMATRIX &,
-                           const XMMATRIX &);
-  void RenderShader(int);
+  bool SetShaderParameters(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &,
+                           const DirectX::XMMATRIX &) const;
+
+  void RenderShader(int) const;
 
 private:
-  ID3D11VertexShader *vertex_shader_;
-  ID3D11PixelShader *pixel_shader_;
-  ID3D11InputLayout *layout_;
-  ID3D11Buffer *matrix_buffer_;
+  Microsoft::WRL::ComPtr<ID3D11VertexShader> vertex_shader_;
+  Microsoft::WRL::ComPtr<ID3D11PixelShader> pixel_shader_;
+
+  Microsoft::WRL::ComPtr<ID3D11InputLayout> layout_;
+
+  Microsoft::WRL::ComPtr<ID3D11Buffer> matrix_buffer_;
 };
 
 #endif

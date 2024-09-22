@@ -1,23 +1,14 @@
 
 
 #include "softshadowshaderclass.h"
+
+#include <d3dcompiler.h>
+#include <fstream>
+
 #include "../CommonFramework/DirectX11Device.h"
 
-SoftShadowShaderClass::SoftShadowShaderClass() {
-  vertex_shader_ = nullptr;
-  pixel_shader_ = nullptr;
-  layout_ = nullptr;
-  m_sampleStateWrap = 0;
-  m_sampleStateClamp = 0;
-  matrix_buffer_ = nullptr;
-  light_buffer_ = nullptr;
-  m_lightBuffer2 = 0;
-}
-
-SoftShadowShaderClass::SoftShadowShaderClass(
-    const SoftShadowShaderClass &other) {}
-
-SoftShadowShaderClass::~SoftShadowShaderClass() {}
+using namespace std;
+using namespace DirectX;
 
 bool SoftShadowShaderClass::Initialize(HWND hwnd) {
   bool result;
@@ -33,15 +24,20 @@ bool SoftShadowShaderClass::Initialize(HWND hwnd) {
 void SoftShadowShaderClass::Shutdown() { ShutdownShader(); }
 
 bool SoftShadowShaderClass::Render(
-    int indexCount, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix,
-    const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView *texture,
-    ID3D11ShaderResourceView *shadowTexture, const XMFLOAT3 &lightPosition,
-    const XMFLOAT4 &ambientColor, const XMFLOAT4 &diffuseColor) {
-  bool result;
+    int indexCount, const ShaderParameterContainer &parameters) const {
 
-  result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix,
-                               texture, shadowTexture, lightPosition,
-                               ambientColor, diffuseColor);
+  auto worldMatrix = parameters.GetMatrix("worldMatrix");
+  auto viewMatrix = parameters.GetMatrix("viewMatrix");
+  auto projectionMatrix = parameters.GetMatrix("projectionMatrix");
+  auto shadowTexture = parameters.GetTexture("shadowTexture");
+  auto lightPosition = parameters.GetVector3("lightPosition");
+  auto texture = parameters.GetTexture("texture");
+  auto diffuseColor = parameters.GetVector4("diffuseColor");
+  auto ambientColor = parameters.GetVector4("ambientColor");
+
+  auto result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix,
+                                    texture, shadowTexture, lightPosition,
+                                    ambientColor, diffuseColor);
   if (!result) {
     return false;
   }
@@ -226,49 +222,7 @@ bool SoftShadowShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
   return true;
 }
 
-void SoftShadowShaderClass::ShutdownShader() {
-  // Release the light constant buffers.
-  if (light_buffer_) {
-    light_buffer_->Release();
-    light_buffer_ = nullptr;
-  }
-
-  if (m_lightBuffer2) {
-    m_lightBuffer2->Release();
-    m_lightBuffer2 = 0;
-  }
-
-  if (matrix_buffer_) {
-    matrix_buffer_->Release();
-    matrix_buffer_ = nullptr;
-  }
-
-  // Release the sampler states.
-  if (m_sampleStateWrap) {
-    m_sampleStateWrap->Release();
-    m_sampleStateWrap = 0;
-  }
-
-  if (m_sampleStateClamp) {
-    m_sampleStateClamp->Release();
-    m_sampleStateClamp = 0;
-  }
-
-  if (layout_) {
-    layout_->Release();
-    layout_ = nullptr;
-  }
-
-  if (pixel_shader_) {
-    pixel_shader_->Release();
-    pixel_shader_ = nullptr;
-  }
-
-  if (vertex_shader_) {
-    vertex_shader_->Release();
-    vertex_shader_ = nullptr;
-  }
-}
+void SoftShadowShaderClass::ShutdownShader() {}
 
 void SoftShadowShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage,
                                                      HWND hwnd,
@@ -301,8 +255,8 @@ bool SoftShadowShaderClass::SetShaderParameters(
     const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix,
     const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView *texture,
     ID3D11ShaderResourceView *shadowTexture, const XMFLOAT3 &lightPosition,
-    const XMFLOAT4 &ambientColor, const XMFLOAT4 &diffuseColor) {
-  HRESULT result;
+    const XMFLOAT4 &ambientColor, const XMFLOAT4 &diffuseColor) const {
+
   D3D11_MAPPED_SUBRESOURCE mappedResource;
   unsigned int buffer_number;
   MatrixBufferType *dataPtr;
@@ -320,8 +274,8 @@ bool SoftShadowShaderClass::SetShaderParameters(
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
-                               &mappedResource);
+  auto result = device_context->Map(
+      matrix_buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }
@@ -332,17 +286,18 @@ bool SoftShadowShaderClass::SetShaderParameters(
   dataPtr->view = viewMatrixCopy;
   dataPtr->projection = projectionMatrixCopy;
 
-  device_context->Unmap(matrix_buffer_, 0);
+  device_context->Unmap(matrix_buffer_.Get(), 0);
 
   buffer_number = 0;
 
-  device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
+  device_context->VSSetConstantBuffers(buffer_number, 1,
+                                       matrix_buffer_.GetAddressOf());
 
   device_context->PSSetShaderResources(0, 1, &texture);
   device_context->PSSetShaderResources(1, 1, &shadowTexture);
 
-  result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
-                               &mappedResource);
+  result = device_context->Map(light_buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD,
+                               0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }
@@ -352,16 +307,17 @@ bool SoftShadowShaderClass::SetShaderParameters(
   dataPtr2->ambientColor = ambientColor;
   dataPtr2->diffuseColor = diffuseColor;
 
-  device_context->Unmap(light_buffer_, 0);
+  device_context->Unmap(light_buffer_.Get(), 0);
 
   buffer_number = 0;
 
-  device_context->PSSetConstantBuffers(buffer_number, 1, &light_buffer_);
+  device_context->PSSetConstantBuffers(buffer_number, 1,
+                                       light_buffer_.GetAddressOf());
 
   // Lock the second light constant buffer so it can be written to.
 
-  result = device_context->Map(m_lightBuffer2, 0, D3D11_MAP_WRITE_DISCARD, 0,
-                               &mappedResource);
+  result = device_context->Map(m_lightBuffer2.Get(), 0, D3D11_MAP_WRITE_DISCARD,
+                               0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }
@@ -371,29 +327,30 @@ bool SoftShadowShaderClass::SetShaderParameters(
   dataPtr3->lightPosition = lightPosition;
   dataPtr3->padding = 0.0f;
 
-  device_context->Unmap(m_lightBuffer2, 0);
+  device_context->Unmap(m_lightBuffer2.Get(), 0);
 
   // Set the position of the light constant buffer in the vertex shader.
   buffer_number = 1;
 
-  device_context->VSSetConstantBuffers(buffer_number, 1, &m_lightBuffer2);
+  device_context->VSSetConstantBuffers(buffer_number, 1,
+                                       m_lightBuffer2.GetAddressOf());
 
   return true;
 }
 
-void SoftShadowShaderClass::RenderShader(int indexCount) {
+void SoftShadowShaderClass::RenderShader(int indexCount) const {
 
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  device_context->IASetInputLayout(layout_);
+  device_context->IASetInputLayout(layout_.Get());
 
-  device_context->VSSetShader(vertex_shader_, NULL, 0);
-  device_context->PSSetShader(pixel_shader_, NULL, 0);
+  device_context->VSSetShader(vertex_shader_.Get(), NULL, 0);
+  device_context->PSSetShader(pixel_shader_.Get(), NULL, 0);
 
   // Set the sampler states in the pixel shader.
-  device_context->PSSetSamplers(0, 1, &m_sampleStateClamp);
-  device_context->PSSetSamplers(1, 1, &m_sampleStateWrap);
+  device_context->PSSetSamplers(0, 1, m_sampleStateClamp.GetAddressOf());
+  device_context->PSSetSamplers(1, 1, m_sampleStateWrap.GetAddressOf());
 
   device_context->DrawIndexed(indexCount, 0, 0);
 }

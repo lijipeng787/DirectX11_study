@@ -1,20 +1,48 @@
 #pragma once
+//
+// #include <DDSTextureLoader.h>
+// #include <d3d11.h>
+// using namespace DirectX;
+//
+// class TextureClass {
+// public:
+//  TextureClass();
+//  TextureClass(const TextureClass &);
+//  ~TextureClass();
+//
+//  bool Initialize(WCHAR *);
+//  void Shutdown();
+//
+//  ID3D11ShaderResourceView *GetTexture();
+//
+// private:
+//  ID3D11ShaderResourceView *texture_;
+//};
 
-#include <DDSTextureLoader.h>
 #include <d3d11.h>
-using namespace DirectX;
+#include <wrl/client.h>
 
 class TextureClass {
 public:
-  TextureClass();
-  TextureClass(const TextureClass &);
-  ~TextureClass();
+  explicit TextureClass() = default;
 
-  bool Initialize(WCHAR *);
+  TextureClass(const TextureClass &) = delete;
+
+  TextureClass &operator=(const TextureClass &) = delete;
+
+  TextureClass(TextureClass &&) noexcept = default;
+
+  TextureClass &operator=(TextureClass &&) noexcept = default;
+
+  virtual ~TextureClass() = default;
+
+public:
+  bool Initialize(const WCHAR *filename);
+
   void Shutdown();
 
-  ID3D11ShaderResourceView *GetTexture();
+  ID3D11ShaderResourceView *GetTexture() const;
 
 private:
-  ID3D11ShaderResourceView *texture_;
+  Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture_;
 };

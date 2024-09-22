@@ -3,19 +3,11 @@
 #include "verticalblurshaderclass.h"
 #include "../CommonFramework/DirectX11Device.h"
 
-VerticalBlurShaderClass::VerticalBlurShaderClass() {
-  vertex_shader_ = nullptr;
-  pixel_shader_ = nullptr;
-  layout_ = nullptr;
-  sample_state_ = nullptr;
-  matrix_buffer_ = nullptr;
-  screen_size_buffer_ = 0;
-}
+#include <d3dcompiler.h>
+#include <fstream>
 
-VerticalBlurShaderClass::VerticalBlurShaderClass(
-    const VerticalBlurShaderClass &other) {}
-
-VerticalBlurShaderClass::~VerticalBlurShaderClass() {}
+using namespace std;
+using namespace DirectX;
 
 bool VerticalBlurShaderClass::Initialize(HWND hwnd) {
   bool result;
@@ -30,16 +22,17 @@ bool VerticalBlurShaderClass::Initialize(HWND hwnd) {
 
 void VerticalBlurShaderClass::Shutdown() { ShutdownShader(); }
 
-bool VerticalBlurShaderClass::Render(int indexCount,
-                                     const XMMATRIX &worldMatrix,
-                                     const XMMATRIX &viewMatrix,
-                                     const XMMATRIX &projectionMatrix,
-                                     ID3D11ShaderResourceView *texture,
-                                     float screenHeight) {
-  bool result;
+bool VerticalBlurShaderClass::Render(
+    int indexCount, const ShaderParameterContainer &parameters) const {
 
-  result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix,
-                               texture, screenHeight);
+  auto worldMatrix = parameters.GetMatrix("worldMatrix");
+  auto viewMatrix = parameters.GetMatrix("viewMatrix");
+  auto projectionMatrix = parameters.GetMatrix("projectionMatrix");
+  auto screenHeight = parameters.GetFloat("screenHeight");
+  auto texture = parameters.GetTexture("texture");
+
+  auto result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix,
+                                    texture, screenHeight);
   if (!result) {
     return false;
   }
@@ -101,14 +94,14 @@ bool VerticalBlurShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
 
   result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
                                       vertexShaderBuffer->GetBufferSize(), NULL,
-                                      &vertex_shader_);
+                                      vertex_shader_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
 
   result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
                                      pixelShaderBuffer->GetBufferSize(), NULL,
-                                     &pixel_shader_);
+                                     pixel_shader_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -191,38 +184,7 @@ bool VerticalBlurShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
   return true;
 }
 
-void VerticalBlurShaderClass::ShutdownShader() {
-
-  if (screen_size_buffer_) {
-    screen_size_buffer_->Release();
-    screen_size_buffer_ = 0;
-  }
-
-  if (matrix_buffer_) {
-    matrix_buffer_->Release();
-    matrix_buffer_ = nullptr;
-  }
-
-  if (sample_state_) {
-    sample_state_->Release();
-    sample_state_ = nullptr;
-  }
-
-  if (layout_) {
-    layout_->Release();
-    layout_ = nullptr;
-  }
-
-  if (pixel_shader_) {
-    pixel_shader_->Release();
-    pixel_shader_ = nullptr;
-  }
-
-  if (vertex_shader_) {
-    vertex_shader_->Release();
-    vertex_shader_ = nullptr;
-  }
-}
+void VerticalBlurShaderClass::ShutdownShader() {}
 
 void VerticalBlurShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage,
                                                        HWND hwnd,
@@ -254,7 +216,7 @@ void VerticalBlurShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage,
 bool VerticalBlurShaderClass::SetShaderParameters(
     const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix,
     const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView *texture,
-    float screenHeight) {
+    float screenHeight) const {
   HRESULT result;
   D3D11_MAPPED_SUBRESOURCE mappedResource;
   MatrixBufferType *dataPtr;
@@ -272,8 +234,8 @@ bool VerticalBlurShaderClass::SetShaderParameters(
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
-                               &mappedResource);
+  result = device_context->Map(matrix_buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD,
+                               0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }
@@ -284,14 +246,15 @@ bool VerticalBlurShaderClass::SetShaderParameters(
   dataPtr->view = viewMatrixCopy;
   dataPtr->projection = projectionMatrixCopy;
 
-  device_context->Unmap(matrix_buffer_, 0);
+  device_context->Unmap(matrix_buffer_.Get(), 0);
 
   buffer_number = 0;
 
-  device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
+  device_context->VSSetConstantBuffers(buffer_number, 1,
+                                       matrix_buffer_.GetAddressOf());
 
-  result = device_context->Map(screen_size_buffer_, 0, D3D11_MAP_WRITE_DISCARD,
-                               0, &mappedResource);
+  result = device_context->Map(screen_size_buffer_.Get(), 0,
+                               D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }
@@ -301,28 +264,29 @@ bool VerticalBlurShaderClass::SetShaderParameters(
   dataPtr2->screenHeight = screenHeight;
   dataPtr2->padding = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-  device_context->Unmap(screen_size_buffer_, 0);
+  device_context->Unmap(screen_size_buffer_.Get(), 0);
 
   buffer_number = 1;
 
-  device_context->VSSetConstantBuffers(buffer_number, 1, &screen_size_buffer_);
+  device_context->VSSetConstantBuffers(buffer_number, 1,
+                                       screen_size_buffer_.GetAddressOf());
 
   device_context->PSSetShaderResources(0, 1, &texture);
 
   return true;
 }
 
-void VerticalBlurShaderClass::RenderShader(int indexCount) {
+void VerticalBlurShaderClass::RenderShader(int indexCount) const {
 
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  device_context->IASetInputLayout(layout_);
+  device_context->IASetInputLayout(layout_.Get());
 
-  device_context->VSSetShader(vertex_shader_, NULL, 0);
-  device_context->PSSetShader(pixel_shader_, NULL, 0);
+  device_context->VSSetShader(vertex_shader_.Get(), NULL, 0);
+  device_context->PSSetShader(pixel_shader_.Get(), NULL, 0);
 
-  device_context->PSSetSamplers(0, 1, &sample_state_);
+  device_context->PSSetSamplers(0, 1, sample_state_.GetAddressOf());
 
   device_context->DrawIndexed(indexCount, 0, 0);
 }

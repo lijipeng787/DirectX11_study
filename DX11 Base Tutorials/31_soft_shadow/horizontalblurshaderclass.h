@@ -5,50 +5,62 @@
 
 #include <DirectXMath.h>
 #include <d3d11.h>
-#include <d3dcompiler.h>
-#include <fstream>
-using namespace std;
-using namespace DirectX;
+#include <wrl/client.h>
 
-class HorizontalBlurShaderClass {
+#include "IShader.h"
+
+class HorizontalBlurShaderClass : public IShader {
 private:
   struct MatrixBufferType {
-    XMMATRIX world;
-    XMMATRIX view;
-    XMMATRIX projection;
+    DirectX::XMMATRIX world;
+    DirectX::XMMATRIX view;
+    DirectX::XMMATRIX projection;
   };
 
   struct ScreenSizeBufferType {
     float screenWidth;
-    XMFLOAT3 padding;
+    DirectX::XMFLOAT3 padding;
   };
 
 public:
-  HorizontalBlurShaderClass();
-  HorizontalBlurShaderClass(const HorizontalBlurShaderClass &);
-  ~HorizontalBlurShaderClass();
+  HorizontalBlurShaderClass() = default;
 
-  bool Initialize(HWND);
-  void Shutdown();
-  bool Render(int, const XMMATRIX &, const XMMATRIX &, const XMMATRIX &,
-              ID3D11ShaderResourceView *, float);
+  HorizontalBlurShaderClass(const HorizontalBlurShaderClass &) = delete;
+
+  ~HorizontalBlurShaderClass() = default;
+
+public:
+  bool Initialize(HWND) override;
+
+  void Shutdown() override;
+
+  bool
+  Render(int,
+         const ShaderParameterContainer &parameterContainer) const override;
 
 private:
   bool InitializeShader(HWND, WCHAR *, WCHAR *);
+
   void ShutdownShader();
+
   void OutputShaderErrorMessage(ID3D10Blob *, HWND, WCHAR *);
 
-  bool SetShaderParameters(const XMMATRIX &, const XMMATRIX &, const XMMATRIX &,
-                           ID3D11ShaderResourceView *, float);
-  void RenderShader(int);
+  bool SetShaderParameters(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &,
+                           const DirectX::XMMATRIX &,
+                           ID3D11ShaderResourceView *, float) const;
+
+  void RenderShader(int) const;
 
 private:
-  ID3D11VertexShader *vertex_shader_;
-  ID3D11PixelShader *pixel_shader_;
-  ID3D11InputLayout *layout_;
-  ID3D11SamplerState *sample_state_;
-  ID3D11Buffer *matrix_buffer_;
-  ID3D11Buffer *screen_size_buffer_;
+  Microsoft::WRL::ComPtr<ID3D11VertexShader> vertex_shader_;
+  Microsoft::WRL::ComPtr<ID3D11PixelShader> pixel_shader_;
+
+  Microsoft::WRL::ComPtr<ID3D11InputLayout> layout_;
+
+  Microsoft::WRL::ComPtr<ID3D11SamplerState> sample_state_;
+
+  Microsoft::WRL::ComPtr<ID3D11Buffer> matrix_buffer_;
+  Microsoft::WRL::ComPtr<ID3D11Buffer> screen_size_buffer_;
 };
 
 #endif

@@ -2,42 +2,54 @@
 
 #include <DirectXMath.h>
 #include <d3d11.h>
-#include <d3dcompiler.h>
-#include <fstream>
-using namespace std;
-using namespace DirectX;
+#include <wrl/client.h>
 
-class TextureShaderClass {
+#include "IShader.h"
+
+class TextureShaderClass : public IShader {
 private:
   struct MatrixBufferType {
-    XMMATRIX world;
-    XMMATRIX view;
-    XMMATRIX projection;
+    DirectX::XMMATRIX world;
+    DirectX::XMMATRIX view;
+    DirectX::XMMATRIX projection;
   };
 
 public:
-  TextureShaderClass();
-  TextureShaderClass(const TextureShaderClass &);
-  ~TextureShaderClass();
+  TextureShaderClass() = default;
 
-  bool Initialize(HWND);
-  void Shutdown();
-  bool Render(int, const XMMATRIX &, const XMMATRIX &, const XMMATRIX &,
-              ID3D11ShaderResourceView *);
+  TextureShaderClass(const TextureShaderClass &) = delete;
+
+  ~TextureShaderClass() = default;
+
+public:
+  bool Initialize(HWND) override;
+
+  void Shutdown() override;
+
+  bool
+  Render(int indexCount,
+         const ShaderParameterContainer &parameterContainer) const override;
 
 private:
   bool InitializeShader(HWND, WCHAR *, WCHAR *);
+
   void ShutdownShader();
+
   void OutputShaderErrorMessage(ID3D10Blob *, HWND, WCHAR *);
 
-  bool SetShaderParameters(const XMMATRIX &, const XMMATRIX &, const XMMATRIX &,
-                           ID3D11ShaderResourceView *);
-  void RenderShader(int);
+  bool SetShaderParameters(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &,
+                           const DirectX::XMMATRIX &,
+                           ID3D11ShaderResourceView *) const;
+
+  void RenderShader(int) const;
 
 private:
-  ID3D11VertexShader *vertex_shader_;
-  ID3D11PixelShader *pixel_shader_;
-  ID3D11InputLayout *layout_;
-  ID3D11Buffer *matrix_buffer_;
-  ID3D11SamplerState *sample_state_;
+  Microsoft::WRL::ComPtr<ID3D11VertexShader> vertex_shader_;
+  Microsoft::WRL::ComPtr<ID3D11PixelShader> pixel_shader_;
+
+  Microsoft::WRL::ComPtr<ID3D11InputLayout> layout_;
+
+  Microsoft::WRL::ComPtr<ID3D11Buffer> matrix_buffer_;
+
+  Microsoft::WRL::ComPtr<ID3D11SamplerState> sample_state_;
 };

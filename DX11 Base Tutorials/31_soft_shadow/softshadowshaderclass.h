@@ -5,60 +5,71 @@
 
 #include <DirectXMath.h>
 #include <d3d11.h>
-#include <d3dcompiler.h>
-#include <fstream>
-using namespace std;
-using namespace DirectX;
+#include <wrl/client.h>
 
-class SoftShadowShaderClass {
+#include "IShader.h"
+
+class SoftShadowShaderClass : public IShader {
 private:
   struct MatrixBufferType {
-    XMMATRIX world;
-    XMMATRIX view;
-    XMMATRIX projection;
+    DirectX::XMMATRIX world;
+    DirectX::XMMATRIX view;
+    DirectX::XMMATRIX projection;
   };
 
   struct LightBufferType {
-    XMFLOAT4 ambientColor;
-    XMFLOAT4 diffuseColor;
+    DirectX::XMFLOAT4 ambientColor;
+    DirectX::XMFLOAT4 diffuseColor;
   };
 
   struct LightBufferType2 {
-    XMFLOAT3 lightPosition;
+    DirectX::XMFLOAT3 lightPosition;
     float padding;
   };
 
 public:
-  SoftShadowShaderClass();
-  SoftShadowShaderClass(const SoftShadowShaderClass &);
-  ~SoftShadowShaderClass();
+  SoftShadowShaderClass() = default;
 
-  bool Initialize(HWND);
-  void Shutdown();
-  bool Render(int, const XMMATRIX &, const XMMATRIX &, const XMMATRIX &,
-              ID3D11ShaderResourceView *, ID3D11ShaderResourceView *,
-              const XMFLOAT3 &, const XMFLOAT4 &, const XMFLOAT4 &);
+  SoftShadowShaderClass(const SoftShadowShaderClass &) = delete;
+
+  ~SoftShadowShaderClass() = default;
+
+public:
+  bool Initialize(HWND) override;
+
+  void Shutdown() override;
+
+  bool
+  Render(int indexCount,
+         const ShaderParameterContainer &parameterContainer) const override;
 
 private:
   bool InitializeShader(HWND, WCHAR *, WCHAR *);
+
   void ShutdownShader();
+
   void OutputShaderErrorMessage(ID3D10Blob *, HWND, WCHAR *);
 
-  bool SetShaderParameters(const XMMATRIX &, const XMMATRIX &, const XMMATRIX &,
+  bool SetShaderParameters(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &,
+                           const DirectX::XMMATRIX &,
                            ID3D11ShaderResourceView *,
-                           ID3D11ShaderResourceView *, const XMFLOAT3 &,
-                           const XMFLOAT4 &, const XMFLOAT4 &);
-  void RenderShader(int);
+                           ID3D11ShaderResourceView *,
+                           const DirectX::XMFLOAT3 &, const DirectX::XMFLOAT4 &,
+                           const DirectX::XMFLOAT4 &) const;
+  void RenderShader(int) const;
 
 private:
-  ID3D11VertexShader *vertex_shader_;
-  ID3D11PixelShader *pixel_shader_;
-  ID3D11InputLayout *layout_;
-  ID3D11SamplerState *m_sampleStateWrap;
-  ID3D11SamplerState *m_sampleStateClamp;
-  ID3D11Buffer *matrix_buffer_;
-  ID3D11Buffer *light_buffer_;
-  ID3D11Buffer *m_lightBuffer2;
+  Microsoft::WRL::ComPtr<ID3D11VertexShader> vertex_shader_;
+  Microsoft::WRL::ComPtr<ID3D11PixelShader> pixel_shader_;
+
+  Microsoft::WRL::ComPtr<ID3D11InputLayout> layout_;
+
+  Microsoft::WRL::ComPtr<ID3D11SamplerState> m_sampleStateWrap;
+  Microsoft::WRL::ComPtr<ID3D11SamplerState> m_sampleStateClamp;
+
+  Microsoft::WRL::ComPtr<ID3D11Buffer> matrix_buffer_;
+  Microsoft::WRL::ComPtr<ID3D11Buffer> light_buffer_;
+  Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightBuffer2;
 };
 
 #endif

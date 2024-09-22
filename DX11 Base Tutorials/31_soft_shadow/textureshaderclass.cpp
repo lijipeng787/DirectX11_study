@@ -2,18 +2,13 @@
 
 #include "textureshaderclass.h"
 #include "../CommonFramework/DirectX11Device.h"
+#include "ShaderParameterContainer.h"
 
-TextureShaderClass::TextureShaderClass() {
-  vertex_shader_ = nullptr;
-  pixel_shader_ = nullptr;
-  layout_ = nullptr;
-  matrix_buffer_ = nullptr;
-  sample_state_ = nullptr;
-}
+#include <d3dcompiler.h>
+#include <fstream>
 
-TextureShaderClass::TextureShaderClass(const TextureShaderClass &other) {}
-
-TextureShaderClass::~TextureShaderClass() {}
+using namespace std;
+using namespace DirectX;
 
 bool TextureShaderClass::Initialize(HWND hwnd) {
   bool result;
@@ -28,14 +23,16 @@ bool TextureShaderClass::Initialize(HWND hwnd) {
 
 void TextureShaderClass::Shutdown() { ShutdownShader(); }
 
-bool TextureShaderClass::Render(int indexCount, const XMMATRIX &worldMatrix,
-                                const XMMATRIX &viewMatrix,
-                                const XMMATRIX &projectionMatrix,
-                                ID3D11ShaderResourceView *texture) {
-  bool result;
+bool TextureShaderClass::Render(
+    int indexCount, const ShaderParameterContainer &parameters) const {
 
-  result =
-      SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture);
+  auto worldMatrix = parameters.GetMatrix("worldMatrix");
+  auto baseViewMatrix = parameters.GetMatrix("baseViewMatrix");
+  auto orthoMatrix = parameters.GetMatrix("orthoMatrix");
+  auto texture = parameters.GetTexture("texture");
+
+  auto result =
+      SetShaderParameters(worldMatrix, baseViewMatrix, orthoMatrix, texture);
   if (!result) {
     return false;
   }
@@ -95,14 +92,14 @@ bool TextureShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
 
   result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
                                       vertexShaderBuffer->GetBufferSize(), NULL,
-                                      &vertex_shader_);
+                                      vertex_shader_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
 
   result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
                                      pixelShaderBuffer->GetBufferSize(), NULL,
-                                     &pixel_shader_);
+                                     pixel_shader_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -127,7 +124,7 @@ bool TextureShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
 
   result = device->CreateInputLayout(
       polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(),
-      vertexShaderBuffer->GetBufferSize(), &layout_);
+      vertexShaderBuffer->GetBufferSize(), layout_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -145,7 +142,8 @@ bool TextureShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
   matrixBufferDesc.MiscFlags = 0;
   matrixBufferDesc.StructureByteStride = 0;
 
-  result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
+  result = device->CreateBuffer(&matrixBufferDesc, NULL,
+                                matrix_buffer_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -164,7 +162,8 @@ bool TextureShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
   samplerDesc.MinLOD = 0;
   samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-  result = device->CreateSamplerState(&samplerDesc, &sample_state_);
+  result =
+      device->CreateSamplerState(&samplerDesc, sample_state_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -175,27 +174,27 @@ bool TextureShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
 void TextureShaderClass::ShutdownShader() {
 
   if (sample_state_) {
-    sample_state_->Release();
+    sample_state_.Reset();
     sample_state_ = nullptr;
   }
 
   if (matrix_buffer_) {
-    matrix_buffer_->Release();
+    matrix_buffer_.Reset();
     matrix_buffer_ = nullptr;
   }
 
   if (layout_) {
-    layout_->Release();
+    layout_.Reset();
     layout_ = nullptr;
   }
 
   if (pixel_shader_) {
-    pixel_shader_->Release();
+    pixel_shader_.Reset();
     pixel_shader_ = nullptr;
   }
 
   if (vertex_shader_) {
-    vertex_shader_->Release();
+    vertex_shader_.Reset();
     vertex_shader_ = nullptr;
   }
 }
@@ -229,7 +228,7 @@ void TextureShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage,
 
 bool TextureShaderClass::SetShaderParameters(
     const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix,
-    const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView *texture) {
+    const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView *texture) const {
   HRESULT result;
   D3D11_MAPPED_SUBRESOURCE mappedResource;
   MatrixBufferType *dataPtr;
@@ -246,8 +245,8 @@ bool TextureShaderClass::SetShaderParameters(
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
-                               &mappedResource);
+  result = device_context->Map(matrix_buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD,
+                               0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }
@@ -258,28 +257,29 @@ bool TextureShaderClass::SetShaderParameters(
   dataPtr->view = viewMatrixCopy;
   dataPtr->projection = projectionMatrixCopy;
 
-  device_context->Unmap(matrix_buffer_, 0);
+  device_context->Unmap(matrix_buffer_.Get(), 0);
 
   buffer_number = 0;
 
-  device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
+  device_context->VSSetConstantBuffers(buffer_number, 1,
+                                       matrix_buffer_.GetAddressOf());
 
   device_context->PSSetShaderResources(0, 1, &texture);
 
   return true;
 }
 
-void TextureShaderClass::RenderShader(int indexCount) {
+void TextureShaderClass::RenderShader(int indexCount) const {
 
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  device_context->IASetInputLayout(layout_);
+  device_context->IASetInputLayout(layout_.Get());
 
-  device_context->VSSetShader(vertex_shader_, NULL, 0);
-  device_context->PSSetShader(pixel_shader_, NULL, 0);
+  device_context->VSSetShader(vertex_shader_.Get(), NULL, 0);
+  device_context->PSSetShader(pixel_shader_.Get(), NULL, 0);
 
-  device_context->PSSetSamplers(0, 1, &sample_state_);
+  device_context->PSSetSamplers(0, 1, sample_state_.GetAddressOf());
 
   device_context->DrawIndexed(indexCount, 0, 0);
 }

@@ -1,206 +1,132 @@
-
-
 #include "modelclass.h"
 #include "../CommonFramework/DirectX11Device.h"
 
-ModelClass::ModelClass() {
-  vertex_buffer_ = nullptr;
-  index_buffer_ = nullptr;
-  texture_ = nullptr;
-  model_ = nullptr;
-}
+#include "../CommonFramework/DirectX11Device.h"
+#include "IShader.h"
+#include "ShaderParameterContainer.h"
+#include "modelclass.h"
 
-ModelClass::ModelClass(const ModelClass &other) {}
+#include <DirectXMath.h>
+#include <fstream>
 
-ModelClass::~ModelClass() {}
+ModelClass::~ModelClass() { Shutdown(); }
 
-bool ModelClass::Initialize(char *modelFilename, WCHAR *textureFilename) {
-  bool result;
-
-  result = LoadModel(modelFilename);
-  if (!result) {
+bool ModelClass::Initialize(const std::string &modelFilename,
+                            const std::wstring &textureFilename) {
+  if (!LoadModel(modelFilename) || !InitializeBuffers() ||
+      !LoadTexture(textureFilename)) {
     return false;
   }
-
-  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
-
-  result = InitializeBuffers();
-  if (!result) {
-    return false;
-  }
-
-  result = LoadTexture(textureFilename);
-  if (!result) {
-    return false;
-  }
-
   return true;
 }
 
 void ModelClass::Shutdown() {
-
   ReleaseTexture();
-
   ShutdownBuffers();
-
   ReleaseModel();
 }
 
-void ModelClass::Render() { RenderBuffers(); }
+void ModelClass::Render(
+    const IShader &shader,
+    const ShaderParameterContainer &parameterContainer) const {
 
-int ModelClass::GetIndexCount() { return index_count_; }
+  RenderBuffers();
 
-ID3D11ShaderResourceView *ModelClass::GetTexture() {
-  return texture_->GetTexture();
+  shader.Render(GetIndexCount(), parameterContainer);
+}
+
+ID3D11ShaderResourceView *ModelClass::GetTexture() const {
+  return texture_ ? texture_->GetTexture() : nullptr;
 }
 
 bool ModelClass::InitializeBuffers() {
-  D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
-  D3D11_SUBRESOURCE_DATA vertex_data, indexData;
-  HRESULT result;
-  int i;
+  std::vector<Vertex> vertices(vertex_count_);
+  std::vector<unsigned long> indices(index_count_);
 
-  auto vertices = new VertexType[vertex_count_];
-  if (!vertices) {
-    return false;
-  }
-
-  auto indices = new unsigned long[index_count_];
-  if (!indices) {
-    return false;
-  }
-
-  for (i = 0; i < vertex_count_; i++) {
-    vertices[i].position = XMFLOAT3(model_[i].x, model_[i].y, model_[i].z);
-    vertices[i].texture = XMFLOAT2(model_[i].tu, model_[i].tv);
-    vertices[i].normal = XMFLOAT3(model_[i].nx, model_[i].ny, model_[i].nz);
-
+  for (int i = 0; i < vertex_count_; i++) {
+    vertices[i].position =
+        DirectX::XMFLOAT3(model_[i].x, model_[i].y, model_[i].z);
+    vertices[i].texture = DirectX::XMFLOAT2(model_[i].tu, model_[i].tv);
+    vertices[i].normal =
+        DirectX::XMFLOAT3(model_[i].nx, model_[i].ny, model_[i].nz);
     indices[i] = i;
   }
 
-  vertex_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
-  vertex_buffer_desc.ByteWidth = sizeof(VertexType) * vertex_count_;
-  vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-  vertex_buffer_desc.CPUAccessFlags = 0;
-  vertex_buffer_desc.MiscFlags = 0;
-  vertex_buffer_desc.StructureByteStride = 0;
+  D3D11_BUFFER_DESC vertexBufferDesc = {};
+  vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+  vertexBufferDesc.ByteWidth = sizeof(Vertex) * vertex_count_;
+  vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
-  vertex_data.pSysMem = vertices;
-  vertex_data.SysMemPitch = 0;
-  vertex_data.SysMemSlicePitch = 0;
+  D3D11_SUBRESOURCE_DATA vertexData = {};
+  vertexData.pSysMem = vertices.data();
 
   auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
-
-  result =
-      device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
+  HRESULT result =
+      device->CreateBuffer(&vertexBufferDesc, &vertexData, &vertex_buffer_);
   if (FAILED(result)) {
     return false;
   }
 
-  index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
-  index_buffer_desc.ByteWidth = sizeof(unsigned long) * index_count_;
-  index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-  index_buffer_desc.CPUAccessFlags = 0;
-  index_buffer_desc.MiscFlags = 0;
-  index_buffer_desc.StructureByteStride = 0;
+  D3D11_BUFFER_DESC indexBufferDesc = {};
+  indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+  indexBufferDesc.ByteWidth = sizeof(unsigned long) * index_count_;
+  indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
-  indexData.pSysMem = indices;
-  indexData.SysMemPitch = 0;
-  indexData.SysMemSlicePitch = 0;
+  D3D11_SUBRESOURCE_DATA indexData = {};
+  indexData.pSysMem = indices.data();
 
-  result = device->CreateBuffer(&index_buffer_desc, &indexData, &index_buffer_);
+  result = device->CreateBuffer(&indexBufferDesc, &indexData, &index_buffer_);
   if (FAILED(result)) {
     return false;
   }
-
-  delete[] vertices;
-  vertices = 0;
-
-  delete[] indices;
-  indices = 0;
 
   return true;
 }
 
 void ModelClass::ShutdownBuffers() {
-
-  if (index_buffer_) {
-    index_buffer_->Release();
-    index_buffer_ = nullptr;
-  }
-
-  if (vertex_buffer_) {
-    vertex_buffer_->Release();
-    vertex_buffer_ = nullptr;
-  }
+  index_buffer_.Reset();
+  vertex_buffer_.Reset();
 }
 
-void ModelClass::RenderBuffers() {
-  unsigned int stride;
-  unsigned int offset;
+void ModelClass::RenderBuffers() const {
+  UINT stride = sizeof(Vertex);
+  UINT offset = 0;
 
-  stride = sizeof(VertexType);
-  offset = 0;
-
-  auto device_context =
+  auto deviceContext =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
-  device_context->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
-
-  device_context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
-
-  device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+  deviceContext->IASetVertexBuffers(0, 1, vertex_buffer_.GetAddressOf(),
+                                    &stride, &offset);
+  deviceContext->IASetIndexBuffer(index_buffer_.Get(), DXGI_FORMAT_R32_UINT, 0);
+  deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-bool ModelClass::LoadTexture(WCHAR *filename) {
-  bool result;
-
-  texture_ = new TextureClass();
-  if (!texture_) {
-    return false;
-  }
-
-  result = texture_->Initialize(filename);
-  if (!result) {
-    return false;
-  }
-
-  return true;
+bool ModelClass::LoadTexture(const std::wstring &filename) {
+  texture_ = std::make_unique<TextureClass>();
+  return texture_->Initialize(filename.c_str());
 }
 
 void ModelClass::ReleaseTexture() {
-
   if (texture_) {
     texture_->Shutdown();
-    delete texture_;
-    texture_ = nullptr;
+    texture_.reset();
   }
 }
 
-bool ModelClass::LoadModel(char *filename) {
-  ifstream fin;
-  char input;
-  int i;
-
-  fin.open(filename);
-
-  if (fin.fail()) {
+bool ModelClass::LoadModel(const std::string &filename) {
+  std::ifstream fin(filename);
+  if (!fin) {
     return false;
   }
 
+  char input;
   fin.get(input);
   while (input != ':') {
     fin.get(input);
   }
 
   fin >> vertex_count_;
-
   index_count_ = vertex_count_;
-
-  model_ = new ModelType[vertex_count_];
-  if (!model_) {
-    return false;
-  }
+  model_.resize(vertex_count_);
 
   fin.get(input);
   while (input != ':') {
@@ -209,32 +135,14 @@ bool ModelClass::LoadModel(char *filename) {
   fin.get(input);
   fin.get(input);
 
-  for (i = 0; i < vertex_count_; i++) {
+  for (int i = 0; i < vertex_count_; i++) {
     fin >> model_[i].x >> model_[i].y >> model_[i].z;
     fin >> model_[i].tu >> model_[i].tv;
     fin >> model_[i].nx >> model_[i].ny >> model_[i].nz;
   }
 
   fin.close();
-
   return true;
 }
 
-void ModelClass::ReleaseModel() {
-  if (model_) {
-    delete[] model_;
-    model_ = nullptr;
-  }
-}
-
-void ModelClass::SetPosition(float x, float y, float z) {
-  position_x_ = x;
-  position_y_ = y;
-  position_z_ = z;
-}
-
-void ModelClass::GetPosition(float &x, float &y, float &z) {
-  x = position_x_;
-  y = position_y_;
-  z = position_z_;
-}
+void ModelClass::ReleaseModel() { model_.clear(); }

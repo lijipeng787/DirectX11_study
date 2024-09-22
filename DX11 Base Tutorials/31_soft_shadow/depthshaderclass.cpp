@@ -1,16 +1,11 @@
 #include "depthshaderclass.h"
 #include "../CommonFramework/DirectX11Device.h"
 
-DepthShaderClass::DepthShaderClass() {
-  vertex_shader_ = nullptr;
-  pixel_shader_ = nullptr;
-  layout_ = nullptr;
-  matrix_buffer_ = nullptr;
-}
+#include <d3dcompiler.h>
+#include <fstream>
 
-DepthShaderClass::DepthShaderClass(const DepthShaderClass &other) {}
-
-DepthShaderClass::~DepthShaderClass() {}
+using namespace std;
+using namespace DirectX;
 
 bool DepthShaderClass::Initialize(HWND hwnd) {
   bool result;
@@ -25,12 +20,14 @@ bool DepthShaderClass::Initialize(HWND hwnd) {
 
 void DepthShaderClass::Shutdown() { ShutdownShader(); }
 
-bool DepthShaderClass::Render(int indexCount, const XMMATRIX &worldMatrix,
-                              const XMMATRIX &viewMatrix,
-                              const XMMATRIX &projectionMatrix) {
-  bool result;
+bool DepthShaderClass::Render(
+    int indexCount, const ShaderParameterContainer &parameters) const {
 
-  result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix);
+  auto worldMatrix = parameters.GetMatrix("worldMatrix");
+  auto viewMatrix = parameters.GetMatrix("viewMatrix");
+  auto projectionMatrix = parameters.GetMatrix("projectionMatrix");
+
+  auto result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix);
   if (!result) {
     return false;
   }
@@ -140,28 +137,7 @@ bool DepthShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
   return true;
 }
 
-void DepthShaderClass::ShutdownShader() {
-
-  if (matrix_buffer_) {
-    matrix_buffer_->Release();
-    matrix_buffer_ = nullptr;
-  }
-
-  if (layout_) {
-    layout_->Release();
-    layout_ = nullptr;
-  }
-
-  if (pixel_shader_) {
-    pixel_shader_->Release();
-    pixel_shader_ = nullptr;
-  }
-
-  if (vertex_shader_) {
-    vertex_shader_->Release();
-    vertex_shader_ = nullptr;
-  }
-}
+void DepthShaderClass::ShutdownShader() {}
 
 void DepthShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage,
                                                 HWND hwnd,
@@ -190,9 +166,9 @@ void DepthShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage,
              shaderFilename, MB_OK);
 }
 
-bool DepthShaderClass::SetShaderParameters(const XMMATRIX &worldMatrix,
-                                           const XMMATRIX &viewMatrix,
-                                           const XMMATRIX &projectionMatrix) {
+bool DepthShaderClass::SetShaderParameters(
+    const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix,
+    const XMMATRIX &projectionMatrix) const {
   HRESULT result;
   D3D11_MAPPED_SUBRESOURCE mappedResource;
   unsigned int buffer_number;
@@ -209,8 +185,8 @@ bool DepthShaderClass::SetShaderParameters(const XMMATRIX &worldMatrix,
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
-                               &mappedResource);
+  result = device_context->Map(matrix_buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD,
+                               0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }
@@ -221,23 +197,24 @@ bool DepthShaderClass::SetShaderParameters(const XMMATRIX &worldMatrix,
   dataPtr->view = viewMatrixCopy;
   dataPtr->projection = projectionMatrixCopy;
 
-  device_context->Unmap(matrix_buffer_, 0);
+  device_context->Unmap(matrix_buffer_.Get(), 0);
 
   buffer_number = 0;
 
-  device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
+  device_context->VSSetConstantBuffers(buffer_number, 1,
+                                       matrix_buffer_.GetAddressOf());
 
   return true;
 }
 
-void DepthShaderClass::RenderShader(int indexCount) {
+void DepthShaderClass::RenderShader(int indexCount) const {
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  device_context->IASetInputLayout(layout_);
+  device_context->IASetInputLayout(layout_.Get());
 
-  device_context->VSSetShader(vertex_shader_, NULL, 0);
-  device_context->PSSetShader(pixel_shader_, NULL, 0);
+  device_context->VSSetShader(vertex_shader_.Get(), NULL, 0);
+  device_context->PSSetShader(pixel_shader_.Get(), NULL, 0);
 
   device_context->DrawIndexed(indexCount, 0, 0);
 }
