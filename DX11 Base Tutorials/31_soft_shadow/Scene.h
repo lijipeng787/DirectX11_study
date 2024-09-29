@@ -1,5 +1,5 @@
-// Scene.h
 #pragma once
+
 #include <memory>
 #include <vector>
 

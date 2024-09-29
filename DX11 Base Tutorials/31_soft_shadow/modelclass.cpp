@@ -1,13 +1,14 @@
 #include "modelclass.h"
 #include "../CommonFramework/DirectX11Device.h"
-
-#include "../CommonFramework/DirectX11Device.h"
 #include "IShader.h"
 #include "ShaderParameterContainer.h"
 #include "modelclass.h"
 
 #include <DirectXMath.h>
 #include <fstream>
+
+using namespace std;
+using namespace DirectX;
 
 ModelClass::~ModelClass() { Shutdown(); }
 
@@ -35,6 +36,12 @@ void ModelClass::Render(
   shader.Render(GetIndexCount(), parameterContainer);
 }
 
+void ModelClass::SetParameterCallback(ShaderParameterCallback callback) {}
+
+ShaderParameterCallback ModelClass::GetParameterCallback() const {
+  return [this](ShaderParameterContainer &params) { assert(0); };
+}
+
 ID3D11ShaderResourceView *ModelClass::GetTexture() const {
   return texture_ ? texture_->GetTexture() : nullptr;
 }
@@ -44,11 +51,9 @@ bool ModelClass::InitializeBuffers() {
   std::vector<unsigned long> indices(index_count_);
 
   for (int i = 0; i < vertex_count_; i++) {
-    vertices[i].position =
-        DirectX::XMFLOAT3(model_[i].x, model_[i].y, model_[i].z);
-    vertices[i].texture = DirectX::XMFLOAT2(model_[i].tu, model_[i].tv);
-    vertices[i].normal =
-        DirectX::XMFLOAT3(model_[i].nx, model_[i].ny, model_[i].nz);
+    vertices[i].position = XMFLOAT3(model_[i].x, model_[i].y, model_[i].z);
+    vertices[i].texture = XMFLOAT2(model_[i].tu, model_[i].tv);
+    vertices[i].normal = XMFLOAT3(model_[i].nx, model_[i].ny, model_[i].nz);
     indices[i] = i;
   }
 

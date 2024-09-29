@@ -1,21 +1,14 @@
-
-
 #include "orthowindowclass.h"
 #include "../CommonFramework/DirectX11Device.h"
+#include "IShader.h"
+#include "ShaderParameterContainer.h"
 
-OrthoWindowClass::OrthoWindowClass() {
-  vertex_buffer_ = nullptr;
-  index_buffer_ = nullptr;
-}
-
-OrthoWindowClass::OrthoWindowClass(const OrthoWindowClass &other) {}
-
-OrthoWindowClass::~OrthoWindowClass() {}
+using namespace std;
+using namespace DirectX;
 
 bool OrthoWindowClass::Initialize(int windowWidth, int windowHeight) {
-  bool result;
 
-  result = InitializeBuffers(windowWidth, windowHeight);
+  auto result = InitializeBuffers(windowWidth, windowHeight);
   if (!result) {
     return false;
   }
@@ -25,20 +18,29 @@ bool OrthoWindowClass::Initialize(int windowWidth, int windowHeight) {
 
 void OrthoWindowClass::Shutdown() { ShutdownBuffers(); }
 
-void OrthoWindowClass::Render(ID3D11DeviceContext *device_context) {
+void OrthoWindowClass::Render(
+    const IShader &shader,
+    const ShaderParameterContainer &parameterContainer) const {
 
-  RenderBuffers(device_context);
+  RenderBuffers();
+
+  shader.Render(GetIndexCount(), parameterContainer);
 }
 
-int OrthoWindowClass::GetIndexCount() { return index_count_; }
+void OrthoWindowClass::SetParameterCallback(ShaderParameterCallback callback) {}
+
+ShaderParameterCallback OrthoWindowClass::GetParameterCallback() const {
+  return [this](ShaderParameterContainer &params) { assert(0); };
+}
+
+int OrthoWindowClass::GetIndexCount() const { return index_count_; }
 
 bool OrthoWindowClass::InitializeBuffers(int windowWidth, int windowHeight) {
+
   float left, right, top, bottom;
 
   D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
   D3D11_SUBRESOURCE_DATA vertex_data, indexData;
-  HRESULT result;
-  int i;
 
   // Calculate the screen coordinates of the left side of the window.
   left = (float)((windowWidth / 2) * -1);
@@ -87,7 +89,7 @@ bool OrthoWindowClass::InitializeBuffers(int windowWidth, int windowHeight) {
   vertices[5].position = XMFLOAT3(right, bottom, 0.0f); // Bottom right.
   vertices[5].texture = XMFLOAT2(1.0f, 1.0f);
 
-  for (i = 0; i < index_count_; i++) {
+  for (auto i = 0; i < index_count_; i++) {
     indices[i] = i;
   }
 
@@ -104,7 +106,7 @@ bool OrthoWindowClass::InitializeBuffers(int windowWidth, int windowHeight) {
 
   auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
-  result =
+  auto result =
       device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
   if (FAILED(result)) {
     return false;
@@ -148,12 +150,13 @@ void OrthoWindowClass::ShutdownBuffers() {
   }
 }
 
-void OrthoWindowClass::RenderBuffers(ID3D11DeviceContext *device_context) {
-  unsigned int stride;
-  unsigned int offset;
+void OrthoWindowClass::RenderBuffers() const {
 
-  stride = sizeof(VertexType);
-  offset = 0;
+  unsigned int stride = sizeof(VertexType);
+  unsigned int offset = 0;
+
+  auto device_context =
+      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   device_context->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
 

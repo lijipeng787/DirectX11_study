@@ -1,17 +1,5 @@
-
-
-
-
-
-
-
-
 Texture2D shaderTexture;
 SamplerState SampleType;
-
-
-
-
 
 struct PixelInputType
 {
@@ -28,16 +16,11 @@ struct PixelInputType
 	float2 texCoord9 : TEXCOORD9;
 };
 
-
-
-
-
 float4 VerticalBlurPixelShader(PixelInputType input) : SV_TARGET
 {
 	float weight0, weight1, weight2, weight3, weight4;
 	float normalization;
 	float4 color;
-
 
 	// Create the weights that each neighbor pixel will contribute to the blur.
 	weight0 = 1.0f;

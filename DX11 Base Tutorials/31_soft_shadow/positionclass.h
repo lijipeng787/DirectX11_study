@@ -4,10 +4,13 @@
 
 class PositionClass {
 public:
-  PositionClass();
-  PositionClass(const PositionClass &);
-  ~PositionClass();
+  PositionClass() = default;
 
+  PositionClass(const PositionClass &) = delete;
+
+  ~PositionClass() = default;
+
+public:
   void SetPosition(float, float, float);
   void SetRotation(float, float, float);
 

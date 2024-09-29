@@ -1,12 +1,10 @@
-
-
 #include "lightclass.h"
+
+using namespace DirectX;
 
 LightClass::LightClass() {}
 
 LightClass::LightClass(const LightClass &other) {}
-
-LightClass::~LightClass() {}
 
 void LightClass::SetAmbientColor(float red, float green, float blue,
                                  float alpha) {

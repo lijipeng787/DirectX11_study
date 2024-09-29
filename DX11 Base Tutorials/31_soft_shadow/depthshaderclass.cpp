@@ -24,8 +24,8 @@ bool DepthShaderClass::Render(
     int indexCount, const ShaderParameterContainer &parameters) const {
 
   auto worldMatrix = parameters.GetMatrix("worldMatrix");
-  auto viewMatrix = parameters.GetMatrix("viewMatrix");
-  auto projectionMatrix = parameters.GetMatrix("projectionMatrix");
+  auto viewMatrix = parameters.GetMatrix("lightViewMatrix");
+  auto projectionMatrix = parameters.GetMatrix("lightProjectionMatrix");
 
   auto result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix);
   if (!result) {
@@ -39,7 +39,6 @@ bool DepthShaderClass::Render(
 
 bool DepthShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
                                         WCHAR *psFilename) {
-  HRESULT result;
   ID3D10Blob *errorMessage;
   ID3D10Blob *vertexShaderBuffer;
   ID3D10Blob *pixelShaderBuffer;
@@ -51,9 +50,9 @@ bool DepthShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
   vertexShaderBuffer = 0;
   pixelShaderBuffer = 0;
 
-  result = D3DCompileFromFile(vsFilename, NULL, NULL, "DepthVertexShader",
-                              "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
-                              &vertexShaderBuffer, &errorMessage);
+  auto result = D3DCompileFromFile(vsFilename, NULL, NULL, "DepthVertexShader",
+                                   "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+                                   &vertexShaderBuffer, &errorMessage);
   if (FAILED(result)) {
 
     if (errorMessage) {
@@ -169,7 +168,7 @@ void DepthShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage,
 bool DepthShaderClass::SetShaderParameters(
     const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix,
     const XMMATRIX &projectionMatrix) const {
-  HRESULT result;
+
   D3D11_MAPPED_SUBRESOURCE mappedResource;
   unsigned int buffer_number;
   MatrixBufferType *dataPtr;
@@ -185,8 +184,8 @@ bool DepthShaderClass::SetShaderParameters(
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  result = device_context->Map(matrix_buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD,
-                               0, &mappedResource);
+  auto result = device_context->Map(
+      matrix_buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }

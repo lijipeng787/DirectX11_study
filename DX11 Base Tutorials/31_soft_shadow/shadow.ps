@@ -1,20 +1,8 @@
-
-
-
-
-
-
 // TEXTURES //
-
 Texture2D depthMapTexture : register(t0);
-
 
 // SAMPLE STATES //
 SamplerState SampleTypeClamp : register(s0);
-
-
-
-
 
 struct PixelInputType
 {
@@ -25,10 +13,6 @@ struct PixelInputType
 	float3 lightPos : TEXCOORD2;
 };
 
-
-
-
-
 float4 ShadowPixelShader(PixelInputType input) : SV_TARGET
 {
 	float bias;
@@ -37,7 +21,6 @@ float4 ShadowPixelShader(PixelInputType input) : SV_TARGET
 	float depthValue;
 	float lightDepthValue;
     float lightIntensity;
-
 
 	// Set the bias value for fixing the floating point precision issues.
 	bias = 0.001f;

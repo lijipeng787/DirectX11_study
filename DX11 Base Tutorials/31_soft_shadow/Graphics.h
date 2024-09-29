@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
+#include "RenderPipeline.h"
 
 const int SHADOWMAP_WIDTH = 1024;
 const int SHADOWMAP_HEIGHT = 1024;
@@ -20,13 +21,13 @@ class TextureShaderClass;
 
 class GraphicsClass : public GraphicsBase {
 public:
-  GraphicsClass();
+  GraphicsClass() = default;
 
   GraphicsClass(const GraphicsClass &rhs) = delete;
 
   GraphicsClass &operator=(const GraphicsClass &rhs) = delete;
 
-  virtual ~GraphicsClass();
+  virtual ~GraphicsClass() = default;
 
 public:
   virtual bool Initialize(int, int, HWND) override;
@@ -51,46 +52,38 @@ public:
   }
 
 private:
-  bool RenderSceneToTexture();
-
-  bool RenderBlackAndWhiteShadows();
-
-  bool DownSampleTexture();
-
-  bool RenderHorizontalBlurToTexture();
-
-  bool RenderVerticalBlurToTexture();
-
-  bool UpSampleTexture();
+  void SetupRenderPipeline();
 
 private:
   float pos_x_ = 0.0f, pos_y_ = 0.0f, pos_z_ = 0.0f;
 
   float rot_x_ = 0.0f, rot_y_ = 0.0f, rot_z_ = 0.0f;
 
-  Camera *camera_ = nullptr;
+  std::shared_ptr<Camera> camera_;
 
-  ModelClass *m_CubeModel, *m_GroundModel, *m_SphereModel;
+  std::shared_ptr<ModelClass> m_CubeModel, m_GroundModel, m_SphereModel;
 
-  LightClass *light_;
+  std::shared_ptr<LightClass> light_;
 
-  RenderTextureClass *render_texture_, *m_BlackWhiteRenderTexture,
-      *m_DownSampleTexure;
+  std::shared_ptr<RenderTextureClass> render_texture_,
+      m_BlackWhiteRenderTexture, m_DownSampleTexure;
 
-  RenderTextureClass *m_HorizontalBlurTexture, *m_VerticalBlurTexture,
-      *m_UpSampleTexure;
+  std::shared_ptr<RenderTextureClass> m_HorizontalBlurTexture,
+      m_VerticalBlurTexture, m_UpSampleTexure;
 
-  DepthShaderClass *depth_shader_;
+  std::shared_ptr<DepthShaderClass> depth_shader_;
 
-  ShadowShaderClass *m_ShadowShader;
+  std::shared_ptr<ShadowShaderClass> m_ShadowShader;
 
-  OrthoWindowClass *m_SmallWindow, *m_FullScreenWindow;
+  std::shared_ptr<OrthoWindowClass> m_SmallWindow, m_FullScreenWindow;
 
-  TextureShaderClass *texture_shader_;
+  std::shared_ptr<TextureShaderClass> texture_shader_;
 
-  HorizontalBlurShaderClass *m_HorizontalBlurShader;
+  std::shared_ptr<HorizontalBlurShaderClass> m_HorizontalBlurShader;
 
-  VerticalBlurShaderClass *m_VerticalBlurShader;
+  std::shared_ptr<VerticalBlurShaderClass> m_VerticalBlurShader;
 
-  SoftShadowShaderClass *m_SoftShadowShader;
+  std::shared_ptr<SoftShadowShaderClass> m_SoftShadowShader;
+
+  RenderPipeline render_pipeline_;
 };

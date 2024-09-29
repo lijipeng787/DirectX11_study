@@ -14,6 +14,4 @@ public:
 
   virtual bool Render(int indexCount,
                       const ShaderParameterContainer &parameters) const = 0;
-
-  // virtual const ShaderParameterLayout& GetParameterLayout() const = 0;
 };

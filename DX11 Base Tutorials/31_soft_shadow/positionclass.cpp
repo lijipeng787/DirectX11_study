@@ -1,31 +1,4 @@
-
-
 #include "positionclass.h"
-
-PositionClass::PositionClass() {
-  position_x_ = 0.0f;
-  position_y_ = 0.0f;
-  position_z_ = 0.0f;
-
-  rotation_x_ = 0.0f;
-  rotation_y_ = 0.0f;
-  rotation_z_ = 0.0f;
-
-  frame_time_ = 0.0f;
-
-  m_forwardSpeed = 0.0f;
-  m_backwardSpeed = 0.0f;
-  m_upwardSpeed = 0.0f;
-  m_downwardSpeed = 0.0f;
-  left_turning_speed_ = 0.0f;
-  right_turning_speed_ = 0.0f;
-  m_lookUpSpeed = 0.0f;
-  m_lookDownSpeed = 0.0f;
-}
-
-PositionClass::PositionClass(const PositionClass &other) {}
-
-PositionClass::~PositionClass() {}
 
 void PositionClass::SetPosition(float x, float y, float z) {
   position_x_ = x;

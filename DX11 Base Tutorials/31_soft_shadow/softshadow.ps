@@ -1,32 +1,17 @@
-
-
-
-
-
-
 // TEXTURES //
-
 Texture2D shaderTexture : register(t0);
 Texture2D shadowTexture : register(t1);
-
 
 // SAMPLE STATES //
 SamplerState SampleTypeClamp : register(s0);
 SamplerState SampleTypeWrap  : register(s1);
 
-
-
 // CONSTANT BUFFERS //
-
 cbuffer LightBuffer
 {
 	float4 ambientColor;
 	float4 diffuseColor;
 };
-
-
-
-
 
 struct PixelInputType
 {
@@ -37,10 +22,6 @@ struct PixelInputType
 	float3 lightPos : TEXCOORD2;
 };
 
-
-
-
-
 float4 SoftShadowPixelShader(PixelInputType input) : SV_TARGET
 {
     float4 color;
@@ -48,8 +29,6 @@ float4 SoftShadowPixelShader(PixelInputType input) : SV_TARGET
 	float4 textureColor;
 	float2 projectTexCoord;
 	float shadowValue;
-
-
 
     color = ambientColor;
 
@@ -64,7 +43,6 @@ float4 SoftShadowPixelShader(PixelInputType input) : SV_TARGET
 		color = saturate(color);
 	}
 
-	
 	textureColor = shaderTexture.Sample(SampleTypeWrap, input.tex);
 
 	// Combine the light and texture color.

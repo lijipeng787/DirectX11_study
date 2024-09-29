@@ -1,11 +1,3 @@
-
-
-
-
-
-
-
-
 cbuffer MatrixBuffer
 {
 	matrix worldMatrix;
@@ -15,19 +7,12 @@ cbuffer MatrixBuffer
 	matrix lightProjectionMatrix;
 };
 
-
-
 // CONSTANT BUFFERS //
-
 cbuffer LightBuffer2
 {
     float3 lightPosition;
 	float padding;
 };
-
-
-
-
 
 struct VertexInputType
 {
@@ -45,20 +30,13 @@ struct PixelInputType
 	float3 lightPos : TEXCOORD2;
 };
 
-
-
-
-
 PixelInputType ShadowVertexShader(VertexInputType input)
 {
     PixelInputType output;
 	float4 worldPosition;
     
-    
-
     input.position.w = 1.0f;
 
-	
     output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
@@ -67,14 +45,11 @@ PixelInputType ShadowVertexShader(VertexInputType input)
     output.lightViewPosition = mul(input.position, worldMatrix);
     output.lightViewPosition = mul(output.lightViewPosition, lightViewMatrix);
     output.lightViewPosition = mul(output.lightViewPosition, lightProjectionMatrix);
-
 	
     output.tex = input.tex;
     
-	
     output.normal = mul(input.normal, (float3x3)worldMatrix);
 	
-    
     output.normal = normalize(output.normal);
 
     // Calculate the position of the vertex in the world.

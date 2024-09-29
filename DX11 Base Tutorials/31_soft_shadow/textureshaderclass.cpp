@@ -1,5 +1,3 @@
-
-
 #include "textureshaderclass.h"
 #include "../CommonFramework/DirectX11Device.h"
 #include "ShaderParameterContainer.h"
@@ -26,7 +24,7 @@ void TextureShaderClass::Shutdown() { ShutdownShader(); }
 bool TextureShaderClass::Render(
     int indexCount, const ShaderParameterContainer &parameters) const {
 
-  auto worldMatrix = parameters.GetMatrix("worldMatrix");
+  auto worldMatrix = parameters.GetMatrix("deviceWorldMatrix");
   auto baseViewMatrix = parameters.GetMatrix("baseViewMatrix");
   auto orthoMatrix = parameters.GetMatrix("orthoMatrix");
   auto texture = parameters.GetTexture("texture");

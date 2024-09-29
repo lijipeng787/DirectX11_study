@@ -10,9 +10,8 @@ using namespace std;
 using namespace DirectX;
 
 bool HorizontalBlurShaderClass::Initialize(HWND hwnd) {
-  bool result;
 
-  result =
+  auto result =
       InitializeShader(hwnd, L"./horizontalblur.vs", L"./horizontalblur.ps");
   if (!result) {
     return false;
@@ -27,8 +26,8 @@ bool HorizontalBlurShaderClass::Render(
     int indexCount, const ShaderParameterContainer &parameters) const {
 
   auto worldMatrix = parameters.GetMatrix("worldMatrix");
-  auto viewMatrix = parameters.GetMatrix("viewMatrix");
-  auto projectionMatrix = parameters.GetMatrix("projectionMatrix");
+  auto viewMatrix = parameters.GetMatrix("baseViewMatrix");
+  auto projectionMatrix = parameters.GetMatrix("orthoMatrix");
   auto screenWidth = parameters.GetFloat("screenWidth");
   auto texture = parameters.GetTexture("texture");
 
@@ -45,7 +44,6 @@ bool HorizontalBlurShaderClass::Render(
 
 bool HorizontalBlurShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
                                                  WCHAR *psFilename) {
-  HRESULT result;
   ID3D10Blob *errorMessage;
   ID3D10Blob *vertexShaderBuffer;
   ID3D10Blob *pixelShaderBuffer;
@@ -59,7 +57,7 @@ bool HorizontalBlurShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
   vertexShaderBuffer = 0;
   pixelShaderBuffer = 0;
 
-  result = D3DCompileFromFile(
+  auto result = D3DCompileFromFile(
       vsFilename, NULL, NULL, "HorizontalBlurVertexShader", "vs_5_0",
       D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
   if (FAILED(result)) {
@@ -217,7 +215,7 @@ bool HorizontalBlurShaderClass::SetShaderParameters(
     const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix,
     const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView *texture,
     float screenWidth) const {
-  HRESULT result;
+
   D3D11_MAPPED_SUBRESOURCE mappedResource;
   MatrixBufferType *dataPtr;
   unsigned int buffer_number;
@@ -234,8 +232,8 @@ bool HorizontalBlurShaderClass::SetShaderParameters(
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  result = device_context->Map(matrix_buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD,
-                               0, &mappedResource);
+  auto result = device_context->Map(
+      matrix_buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }

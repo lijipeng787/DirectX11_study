@@ -4,20 +4,37 @@
 #include <d3d11.h>
 
 #include <any>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 
 class ShaderParameterContainer {
 public:
-  void SetFloat(const std::string &name, float f);
+  template <typename T>
+  ShaderParameterContainer &Set(const std::string &name, const T &value) {
+    parameters_[name] = value;
+    return *this;
+  }
 
-  void SetMatrix(const std::string &name, const DirectX::XMMATRIX &matrix);
+  void SetFloat(const std::string &name, float f) { parameters_[name] = f; }
 
-  void SetVector3(const std::string &name, const DirectX::XMFLOAT3 &vector);
+  void SetMatrix(const std::string &name, const DirectX::XMMATRIX &matrix) {
+    parameters_[name] = matrix;
+  }
 
-  void SetVector4(const std::string &name, const DirectX::XMFLOAT4 &vector);
+  void SetVector3(const std::string &name, const DirectX::XMFLOAT3 &vector) {
+    parameters_[name] = vector;
+  }
 
-  void SetTexture(const std::string &name, ID3D11ShaderResourceView *texture);
+  void SetVector4(const std::string &name, const DirectX::XMFLOAT4 &vector) {
+    parameters_[name] = vector;
+  }
+
+  void SetTexture(const std::string &name, ID3D11ShaderResourceView *texture) {
+    parameters_[name] = texture;
+  }
+
+  void Merge(const ShaderParameterContainer &other);
 
   template <typename T> T Get(const std::string &name) const {
     auto it = parameters_.find(name);

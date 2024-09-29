@@ -18,11 +18,11 @@
     <ClCompile Include="depthshaderclass.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="RenderPipeline.cpp" />
-    <ClCompile Include="RenderSystem.cpp" />
+    <ClCompile Include="RenderPass.cpp" />
+    <ClCompile Include="RenderableObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="depthshaderclass.h" />
-    <ClInclude Include="GameObject.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="horizontalblurshaderclass.h" />
     <ClInclude Include="IRenderable.h" />
@@ -33,7 +33,6 @@
     <ClInclude Include="orthowindowclass.h" />
     <ClInclude Include="positionclass.h" />
     <ClInclude Include="RenderPipeline.h" />
-    <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="rendertextureclass.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderParameterContainer.h" />
@@ -45,6 +44,9 @@
     <ClInclude Include="textureshaderclass.h" />
     <ClInclude Include="verticalblurshaderclass.h" />
     <ClInclude Include="ShaderParameterLayout.h" />
+    <ClInclude Include="RenderPass.h" />
+    <ClInclude Include="RenderableObject.h" />
+    <ClInclude Include="ShaderParameterCallback.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.ps" />

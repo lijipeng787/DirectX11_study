@@ -1,5 +1,3 @@
-
-
 #include "verticalblurshaderclass.h"
 #include "../CommonFramework/DirectX11Device.h"
 
@@ -26,8 +24,8 @@ bool VerticalBlurShaderClass::Render(
     int indexCount, const ShaderParameterContainer &parameters) const {
 
   auto worldMatrix = parameters.GetMatrix("worldMatrix");
-  auto viewMatrix = parameters.GetMatrix("viewMatrix");
-  auto projectionMatrix = parameters.GetMatrix("projectionMatrix");
+  auto viewMatrix = parameters.GetMatrix("baseViewMatrix");
+  auto projectionMatrix = parameters.GetMatrix("orthoMatrix");
   auto screenHeight = parameters.GetFloat("screenHeight");
   auto texture = parameters.GetTexture("texture");
 

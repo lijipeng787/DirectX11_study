@@ -1,11 +1,3 @@
-
-
-
-
-
-
-
-
 cbuffer MatrixBuffer
 {
 	matrix worldMatrix;
@@ -18,10 +10,6 @@ cbuffer ScreenSizeBuffer
 	float screenWidth;
 	float3 padding;
 };
-
-
-
-
 
 struct VertexInputType
 {
@@ -44,25 +32,17 @@ struct PixelInputType
 	float2 texCoord9 : TEXCOORD9;
 };
 
-
-
-
-
 PixelInputType HorizontalBlurVertexShader(VertexInputType input)
 {
     PixelInputType output;
 	float texelSize;
 
-
-
     input.position.w = 1.0f;
 
-	
     output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
-	
 	output.tex = input.tex;
     
 	// Determine the floating point size of a texel for a screen with this specific width.

@@ -1,6 +1,8 @@
 
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\depthshaderclass.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\depthshaderclass.h
 #ifndef _DEPTHSHADERCLASS_H_
 #define _DEPTHSHADERCLASS_H_
 
@@ -57,7 +59,9 @@ private:
 
 #endif
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\GameObject.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\GameObject.h
 #pragma once
 
 #include "modelclass.h"
@@ -88,7 +92,9 @@ private:
   DirectX::XMFLOAT3 scale_;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\Graphics.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\Graphics.h
 #pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
@@ -186,8 +192,9 @@ private:
   SoftShadowShaderClass *m_SoftShadowShader;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\horizontalblurshaderclass.h
-
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\horizontalblurshaderclass.h
 
 #ifndef _HORIZONTALBLURSHADERCLASS_H_
 #define _HORIZONTALBLURSHADERCLASS_H_
@@ -254,7 +261,9 @@ private:
 
 #endif
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\IRenderable.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\IRenderable.h
 #pragma once
 
 #include <DirectXMath.h>
@@ -272,7 +281,9 @@ public:
          const ShaderParameterContainer &parameterContainer) const = 0;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\IRenderGroup.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\IRenderGroup.h
 #pragma once
 
 #include "IRenderable.h"
@@ -292,7 +303,9 @@ public:
   GetRenderables() const = 0;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\IShader.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\IShader.h
 #pragma once
 
 #include <Windows.h>
@@ -313,7 +326,9 @@ public:
   // virtual const ShaderParameterLayout& GetParameterLayout() const = 0;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\lightclass.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\lightclass.h
 #pragma once
 
 #include <DirectXMath.h>
@@ -349,7 +364,9 @@ private:
   XMMATRIX projection_matrix_;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\modelclass.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\modelclass.h
 
 #pragma once
 
@@ -435,8 +452,9 @@ private:
   DirectX::XMMATRIX world_matrix_ = DirectX::XMMatrixIdentity();
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\orthowindowclass.h
-
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\orthowindowclass.h
 
 #ifndef _ORTHOWINDOWCLASS_H_
 #define _ORTHOWINDOWCLASS_H_
@@ -475,7 +493,9 @@ private:
 
 #endif
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\positionclass.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\positionclass.h
 #pragma once
 
 #include <math.h>
@@ -515,8 +535,9 @@ private:
   float m_lookUpSpeed, m_lookDownSpeed;
 };
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\RenderPipeline.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\RenderPipeline.h
 #pragma once
 
 #include <Windows.h>
@@ -550,7 +571,9 @@ private:
   std::string active_shader_;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\RenderSystem.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\RenderSystem.h
 #pragma once
 
 #include <memory>
@@ -569,8 +592,9 @@ private:
   std::unique_ptr<RenderPipeline> pipeline_;
 };
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\rendertextureclass.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\rendertextureclass.h
 #pragma once
 
 #include <DirectXMath.h>
@@ -603,9 +627,9 @@ private:
   XMMATRIX ortho_matrix_;
 };
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\Scene.h
-// Scene.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\Scene.h Scene.h
 #pragma once
 #include <memory>
 #include <vector>
@@ -638,8 +662,9 @@ private:
   std::vector<std::shared_ptr<LightClass>> lights_;
 };
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\ShaderParameterContainer.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\ShaderParameterContainer.h
 #pragma once
 
 #include <DirectXMath.h>
@@ -699,7 +724,9 @@ private:
   std::unordered_map<std::string, std::any> parameters_;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\ShaderParameterLayout.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\ShaderParameterLayout.h
 #pragma once
 #include <string>
 #include <unordered_map>
@@ -733,8 +760,9 @@ private:
   std::vector<ShaderParameterInfo> parameters_;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\shadowshaderclass.h
-
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\shadowshaderclass.h
 
 #ifndef _SHADOWSHADERCLASS_H_
 #define _SHADOWSHADERCLASS_H_
@@ -810,8 +838,9 @@ private:
 
 #endif
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\softshadowshaderclass.h
-
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\softshadowshaderclass.h
 
 #ifndef _SOFTSHADOWSHADERCLASS_H_
 #define _SOFTSHADOWSHADERCLASS_H_
@@ -887,7 +916,9 @@ private:
 
 #endif
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\StandardRenderGroup.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\StandardRenderGroup.h
 #pragma once
 
 #include "GameObject.h"
@@ -913,7 +944,9 @@ private:
   std::vector<std::shared_ptr<GameObject>> gameObjects_;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\System.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\System.h
 #pragma once
 
 #include "../CommonFramework/SystemBase.h"
@@ -951,8 +984,9 @@ static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 static System *ApplicationInstance = nullptr;
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\textureclass.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\textureclass.h
 #pragma once
 //
 // #include <DDSTextureLoader.h>
@@ -1002,8 +1036,9 @@ private:
   Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture_;
 };
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\textureshaderclass.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\textureshaderclass.h
 #pragma once
 
 #include <DirectXMath.h>
@@ -1060,9 +1095,9 @@ private:
   Microsoft::WRL::ComPtr<ID3D11SamplerState> sample_state_;
 };
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\verticalblurshaderclass.h
-
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\verticalblurshaderclass.h
 
 #ifndef _VERTICALBLURSHADERCLASS_H_
 #define _VERTICALBLURSHADERCLASS_H_
@@ -1129,9 +1164,11 @@ private:
 
 #endif
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\depthshaderclass.cpp
-#include "depthshaderclass.h"
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\depthshaderclass.cpp
 #include "../CommonFramework/DirectX11Device.h"
+#include "depthshaderclass.h"
 
 #include <d3dcompiler.h>
 #include <fstream>
@@ -1351,7 +1388,9 @@ void DepthShaderClass::RenderShader(int indexCount) const {
   device_context->DrawIndexed(indexCount, 0, 0);
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\Graphics.cpp
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\Graphics.cpp
 #include "Graphics.h"
 
 #include <new>
@@ -2343,11 +2382,12 @@ void GraphicsClass::Render() {
   directx_device_->EndScene();
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\horizontalblurshaderclass.cpp
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\horizontalblurshaderclass.cpp
 
-
-#include "horizontalblurshaderclass.h"
 #include "../CommonFramework/DirectX11Device.h"
+#include "horizontalblurshaderclass.h"
 
 #include <d3dcompiler.h>
 #include <fstream>
@@ -2637,8 +2677,9 @@ void HorizontalBlurShaderClass::RenderShader(int indexCount) const {
   device_context->DrawIndexed(indexCount, 0, 0);
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\lightclass.cpp
-
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\lightclass.cpp
 
 #include "lightclass.h"
 
@@ -2719,7 +2760,9 @@ void LightClass::GetProjectionMatrix(XMMATRIX &projectionMatrix) {
   projectionMatrix = projection_matrix_;
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\main.cpp
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\main.cpp
 #include "System.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
@@ -2742,10 +2785,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
   return 0;
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\merged_cpp_files.cpp
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\merged_cpp_files.cpp
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\depthshaderclass.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\depthshaderclass.h
 #ifndef _DEPTHSHADERCLASS_H_
 #define _DEPTHSHADERCLASS_H_
 
@@ -2802,7 +2848,9 @@ private:
 
 #endif
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\GameObject.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\GameObject.h
 #pragma once
 
 #include "modelclass.h"
@@ -2833,7 +2881,9 @@ private:
   DirectX::XMFLOAT3 scale_;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\Graphics.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\Graphics.h
 #pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
@@ -2931,8 +2981,9 @@ private:
   SoftShadowShaderClass *m_SoftShadowShader;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\horizontalblurshaderclass.h
-
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\horizontalblurshaderclass.h
 
 #ifndef _HORIZONTALBLURSHADERCLASS_H_
 #define _HORIZONTALBLURSHADERCLASS_H_
@@ -2999,7 +3050,9 @@ private:
 
 #endif
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\IRenderable.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\IRenderable.h
 #pragma once
 
 #include <DirectXMath.h>
@@ -3017,7 +3070,9 @@ public:
          const ShaderParameterContainer &parameterContainer) const = 0;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\IRenderGroup.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\IRenderGroup.h
 #pragma once
 
 #include "IRenderable.h"
@@ -3037,7 +3092,9 @@ public:
   GetRenderables() const = 0;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\IShader.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\IShader.h
 #pragma once
 
 #include <Windows.h>
@@ -3058,7 +3115,9 @@ public:
   // virtual const ShaderParameterLayout& GetParameterLayout() const = 0;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\lightclass.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\lightclass.h
 #pragma once
 
 #include <DirectXMath.h>
@@ -3094,7 +3153,9 @@ private:
   XMMATRIX projection_matrix_;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\modelclass.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\modelclass.h
 
 #pragma once
 
@@ -3180,8 +3241,9 @@ private:
   DirectX::XMMATRIX world_matrix_ = DirectX::XMMatrixIdentity();
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\orthowindowclass.h
-
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\orthowindowclass.h
 
 #ifndef _ORTHOWINDOWCLASS_H_
 #define _ORTHOWINDOWCLASS_H_
@@ -3220,7 +3282,9 @@ private:
 
 #endif
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\positionclass.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\positionclass.h
 #pragma once
 
 #include <math.h>
@@ -3260,8 +3324,9 @@ private:
   float m_lookUpSpeed, m_lookDownSpeed;
 };
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\RenderPipeline.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\RenderPipeline.h
 #pragma once
 
 #include <Windows.h>
@@ -3295,7 +3360,9 @@ private:
   std::string active_shader_;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\RenderSystem.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\RenderSystem.h
 #pragma once
 
 #include <memory>
@@ -3314,8 +3381,9 @@ private:
   std::unique_ptr<RenderPipeline> pipeline_;
 };
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\rendertextureclass.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\rendertextureclass.h
 #pragma once
 
 #include <DirectXMath.h>
@@ -3348,9 +3416,9 @@ private:
   XMMATRIX ortho_matrix_;
 };
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\Scene.h
-// Scene.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\Scene.h Scene.h
 #pragma once
 #include <memory>
 #include <vector>
@@ -3383,8 +3451,9 @@ private:
   std::vector<std::shared_ptr<LightClass>> lights_;
 };
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\ShaderParameterContainer.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\ShaderParameterContainer.h
 #pragma once
 
 #include <DirectXMath.h>
@@ -3444,7 +3513,9 @@ private:
   std::unordered_map<std::string, std::any> parameters_;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\ShaderParameterLayout.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\ShaderParameterLayout.h
 #pragma once
 #include <string>
 #include <unordered_map>
@@ -3478,8 +3549,9 @@ private:
   std::vector<ShaderParameterInfo> parameters_;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\shadowshaderclass.h
-
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\shadowshaderclass.h
 
 #ifndef _SHADOWSHADERCLASS_H_
 #define _SHADOWSHADERCLASS_H_
@@ -3555,8 +3627,9 @@ private:
 
 #endif
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\softshadowshaderclass.h
-
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\softshadowshaderclass.h
 
 #ifndef _SOFTSHADOWSHADERCLASS_H_
 #define _SOFTSHADOWSHADERCLASS_H_
@@ -3632,7 +3705,9 @@ private:
 
 #endif
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\StandardRenderGroup.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\StandardRenderGroup.h
 #pragma once
 
 #include "GameObject.h"
@@ -3658,7 +3733,9 @@ private:
   std::vector<std::shared_ptr<GameObject>> gameObjects_;
 };
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\System.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\System.h
 #pragma once
 
 #include "../CommonFramework/SystemBase.h"
@@ -3696,8 +3773,9 @@ static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 static System *ApplicationInstance = nullptr;
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\textureclass.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\textureclass.h
 #pragma once
 //
 // #include <DDSTextureLoader.h>
@@ -3747,8 +3825,9 @@ private:
   Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture_;
 };
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\textureshaderclass.h
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\textureshaderclass.h
 #pragma once
 
 #include <DirectXMath.h>
@@ -3805,9 +3884,9 @@ private:
   Microsoft::WRL::ComPtr<ID3D11SamplerState> sample_state_;
 };
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\verticalblurshaderclass.h
-
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\verticalblurshaderclass.h
 
 #ifndef _VERTICALBLURSHADERCLASS_H_
 #define _VERTICALBLURSHADERCLASS_H_
@@ -3874,9 +3953,11 @@ private:
 
 #endif
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\depthshaderclass.cpp
-#include "depthshaderclass.h"
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\depthshaderclass.cpp
 #include "../CommonFramework/DirectX11Device.h"
+#include "depthshaderclass.h"
 
 #include <d3dcompiler.h>
 #include <fstream>
@@ -4096,7 +4177,9 @@ void DepthShaderClass::RenderShader(int indexCount) const {
   device_context->DrawIndexed(indexCount, 0, 0);
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\Graphics.cpp
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\Graphics.cpp
 #include "Graphics.h"
 
 #include <new>
@@ -5088,11 +5171,12 @@ void GraphicsClass::Render() {
   directx_device_->EndScene();
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\horizontalblurshaderclass.cpp
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\horizontalblurshaderclass.cpp
 
-
-#include "horizontalblurshaderclass.h"
 #include "../CommonFramework/DirectX11Device.h"
+#include "horizontalblurshaderclass.h"
 
 #include <d3dcompiler.h>
 #include <fstream>
@@ -5382,9 +5466,11 @@ void HorizontalBlurShaderClass::RenderShader(int indexCount) const {
   device_context->DrawIndexed(indexCount, 0, 0);
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\modelclass.cpp
-#include "modelclass.h"
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\modelclass.cpp
 #include "../CommonFramework/DirectX11Device.h"
+#include "modelclass.h"
 
 #include "../CommonFramework/DirectX11Device.h"
 #include "IShader.h"
@@ -5532,12 +5618,12 @@ bool ModelClass::LoadModel(const std::string &filename) {
 
 void ModelClass::ReleaseModel() { model_.clear(); }
 
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\orthowindowclass.cpp
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\orthowindowclass.cpp
-
-
-#include "orthowindowclass.h"
 #include "../CommonFramework/DirectX11Device.h"
+#include "orthowindowclass.h"
 
 OrthoWindowClass::OrthoWindowClass() {
   vertex_buffer_ = nullptr;
@@ -5698,8 +5784,9 @@ void OrthoWindowClass::RenderBuffers(ID3D11DeviceContext *device_context) {
   device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\positionclass.cpp
-
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\positionclass.cpp
 
 #include "positionclass.h"
 
@@ -5954,17 +6041,20 @@ void PositionClass::LookDownward(bool keydown) {
   }
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\RenderPipeline.cpp
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\RenderPipeline.cpp
 
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\RenderSystem.cpp
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\RenderSystem.cpp
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\rendertextureclass.cpp
 
-
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\rendertextureclass.cpp
-
-
-#include "rendertextureclass.h"
 #include "../CommonFramework/DirectX11Device.h"
+#include "rendertextureclass.h"
 
 RenderTextureClass::RenderTextureClass() {
   render_target_texture_ = 0;
@@ -6141,7 +6231,9 @@ void RenderTextureClass::GetOrthoMatrix(XMMATRIX &orthoMatrix) {
   orthoMatrix = ortho_matrix_;
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\ShaderParameterContainer.cpp
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\ShaderParameterContainer.cpp
 #include "ShaderParameterContainer.h"
 
 #include <stdexcept>
@@ -6170,12 +6262,13 @@ void ShaderParameterContainer::SetTexture(const std::string &name,
   parameters_[name] = texture;
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\shadowshaderclass.cpp
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\shadowshaderclass.cpp
 
-
-#include "shadowshaderclass.h"
 #include "../CommonFramework/DirectX11Device.h"
 #include "ShaderParameterContainer.h"
+#include "shadowshaderclass.h"
 
 using namespace DirectX;
 
@@ -6445,8 +6538,9 @@ void ShadowShaderClass::RenderShader(int indexCount) const {
   device_context->DrawIndexed(indexCount, 0, 0);
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\softshadowshaderclass.cpp
-
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\softshadowshaderclass.cpp
 
 #include "softshadowshaderclass.h"
 
@@ -6803,7 +6897,9 @@ void SoftShadowShaderClass::RenderShader(int indexCount) const {
   device_context->DrawIndexed(indexCount, 0, 0);
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\System.cpp
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\System.cpp
 #include "System.h"
 
 #include "../CommonFramework/Input.h"
@@ -6959,7 +7055,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam,
   }
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\textureclass.cpp
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\textureclass.cpp
 //
 //
 // #include "textureclass.h"
@@ -7018,12 +7116,13 @@ ID3D11ShaderResourceView *TextureClass::GetTexture() const {
   return texture_.Get();
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\textureshaderclass.cpp
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\textureshaderclass.cpp
 
-
-#include "textureshaderclass.h"
 #include "../CommonFramework/DirectX11Device.h"
 #include "ShaderParameterContainer.h"
+#include "textureshaderclass.h"
 
 #include <d3dcompiler.h>
 #include <fstream>
@@ -7305,11 +7404,12 @@ void TextureShaderClass::RenderShader(int indexCount) const {
   device_context->DrawIndexed(indexCount, 0, 0);
 }
 
-// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base Tutorials\31_soft_shadow\verticalblurshaderclass.cpp
+// File: C:\Users\jipengli\OneDrive - Advanced Micro Devices
+// Inc\个人文档\DirectX_Study\DirectX_Study\DirectX11_study\DX11 Base
+// Tutorials\31_soft_shadow\verticalblurshaderclass.cpp
 
-
-#include "verticalblurshaderclass.h"
 #include "../CommonFramework/DirectX11Device.h"
+#include "verticalblurshaderclass.h"
 
 #include <d3dcompiler.h>
 #include <fstream>

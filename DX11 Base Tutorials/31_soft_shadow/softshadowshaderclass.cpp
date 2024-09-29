@@ -1,5 +1,3 @@
-
-
 #include "softshadowshaderclass.h"
 
 #include <d3dcompiler.h>

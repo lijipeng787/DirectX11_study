@@ -1,24 +1,11 @@
-
-
 #include "rendertextureclass.h"
 #include "../CommonFramework/DirectX11Device.h"
 
-RenderTextureClass::RenderTextureClass() {
-  render_target_texture_ = 0;
-  render_target_view_ = 0;
-  shader_resource_view_ = 0;
-  depth_stencil_buffer_ = 0;
-  depth_stencil_view_ = 0;
-}
-
-RenderTextureClass::RenderTextureClass(const RenderTextureClass &other) {}
-
-RenderTextureClass::~RenderTextureClass() {}
+using namespace DirectX;
 
 bool RenderTextureClass::Initialize(int textureWidth, int textureHeight,
                                     float screenDepth, float screenNear) {
   D3D11_TEXTURE2D_DESC textureDesc;
-  HRESULT result;
   D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
   D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
   D3D11_TEXTURE2D_DESC depthBufferDesc;
@@ -39,7 +26,8 @@ bool RenderTextureClass::Initialize(int textureWidth, int textureHeight,
 
   auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
-  result = device->CreateTexture2D(&textureDesc, NULL, &render_target_texture_);
+  auto result =
+      device->CreateTexture2D(&textureDesc, NULL, &render_target_texture_);
   if (FAILED(result)) {
     return false;
   }
@@ -142,8 +130,10 @@ void RenderTextureClass::Shutdown() {
   }
 }
 
-void RenderTextureClass::SetRenderTarget(ID3D11DeviceContext *device_context) {
+void RenderTextureClass::SetRenderTarget() {
 
+  auto device_context =
+      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
   device_context->OMSetRenderTargets(1, &render_target_view_,
                                      depth_stencil_view_);
 

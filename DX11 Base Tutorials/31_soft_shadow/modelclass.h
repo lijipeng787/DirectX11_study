@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "IRenderable.h"
@@ -31,6 +30,10 @@ public:
   void
   Render(const IShader &shader,
          const ShaderParameterContainer &parameterContainer) const override;
+
+  void SetParameterCallback(ShaderParameterCallback callback) override;
+
+  ShaderParameterCallback GetParameterCallback() const override;
 
   int GetIndexCount() const { return index_count_; }
 

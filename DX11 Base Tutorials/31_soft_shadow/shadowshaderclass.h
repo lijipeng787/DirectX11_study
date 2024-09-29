@@ -1,5 +1,3 @@
-
-
 #ifndef _SHADOWSHADERCLASS_H_
 #define _SHADOWSHADERCLASS_H_
 
@@ -66,10 +64,13 @@ private:
 private:
   Microsoft::WRL::ComPtr<ID3D11VertexShader> vertex_shader_;
   Microsoft::WRL::ComPtr<ID3D11PixelShader> pixel_shader_;
+
   Microsoft::WRL::ComPtr<ID3D11InputLayout> layout_;
+
   Microsoft::WRL::ComPtr<ID3D11Buffer> matrix_buffer_;
-  Microsoft::WRL::ComPtr<ID3D11SamplerState> sample_state_;
   Microsoft::WRL::ComPtr<ID3D11Buffer> light_buffee_2;
+
+  Microsoft::WRL::ComPtr<ID3D11SamplerState> sample_state_;
 };
 
 #endif

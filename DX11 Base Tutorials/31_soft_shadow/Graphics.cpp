@@ -1,12 +1,10 @@
 #include "Graphics.h"
 
-#include <new>
-
 #include "../CommonFramework/Camera.h"
 #include "../CommonFramework/DirectX11Device.h"
-#include "../CommonFramework/Input.h"
 #include "../CommonFramework/TypeDefine.h"
 
+#include "RenderableObject.h"
 #include "depthshaderclass.h"
 #include "horizontalblurshaderclass.h"
 #include "lightclass.h"
@@ -18,14 +16,10 @@
 #include "textureshaderclass.h"
 #include "verticalblurshaderclass.h"
 
-GraphicsClass::GraphicsClass() {}
-
-GraphicsClass::~GraphicsClass() {}
+using namespace std;
+using namespace DirectX;
 
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
-
-  bool result;
-  int downSampleWidth, downSampleHeight;
 
   auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
@@ -37,8 +31,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    camera_ = (Camera *)_aligned_malloc(sizeof(Camera), 16);
-    new (camera_) Camera();
+    camera_ = make_shared<Camera>();
     if (!camera_) {
       return false;
     }
@@ -47,9 +40,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
     camera_->RenderBaseViewMatrix();
   }
 
+  auto result = false;
+
   {
     // Create the cube model object.
-    m_CubeModel = new ModelClass();
+    m_CubeModel = make_shared<ModelClass>();
     if (!m_CubeModel) {
       return false;
     }
@@ -62,19 +57,16 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
       return false;
     }
     // Set the position for the cube model.
-    // m_CubeModel->SetPosition(-2.0f, 2.0f, 0.0f);
     m_CubeModel->SetWorldMatrix(
         std::move(XMMatrixTranslation(-2.0f, 2.0f, 0.0f)));
   }
 
   {
-    // Create the sphere model object.
-    m_SphereModel = new ModelClass();
+    m_SphereModel = make_shared<ModelClass>();
     if (!m_SphereModel) {
       return false;
     }
 
-    // Initialize the sphere model object.
     result = m_SphereModel->Initialize("./data/sphere.txt", L"./data/ice.dds");
     if (!result) {
       MessageBox(hwnd, L"Could not initialize the sphere model object.",
@@ -82,20 +74,16 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
       return false;
     }
 
-    // Set the position for the sphere model.
-    // m_SphereModel->SetPosition(2.0f, 2.0f, 0.0f);
     m_SphereModel->SetWorldMatrix(
         std::move(XMMatrixTranslation(2.0f, 2.0f, 0.0f)));
   }
 
   {
-    // Create the ground model object.
-    m_GroundModel = new ModelClass();
+    m_GroundModel = make_shared<ModelClass>();
     if (!m_GroundModel) {
       return false;
     }
 
-    // Initialize the ground model object.
     result =
         m_GroundModel->Initialize("./data/plane01.txt", L"./data/metal001.dds");
     if (!result) {
@@ -104,16 +92,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
       return false;
     }
 
-    // Set the position for the ground model.
-    // m_GroundModel->SetPosition(0.0f, 1.0f, 0.0f);
     m_GroundModel->SetWorldMatrix(
         std::move(XMMatrixTranslation(0.0f, 1.0f, 0.0f)));
   }
 
   {
     // Create the light object.
-    light_ = (LightClass *)_aligned_malloc(sizeof(LightClass), 16);
-    new (light_) LightClass();
+    light_ = make_shared<LightClass>();
     if (!light_) {
       return false;
     }
@@ -127,9 +112,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     // Create the render to texture object.
-    render_texture_ =
-        (RenderTextureClass *)_aligned_malloc(sizeof(RenderTextureClass), 16);
-    new (render_texture_) RenderTextureClass();
+    render_texture_ = make_shared<RenderTextureClass>();
     if (!render_texture_) {
       return false;
     }
@@ -145,15 +128,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    // Create the depth shader object.
-    depth_shader_ =
-        (DepthShaderClass *)_aligned_malloc(sizeof(DepthShaderClass), 16);
-    new (depth_shader_) DepthShaderClass();
+    depth_shader_ = make_shared<DepthShaderClass>();
     if (!depth_shader_) {
       return false;
     }
 
-    // Initialize the depth shader object.
     result = depth_shader_->Initialize(hwnd);
     if (!result) {
       MessageBox(hwnd, L"Could not initialize the depth shader object.",
@@ -163,15 +142,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    // Create the black and white render to texture object.
-    m_BlackWhiteRenderTexture =
-        (RenderTextureClass *)_aligned_malloc(sizeof(RenderTextureClass), 16);
-    new (m_BlackWhiteRenderTexture) RenderTextureClass();
+    m_BlackWhiteRenderTexture = make_shared<RenderTextureClass>();
     if (!m_BlackWhiteRenderTexture) {
       return false;
     }
 
-    // Initialize the black and white render to texture object.
     result = m_BlackWhiteRenderTexture->Initialize(
         SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
     if (!result) {
@@ -185,9 +160,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     // Create the shadow shader object.
-    m_ShadowShader =
-        (ShadowShaderClass *)_aligned_malloc(sizeof(ShadowShaderClass), 16);
-    new (m_ShadowShader) ShadowShaderClass();
+    m_ShadowShader = make_shared<ShadowShaderClass>();
     if (!m_ShadowShader) {
       return false;
     }
@@ -202,14 +175,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   // Set the size to sample down to.
-  downSampleWidth = SHADOWMAP_WIDTH / 2;
-  downSampleHeight = SHADOWMAP_HEIGHT / 2;
+  auto downSampleWidth = SHADOWMAP_WIDTH / 2;
+  auto downSampleHeight = SHADOWMAP_HEIGHT / 2;
 
   {
     // Create the down sample render to texture object.
-    m_DownSampleTexure =
-        (RenderTextureClass *)_aligned_malloc(sizeof(RenderTextureClass), 16);
-    new (m_DownSampleTexure) RenderTextureClass();
+    m_DownSampleTexure = make_shared<RenderTextureClass>();
     if (!m_DownSampleTexure) {
       return false;
     }
@@ -227,13 +198,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    // Create the small ortho window object.
-    m_SmallWindow = new OrthoWindowClass();
+    m_SmallWindow = make_shared<OrthoWindowClass>();
     if (!m_SmallWindow) {
       return false;
     }
 
-    // Initialize the small ortho window object.
     result = m_SmallWindow->Initialize(downSampleWidth, downSampleHeight);
     if (!result) {
       MessageBox(hwnd, L"Could not initialize the small ortho window object.",
@@ -243,15 +212,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    // Create the texture shader object.
-    texture_shader_ =
-        (TextureShaderClass *)_aligned_malloc(sizeof(TextureShaderClass), 16);
-    new (texture_shader_) TextureShaderClass();
+    texture_shader_ = make_shared<TextureShaderClass>();
     if (!texture_shader_) {
       return false;
     }
 
-    // Initialize the texture shader object.
     result = texture_shader_->Initialize(hwnd);
     if (!result) {
       MessageBox(hwnd, L"Could not initialize the texture shader object.",
@@ -261,15 +226,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    // Create the horizontal blur render to texture object.
-    m_HorizontalBlurTexture =
-        (RenderTextureClass *)_aligned_malloc(sizeof(RenderTextureClass), 16);
-    new (m_HorizontalBlurTexture) RenderTextureClass();
+    m_HorizontalBlurTexture = make_shared<RenderTextureClass>();
     if (!m_HorizontalBlurTexture) {
       return false;
     }
 
-    // Initialize the horizontal blur render to texture object.
     result = m_HorizontalBlurTexture->Initialize(
         downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
     if (!result) {
@@ -282,15 +243,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    // Create the horizontal blur shader object.
-    m_HorizontalBlurShader = (HorizontalBlurShaderClass *)_aligned_malloc(
-        sizeof(HorizontalBlurShaderClass), 16);
-    new (m_HorizontalBlurShader) HorizontalBlurShaderClass();
+    m_HorizontalBlurShader = make_shared<HorizontalBlurShaderClass>();
     if (!m_HorizontalBlurShader) {
       return false;
     }
 
-    // Initialize the horizontal blur shader object.
     result = m_HorizontalBlurShader->Initialize(hwnd);
     if (!result) {
       MessageBox(hwnd,
@@ -301,15 +258,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    // Create the vertical blur render to texture object.
-    m_VerticalBlurTexture =
-        (RenderTextureClass *)_aligned_malloc(sizeof(RenderTextureClass), 16);
-    new (m_VerticalBlurTexture) RenderTextureClass();
+    m_VerticalBlurTexture = make_shared<RenderTextureClass>();
     if (!m_VerticalBlurTexture) {
       return false;
     }
 
-    // Initialize the vertical blur render to texture object.
     result = m_VerticalBlurTexture->Initialize(
         downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
     if (!result) {
@@ -322,15 +275,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    // Create the vertical blur shader object.
-    m_VerticalBlurShader = (VerticalBlurShaderClass *)_aligned_malloc(
-        sizeof(VerticalBlurShaderClass), 16);
-    new (m_VerticalBlurShader) VerticalBlurShaderClass();
+    m_VerticalBlurShader = make_shared<VerticalBlurShaderClass>();
     if (!m_VerticalBlurShader) {
       return false;
     }
 
-    // Initialize the vertical blur shader object.
     result = m_VerticalBlurShader->Initialize(hwnd);
     if (!result) {
       MessageBox(hwnd, L"Could not initialize the vertical blur shader object.",
@@ -340,15 +289,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    // Create the up sample render to texture object.
-    m_UpSampleTexure =
-        (RenderTextureClass *)_aligned_malloc(sizeof(RenderTextureClass), 16);
-    new (m_UpSampleTexure) RenderTextureClass();
+    m_UpSampleTexure = make_shared<RenderTextureClass>();
     if (!m_UpSampleTexure) {
       return false;
     }
 
-    // Initialize the up sample render to texture object.
     result = m_UpSampleTexure->Initialize(SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT,
                                           SCREEN_DEPTH, 0.1f);
     if (!result) {
@@ -360,13 +305,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    // Create the full screen ortho window object.
-    m_FullScreenWindow = new OrthoWindowClass();
+    m_FullScreenWindow = make_shared<OrthoWindowClass>();
     if (!m_FullScreenWindow) {
       return false;
     }
 
-    // Initialize the full screen ortho window object.
     result = m_FullScreenWindow->Initialize(SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT);
     if (!result) {
       MessageBox(hwnd,
@@ -377,15 +320,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    // Create the soft shadow shader object.
-    m_SoftShadowShader = (SoftShadowShaderClass *)_aligned_malloc(
-        sizeof(SoftShadowShaderClass), 16);
-    new (m_SoftShadowShader) SoftShadowShaderClass();
+    m_SoftShadowShader = make_shared<SoftShadowShaderClass>();
     if (!m_SoftShadowShader) {
       return false;
     }
 
-    // Initialize the soft shadow shader object.
     result = m_SoftShadowShader->Initialize(hwnd);
     if (!result) {
       MessageBox(hwnd, L"Could not initialize the soft shadow shader object.",
@@ -394,145 +333,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
     }
   }
 
+  SetupRenderPipeline();
+
   return true;
 }
 
-void GraphicsClass::Shutdown() {
-
-  // Release the soft shadow shader object.
-  if (m_SoftShadowShader) {
-    m_SoftShadowShader->Shutdown();
-    m_SoftShadowShader->~SoftShadowShaderClass();
-    _aligned_free(m_SoftShadowShader);
-    m_SoftShadowShader = 0;
-  }
-
-  if (m_FullScreenWindow) {
-    m_FullScreenWindow->Shutdown();
-    delete m_FullScreenWindow;
-    m_FullScreenWindow = 0;
-  }
-
-  if (m_UpSampleTexure) {
-    m_UpSampleTexure->Shutdown();
-    m_UpSampleTexure->~RenderTextureClass();
-    _aligned_free(m_UpSampleTexure);
-    m_UpSampleTexure = 0;
-  }
-
-  if (m_VerticalBlurShader) {
-    m_VerticalBlurShader->Shutdown();
-    m_VerticalBlurShader->~VerticalBlurShaderClass();
-    _aligned_free(m_VerticalBlurShader);
-    m_VerticalBlurShader = 0;
-  }
-
-  if (m_VerticalBlurTexture) {
-    m_VerticalBlurTexture->Shutdown();
-    m_VerticalBlurTexture->~RenderTextureClass();
-    _aligned_free(m_VerticalBlurTexture);
-    m_VerticalBlurTexture = 0;
-  }
-
-  if (m_HorizontalBlurShader) {
-    m_HorizontalBlurShader->Shutdown();
-    m_HorizontalBlurShader->~HorizontalBlurShaderClass();
-    _aligned_free(m_HorizontalBlurShader);
-    m_HorizontalBlurShader = 0;
-  }
-
-  if (m_HorizontalBlurTexture) {
-    m_HorizontalBlurTexture->Shutdown();
-    m_HorizontalBlurTexture->~RenderTextureClass();
-    _aligned_free(m_HorizontalBlurTexture);
-    m_HorizontalBlurTexture = 0;
-  }
-
-  if (texture_shader_) {
-    texture_shader_->Shutdown();
-    texture_shader_->~TextureShaderClass();
-    _aligned_free(texture_shader_);
-    texture_shader_ = 0;
-  }
-
-  if (m_SmallWindow) {
-    m_SmallWindow->Shutdown();
-    delete m_SmallWindow;
-    m_SmallWindow = 0;
-  }
-
-  if (m_DownSampleTexure) {
-    m_DownSampleTexure->Shutdown();
-    m_DownSampleTexure->~RenderTextureClass();
-    _aligned_free(m_DownSampleTexure);
-    m_DownSampleTexure = 0;
-  }
-
-  // Release the shadow shader object.
-  if (m_ShadowShader) {
-    m_ShadowShader->Shutdown();
-    m_ShadowShader->~ShadowShaderClass();
-    _aligned_free(m_ShadowShader);
-    m_ShadowShader = 0;
-  }
-
-  // Release the black and white render to texture.
-  if (m_BlackWhiteRenderTexture) {
-    m_BlackWhiteRenderTexture->Shutdown();
-    m_BlackWhiteRenderTexture->~RenderTextureClass();
-    _aligned_free(m_BlackWhiteRenderTexture);
-    m_BlackWhiteRenderTexture = 0;
-  }
-
-  // Release the depth shader object.
-  if (depth_shader_) {
-    depth_shader_->Shutdown();
-    depth_shader_->~DepthShaderClass();
-    _aligned_free(depth_shader_);
-    depth_shader_ = 0;
-  }
-
-  if (render_texture_) {
-    render_texture_->Shutdown();
-    render_texture_->~RenderTextureClass();
-    _aligned_free(render_texture_);
-    render_texture_ = 0;
-  }
-
-  if (light_) {
-    light_->~LightClass();
-    _aligned_free(light_);
-    light_ = nullptr;
-    ;
-  }
-
-  // Release the ground model object.
-  if (m_GroundModel) {
-    m_GroundModel->Shutdown();
-    delete m_GroundModel;
-    m_GroundModel = 0;
-  }
-
-  // Release the sphere model object.
-  if (m_SphereModel) {
-    m_SphereModel->Shutdown();
-    delete m_SphereModel;
-    m_SphereModel = 0;
-  }
-
-  // Release the cube model object.
-  if (m_CubeModel) {
-    m_CubeModel->Shutdown();
-    delete m_CubeModel;
-    m_CubeModel = 0;
-  }
-
-  if (camera_) {
-    camera_->~Camera();
-    _aligned_free(camera_);
-    camera_ = nullptr;
-  }
-}
+void GraphicsClass::Shutdown() {}
 
 void GraphicsClass::Frame(float deltatime) {
 
@@ -554,437 +360,233 @@ void GraphicsClass::Frame(float deltatime) {
   Render();
 }
 
-bool GraphicsClass::RenderSceneToTexture() {
+void GraphicsClass::SetupRenderPipeline() {
 
-  auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
+  constexpr auto write_depth_tag = "write_depth";
+  constexpr auto write_shadow_tag = "write_shadow";
+  constexpr auto down_sample_tag = "down_sample";
+  constexpr auto horizontal_blur_tag = "horizontal_blur";
+  constexpr auto vertical_blur_tag = "vertical_blur";
+  constexpr auto up_sample_tag = "up_sample";
+  constexpr auto final_tag = "final";
 
-  render_texture_->SetRenderTarget(directx_device_->GetDeviceContext());
-
-  render_texture_->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
-
+  auto depth_pass = std::make_shared<RenderPass>("DepthPass", depth_shader_);
+  depth_pass->AddRenderTag(write_depth_tag);
+  depth_pass->SetOutputTexture(render_texture_);
+  ShaderParameterContainer depthPassParams;
   light_->GenerateViewMatrix();
+  XMMATRIX light_view_matrix;
+  light_->GetViewMatrix(light_view_matrix);
+  depthPassParams.SetMatrix("lightViewMatrix", light_view_matrix);
+  XMMATRIX light_projection_matrix;
+  light_->GetProjectionMatrix(light_projection_matrix);
+  depthPassParams.SetMatrix("lightProjectionMatrix", light_projection_matrix);
+  depth_pass->SetPassParameters(depthPassParams);
+  render_pipeline_.AddRenderPass(depth_pass);
 
-  XMMATRIX lightViewMatrix, lightProjectionMatrix;
-  light_->GetViewMatrix(lightViewMatrix);
-  light_->GetProjectionMatrix(lightProjectionMatrix);
-
-  auto worldMatrix = m_CubeModel->GetWorldMatrix();
-
-  ShaderParameterContainer parameters;
-  parameters.SetMatrix("worldMatrix", worldMatrix);
-  parameters.SetMatrix("viewMatrix", lightViewMatrix);
-  parameters.SetMatrix("projectionMatrix", lightProjectionMatrix);
-
-  m_CubeModel->Render(*depth_shader_, parameters);
-
-  worldMatrix = m_SphereModel->GetWorldMatrix();
-  parameters.SetMatrix("worldMatrix", worldMatrix);
-
-  m_SphereModel->Render(*depth_shader_, parameters);
-
-  worldMatrix = m_GroundModel->GetWorldMatrix();
-  parameters.SetMatrix("worldMatrix", worldMatrix);
-
-  m_GroundModel->Render(*depth_shader_, parameters);
-
-  directx_device_->SetBackBufferRenderTarget();
-
-  directx_device_->ResetViewport();
-
-  return true;
-}
-
-bool GraphicsClass::RenderBlackAndWhiteShadows() {
-
-  auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
-
-  // Set the render target to be the render to texture.
-  m_BlackWhiteRenderTexture->SetRenderTarget(
-      directx_device_->GetDeviceContext());
-
-  // Clear the render to texture.
-  m_BlackWhiteRenderTexture->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
-
-  // Generate the view matrix based on the camera's position.
-  camera_->Render();
-
-  // Generate the light view matrix based on the light's position.
-  light_->GenerateViewMatrix();
-
-  // Get the world, view, and projection matrices from the camera and d3d
-  // objects.
+  auto shadow_pass = std::make_shared<RenderPass>("ShadowPass", m_ShadowShader);
+  shadow_pass->AddRenderTag(write_shadow_tag);
+  shadow_pass->AddInputTexture("depthMap", depth_pass->GetOutputTexture());
+  shadow_pass->SetOutputTexture(m_BlackWhiteRenderTexture);
+  ShaderParameterContainer shadowPassParams;
   XMMATRIX viewMatrix, projectionMatrix;
   camera_->GetViewMatrix(viewMatrix);
-  directx_device_->GetProjectionMatrix(projectionMatrix);
+  shadowPassParams.SetMatrix("viewMatrix", viewMatrix);
+  DirectX11Device::GetD3d11DeviceInstance()->GetProjectionMatrix(
+      projectionMatrix);
+  shadowPassParams.SetMatrix("projectionMatrix", projectionMatrix);
+  shadowPassParams.SetMatrix("lightViewMatrix", light_view_matrix);
+  shadowPassParams.SetMatrix("lightProjectionMatrix", light_projection_matrix);
+  shadowPassParams.SetVector3("lightPosition", light_->GetPosition());
+  shadowPassParams.SetTexture("depthMapTexture",
+                              render_texture_->GetShaderResourceView());
+  shadow_pass->SetPassParameters(shadowPassParams);
+  render_pipeline_.AddRenderPass(shadow_pass);
 
-  // Get the light's view and projection matrices from the light object.
-  XMMATRIX lightViewMatrix, lightProjectionMatrix;
-  light_->GetViewMatrix(lightViewMatrix);
-  light_->GetProjectionMatrix(lightProjectionMatrix);
-
-  // Setup the world matrix for the cube model.
-  auto worldMatrix = m_CubeModel->GetWorldMatrix();
-
-  ShaderParameterContainer parameters;
-  parameters.SetMatrix("worldMatrix", worldMatrix);
-  parameters.SetMatrix("viewMatrix", viewMatrix);
-  parameters.SetMatrix("projectionMatrix", projectionMatrix);
-  parameters.SetMatrix("lightViewMatrix", lightViewMatrix);
-  parameters.SetMatrix("lightProjectionMatrix", lightProjectionMatrix);
-  parameters.SetTexture("depthMapTexture",
-                        render_texture_->GetShaderResourceView());
-  parameters.SetVector3("lightPosition", light_->GetPosition());
-  // Render the cube model using the shadow shader.
-  m_CubeModel->Render(*m_ShadowShader, parameters);
-
-  worldMatrix = m_SphereModel->GetWorldMatrix();
-  parameters.SetMatrix("worldMatrix", worldMatrix);
-
-  m_SphereModel->Render(*m_ShadowShader, parameters);
-
-  worldMatrix = m_GroundModel->GetWorldMatrix();
-  parameters.SetMatrix("worldMatrix", worldMatrix);
-
-  m_GroundModel->Render(*m_ShadowShader, parameters);
-
-  // Reset the render target back to the original back buffer and not the render
-  // to texture anymore.
-  directx_device_->SetBackBufferRenderTarget();
-
-  // Reset the viewport back to the original.
-  directx_device_->ResetViewport();
-
-  return true;
-}
-
-bool GraphicsClass::DownSampleTexture() {
-
-  auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
-
-  m_DownSampleTexure->SetRenderTarget(directx_device_->GetDeviceContext());
-
-  // Clear the render to texture.
-  m_DownSampleTexure->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
-
-  // Generate the view matrix based on the camera's position.
-  camera_->Render();
-
-  // Get the world and view matrices from the camera and d3d objects.
-  XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
-  directx_device_->GetWorldMatrix(worldMatrix);
+  auto down_sample_texture_pass =
+      std::make_shared<RenderPass>("DownSampleTexture", texture_shader_);
+  down_sample_texture_pass->AddRenderTag(down_sample_tag);
+  down_sample_texture_pass->AddInputTexture("shadowMap",
+                                            shadow_pass->GetOutputTexture());
+  down_sample_texture_pass->SetOutputTexture(m_DownSampleTexure);
+  down_sample_texture_pass->NeedTurnOffZBuffer();
+  XMMATRIX deviceWorldMatrix, baseViewMatrix, orthoMatrix;
   camera_->GetBaseViewMatrix(baseViewMatrix);
-
-  // Get the ortho matrix from the render to texture since texture has different
-  // dimensions being that it is smaller.
+  DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(deviceWorldMatrix);
+  ShaderParameterContainer DownSampleTexturePassParams;
+  DownSampleTexturePassParams.SetMatrix("deviceWorldMatrix", deviceWorldMatrix);
+  DownSampleTexturePassParams.SetMatrix("baseViewMatrix", baseViewMatrix);
   m_DownSampleTexure->GetOrthoMatrix(orthoMatrix);
+  DownSampleTexturePassParams.SetMatrix("orthoMatrix", orthoMatrix);
+  DownSampleTexturePassParams.SetTexture(
+      "texture", m_BlackWhiteRenderTexture->GetShaderResourceView());
+  down_sample_texture_pass->SetPassParameters(DownSampleTexturePassParams);
+  render_pipeline_.AddRenderPass(down_sample_texture_pass);
 
-  // Turn off the Z buffer to begin all 2D rendering.
-  directx_device_->TurnZBufferOff();
-
-  // Put the small ortho window vertex and index buffers on the graphics
-  // pipeline to prepare them for drawing.
-  m_SmallWindow->Render(directx_device_->GetDeviceContext());
-
-  // Render the small ortho window using the texture shader and the render to
-  // texture of the scene as the texture resource.
-  ShaderParameterContainer parameters;
-  parameters.SetMatrix("worldMatrix", worldMatrix);
-  parameters.SetMatrix("baseViewMatrix", baseViewMatrix);
-  parameters.SetMatrix("orthoMatrix", orthoMatrix);
-  parameters.SetTexture("texture",
-                        m_BlackWhiteRenderTexture->GetShaderResourceView());
-
-  auto result =
-      texture_shader_->Render(m_SmallWindow->GetIndexCount(), parameters);
-  if (!result) {
-    return false;
-  }
-
-  // Turn the Z buffer back on now that all 2D rendering has completed.
-  directx_device_->TurnZBufferOn();
-
-  // Reset the render target back to the original back buffer and not the render
-  // to texture anymore.
-  directx_device_->SetBackBufferRenderTarget();
-
-  // Reset the viewport back to the original.
-  directx_device_->ResetViewport();
-
-  return true;
-}
-
-bool GraphicsClass::RenderHorizontalBlurToTexture() {
-
-  // Store the screen width in a float that will be used in the horizontal blur
-  // shader.
-  auto screenSizeX = (float)(SHADOWMAP_WIDTH / 2);
-
-  auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
-
-  // Set the render target to be the render to texture.
-  m_HorizontalBlurTexture->SetRenderTarget(directx_device_->GetDeviceContext());
-
-  // Clear the render to texture.
-  m_HorizontalBlurTexture->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
-
-  // Generate the view matrix based on the camera's position.
-  camera_->Render();
-
-  // Get the world and view matrices from the camera and d3d objects.
-  XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
-  directx_device_->GetWorldMatrix(worldMatrix);
-  camera_->GetBaseViewMatrix(baseViewMatrix);
-
-  // Get the ortho matrix from the render to texture since texture has different
-  // dimensions.
+  auto horizontal_blur_to_texture_pass = std::make_shared<RenderPass>(
+      "RenderHorizontalBlurToTexture", m_HorizontalBlurShader);
+  horizontal_blur_to_texture_pass->AddRenderTag(horizontal_blur_tag);
+  horizontal_blur_to_texture_pass->AddInputTexture(
+      "DownSampleTexture", down_sample_texture_pass->GetOutputTexture());
+  horizontal_blur_to_texture_pass->SetOutputTexture(m_HorizontalBlurTexture);
+  horizontal_blur_to_texture_pass->NeedTurnOffZBuffer();
+  ShaderParameterContainer RenderHorizontalBlurToTexturePassParams;
+  RenderHorizontalBlurToTexturePassParams.SetMatrix("baseViewMatrix",
+                                                    baseViewMatrix);
   m_HorizontalBlurTexture->GetOrthoMatrix(orthoMatrix);
+  RenderHorizontalBlurToTexturePassParams.SetMatrix("orthoMatrix", orthoMatrix);
+  RenderHorizontalBlurToTexturePassParams.SetFloat(
+      "screenWidth", (float)(SHADOWMAP_WIDTH / 2));
+  RenderHorizontalBlurToTexturePassParams.SetTexture(
+      "texture", m_DownSampleTexure->GetShaderResourceView());
+  horizontal_blur_to_texture_pass->SetPassParameters(
+      RenderHorizontalBlurToTexturePassParams);
+  render_pipeline_.AddRenderPass(horizontal_blur_to_texture_pass);
 
-  // Turn off the Z buffer to begin all 2D rendering.
-  directx_device_->TurnZBufferOff();
-
-  // Put the small ortho window vertex and index buffers on the graphics
-  // pipeline to prepare them for drawing.
-  m_SmallWindow->Render(directx_device_->GetDeviceContext());
-
-  // Render the small ortho window using the horizontal blur shader and the down
-  // sampled render to texture resource.
-
-  ShaderParameterContainer parameters;
-  parameters.SetMatrix("worldMatrix", worldMatrix);
-  parameters.SetMatrix("viewMatrix", baseViewMatrix);
-  parameters.SetMatrix("projectionMatrix", orthoMatrix);
-  parameters.SetFloat("screenWidth", screenSizeX);
-  parameters.SetTexture("texture", m_DownSampleTexure->GetShaderResourceView());
-
-  auto result = m_HorizontalBlurShader->Render(m_SmallWindow->GetIndexCount(),
-                                               parameters);
-  if (!result) {
-    return false;
-  }
-
-  // Turn the Z buffer back on now that all 2D rendering has completed.
-  directx_device_->TurnZBufferOn();
-
-  // Reset the render target back to the original back buffer and not the render
-  // to texture anymore.
-  directx_device_->SetBackBufferRenderTarget();
-
-  // Reset the viewport back to the original.
-  directx_device_->ResetViewport();
-
-  return true;
-}
-
-bool GraphicsClass::RenderVerticalBlurToTexture() {
-
-  // Store the screen height in a float that will be used in the vertical blur
-  // shader.
-  auto screenSizeY = (float)(SHADOWMAP_HEIGHT / 2);
-
-  auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
-
-  // Set the render target to be the render to texture.
-  m_VerticalBlurTexture->SetRenderTarget(directx_device_->GetDeviceContext());
-
-  // Clear the render to texture.
-  m_VerticalBlurTexture->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
-
-  // Generate the view matrix based on the camera's position.
-  camera_->Render();
-
-  // Get the world and view matrices from the camera and d3d objects.
-  XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
-  directx_device_->GetWorldMatrix(worldMatrix);
-  camera_->GetBaseViewMatrix(baseViewMatrix);
-
-  // Get the ortho matrix from the render to texture since texture has different
-  // dimensions.
+  auto Vertical_blur_to_texture_pass = std::make_shared<RenderPass>(
+      "RenderHorizontalBlurToTexture", m_VerticalBlurShader);
+  Vertical_blur_to_texture_pass->AddRenderTag(vertical_blur_tag);
+  Vertical_blur_to_texture_pass->AddInputTexture(
+      "DownSampleTexture", horizontal_blur_to_texture_pass->GetOutputTexture());
+  Vertical_blur_to_texture_pass->SetOutputTexture(m_VerticalBlurTexture);
+  Vertical_blur_to_texture_pass->NeedTurnOffZBuffer();
+  ShaderParameterContainer RenderVerticalBlurToTexturePassParams;
+  RenderHorizontalBlurToTexturePassParams.SetMatrix("baseViewMatrix",
+                                                    baseViewMatrix);
   m_VerticalBlurTexture->GetOrthoMatrix(orthoMatrix);
+  RenderHorizontalBlurToTexturePassParams.SetMatrix("orthoMatrix", orthoMatrix);
+  RenderHorizontalBlurToTexturePassParams.SetFloat(
+      "screenHeight", (float)(SHADOWMAP_HEIGHT / 2));
+  RenderHorizontalBlurToTexturePassParams.SetTexture(
+      "texture", m_HorizontalBlurTexture->GetShaderResourceView());
+  Vertical_blur_to_texture_pass->SetPassParameters(
+      RenderHorizontalBlurToTexturePassParams);
+  render_pipeline_.AddRenderPass(Vertical_blur_to_texture_pass);
 
-  // Turn off the Z buffer to begin all 2D rendering.
-  directx_device_->TurnZBufferOff();
-
-  // Put the small ortho window vertex and index buffers on the graphics
-  // pipeline to prepare them for drawing.
-  m_SmallWindow->Render(directx_device_->GetDeviceContext());
-
-  ShaderParameterContainer parameters;
-  parameters.SetMatrix("worldMatrix", worldMatrix);
-  parameters.SetMatrix("viewMatrix", baseViewMatrix);
-  parameters.SetMatrix("projectionMatrix", orthoMatrix);
-  parameters.SetFloat("screenHeight", screenSizeY);
-  parameters.SetTexture("texture",
-                        m_HorizontalBlurTexture->GetShaderResourceView());
-
-  // Render the small ortho window using the vertical blur shader and the
-  // horizontal blurred render to texture resource.
-  auto result =
-      m_VerticalBlurShader->Render(m_SmallWindow->GetIndexCount(), parameters);
-  if (!result) {
-    return false;
-  }
-
-  // Turn the Z buffer back on now that all 2D rendering has completed.
-  directx_device_->TurnZBufferOn();
-
-  // Reset the render target back to the original back buffer and not the render
-  // to texture anymore.
-  directx_device_->SetBackBufferRenderTarget();
-
-  // Reset the viewport back to the original.
-  directx_device_->ResetViewport();
-
-  return true;
-}
-
-bool GraphicsClass::UpSampleTexture() {
-
-  auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
-
-  // Set the render target to be the render to texture.
-  m_UpSampleTexure->SetRenderTarget(directx_device_->GetDeviceContext());
-
-  // Clear the render to texture.
-  m_UpSampleTexure->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
-
-  // Generate the view matrix based on the camera's position.
-  camera_->Render();
-
-  // Get the world and view matrices from the camera and d3d objects.
-  XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
-  directx_device_->GetWorldMatrix(worldMatrix);
-  camera_->GetBaseViewMatrix(baseViewMatrix);
-
-  // Get the ortho matrix from the render to texture since texture has different
-  // dimensions.
+  auto up_sample_texture_pass =
+      make_shared<RenderPass>("UpSampleTexture", texture_shader_);
+  up_sample_texture_pass->AddRenderTag(up_sample_tag);
+  up_sample_texture_pass->AddInputTexture(
+      "texture", Vertical_blur_to_texture_pass->GetOutputTexture());
+  up_sample_texture_pass->SetOutputTexture(m_UpSampleTexure);
+  up_sample_texture_pass->NeedTurnOffZBuffer();
+  ShaderParameterContainer UpSampleTexturePassParams;
+  UpSampleTexturePassParams.SetMatrix("deviceWorldMatrix", deviceWorldMatrix);
+  UpSampleTexturePassParams.SetMatrix("baseViewMatrix", baseViewMatrix);
   m_UpSampleTexure->GetOrthoMatrix(orthoMatrix);
+  UpSampleTexturePassParams.SetMatrix("orthoMatrix", orthoMatrix);
+  UpSampleTexturePassParams.SetTexture(
+      "texture", m_VerticalBlurTexture->GetShaderResourceView());
+  up_sample_texture_pass->SetPassParameters(UpSampleTexturePassParams);
+  render_pipeline_.AddRenderPass(up_sample_texture_pass);
 
-  // Turn off the Z buffer to begin all 2D rendering.
-  directx_device_->TurnZBufferOff();
+  auto final_pass =
+      std::make_shared<RenderPass>("FinalPass", m_SoftShadowShader);
+  final_pass->AddRenderTag(final_tag);
+  final_pass->AddInputTexture("shadowMap",
+                              up_sample_texture_pass->GetOutputTexture());
+  ShaderParameterContainer FinalPassParams;
+  FinalPassParams.SetMatrix("viewMatrix", viewMatrix);
+  FinalPassParams.SetMatrix("projectionMatrix", projectionMatrix);
+  FinalPassParams.SetTexture("shadowTexture",
+                             m_UpSampleTexure->GetShaderResourceView());
+  FinalPassParams.SetVector3("lightPosition", light_->GetPosition());
+  FinalPassParams.SetVector4("diffuseColor", light_->GetDiffuseColor());
+  FinalPassParams.SetVector4("ambientColor", light_->GetAmbientColor());
+  final_pass->SetPassParameters(FinalPassParams);
+  render_pipeline_.AddRenderPass(final_pass);
 
-  // Put the full screen ortho window vertex and index buffers on the graphics
-  // pipeline to prepare them for drawing.
-  m_FullScreenWindow->Render(directx_device_->GetDeviceContext());
+  // Add renderable objects
+  auto cube_object =
+      std::make_shared<RenderableObject>(m_CubeModel, m_SoftShadowShader);
+  cube_object->SetWorldMatrix(XMMatrixTranslation(-2.0f, 2.0f, 0.0f));
+  cube_object->AddTag(write_depth_tag);
+  cube_object->AddTag(write_shadow_tag);
+  cube_object->AddTag(final_tag);
+  cube_object->SetParameterCallback([this](ShaderParameterContainer &params) {
+    params.SetTexture("texture", m_CubeModel->GetTexture());
+  });
+  render_pipeline_.AddRenderableObject(cube_object);
 
-  // Render the full screen ortho window using the texture shader and the small
-  // sized final blurred render to texture resource.
+  auto sphere_object =
+      std::make_shared<RenderableObject>(m_SphereModel, m_SoftShadowShader);
+  sphere_object->SetWorldMatrix(XMMatrixTranslation(2.0f, 2.0f, 0.0f));
+  sphere_object->AddTag(write_depth_tag);
+  sphere_object->AddTag(write_shadow_tag);
+  sphere_object->AddTag(final_tag);
+  sphere_object->SetParameterCallback([this](ShaderParameterContainer &params) {
+    params.SetTexture("texture", m_SphereModel->GetTexture());
+  });
+  render_pipeline_.AddRenderableObject(sphere_object);
 
-  ShaderParameterContainer parameters;
-  parameters.SetMatrix("worldMatrix", worldMatrix);
-  parameters.SetMatrix("baseViewMatrix", baseViewMatrix);
-  parameters.SetMatrix("orthoMatrix", orthoMatrix);
-  parameters.SetTexture("texture",
-                        m_VerticalBlurTexture->GetShaderResourceView());
+  auto ground_object =
+      std::make_shared<RenderableObject>(m_GroundModel, m_SoftShadowShader);
+  ground_object->SetWorldMatrix(XMMatrixTranslation(0.0f, 1.0f, 0.0f));
+  ground_object->AddTag(write_depth_tag);
+  ground_object->AddTag(write_shadow_tag);
+  ground_object->AddTag(final_tag);
+  ground_object->SetParameterCallback([this](ShaderParameterContainer &params) {
+    params.SetTexture("texture", m_GroundModel->GetTexture());
+  });
+  render_pipeline_.AddRenderableObject(ground_object);
 
-  auto result =
-      texture_shader_->Render(m_FullScreenWindow->GetIndexCount(), parameters);
-  if (!result) {
-    return false;
-  }
+  auto down_sample_object =
+      std::make_shared<RenderableObject>(m_SmallWindow, texture_shader_);
+  down_sample_object->SetWorldMatrix(deviceWorldMatrix);
+  down_sample_object->AddTag(down_sample_tag);
+  render_pipeline_.AddRenderableObject(down_sample_object);
 
-  // Turn the Z buffer back on now that all 2D rendering has completed.
-  directx_device_->TurnZBufferOn();
+  auto horizontal_blur_object =
+      std::make_shared<RenderableObject>(m_SmallWindow, m_HorizontalBlurShader);
+  horizontal_blur_object->SetWorldMatrix(deviceWorldMatrix);
+  horizontal_blur_object->AddTag(horizontal_blur_tag);
+  render_pipeline_.AddRenderableObject(horizontal_blur_object);
 
-  // Reset the render target back to the original back buffer and not the render
-  // to texture anymore.
-  directx_device_->SetBackBufferRenderTarget();
+  auto vertical_blur_object =
+      std::make_shared<RenderableObject>(m_SmallWindow, m_VerticalBlurShader);
+  vertical_blur_object->SetWorldMatrix(deviceWorldMatrix);
+  vertical_blur_object->AddTag(vertical_blur_tag);
+  render_pipeline_.AddRenderableObject(vertical_blur_object);
 
-  // Reset the viewport back to the original.
-  directx_device_->ResetViewport();
+  auto up_sample_object =
+      std::make_shared<RenderableObject>(m_FullScreenWindow, texture_shader_);
+  up_sample_object->SetWorldMatrix(deviceWorldMatrix);
+  up_sample_object->AddTag(up_sample_tag);
+  render_pipeline_.AddRenderableObject(up_sample_object);
 
-  return true;
+  // Set global parameters
+  ShaderParameterContainer globalParams;
+  DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(deviceWorldMatrix);
+  DirectX11Device::GetD3d11DeviceInstance()->GetProjectionMatrix(
+      projectionMatrix);
+  globalParams.SetMatrix("deviceWorldMatrix", deviceWorldMatrix);
+  globalParams.SetMatrix("projectionMatrix", projectionMatrix);
+  globalParams.Set("ambientColor", light_->GetAmbientColor());
+  globalParams.Set("diffuseColor", light_->GetDiffuseColor());
+  render_pipeline_.SetGlobalParameters(globalParams);
 }
 
 void GraphicsClass::Render() {
 
-  // First render the scene to a texture.
-  auto result = RenderSceneToTexture();
-  if (!result) {
-    return;
-  }
-
-  // Next render the shadowed scene in black and white.
-  result = RenderBlackAndWhiteShadows();
-  if (!result) {
-    return;
-  }
-
-  // Then down sample the black and white scene texture.
-  result = DownSampleTexture();
-  if (!result) {
-    return;
-  }
-
-  // Perform a horizontal blur on the down sampled texture.
-  result = RenderHorizontalBlurToTexture();
-  if (!result) {
-    return;
-  }
-
-  // Now perform a vertical blur on the texture.
-  result = RenderVerticalBlurToTexture();
-  if (!result) {
-    return;
-  }
-
-  // Finally up sample the final blurred render to texture that can now be used
-  // in the soft shadow shader.
-  result = UpSampleTexture();
-  if (!result) {
-    return;
-  }
-
   auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
-
-  // Clear the buffers to begin the scene.
-  directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
   // Generate the view matrix based on the camera's position.
   camera_->Render();
-
-  // Get the world, view, and projection matrices from the camera and d3d
-  // objects.
-  XMMATRIX viewMatrix, projectionMatrix;
+  XMMATRIX viewMatrix, baseViewMatrix;
   camera_->GetViewMatrix(viewMatrix);
-  directx_device_->GetProjectionMatrix(projectionMatrix);
+  camera_->GetBaseViewMatrix(baseViewMatrix);
 
-  // Setup the world matrix for the cube model.
-  auto worldMatrix = m_CubeModel->GetWorldMatrix();
+  light_->GenerateViewMatrix();
+  XMMATRIX lightViewMatrix, lightProjectionMatrix;
+  light_->GetViewMatrix(lightViewMatrix);
+  light_->GetProjectionMatrix(lightProjectionMatrix);
 
-  ShaderParameterContainer parameters;
-  parameters.SetMatrix("worldMatrix", worldMatrix);
-  parameters.SetMatrix("viewMatrix", viewMatrix);
-  parameters.SetMatrix("projectionMatrix", projectionMatrix);
-  parameters.SetTexture("shadowTexture",
-                        m_UpSampleTexure->GetShaderResourceView());
-  parameters.SetVector3("lightPosition", light_->GetPosition());
-  parameters.SetTexture("texture", m_CubeModel->GetTexture());
-  parameters.SetVector4("diffuseColor", light_->GetDiffuseColor());
-  parameters.SetVector4("ambientColor", light_->GetAmbientColor());
+  ShaderParameterContainer Params;
+  Params.SetMatrix("viewMatrix", viewMatrix);
+  Params.SetMatrix("baseViewMatrix", baseViewMatrix);
+  Params.SetMatrix("lightViewMatrix", lightViewMatrix);
+  Params.SetMatrix("lightProjectionMatrix", lightProjectionMatrix);
+  Params.SetVector3("lightPosition", light_->GetPosition());
 
-  // Render the cube model using the soft shadow shader.
-  m_CubeModel->Render(*m_SoftShadowShader, parameters);
-
-  worldMatrix = m_SphereModel->GetWorldMatrix();
-
-  parameters.SetMatrix("worldMatrix", worldMatrix);
-  parameters.SetTexture("texture", m_SphereModel->GetTexture());
-
-  m_SphereModel->Render(*m_SoftShadowShader, parameters);
-
-  worldMatrix = m_GroundModel->GetWorldMatrix();
-
-  parameters.SetMatrix("worldMatrix", worldMatrix);
-  parameters.SetTexture("texture", m_GroundModel->GetTexture());
-
-  m_GroundModel->Render(*m_SoftShadowShader, parameters);
-
-  result =
-      m_SoftShadowShader->Render(m_GroundModel->GetIndexCount(), parameters);
-  if (!result) {
-    return;
-  }
-
-  // Present the rendered scene to the screen.
-  directx_device_->EndScene();
+  render_pipeline_.Execute(Params);
 }
