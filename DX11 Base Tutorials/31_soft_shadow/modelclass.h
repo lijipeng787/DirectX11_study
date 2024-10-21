@@ -85,3 +85,91 @@ private:
 
   DirectX::XMMATRIX world_matrix_ = DirectX::XMMatrixIdentity();
 };
+
+class PBRModelClass : IRenderable {
+private:
+  struct VertexType {
+    DirectX::XMFLOAT3 position;
+    DirectX::XMFLOAT2 texture;
+    DirectX::XMFLOAT3 normal;
+    DirectX::XMFLOAT3 tangent;
+    DirectX::XMFLOAT3 binormal;
+  };
+
+  struct ModelType {
+    float x, y, z;
+    float tu, tv;
+    float nx, ny, nz;
+    float tx, ty, tz;
+    float bx, by, bz;
+  };
+
+  struct TempVertexType {
+    float x, y, z;
+    float tu, tv;
+    float nx, ny, nz;
+  };
+
+  struct VectorType {
+    float x, y, z;
+  };
+
+public:
+  PBRModelClass() = default;
+
+  PBRModelClass(const ModelClass &) = delete;
+
+  ~PBRModelClass() = default;
+
+public:
+  bool Initialize(const char *, const std::string &, const std::string &,
+                  const std::string &);
+
+  void Shutdown();
+
+  void
+  Render(const IShader &shader,
+         const ShaderParameterContainer &parameterContainer) const override;
+
+  void SetParameterCallback(ShaderParameterCallback callback) override;
+
+  ShaderParameterCallback GetParameterCallback() const override;
+
+  int GetIndexCount() const { return m_indexCount; }
+
+  ID3D11ShaderResourceView *GetTexture(int);
+
+  void SetWorldMatrix(const DirectX::XMMATRIX &worldMatrix) {
+    world_matrix_ = worldMatrix;
+  }
+
+  DirectX::XMMATRIX GetWorldMatrix() const { return world_matrix_; }
+
+private:
+  bool InitializeBuffers();
+
+  void RenderBuffers() const;
+
+  bool LoadTextures(const std::string &, const std::string &,
+                    const std::string &);
+
+  void ReleaseTextures();
+
+  bool LoadModel(const char *);
+
+  void CalculateModelVectors();
+
+  void CalculateTangentBinormal(TempVertexType, TempVertexType, TempVertexType,
+                                VectorType &, VectorType &);
+
+private:
+  Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer, m_indexBuffer;
+
+  int m_vertexCount, m_indexCount;
+
+  TGATextureClass *m_Textures;
+
+  std::vector<ModelType> m_model;
+
+  DirectX::XMMATRIX world_matrix_ = DirectX::XMMatrixIdentity();
+};

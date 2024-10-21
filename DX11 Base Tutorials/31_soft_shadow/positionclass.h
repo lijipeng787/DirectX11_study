@@ -14,8 +14,8 @@ public:
   void SetPosition(float, float, float);
   void SetRotation(float, float, float);
 
-  void GetPosition(float &, float &, float &);
-  void GetRotation(float &, float &, float &);
+  void GetPosition(float &, float &, float &) const;
+  void GetRotation(float &, float &, float &) const;
 
   void SetFrameTime(float);
 

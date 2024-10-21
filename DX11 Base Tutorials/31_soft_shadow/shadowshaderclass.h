@@ -6,8 +6,6 @@
 #include <d3dcompiler.h>
 #include <wrl/client.h>
 
-#include <fstream>
-
 #include "IShader.h"
 
 class ShadowShaderClass : public IShader {

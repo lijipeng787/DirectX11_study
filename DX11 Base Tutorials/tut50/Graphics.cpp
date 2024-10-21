@@ -165,25 +165,15 @@ void GraphicsClass::Shutdown() {
 	}
 }
 
-bool GraphicsClass::Frame() {
-
-	auto result = Render();
-	if (!result) {
-		return false;
-	}
-
-	return true;
+void GraphicsClass::Frame(float deltatime) {
+	Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
-	bool result;
 	XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
 
-	result = RenderSceneToTexture();
-	if (!result) {
-		return false;
-	}
+	RenderSceneToTexture();
 
 	DirectX11Device::GetD3d11DeviceInstance()->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -203,8 +193,6 @@ bool GraphicsClass::Render() {
 	DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOn();
 
 	DirectX11Device::GetD3d11DeviceInstance()->EndScene();
-
-	return true;
 }
 
 bool GraphicsClass::RenderSceneToTexture() {

@@ -7,13 +7,13 @@ class PositionClass;
 
 class System : public SystemBase {
 public:
-  System();
+  System() = default;
 
   System(const System &rhs) = delete;
 
   System &operator=(const System &rhs) = delete;
 
-  virtual ~System();
+  virtual ~System() = default;
 
 public:
   virtual bool Initialize() override;

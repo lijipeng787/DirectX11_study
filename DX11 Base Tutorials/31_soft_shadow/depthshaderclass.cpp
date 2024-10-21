@@ -136,8 +136,6 @@ bool DepthShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
   return true;
 }
 
-void DepthShaderClass::ShutdownShader() {}
-
 void DepthShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage,
                                                 HWND hwnd,
                                                 WCHAR *shaderFilename) {

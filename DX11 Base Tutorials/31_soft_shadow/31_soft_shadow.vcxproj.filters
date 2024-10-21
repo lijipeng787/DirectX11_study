@@ -20,6 +20,7 @@
     <ClCompile Include="RenderPipeline.cpp" />
     <ClCompile Include="RenderPass.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
+    <ClCompile Include="pbrshaderclass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="depthshaderclass.h" />
@@ -47,6 +48,7 @@
     <ClInclude Include="RenderPass.h" />
     <ClInclude Include="RenderableObject.h" />
     <ClInclude Include="ShaderParameterCallback.h" />
+    <ClInclude Include="pbrshaderclass.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.ps" />
@@ -61,5 +63,7 @@
     <None Include="texture.vs" />
     <None Include="verticalblur.ps" />
     <None Include="verticalblur.vs" />
+    <None Include="pbr.ps" />
+    <None Include="pbr.vs" />
   </ItemGroup>
 </Project>

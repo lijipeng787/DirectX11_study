@@ -161,6 +161,7 @@
     <ClInclude Include="lightclass.h" />
     <ClInclude Include="modelclass.h" />
     <ClInclude Include="orthowindowclass.h" />
+    <ClInclude Include="pbrshaderclass.h" />
     <ClInclude Include="positionclass.h" />
     <ClInclude Include="RenderableObject.h" />
     <ClInclude Include="RenderPass.h" />
@@ -186,6 +187,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="modelclass.cpp" />
     <ClCompile Include="orthowindowclass.cpp" />
+    <ClCompile Include="pbrshaderclass.cpp" />
     <ClCompile Include="positionclass.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
     <ClCompile Include="RenderPass.cpp" />
@@ -204,6 +206,8 @@
     <None Include="depth.vs" />
     <None Include="horizontalblur.ps" />
     <None Include="horizontalblur.vs" />
+    <None Include="pbr.ps" />
+    <None Include="pbr.vs" />
     <None Include="shadow.ps" />
     <None Include="shadow.vs" />
     <None Include="softshadow.ps" />

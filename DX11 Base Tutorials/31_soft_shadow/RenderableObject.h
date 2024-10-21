@@ -5,12 +5,16 @@
 #include <memory>
 
 class ModelClass;
+class PBRModelClass;
 class IShader;
 class OrthoWindowClass;
 
 class RenderableObject : public IRenderable {
 public:
   RenderableObject(std::shared_ptr<ModelClass> model,
+                   std::shared_ptr<IShader> shader);
+
+  RenderableObject(std::shared_ptr<PBRModelClass> model,
                    std::shared_ptr<IShader> shader);
 
   RenderableObject(std::shared_ptr<OrthoWindowClass> window_model,
@@ -33,10 +37,12 @@ public:
 
 private:
   std::shared_ptr<ModelClass> model_;
+  std::shared_ptr<PBRModelClass> pbr_model_;
 
   std::shared_ptr<OrthoWindowClass> window_model_;
 
   bool is_window_model_ = false;
+  bool is_pbr_model_ = false;
 
   std::shared_ptr<IShader> shader_;
 

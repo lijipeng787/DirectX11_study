@@ -1,4 +1,5 @@
 #include "textureshaderclass.h"
+
 #include "../CommonFramework/DirectX11Device.h"
 #include "ShaderParameterContainer.h"
 

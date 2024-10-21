@@ -1,4 +1,5 @@
 #include "verticalblurshaderclass.h"
+
 #include "../CommonFramework/DirectX11Device.h"
 
 #include <d3dcompiler.h>
@@ -181,8 +182,6 @@ bool VerticalBlurShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
 
   return true;
 }
-
-void VerticalBlurShaderClass::ShutdownShader() {}
 
 void VerticalBlurShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage,
                                                        HWND hwnd,

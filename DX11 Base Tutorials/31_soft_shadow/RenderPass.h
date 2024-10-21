@@ -28,7 +28,7 @@ public:
 
   void NeedTurnOffZBuffer() { need_turn_z_buffer_off_ = true; }
 
-  std::string GetPassName() const { return pass_name_; }
+  const std::string &GetPassName() const { return pass_name_; }
 
   void AddRenderTag(const std::string &tag) { render_tags_.insert(tag); }
 

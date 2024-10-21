@@ -7,9 +7,9 @@
 #include "RenderableObject.h"
 #include "depthshaderclass.h"
 #include "horizontalblurshaderclass.h"
-#include "lightclass.h"
 #include "modelclass.h"
 #include "orthowindowclass.h"
+#include "pbrshaderclass.h"
 #include "rendertextureclass.h"
 #include "shadowshaderclass.h"
 #include "softshadowshaderclass.h"
@@ -31,8 +31,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    camera_ = make_shared<Camera>();
-    if (!camera_) {
+    camera_ = make_unique<Camera>();
+    if (nullptr == camera_) {
       return false;
     }
     camera_->SetPosition(0.0f, -1.0f, -10.0f);
@@ -45,7 +45,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   {
     // Create the cube model object.
     m_CubeModel = make_shared<ModelClass>();
-    if (!m_CubeModel) {
+    if (nullptr == m_CubeModel) {
       return false;
     }
 
@@ -56,14 +56,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
                  MB_OK);
       return false;
     }
-    // Set the position for the cube model.
-    m_CubeModel->SetWorldMatrix(
-        std::move(XMMatrixTranslation(-2.0f, 2.0f, 0.0f)));
   }
 
   {
     m_SphereModel = make_shared<ModelClass>();
-    if (!m_SphereModel) {
+    if (nullptr == m_SphereModel) {
       return false;
     }
 
@@ -73,14 +70,27 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
                  L"Error", MB_OK);
       return false;
     }
+  }
 
-    m_SphereModel->SetWorldMatrix(
-        std::move(XMMatrixTranslation(2.0f, 2.0f, 0.0f)));
+  {
+    spherePBRModel = make_shared<PBRModelClass>();
+    if (nullptr == spherePBRModel) {
+      return false;
+    }
+
+    result = spherePBRModel->Initialize(
+        "./data/sphere.txt", "./data/pbr_albedo.tga", "./data/pbr_normal.tga",
+        "./data/pbr_roughmetal.tga");
+    if (!result) {
+      MessageBox(hwnd, L"Could not initialize the sphere model object.",
+                 L"Error", MB_OK);
+      return false;
+    }
   }
 
   {
     m_GroundModel = make_shared<ModelClass>();
-    if (!m_GroundModel) {
+    if (nullptr == m_GroundModel) {
       return false;
     }
 
@@ -91,15 +101,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
                  L"Error", MB_OK);
       return false;
     }
-
-    m_GroundModel->SetWorldMatrix(
-        std::move(XMMatrixTranslation(0.0f, 1.0f, 0.0f)));
   }
 
   {
     // Create the light object.
-    light_ = make_shared<LightClass>();
-    if (!light_) {
+    light_ = make_unique<LightClass>();
+    if (nullptr == light_) {
       return false;
     }
 
@@ -175,8 +182,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   // Set the size to sample down to.
-  auto downSampleWidth = SHADOWMAP_WIDTH / 2;
-  auto downSampleHeight = SHADOWMAP_HEIGHT / 2;
+  constexpr auto downSampleWidth = SHADOWMAP_WIDTH / 2;
+  constexpr auto downSampleHeight = SHADOWMAP_HEIGHT / 2;
 
   {
     // Create the down sample render to texture object.
@@ -333,6 +340,20 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
     }
   }
 
+  {
+    PBRShader_ = make_shared<PbrShaderClass>();
+    if (!PBRShader_) {
+      return false;
+    }
+
+    result = PBRShader_->Initialize(hwnd);
+    if (!result) {
+      MessageBox(hwnd, L"Could not initialize the soft shadow shader object.",
+                 L"Error", MB_OK);
+      return false;
+    }
+  }
+
   SetupRenderPipeline();
 
   return true;
@@ -368,20 +389,12 @@ void GraphicsClass::SetupRenderPipeline() {
   constexpr auto horizontal_blur_tag = "horizontal_blur";
   constexpr auto vertical_blur_tag = "vertical_blur";
   constexpr auto up_sample_tag = "up_sample";
+  constexpr auto pbr_tag = "pbr_tag";
   constexpr auto final_tag = "final";
 
   auto depth_pass = std::make_shared<RenderPass>("DepthPass", depth_shader_);
   depth_pass->AddRenderTag(write_depth_tag);
   depth_pass->SetOutputTexture(render_texture_);
-  ShaderParameterContainer depthPassParams;
-  light_->GenerateViewMatrix();
-  XMMATRIX light_view_matrix;
-  light_->GetViewMatrix(light_view_matrix);
-  depthPassParams.SetMatrix("lightViewMatrix", light_view_matrix);
-  XMMATRIX light_projection_matrix;
-  light_->GetProjectionMatrix(light_projection_matrix);
-  depthPassParams.SetMatrix("lightProjectionMatrix", light_projection_matrix);
-  depth_pass->SetPassParameters(depthPassParams);
   render_pipeline_.AddRenderPass(depth_pass);
 
   auto shadow_pass = std::make_shared<RenderPass>("ShadowPass", m_ShadowShader);
@@ -389,15 +402,6 @@ void GraphicsClass::SetupRenderPipeline() {
   shadow_pass->AddInputTexture("depthMap", depth_pass->GetOutputTexture());
   shadow_pass->SetOutputTexture(m_BlackWhiteRenderTexture);
   ShaderParameterContainer shadowPassParams;
-  XMMATRIX viewMatrix, projectionMatrix;
-  camera_->GetViewMatrix(viewMatrix);
-  shadowPassParams.SetMatrix("viewMatrix", viewMatrix);
-  DirectX11Device::GetD3d11DeviceInstance()->GetProjectionMatrix(
-      projectionMatrix);
-  shadowPassParams.SetMatrix("projectionMatrix", projectionMatrix);
-  shadowPassParams.SetMatrix("lightViewMatrix", light_view_matrix);
-  shadowPassParams.SetMatrix("lightProjectionMatrix", light_projection_matrix);
-  shadowPassParams.SetVector3("lightPosition", light_->GetPosition());
   shadowPassParams.SetTexture("depthMapTexture",
                               render_texture_->GetShaderResourceView());
   shadow_pass->SetPassParameters(shadowPassParams);
@@ -410,12 +414,8 @@ void GraphicsClass::SetupRenderPipeline() {
                                             shadow_pass->GetOutputTexture());
   down_sample_texture_pass->SetOutputTexture(m_DownSampleTexure);
   down_sample_texture_pass->NeedTurnOffZBuffer();
-  XMMATRIX deviceWorldMatrix, baseViewMatrix, orthoMatrix;
-  camera_->GetBaseViewMatrix(baseViewMatrix);
-  DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(deviceWorldMatrix);
+  XMMATRIX orthoMatrix;
   ShaderParameterContainer DownSampleTexturePassParams;
-  DownSampleTexturePassParams.SetMatrix("deviceWorldMatrix", deviceWorldMatrix);
-  DownSampleTexturePassParams.SetMatrix("baseViewMatrix", baseViewMatrix);
   m_DownSampleTexure->GetOrthoMatrix(orthoMatrix);
   DownSampleTexturePassParams.SetMatrix("orthoMatrix", orthoMatrix);
   DownSampleTexturePassParams.SetTexture(
@@ -431,8 +431,6 @@ void GraphicsClass::SetupRenderPipeline() {
   horizontal_blur_to_texture_pass->SetOutputTexture(m_HorizontalBlurTexture);
   horizontal_blur_to_texture_pass->NeedTurnOffZBuffer();
   ShaderParameterContainer RenderHorizontalBlurToTexturePassParams;
-  RenderHorizontalBlurToTexturePassParams.SetMatrix("baseViewMatrix",
-                                                    baseViewMatrix);
   m_HorizontalBlurTexture->GetOrthoMatrix(orthoMatrix);
   RenderHorizontalBlurToTexturePassParams.SetMatrix("orthoMatrix", orthoMatrix);
   RenderHorizontalBlurToTexturePassParams.SetFloat(
@@ -451,8 +449,6 @@ void GraphicsClass::SetupRenderPipeline() {
   Vertical_blur_to_texture_pass->SetOutputTexture(m_VerticalBlurTexture);
   Vertical_blur_to_texture_pass->NeedTurnOffZBuffer();
   ShaderParameterContainer RenderVerticalBlurToTexturePassParams;
-  RenderHorizontalBlurToTexturePassParams.SetMatrix("baseViewMatrix",
-                                                    baseViewMatrix);
   m_VerticalBlurTexture->GetOrthoMatrix(orthoMatrix);
   RenderHorizontalBlurToTexturePassParams.SetMatrix("orthoMatrix", orthoMatrix);
   RenderHorizontalBlurToTexturePassParams.SetFloat(
@@ -471,8 +467,6 @@ void GraphicsClass::SetupRenderPipeline() {
   up_sample_texture_pass->SetOutputTexture(m_UpSampleTexure);
   up_sample_texture_pass->NeedTurnOffZBuffer();
   ShaderParameterContainer UpSampleTexturePassParams;
-  UpSampleTexturePassParams.SetMatrix("deviceWorldMatrix", deviceWorldMatrix);
-  UpSampleTexturePassParams.SetMatrix("baseViewMatrix", baseViewMatrix);
   m_UpSampleTexure->GetOrthoMatrix(orthoMatrix);
   UpSampleTexturePassParams.SetMatrix("orthoMatrix", orthoMatrix);
   UpSampleTexturePassParams.SetTexture(
@@ -486,20 +480,26 @@ void GraphicsClass::SetupRenderPipeline() {
   final_pass->AddInputTexture("shadowMap",
                               up_sample_texture_pass->GetOutputTexture());
   ShaderParameterContainer FinalPassParams;
-  FinalPassParams.SetMatrix("viewMatrix", viewMatrix);
-  FinalPassParams.SetMatrix("projectionMatrix", projectionMatrix);
   FinalPassParams.SetTexture("shadowTexture",
                              m_UpSampleTexure->GetShaderResourceView());
-  FinalPassParams.SetVector3("lightPosition", light_->GetPosition());
   FinalPassParams.SetVector4("diffuseColor", light_->GetDiffuseColor());
   FinalPassParams.SetVector4("ambientColor", light_->GetAmbientColor());
   final_pass->SetPassParameters(FinalPassParams);
   render_pipeline_.AddRenderPass(final_pass);
 
+  auto pbr_pass = std::make_shared<RenderPass>("PBRPass", PBRShader_);
+  pbr_pass->AddRenderTag(pbr_tag);
+  ShaderParameterContainer PBRPassParams;
+  PBRPassParams.SetTexture("diffuseTexture", spherePBRModel->GetTexture(0));
+  PBRPassParams.SetTexture("normalMap", spherePBRModel->GetTexture(1));
+  PBRPassParams.SetTexture("rmTexture", spherePBRModel->GetTexture(2));
+  pbr_pass->SetPassParameters(PBRPassParams);
+  render_pipeline_.AddRenderPass(pbr_pass);
+
   // Add renderable objects
   auto cube_object =
       std::make_shared<RenderableObject>(m_CubeModel, m_SoftShadowShader);
-  cube_object->SetWorldMatrix(XMMatrixTranslation(-2.0f, 2.0f, 0.0f));
+  cube_object->SetWorldMatrix(XMMatrixTranslation(-2.5f, 2.0f, 0.0f));
   cube_object->AddTag(write_depth_tag);
   cube_object->AddTag(write_shadow_tag);
   cube_object->AddTag(final_tag);
@@ -510,7 +510,7 @@ void GraphicsClass::SetupRenderPipeline() {
 
   auto sphere_object =
       std::make_shared<RenderableObject>(m_SphereModel, m_SoftShadowShader);
-  sphere_object->SetWorldMatrix(XMMatrixTranslation(2.0f, 2.0f, 0.0f));
+  sphere_object->SetWorldMatrix(XMMatrixTranslation(2.5f, 2.0f, 0.0f));
   sphere_object->AddTag(write_depth_tag);
   sphere_object->AddTag(write_shadow_tag);
   sphere_object->AddTag(final_tag);
@@ -518,6 +518,14 @@ void GraphicsClass::SetupRenderPipeline() {
     params.SetTexture("texture", m_SphereModel->GetTexture());
   });
   render_pipeline_.AddRenderableObject(sphere_object);
+
+  auto pbr_sphere_object =
+      std::make_shared<RenderableObject>(spherePBRModel, PBRShader_);
+  pbr_sphere_object->SetWorldMatrix(XMMatrixTranslation(0.0f, 2.0f, -1.0f));
+  pbr_sphere_object->AddTag(write_depth_tag);
+  pbr_sphere_object->AddTag(write_shadow_tag);
+  pbr_sphere_object->AddTag(pbr_tag);
+  render_pipeline_.AddRenderableObject(pbr_sphere_object);
 
   auto ground_object =
       std::make_shared<RenderableObject>(m_GroundModel, m_SoftShadowShader);
@@ -532,37 +540,32 @@ void GraphicsClass::SetupRenderPipeline() {
 
   auto down_sample_object =
       std::make_shared<RenderableObject>(m_SmallWindow, texture_shader_);
-  down_sample_object->SetWorldMatrix(deviceWorldMatrix);
   down_sample_object->AddTag(down_sample_tag);
   render_pipeline_.AddRenderableObject(down_sample_object);
 
   auto horizontal_blur_object =
       std::make_shared<RenderableObject>(m_SmallWindow, m_HorizontalBlurShader);
-  horizontal_blur_object->SetWorldMatrix(deviceWorldMatrix);
   horizontal_blur_object->AddTag(horizontal_blur_tag);
   render_pipeline_.AddRenderableObject(horizontal_blur_object);
 
   auto vertical_blur_object =
       std::make_shared<RenderableObject>(m_SmallWindow, m_VerticalBlurShader);
-  vertical_blur_object->SetWorldMatrix(deviceWorldMatrix);
   vertical_blur_object->AddTag(vertical_blur_tag);
   render_pipeline_.AddRenderableObject(vertical_blur_object);
 
   auto up_sample_object =
       std::make_shared<RenderableObject>(m_FullScreenWindow, texture_shader_);
-  up_sample_object->SetWorldMatrix(deviceWorldMatrix);
   up_sample_object->AddTag(up_sample_tag);
   render_pipeline_.AddRenderableObject(up_sample_object);
 
-  // Set global parameters
+  // Set global static parameters
   ShaderParameterContainer globalParams;
+  XMMATRIX deviceWorldMatrix, projectionMatrix;
   DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(deviceWorldMatrix);
   DirectX11Device::GetD3d11DeviceInstance()->GetProjectionMatrix(
       projectionMatrix);
   globalParams.SetMatrix("deviceWorldMatrix", deviceWorldMatrix);
   globalParams.SetMatrix("projectionMatrix", projectionMatrix);
-  globalParams.Set("ambientColor", light_->GetAmbientColor());
-  globalParams.Set("diffuseColor", light_->GetDiffuseColor());
   render_pipeline_.SetGlobalParameters(globalParams);
 }
 
@@ -570,23 +573,29 @@ void GraphicsClass::Render() {
 
   auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
-  // Generate the view matrix based on the camera's position.
+  // Update the view matrix based on the camera's position.
   camera_->Render();
   XMMATRIX viewMatrix, baseViewMatrix;
   camera_->GetViewMatrix(viewMatrix);
   camera_->GetBaseViewMatrix(baseViewMatrix);
 
+  // Update the light
   light_->GenerateViewMatrix();
   XMMATRIX lightViewMatrix, lightProjectionMatrix;
   light_->GetViewMatrix(lightViewMatrix);
   light_->GetProjectionMatrix(lightProjectionMatrix);
+  // light_->SetDirection(0.0f - light_->GetPosition().x, 2.0f -
+  // light_->GetPosition().y, -2.0f - light_->GetPosition().z);
+  light_->SetDirection(0.5f, 0.5f, 0.5f);
 
   ShaderParameterContainer Params;
-  Params.SetMatrix("viewMatrix", viewMatrix);
-  Params.SetMatrix("baseViewMatrix", baseViewMatrix);
-  Params.SetMatrix("lightViewMatrix", lightViewMatrix);
-  Params.SetMatrix("lightProjectionMatrix", lightProjectionMatrix);
-  Params.SetVector3("lightPosition", light_->GetPosition());
+  Params.SetGlobalDynamicMatrix("viewMatrix", viewMatrix);
+  Params.SetGlobalDynamicMatrix("baseViewMatrix", baseViewMatrix);
+  Params.SetGlobalDynamicMatrix("lightViewMatrix", lightViewMatrix);
+  Params.SetGlobalDynamicMatrix("lightProjectionMatrix", lightProjectionMatrix);
+  Params.SetGlobalDynamicVector3("lightPosition", light_->GetPosition());
+  Params.SetGlobalDynamicVector3("lightDirection", light_->GetDirection());
+  Params.SetGlobalDynamicVector3("cameraPosition", camera_->GetPosition());
 
   render_pipeline_.Execute(Params);
 }

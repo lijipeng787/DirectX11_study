@@ -31,9 +31,9 @@ public:
 
 	virtual void Shutdown()override;
 
-	virtual bool Frame()override;
+	virtual void Frame(float deltatime)override;
 
-	virtual bool Render()override;
+	virtual void Render()override;
 public:
 	void SetPosition(float x, float y, float z) {
 		pos_x_ = x;

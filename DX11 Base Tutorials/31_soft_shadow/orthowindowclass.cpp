@@ -1,4 +1,5 @@
 #include "orthowindowclass.h"
+
 #include "../CommonFramework/DirectX11Device.h"
 #include "IShader.h"
 #include "ShaderParameterContainer.h"
@@ -158,9 +159,11 @@ void OrthoWindowClass::RenderBuffers() const {
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  device_context->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
+  device_context->IASetVertexBuffers(0, 1, vertex_buffer_.GetAddressOf(),
+                                     &stride, &offset);
 
-  device_context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
+  device_context->IASetIndexBuffer(index_buffer_.Get(), DXGI_FORMAT_R32_UINT,
+                                   0);
 
   device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

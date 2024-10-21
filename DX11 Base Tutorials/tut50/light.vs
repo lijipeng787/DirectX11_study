@@ -27,7 +27,6 @@ PixelInputType LightVertexShader(VertexInputType input)
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
-	
     output.tex = input.tex;
     
 	return output;

@@ -12,13 +12,13 @@ void PositionClass::SetRotation(float x, float y, float z) {
   rotation_z_ = z;
 }
 
-void PositionClass::GetPosition(float &x, float &y, float &z) {
+void PositionClass::GetPosition(float &x, float &y, float &z) const {
   x = position_x_;
   y = position_y_;
   z = position_z_;
 }
 
-void PositionClass::GetRotation(float &x, float &y, float &z) {
+void PositionClass::GetRotation(float &x, float &y, float &z) const {
   x = rotation_x_;
   y = rotation_y_;
   z = rotation_z_;

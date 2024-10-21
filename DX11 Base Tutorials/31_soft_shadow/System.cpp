@@ -6,10 +6,6 @@
 #include "Graphics.h"
 #include "positionclass.h"
 
-System::System() {}
-
-System::~System() {}
-
 bool System::Initialize() {
 
   ApplicationInstance = this;
@@ -17,9 +13,9 @@ bool System::Initialize() {
 
   SystemBase::Initialize();
 
-  unsigned int screenWidth = 800, screenHeight = 600;
+  unsigned int screenWidth = 0, screenHeight = 0;
 
-  // GetScreenWidthAndHeight(screenWidth, screenHeight);
+  GetScreenWidthAndHeight(screenWidth, screenHeight);
 
   {
     graphics_ = new GraphicsClass();

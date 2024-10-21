@@ -5,7 +5,6 @@ cbuffer MatrixBuffer
 	matrix projectionMatrix;
 };
 
-// CONSTANT BUFFERS //
 cbuffer LightBuffer2
 {
     float3 lightPosition;

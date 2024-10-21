@@ -16,21 +16,37 @@ public:
     return *this;
   }
 
-  void SetFloat(const std::string &name, float f) { parameters_[name] = f; }
+  inline void SetFloat(const std::string &name, float f) {
+    parameters_[name] = f;
+  }
 
-  void SetMatrix(const std::string &name, const DirectX::XMMATRIX &matrix) {
+  inline void SetGlobalDynamicMatrix(const std::string &name,
+                                     const DirectX::XMMATRIX &matrix) {
+    SetMatrix(name, matrix);
+  }
+
+  inline void SetMatrix(const std::string &name,
+                        const DirectX::XMMATRIX &matrix) {
     parameters_[name] = matrix;
   }
 
-  void SetVector3(const std::string &name, const DirectX::XMFLOAT3 &vector) {
+  inline void SetGlobalDynamicVector3(const std::string &name,
+                                      const DirectX::XMFLOAT3 &vector) {
+    SetVector3(name, vector);
+  }
+
+  inline void SetVector3(const std::string &name,
+                         const DirectX::XMFLOAT3 &vector) {
     parameters_[name] = vector;
   }
 
-  void SetVector4(const std::string &name, const DirectX::XMFLOAT4 &vector) {
+  inline void SetVector4(const std::string &name,
+                         const DirectX::XMFLOAT4 &vector) {
     parameters_[name] = vector;
   }
 
-  void SetTexture(const std::string &name, ID3D11ShaderResourceView *texture) {
+  inline void SetTexture(const std::string &name,
+                         ID3D11ShaderResourceView *texture) {
     parameters_[name] = texture;
   }
 
@@ -48,25 +64,27 @@ public:
     }
   }
 
-  float GetFloat(const std::string &name) const { return Get<float>(name); }
+  inline float GetFloat(const std::string &name) const {
+    return Get<float>(name);
+  }
 
-  DirectX::XMMATRIX GetMatrix(const std::string &name) const {
+  inline DirectX::XMMATRIX GetMatrix(const std::string &name) const {
     return Get<DirectX::XMMATRIX>(name);
   }
 
-  DirectX::XMFLOAT3 GetVector3(const std::string &name) const {
+  inline DirectX::XMFLOAT3 GetVector3(const std::string &name) const {
     return Get<DirectX::XMFLOAT3>(name);
   }
 
-  DirectX::XMFLOAT4 GetVector4(const std::string &name) const {
+  inline DirectX::XMFLOAT4 GetVector4(const std::string &name) const {
     return Get<DirectX::XMFLOAT4>(name);
   }
 
-  ID3D11ShaderResourceView *GetTexture(const std::string &name) const {
+  inline ID3D11ShaderResourceView *GetTexture(const std::string &name) const {
     return Get<ID3D11ShaderResourceView *>(name);
   }
 
-  bool HasParameter(const std::string &name) const {
+  inline bool HasParameter(const std::string &name) const {
     return parameters_.find(name) != parameters_.end();
   }
 

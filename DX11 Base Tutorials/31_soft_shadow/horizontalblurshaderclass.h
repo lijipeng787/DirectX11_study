@@ -1,5 +1,3 @@
-
-
 #ifndef _HORIZONTALBLURSHADERCLASS_H_
 #define _HORIZONTALBLURSHADERCLASS_H_
 
@@ -41,7 +39,7 @@ public:
 private:
   bool InitializeShader(HWND, WCHAR *, WCHAR *);
 
-  void ShutdownShader();
+  void ShutdownShader() {}
 
   void OutputShaderErrorMessage(ID3D10Blob *, HWND, WCHAR *);
 

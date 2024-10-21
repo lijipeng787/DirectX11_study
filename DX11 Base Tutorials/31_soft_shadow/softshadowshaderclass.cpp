@@ -220,8 +220,6 @@ bool SoftShadowShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
   return true;
 }
 
-void SoftShadowShaderClass::ShutdownShader() {}
-
 void SoftShadowShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage,
                                                      HWND hwnd,
                                                      WCHAR *shaderFilename) {
@@ -313,7 +311,6 @@ bool SoftShadowShaderClass::SetShaderParameters(
                                        light_buffer_.GetAddressOf());
 
   // Lock the second light constant buffer so it can be written to.
-
   result = device_context->Map(m_lightBuffer2.Get(), 0, D3D11_MAP_WRITE_DISCARD,
                                0, &mappedResource);
   if (FAILED(result)) {

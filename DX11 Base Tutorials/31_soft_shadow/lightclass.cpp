@@ -2,36 +2,6 @@
 
 using namespace DirectX;
 
-LightClass::LightClass() {}
-
-LightClass::LightClass(const LightClass &other) {}
-
-void LightClass::SetAmbientColor(float red, float green, float blue,
-                                 float alpha) {
-  ambient_color_ = XMFLOAT4(red, green, blue, alpha);
-}
-
-void LightClass::SetDiffuseColor(float red, float green, float blue,
-                                 float alpha) {
-  diffuse_color_ = XMFLOAT4(red, green, blue, alpha);
-}
-
-void LightClass::SetPosition(float x, float y, float z) {
-  light_position_ = XMFLOAT3(x, y, z);
-}
-
-void LightClass::SetLookAt(float x, float y, float z) {
-  light_look_at_.x = x;
-  light_look_at_.y = y;
-  light_look_at_.z = z;
-}
-
-XMFLOAT4 LightClass::GetAmbientColor() { return ambient_color_; }
-
-XMFLOAT4 LightClass::GetDiffuseColor() { return diffuse_color_; }
-
-XMFLOAT3 LightClass::GetPosition() { return light_position_; }
-
 void LightClass::GenerateViewMatrix() {
   XMVECTOR up;
   XMVECTOR position;
@@ -67,12 +37,4 @@ void LightClass::GenerateProjectionMatrix(float screenDepth, float screenNear) {
   // Create the projection matrix for the light.
   projection_matrix_ = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect,
                                                 screenNear, screenDepth);
-}
-
-void LightClass::GetViewMatrix(XMMATRIX &viewMatrix) {
-  viewMatrix = light_viewMatrix_;
-}
-
-void LightClass::GetProjectionMatrix(XMMATRIX &projectionMatrix) {
-  projectionMatrix = projection_matrix_;
 }

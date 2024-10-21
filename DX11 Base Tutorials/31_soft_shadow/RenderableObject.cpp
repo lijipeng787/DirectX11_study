@@ -9,6 +9,11 @@ RenderableObject::RenderableObject(std::shared_ptr<ModelClass> model,
                                    std::shared_ptr<IShader> shader)
     : model_(model), shader_(shader), world_matrix_(XMMatrixIdentity()) {}
 
+RenderableObject::RenderableObject(std::shared_ptr<PBRModelClass> model,
+                                   std::shared_ptr<IShader> shader)
+    : pbr_model_(model), shader_(shader), world_matrix_(XMMatrixIdentity()),
+      is_pbr_model_(true) {}
+
 RenderableObject::RenderableObject(
     std::shared_ptr<OrthoWindowClass> windowModel,
     std::shared_ptr<IShader> shader)
@@ -22,8 +27,12 @@ void RenderableObject::Render(
 
   if (is_window_model_)
     window_model_->Render(shader, combinedParams);
-  else
-    model_->Render(shader, combinedParams);
+  else {
+    if (is_pbr_model_)
+      pbr_model_->Render(shader, combinedParams);
+    else
+      model_->Render(shader, combinedParams);
+  }
 }
 
 void RenderableObject::SetParameterCallback(ShaderParameterCallback callback) {

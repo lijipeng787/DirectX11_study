@@ -1,4 +1,5 @@
 #include "rendertextureclass.h"
+
 #include "../CommonFramework/DirectX11Device.h"
 
 using namespace DirectX;
@@ -26,8 +27,8 @@ bool RenderTextureClass::Initialize(int textureWidth, int textureHeight,
 
   auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
-  auto result =
-      device->CreateTexture2D(&textureDesc, NULL, &render_target_texture_);
+  auto result = device->CreateTexture2D(&textureDesc, NULL,
+                                        render_target_texture_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -36,8 +37,9 @@ bool RenderTextureClass::Initialize(int textureWidth, int textureHeight,
   renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
   renderTargetViewDesc.Texture2D.MipSlice = 0;
 
-  result = device->CreateRenderTargetView(
-      render_target_texture_, &renderTargetViewDesc, &render_target_view_);
+  result = device->CreateRenderTargetView(render_target_texture_.Get(),
+                                          &renderTargetViewDesc,
+                                          render_target_view_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -48,7 +50,8 @@ bool RenderTextureClass::Initialize(int textureWidth, int textureHeight,
   shaderResourceViewDesc.Texture2D.MipLevels = 1;
 
   result = device->CreateShaderResourceView(
-      render_target_texture_, &shaderResourceViewDesc, &shader_resource_view_);
+      render_target_texture_.Get(), &shaderResourceViewDesc,
+      shader_resource_view_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -67,21 +70,21 @@ bool RenderTextureClass::Initialize(int textureWidth, int textureHeight,
   depthBufferDesc.CPUAccessFlags = 0;
   depthBufferDesc.MiscFlags = 0;
 
-  result =
-      device->CreateTexture2D(&depthBufferDesc, NULL, &depth_stencil_buffer_);
+  result = device->CreateTexture2D(&depthBufferDesc, NULL,
+                                   depth_stencil_buffer_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
 
-  // Initailze the depth stencil view description.
   ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
 
   depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
   depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
   depthStencilViewDesc.Texture2D.MipSlice = 0;
 
-  result = device->CreateDepthStencilView(
-      depth_stencil_buffer_, &depthStencilViewDesc, &depth_stencil_view_);
+  result = device->CreateDepthStencilView(depth_stencil_buffer_.Get(),
+                                          &depthStencilViewDesc,
+                                          depth_stencil_view_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -103,39 +106,12 @@ bool RenderTextureClass::Initialize(int textureWidth, int textureHeight,
   return true;
 }
 
-void RenderTextureClass::Shutdown() {
-  if (depth_stencil_view_) {
-    depth_stencil_view_->Release();
-    depth_stencil_view_ = 0;
-  }
-
-  if (depth_stencil_buffer_) {
-    depth_stencil_buffer_->Release();
-    depth_stencil_buffer_ = 0;
-  }
-
-  if (shader_resource_view_) {
-    shader_resource_view_->Release();
-    shader_resource_view_ = 0;
-  }
-
-  if (render_target_view_) {
-    render_target_view_->Release();
-    render_target_view_ = 0;
-  }
-
-  if (render_target_texture_) {
-    render_target_texture_->Release();
-    render_target_texture_ = 0;
-  }
-}
-
 void RenderTextureClass::SetRenderTarget() {
 
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-  device_context->OMSetRenderTargets(1, &render_target_view_,
-                                     depth_stencil_view_);
+  device_context->OMSetRenderTargets(1, render_target_view_.GetAddressOf(),
+                                     depth_stencil_view_.Get());
 
   device_context->RSSetViewports(1, &viewport_);
 }
@@ -152,18 +128,18 @@ void RenderTextureClass::ClearRenderTarget(float red, float green, float blue,
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  device_context->ClearDepthStencilView(depth_stencil_view_, D3D11_CLEAR_DEPTH,
-                                        1.0f, 0);
+  device_context->ClearDepthStencilView(depth_stencil_view_.Get(),
+                                        D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
-ID3D11ShaderResourceView *RenderTextureClass::GetShaderResourceView() {
-  return shader_resource_view_;
+ID3D11ShaderResourceView *RenderTextureClass::GetShaderResourceView() const {
+  return shader_resource_view_.Get();
 }
 
-void RenderTextureClass::GetProjectionMatrix(XMMATRIX &projectionMatrix) {
+void RenderTextureClass::GetProjectionMatrix(XMMATRIX &projectionMatrix) const {
   projectionMatrix = projection_matrix_;
 }
 
-void RenderTextureClass::GetOrthoMatrix(XMMATRIX &orthoMatrix) {
+void RenderTextureClass::GetOrthoMatrix(XMMATRIX &orthoMatrix) const {
   orthoMatrix = ortho_matrix_;
 }

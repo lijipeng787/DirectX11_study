@@ -1,5 +1,3 @@
-
-
 #include "horizontalblurshaderclass.h"
 #include "../CommonFramework/DirectX11Device.h"
 
@@ -182,8 +180,6 @@ bool HorizontalBlurShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
 
   return true;
 }
-
-void HorizontalBlurShaderClass::ShutdownShader() {}
 
 void HorizontalBlurShaderClass::OutputShaderErrorMessage(
     ID3D10Blob *errorMessage, HWND hwnd, WCHAR *shaderFilename) {

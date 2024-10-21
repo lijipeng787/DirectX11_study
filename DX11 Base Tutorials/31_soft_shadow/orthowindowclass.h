@@ -3,6 +3,7 @@
 
 #include <DirectXMath.h>
 #include <d3d11.h>
+#include <wrl\client.h>
 
 #include "IRenderable.h"
 
@@ -47,7 +48,7 @@ private:
   void RenderBuffers() const;
 
 private:
-  ID3D11Buffer *vertex_buffer_, *index_buffer_;
+  Microsoft::WRL::ComPtr<ID3D11Buffer> vertex_buffer_, index_buffer_;
   int vertex_count_, index_count_;
   DirectX::XMMATRIX device_world_matrix_;
 };
