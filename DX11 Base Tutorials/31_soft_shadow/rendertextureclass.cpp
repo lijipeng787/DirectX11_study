@@ -1,6 +1,6 @@
 #include "rendertextureclass.h"
 
-#include "../CommonFramework/DirectX11Device.h"
+#include "../CommonFramework2/DirectX11Device.h"
 
 using namespace DirectX;
 

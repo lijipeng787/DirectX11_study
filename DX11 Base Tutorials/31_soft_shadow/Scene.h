@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include "../CommonFramework/Camera.h"
+#include "../CommonFramework2/Camera.h"
 #include "IRenderGroup.h"
 #include "lightclass.h"
 

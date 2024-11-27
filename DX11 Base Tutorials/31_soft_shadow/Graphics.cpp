@@ -1,8 +1,7 @@
 #include "Graphics.h"
 
-#include "../CommonFramework/Camera.h"
-#include "../CommonFramework/DirectX11Device.h"
-#include "../CommonFramework/TypeDefine.h"
+#include "../CommonFramework2/DirectX11Device.h"
+#include "../CommonFramework2/TypeDefine.h"
 
 #include "RenderableObject.h"
 #include "depthshaderclass.h"
@@ -135,7 +134,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    depth_shader_ = make_shared<DepthShaderClass>();
+    depth_shader_ = make_shared<DepthShader>();
     if (!depth_shader_) {
       return false;
     }
@@ -167,7 +166,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     // Create the shadow shader object.
-    m_ShadowShader = make_shared<ShadowShaderClass>();
+    m_ShadowShader = make_shared<ShadowShader>();
     if (!m_ShadowShader) {
       return false;
     }
@@ -219,7 +218,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    texture_shader_ = make_shared<TextureShaderClass>();
+    texture_shader_ = make_shared<TextureShader>();
     if (!texture_shader_) {
       return false;
     }
@@ -250,7 +249,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    m_HorizontalBlurShader = make_shared<HorizontalBlurShaderClass>();
+    m_HorizontalBlurShader = make_shared<HorizontalBlurShader>();
     if (!m_HorizontalBlurShader) {
       return false;
     }
@@ -282,7 +281,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    m_VerticalBlurShader = make_shared<VerticalBlurShaderClass>();
+    m_VerticalBlurShader = make_shared<VerticalBlurShader>();
     if (!m_VerticalBlurShader) {
       return false;
     }
@@ -327,7 +326,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    m_SoftShadowShader = make_shared<SoftShadowShaderClass>();
+    m_SoftShadowShader = make_shared<SoftShadowShader>();
     if (!m_SoftShadowShader) {
       return false;
     }
@@ -341,7 +340,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   {
-    PBRShader_ = make_shared<PbrShaderClass>();
+    PBRShader_ = make_shared<PbrShader>();
     if (!PBRShader_) {
       return false;
     }

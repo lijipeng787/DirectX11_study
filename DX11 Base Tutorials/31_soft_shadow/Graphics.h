@@ -1,25 +1,26 @@
 #pragma once
 
-#include "../CommonFramework/Camera.h"
-#include "../CommonFramework/GraphicsBase.h"
+#include "../CommonFramework2/Camera.h"
+#include "../CommonFramework2/GraphicsBase.h"
 #include "RenderPipeline.h"
 #include "lightclass.h"
 
 constexpr int SHADOWMAP_WIDTH = 1024;
 constexpr int SHADOWMAP_HEIGHT = 1024;
 
+class Camera;
 class DirectX11Device;
 class ModelClass;
-class DepthShaderClass;
-class ShadowShaderClass;
+class DepthShader;
+class ShadowShader;
 class RenderTextureClass;
 class OrthoWindowClass;
-class HorizontalBlurShaderClass;
-class VerticalBlurShaderClass;
-class SoftShadowShaderClass;
-class TextureShaderClass;
+class VerticalBlurShader;
+class HorizontalBlurShader;
+class SoftShadowShader;
+class TextureShader;
 class PBRModelClass;
-class PbrShaderClass;
+class PbrShader;
 
 class GraphicsClass : public GraphicsBase {
 public:
@@ -75,21 +76,21 @@ private:
   std::shared_ptr<RenderTextureClass> m_HorizontalBlurTexture,
       m_VerticalBlurTexture, m_UpSampleTexure;
 
-  std::shared_ptr<DepthShaderClass> depth_shader_;
+  std::shared_ptr<DepthShader> depth_shader_;
 
-  std::shared_ptr<ShadowShaderClass> m_ShadowShader;
+  std::shared_ptr<ShadowShader> m_ShadowShader;
 
   std::shared_ptr<OrthoWindowClass> m_SmallWindow, m_FullScreenWindow;
 
-  std::shared_ptr<TextureShaderClass> texture_shader_;
+  std::shared_ptr<TextureShader> texture_shader_;
 
-  std::shared_ptr<HorizontalBlurShaderClass> m_HorizontalBlurShader;
+  std::shared_ptr<HorizontalBlurShader> m_HorizontalBlurShader;
 
-  std::shared_ptr<VerticalBlurShaderClass> m_VerticalBlurShader;
+  std::shared_ptr<VerticalBlurShader> m_VerticalBlurShader;
 
-  std::shared_ptr<SoftShadowShaderClass> m_SoftShadowShader;
+  std::shared_ptr<SoftShadowShader> m_SoftShadowShader;
 
-  std::shared_ptr<PbrShaderClass> PBRShader_;
+  std::shared_ptr<PbrShader> PBRShader_;
 
   RenderPipeline render_pipeline_;
 };

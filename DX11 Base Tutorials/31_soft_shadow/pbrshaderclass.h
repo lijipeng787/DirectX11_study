@@ -5,10 +5,10 @@
 #include <directxmath.h>
 #include <wrl/client.h>
 
-#include "IShader.h"
+#include "ShaderBase.h"
 
-class PbrShaderClass : public IShader {
-private:
+class PbrShader : public ShaderBase {
+protected:
   struct MatrixBufferType {
     DirectX::XMMATRIX world;
     DirectX::XMMATRIX view;
@@ -26,46 +26,35 @@ private:
   };
 
 public:
-  PbrShaderClass() = default;
+  PbrShader() = default;
 
-  PbrShaderClass(const PbrShaderClass &) = delete;
-
-  ~PbrShaderClass() = default;
+  ~PbrShader() = default;
 
 public:
-  bool Initialize(HWND);
+  bool Initialize(HWND hwnd) override;
 
-  void Shutdown() override {}
+  bool Render(int indexCount,
+              const ShaderParameterContainer &parameters) const override;
 
-  bool
-  Render(int indexCount,
-         const ShaderParameterContainer &parameterContainer) const override;
+protected:
+  bool InitializeShader(HWND hwnd);
 
-private:
-  bool InitializeShader(HWND, WCHAR *, WCHAR *);
+  bool SetShaderParameters(const DirectX::XMMATRIX &worldMatrix,
+                           const DirectX::XMMATRIX &viewMatrix,
+                           const DirectX::XMMATRIX &projectionMatrix,
+                           ID3D11ShaderResourceView *albedoTexture,
+                           ID3D11ShaderResourceView *normalMap,
+                           ID3D11ShaderResourceView *roughnessMetallicTexture,
+                           const DirectX::XMFLOAT3 &lightDirection,
+                           const DirectX::XMFLOAT3 &cameraPosition) const;
 
-  void OutputShaderErrorMessage(ID3D10Blob *, HWND, WCHAR *);
-
-  bool SetShaderParameters(DirectX::XMMATRIX &, DirectX::XMMATRIX &,
-                           DirectX::XMMATRIX &, ID3D11ShaderResourceView *,
-                           ID3D11ShaderResourceView *,
-                           ID3D11ShaderResourceView *,
-                           const DirectX::XMFLOAT3 &,
-                           const DirectX::XMFLOAT3 &) const;
-
-  void RenderShader(int) const;
+  void RenderShader(int indexCount) const;
 
 private:
-  Microsoft::WRL::ComPtr<ID3D11VertexShader> m_vertexShader;
-  Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pixelShader;
-
-  Microsoft::WRL::ComPtr<ID3D11InputLayout> m_layout;
-
-  Microsoft::WRL::ComPtr<ID3D11SamplerState> m_sampleState;
-
-  Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
-  Microsoft::WRL::ComPtr<ID3D11Buffer> m_cameraBuffer;
-  Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightBuffer;
+  Microsoft::WRL::ComPtr<ID3D11Buffer> matrix_buffer_;
+  Microsoft::WRL::ComPtr<ID3D11Buffer> camera_buffer_;
+  Microsoft::WRL::ComPtr<ID3D11Buffer> light_buffer_;
+  Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_state_;
 };
 
 #endif

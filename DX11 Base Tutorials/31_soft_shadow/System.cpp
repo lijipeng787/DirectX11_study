@@ -1,7 +1,7 @@
 #include "System.h"
 
-#include "../CommonFramework/Input.h"
-#include "../CommonFramework/Timer.h"
+#include "../CommonFramework2/Input.h"
+#include "../CommonFramework2/Timer.h"
 
 #include "Graphics.h"
 #include "positionclass.h"

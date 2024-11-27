@@ -20,8 +20,6 @@ public:
 public:
   bool Initialize(const WCHAR *filename);
 
-  void Shutdown();
-
   ID3D11ShaderResourceView *GetTexture() const { return texture_.Get(); };
 
 private:
@@ -47,8 +45,6 @@ public:
 
 public:
   bool Initialize(const char *);
-
-  void Shutdown() {}
 
   ID3D11ShaderResourceView *GetTexture() const { return m_textureView.Get(); }
 

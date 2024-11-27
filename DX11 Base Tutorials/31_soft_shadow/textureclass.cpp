@@ -1,12 +1,14 @@
 #include "TextureClass.h"
 
-#include "../CommonFramework/DirectX11Device.h"
+#include "../CommonFramework2/DirectX11Device.h"
 
 #include <DDSTextureLoader.h>
 #include <d3d11.h>
 #include <stdexcept>
+#include <vector>
 
 using namespace DirectX;
+using namespace std;
 
 bool TextureClass::Initialize(const WCHAR *filename) {
   auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
@@ -17,8 +19,6 @@ bool TextureClass::Initialize(const WCHAR *filename) {
   }
   return true;
 }
-
-void TextureClass::Shutdown() { texture_.Reset(); }
 
 bool TGATextureClass::Initialize(const char *filename) {
 
@@ -92,7 +92,6 @@ bool TGATextureClass::LoadTarga32Bit(const char *filename) {
   FILE *filePtr;
   unsigned int count;
   TargaHeader targaFileHeader;
-  unsigned char *targaImage;
 
   // Open the targa file for reading in binary.
   error = fopen_s(&filePtr, filename, "rb");
@@ -120,11 +119,10 @@ bool TGATextureClass::LoadTarga32Bit(const char *filename) {
   // Calculate the size of the 32 bit image data.
   imageSize = m_width * m_height * 4;
 
-  // Allocate memory for the targa image data.
-  targaImage = new unsigned char[imageSize];
+  std::vector<unsigned char> targaImage(imageSize);
 
   // Read in the targa image data.
-  count = (unsigned int)fread(targaImage, 1, imageSize, filePtr);
+  count = (unsigned int)fread(targaImage.data(), 1, imageSize, filePtr);
   if (count != imageSize) {
     return false;
   }
@@ -163,11 +161,6 @@ bool TGATextureClass::LoadTarga32Bit(const char *filename) {
     // of the column since its reading it in upside down.
     k -= (m_width * 8);
   }
-
-  // Release the targa image data now that it was copied into the destination
-  // array.
-  delete[] targaImage;
-  targaImage = 0;
 
   return true;
 }

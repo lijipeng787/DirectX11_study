@@ -1,6 +1,6 @@
 #include "modelclass.h"
 
-#include "../CommonFramework/DirectX11Device.h"
+#include "../CommonFramework2/DirectX11Device.h"
 #include "IShader.h"
 #include "ShaderParameterContainer.h"
 
@@ -22,7 +22,6 @@ bool ModelClass::Initialize(const std::string &modelFilename,
 }
 
 void ModelClass::Shutdown() {
-  ReleaseTexture();
   ShutdownBuffers();
   ReleaseModel();
 }
@@ -110,13 +109,6 @@ void ModelClass::RenderBuffers() const {
 bool ModelClass::LoadTexture(const std::wstring &filename) {
   texture_ = std::make_unique<TextureClass>();
   return texture_->Initialize(filename.c_str());
-}
-
-void ModelClass::ReleaseTexture() {
-  if (texture_) {
-    texture_->Shutdown();
-    texture_.reset();
-  }
 }
 
 bool ModelClass::LoadModel(const std::string &filename) {
@@ -307,10 +299,6 @@ bool PBRModelClass::LoadTextures(const string &filename1,
 
 void PBRModelClass::ReleaseTextures() {
   if (m_Textures) {
-    m_Textures[0].Shutdown();
-    m_Textures[1].Shutdown();
-    m_Textures[2].Shutdown();
-
     delete[] m_Textures;
     m_Textures = nullptr;
   }

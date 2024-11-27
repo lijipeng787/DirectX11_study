@@ -54,8 +54,6 @@ private:
 
   bool LoadTexture(const std::wstring &filename);
 
-  void ReleaseTexture();
-
   bool LoadModel(const std::string &filename);
 
   void ReleaseModel();

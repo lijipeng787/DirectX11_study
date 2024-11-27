@@ -1,6 +1,6 @@
 #include "orthowindowclass.h"
 
-#include "../CommonFramework/DirectX11Device.h"
+#include "../CommonFramework2/DirectX11Device.h"
 #include "IShader.h"
 #include "ShaderParameterContainer.h"
 

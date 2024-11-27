@@ -1,6 +1,6 @@
 #include "RenderPipeline.h"
 
-#include "../CommonFramework/DirectX11Device.h"
+#include "../CommonFramework2/DirectX11Device.h"
 
 void RenderPipeline::AddRenderPass(std::shared_ptr<RenderPass> pass) {
   render_passes_.push_back(pass);

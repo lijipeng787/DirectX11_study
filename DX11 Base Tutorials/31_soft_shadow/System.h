@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../CommonFramework/SystemBase.h"
+#include "../CommonFramework2/SystemBase.h"
 
 class GraphicsClass;
 class PositionClass;
