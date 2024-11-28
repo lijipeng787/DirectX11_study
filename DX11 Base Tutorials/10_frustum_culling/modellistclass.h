@@ -6,21 +6,23 @@ struct ModelInfoType;
 
 class ModelListClass {
 public:
-	ModelListClass() {}
+  ModelListClass() {}
 
-	ModelListClass(const ModelListClass& rhs) = delete;
+  ModelListClass(const ModelListClass &rhs) = delete;
 
-	~ModelListClass() {}
+  ~ModelListClass() {}
+
 public:
-	bool Initialize(int);
+  bool Initialize(int);
 
-	void Shutdown();
+  void Shutdown();
 
-	int GetModelCount();
+  int GetModelCount();
 
-	void GetData(int, float&, float&, float&, DirectX::XMFLOAT4&);
+  void GetData(int, float &, float &, float &, DirectX::XMFLOAT4 &);
+
 private:
-	int model_count_ = 0;
+  int model_count_ = 0;
 
-	ModelInfoType* model_info_list_ = nullptr;
+  ModelInfoType *model_info_list_ = nullptr;
 };

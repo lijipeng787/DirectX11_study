@@ -2,13 +2,12 @@
 
 #include "../CommonFramework/DirectX11Device.h"
 
-#include <DirectXMath.h>
 #include <d3d11.h>
+#include <DirectXMath.h>
 
 #include <fstream>
 #include <stdexcept>
 #include <vector>
-
 
 struct VertexType {
   DirectX::XMFLOAT3 position;

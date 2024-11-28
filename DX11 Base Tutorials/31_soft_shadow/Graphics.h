@@ -2,25 +2,23 @@
 
 #include "../CommonFramework2/Camera.h"
 #include "../CommonFramework2/GraphicsBase.h"
+#include "light.h"
 #include "RenderPipeline.h"
-#include "lightclass.h"
-
-constexpr int SHADOWMAP_WIDTH = 1024;
-constexpr int SHADOWMAP_HEIGHT = 1024;
 
 class Camera;
 class DirectX11Device;
-class ModelClass;
+class Model;
 class DepthShader;
 class ShadowShader;
-class RenderTextureClass;
-class OrthoWindowClass;
+class RenderTexture;
+class OrthoWindow;
 class VerticalBlurShader;
 class HorizontalBlurShader;
 class SoftShadowShader;
 class TextureShader;
-class PBRModelClass;
+class PBRModel;
 class PbrShader;
+class StandardRenderGroup;
 
 class GraphicsClass : public GraphicsBase {
 public:
@@ -64,23 +62,23 @@ private:
 
   std::unique_ptr<Camera> camera_;
 
-  std::shared_ptr<ModelClass> m_CubeModel, m_GroundModel, m_SphereModel;
+  std::shared_ptr<Model> m_CubeModel, m_GroundModel, m_SphereModel;
 
-  std::shared_ptr<PBRModelClass> spherePBRModel;
+  std::shared_ptr<PBRModel> spherePBRModel;
 
-  std::unique_ptr<LightClass> light_;
+  std::unique_ptr<Light> light_;
 
-  std::shared_ptr<RenderTextureClass> render_texture_,
+  std::shared_ptr<RenderTexture> render_texture_,
       m_BlackWhiteRenderTexture, m_DownSampleTexure;
 
-  std::shared_ptr<RenderTextureClass> m_HorizontalBlurTexture,
+  std::shared_ptr<RenderTexture> m_HorizontalBlurTexture,
       m_VerticalBlurTexture, m_UpSampleTexure;
 
   std::shared_ptr<DepthShader> depth_shader_;
 
   std::shared_ptr<ShadowShader> m_ShadowShader;
 
-  std::shared_ptr<OrthoWindowClass> m_SmallWindow, m_FullScreenWindow;
+  std::shared_ptr<OrthoWindow> m_SmallWindow, m_FullScreenWindow;
 
   std::shared_ptr<TextureShader> texture_shader_;
 
@@ -91,6 +89,8 @@ private:
   std::shared_ptr<SoftShadowShader> m_SoftShadowShader;
 
   std::shared_ptr<PbrShader> PBRShader_;
+
+  std::shared_ptr<StandardRenderGroup> cube_group_;
 
   RenderPipeline render_pipeline_;
 };

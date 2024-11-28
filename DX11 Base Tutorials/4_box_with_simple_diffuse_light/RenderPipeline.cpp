@@ -5,10 +5,8 @@
 #include "LightShaderClass.h"
 #include "StandardRenderGroup.h"
 
-
 #include <iostream>
 #include <stdexcept>
-
 
 bool RenderPipeline::Initialize(HWND hwnd) {
   // Initialize default shader

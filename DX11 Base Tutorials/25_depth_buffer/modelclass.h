@@ -6,33 +6,36 @@ struct ModelType;
 
 class ModelClass {
 public:
-	ModelClass() {}
+  ModelClass() {}
 
-	ModelClass(const ModelClass& rhs) = delete;
+  ModelClass(const ModelClass &rhs) = delete;
 
-	~ModelClass() {}
+  ~ModelClass() {}
+
 public:
-	bool Initialize(char*);
+  bool Initialize(char *);
 
-	void Shutdown();
+  void Shutdown();
 
-	void Render();
+  void Render();
 
-	int GetIndexCount();
+  int GetIndexCount();
+
 private:
-	bool InitializeBuffers();
+  bool InitializeBuffers();
 
-	void ShutdownBuffers();
+  void ShutdownBuffers();
 
-	void RenderBuffers();
+  void RenderBuffers();
 
-	bool LoadModel(char*);
+  bool LoadModel(char *);
 
-	void ReleaseModel();
+  void ReleaseModel();
+
 private:
-	ID3D11Buffer * vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
+  ID3D11Buffer *vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
 
-	int vertex_count_ = 0, index_count_ = 0;
+  int vertex_count_ = 0, index_count_ = 0;
 
-	ModelType* model_ = nullptr;
+  ModelType *model_ = nullptr;
 };

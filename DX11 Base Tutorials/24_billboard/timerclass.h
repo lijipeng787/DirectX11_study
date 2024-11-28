@@ -4,21 +4,23 @@
 
 class TimerClass {
 public:
-	TimerClass() {}
+  TimerClass() {}
 
-	TimerClass(const TimerClass& rhs) = delete;
+  TimerClass(const TimerClass &rhs) = delete;
 
-	~TimerClass() {}
+  ~TimerClass() {}
+
 public:
-	bool Initialize();
+  bool Initialize();
 
-	void Frame();
+  void Frame();
 
-	float GetTime();
+  float GetTime();
+
 private:
-	INT64 frequency_;
+  INT64 frequency_;
 
-	float ticks_per_ms_, frame_time_;
+  float ticks_per_ms_, frame_time_;
 
-	INT64 start_time_;
+  INT64 start_time_;
 };

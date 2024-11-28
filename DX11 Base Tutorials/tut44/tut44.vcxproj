@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C7C21292-0ECC-4A22-B015-E8455FE2DAB5}</ProjectGuid>
     <RootNamespace>tut44</RootNamespace>
-    <ProjectName>33_projected_light_map</ProjectName>
+    <ProjectName>33projected_light_map</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

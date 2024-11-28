@@ -6,78 +6,78 @@
 
 class Input {
 public:
-	Input();
+  Input();
 
-	Input(const Input& rhs) = delete;
+  Input(const Input &rhs) = delete;
 
-	Input& operator=(const Input& rhs) = delete;
+  Input &operator=(const Input &rhs) = delete;
 
-	~Input();
-
-public:
-	bool Initialize(HINSTANCE, HWND, int, int);
-
-	void Shutdown();
-
-	bool Frame();
-
-	void GetMouseLocation(int&, int&);
-
-	bool IsEscapePressed();
-
-	bool IsLeftArrowPressed();
-
-	bool IsRightArrowPressed();
-
-	bool IsLeftPressed();
-
-	bool IsRightPressed();
-
-	bool IsUpPressed();
-
-	bool IsDownPressed();
-
-	bool IsAPressed();
-
-	bool IsZPressed();
-
-	bool IsPgUpPressed();
-
-	bool IsPgDownPressed();
-
-	bool IsLeftMouseButtonDown();
-
-private:
-	bool ReadKeyboard();
-
-	bool ReadMouse();
-
-	void ProcessInput();
-	// old interface
+  ~Input();
 
 public:
-	void Initialize();
+  bool Initialize(HINSTANCE, HWND, int, int);
 
-	void KeyDown(unsigned int);
+  void Shutdown();
 
-	void KeyUp(unsigned int);
+  bool Frame();
 
-	bool IsKeyDown(unsigned int)const;
+  void GetMouseLocation(int &, int &);
+
+  bool IsEscapePressed();
+
+  bool IsLeftArrowPressed();
+
+  bool IsRightArrowPressed();
+
+  bool IsLeftPressed();
+
+  bool IsRightPressed();
+
+  bool IsUpPressed();
+
+  bool IsDownPressed();
+
+  bool IsAPressed();
+
+  bool IsZPressed();
+
+  bool IsPgUpPressed();
+
+  bool IsPgDownPressed();
+
+  bool IsLeftMouseButtonDown();
 
 private:
-	IDirectInput8* input_device_;
+  bool ReadKeyboard();
 
-	IDirectInputDevice8* keyboard_;
+  bool ReadMouse();
 
-	IDirectInputDevice8* mouse_;
+  void ProcessInput();
+  // old interface
 
-	unsigned char keyboard_state_[256];
+public:
+  void Initialize();
 
-	DIMOUSESTATE mouse_state_;
+  void KeyDown(unsigned int);
 
-	int screen_width_, screen_height_;
+  void KeyUp(unsigned int);
 
-	int mouse_x_, mouse_y_;
+  bool IsKeyDown(unsigned int) const;
 
-	bool keys_[256] = {};
+private:
+  IDirectInput8 *input_device_;
+
+  IDirectInputDevice8 *keyboard_;
+
+  IDirectInputDevice8 *mouse_;
+
+  unsigned char keyboard_state_[256];
+
+  DIMOUSESTATE mouse_state_;
+
+  int screen_width_, screen_height_;
+
+  int mouse_x_, mouse_y_;
+
+  bool keys_[256] = {};
 };

@@ -9,73 +9,72 @@ System::~System() {}
 
 bool System::Initialize() {
 
-	ApplicationInstance = this;
+  ApplicationInstance = this;
 
-	SetWindProc(WndProc);
+  SetWindProc(WndProc);
 
-	SystemBase::Initialize();
+  SystemBase::Initialize();
 
-	unsigned int screenWidth = 800, screenHeight = 600;
+  unsigned int screenWidth = 800, screenHeight = 600;
 
-	//GetScreenWidthAndHeight(screenWidth, screenHeight);
+  // GetScreenWidthAndHeight(screenWidth, screenHeight);
 
-	graphics_ = new GraphicsClass();
-	if (!graphics_) {
-		return false;
-	}
-	bool result = graphics_->Initialize(screenWidth, screenHeight, GetApplicationHandle());
-	if (!result) {
-		return false;
-	}
+  graphics_ = new GraphicsClass();
+  if (!graphics_) {
+    return false;
+  }
+  bool result =
+      graphics_->Initialize(screenWidth, screenHeight, GetApplicationHandle());
+  if (!result) {
+    return false;
+  }
 
-	return true;
+  return true;
 }
 
 void System::Shutdown() {
 
-	if (graphics_) {
-		graphics_->Shutdown();
-		delete graphics_;
-		graphics_ = 0;
-	}
+  if (graphics_) {
+    graphics_->Shutdown();
+    delete graphics_;
+    graphics_ = 0;
+  }
 }
 
 bool System::Frame() {
 
-	SystemBase::Frame();
+  SystemBase::Frame();
 
-	if (GetInputComponent().IsKeyDown(VK_ESCAPE)) {
-		return false;
-	}
+  if (GetInputComponent().IsKeyDown(VK_ESCAPE)) {
+    return false;
+  }
 
-	bool result;
+  bool result;
 
-	result = graphics_->Frame();
-	if (!result) {
-		return false;
-	}
+  result = graphics_->Frame();
+  if (!result) {
+    return false;
+  }
 
-	return true;
+  return true;
 }
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam) {
+LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam,
+                         LPARAM lparam) {
 
-	switch (umessage) {
-		case WM_DESTROY:
-		{
-			PostQuitMessage(0);
-			return 0;
-		}
+  switch (umessage) {
+  case WM_DESTROY: {
+    PostQuitMessage(0);
+    return 0;
+  }
 
-		case WM_CLOSE:
-		{
-			PostQuitMessage(0);
-			return 0;
-		}
+  case WM_CLOSE: {
+    PostQuitMessage(0);
+    return 0;
+  }
 
-		default:
-		{
-			return ApplicationInstance->MessageHandler(hwnd, umessage, wparam, lparam);
-		}
-	}
+  default: {
+    return ApplicationInstance->MessageHandler(hwnd, umessage, wparam, lparam);
+  }
+  }
 }

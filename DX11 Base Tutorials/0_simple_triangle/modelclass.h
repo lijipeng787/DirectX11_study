@@ -8,27 +8,30 @@ struct VertexType;
 
 class ModelClass {
 public:
-	ModelClass() {}
+  ModelClass() {}
 
-	ModelClass(const ModelClass&) = delete;
+  ModelClass(const ModelClass &) = delete;
 
-	~ModelClass() {}
+  ~ModelClass() {}
+
 public:
-	bool Initialize();
+  bool Initialize();
 
-	void Shutdown();
+  void Shutdown();
 
-	void Render();
+  void Render();
 
-	int GetIndexCount();
+  int GetIndexCount();
+
 private:
-	bool InitializeBuffers();
+  bool InitializeBuffers();
 
-	void ShutdownBuffers();
+  void ShutdownBuffers();
 
-	void RenderBuffers();
+  void RenderBuffers();
+
 private:
-	ID3D11Buffer* vertex_buffer_ = nullptr, * index_buffer_ = nullptr;
+  ID3D11Buffer *vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
 
-	int vertex_count_ = 0, index_count_ = 0;
+  int vertex_count_ = 0, index_count_ = 0;
 };

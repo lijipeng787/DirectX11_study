@@ -6,6 +6,8 @@
 
 class IShader {
 public:
+  IShader() = default;
+  
   virtual ~IShader() = default;
 
   virtual bool Initialize(HWND hwnd) = 0;

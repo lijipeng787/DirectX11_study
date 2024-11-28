@@ -8,29 +8,32 @@ class ModelClass;
 class TextureShader;
 class SimpleMoveableSurface;
 
-class GraphicsModule :public GraphicsBase {
+class GraphicsModule : public GraphicsBase {
 public:
-	GraphicsModule();
+  GraphicsModule();
 
-	GraphicsModule(const GraphicsModule& rhs) = delete;
+  GraphicsModule(const GraphicsModule &rhs) = delete;
 
-	GraphicsModule& operator=(const GraphicsModule& rhs) = delete;
+  GraphicsModule &operator=(const GraphicsModule &rhs) = delete;
 
-	virtual ~GraphicsModule();
+  virtual ~GraphicsModule();
+
 public:
-	virtual bool Initialize(int screenWidth, int screenHeight, HWND hwnd)override;
+  virtual bool Initialize(int screenWidth, int screenHeight,
+                          HWND hwnd) override;
 
-	virtual void Shutdown()override;
+  virtual void Shutdown() override;
 
-	virtual bool Frame()override;
+  virtual void Frame(float) override;
 
-	virtual bool Render()override;
+  virtual bool Render() override;
+
 private:
-	Camera *camera_ = nullptr;
+  Camera *camera_ = nullptr;
 
-	ModelClass *model_ = nullptr;
-	
-	TextureShader* texture_shader_;
-	
-	SimpleMoveableSurface* bitmap_;
+  ModelClass *model_ = nullptr;
+
+  TextureShader *texture_shader_;
+
+  SimpleMoveableSurface *bitmap_;
 };

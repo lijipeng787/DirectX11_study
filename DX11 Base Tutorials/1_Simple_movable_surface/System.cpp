@@ -4,71 +4,73 @@
 
 bool System::Initialize() {
 
-	ApplicationInstance = this;
+  ApplicationInstance = this;
 
-	SetWindProc(WndProc);
+  SetWindProc(WndProc);
 
-	SystemBase::Initialize();
+  SystemBase::Initialize();
 
-	unsigned int screenWidth = 800, screenHeight = 600;
+  unsigned int screenWidth = 800, screenHeight = 600;
 
-	//GetScreenWidthAndHeight(screenWidth, screenHeight);
+  // GetScreenWidthAndHeight(screenWidth, screenHeight);
 
-	Graphics_ = new GraphicsModule();
-	if (!Graphics_) {
-		return false;
-	}
+  Graphics_ = new GraphicsModule();
+  if (!Graphics_) {
+    return false;
+  }
 
-	bool result = Graphics_->Initialize(screenWidth, screenHeight, GetApplicationHandle());
-	if (!result) {
-		return false;
-	}
+  bool result =
+      Graphics_->Initialize(screenWidth, screenHeight, GetApplicationHandle());
+  if (!result) {
+    return false;
+  }
 
-	return true;
+  return true;
 }
 
 void System::Shutdown() {
 
-	SystemBase::Shutdown();
+  SystemBase::Shutdown();
 
-	if (Graphics_) {
-		Graphics_->Shutdown();
-		delete Graphics_;
-		Graphics_ = nullptr;
-	}
+  if (Graphics_) {
+    Graphics_->Shutdown();
+    delete Graphics_;
+    Graphics_ = nullptr;
+  }
 }
 
 bool System::Frame() {
 
-	SystemBase::Frame();
+  SystemBase::Frame();
 
-	if (GetInputComponent().IsKeyDown(VK_ESCAPE)) {
-		return false;
-	}
+  if (GetInputComponent().IsKeyDown(VK_ESCAPE)) {
+    return false;
+  }
 
-	auto result = Graphics_->Frame();
-	if (!result) {
-		return false;
-	}
+  auto result = Graphics_->Frame();
+  if (!result) {
+    return false;
+  }
 
-	return true;
+  return true;
 }
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam) {
+LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam,
+                         LPARAM lparam) {
 
-	switch (umessage) {
-	case WM_DESTROY: {
-		PostQuitMessage(0);
-		return 0;
-	}
+  switch (umessage) {
+  case WM_DESTROY: {
+    PostQuitMessage(0);
+    return 0;
+  }
 
-	case WM_CLOSE: {
-		PostQuitMessage(0);
-		return 0;
-	}
+  case WM_CLOSE: {
+    PostQuitMessage(0);
+    return 0;
+  }
 
-	default: {
-		return ApplicationInstance->MessageHandler(hwnd, umessage, wparam, lparam);
-	}
-	}
+  default: {
+    return ApplicationInstance->MessageHandler(hwnd, umessage, wparam, lparam);
+  }
+  }
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <d3d11.h>
 #include <DirectXMath.h>
+#include <d3d11.h>
 
 struct SentenceType;
 struct VertexType;
@@ -11,33 +11,37 @@ class FontShaderClass;
 
 class TextClass {
 public:
-	TextClass() {}
+  TextClass() {}
 
-	TextClass(const TextClass&);
+  TextClass(const TextClass &);
 
-	~TextClass() {}
+  ~TextClass() {}
+
 public:
-	bool Initialize(HWND, int, int, const DirectX::XMMATRIX&);
+  bool Initialize(HWND, int, int, const DirectX::XMMATRIX &);
 
-	void Shutdown();
+  void Shutdown();
 
-	bool Render(const DirectX::XMMATRIX&, const DirectX::XMMATRIX&);
+  bool Render(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &);
+
 private:
-	bool InitializeSentence(SentenceType**, int);
+  bool InitializeSentence(SentenceType **, int);
 
-	bool UpdateSentence(SentenceType*, char*, int, int, float, float, float);
+  bool UpdateSentence(SentenceType *, char *, int, int, float, float, float);
 
-	void ReleaseSentence(SentenceType**);
+  void ReleaseSentence(SentenceType **);
 
-	bool RenderSentence(SentenceType*, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&);
+  bool RenderSentence(SentenceType *, const DirectX::XMMATRIX &,
+                      const DirectX::XMMATRIX &);
+
 private:
-	FontClass * font_ = nullptr;
+  FontClass *font_ = nullptr;
 
-	FontShaderClass* font_shader_ = nullptr;
+  FontShaderClass *font_shader_ = nullptr;
 
-	int screen_width_ = 0, screen_height_ = 0;
+  int screen_width_ = 0, screen_height_ = 0;
 
-	DirectX::XMMATRIX base_view_matrix_{};
+  DirectX::XMMATRIX base_view_matrix_{};
 
-	SentenceType* sentence_1_ = nullptr, *sentence_2_ = nullptr;
+  SentenceType *sentence_1_ = nullptr, *sentence_2_ = nullptr;
 };

@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="applicationclass.h" />
+    <ClInclude Include="cameraclass.h" />
+    <ClInclude Include="d3dclass.h" />
+    <ClInclude Include="deferredbuffersclass.h" />
+    <ClInclude Include="gbuffershaderclass.h" />
+    <ClInclude Include="inputclass.h" />
+    <ClInclude Include="lightclass.h" />
+    <ClInclude Include="lightshaderclass.h" />
+    <ClInclude Include="modelclass.h" />
+    <ClInclude Include="orthowindowclass.h" />
+    <ClInclude Include="rendertextureclass.h" />
+    <ClInclude Include="ssaoblurshaderclass.h" />
+    <ClInclude Include="ssaoshaderclass.h" />
+    <ClInclude Include="systemclass.h" />
+    <ClInclude Include="textureclass.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="applicationclass.cpp" />
+    <ClCompile Include="cameraclass.cpp" />
+    <ClCompile Include="d3dclass.cpp" />
+    <ClCompile Include="deferredbuffersclass.cpp" />
+    <ClCompile Include="gbuffershaderclass.cpp" />
+    <ClCompile Include="inputclass.cpp" />
+    <ClCompile Include="lightclass.cpp" />
+    <ClCompile Include="lightshaderclass.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="modelclass.cpp" />
+    <ClCompile Include="orthowindowclass.cpp" />
+    <ClCompile Include="rendertextureclass.cpp" />
+    <ClCompile Include="ssaoblurshaderclass.cpp" />
+    <ClCompile Include="ssaoshaderclass.cpp" />
+    <ClCompile Include="systemclass.cpp" />
+    <ClCompile Include="textureclass.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="gbuffer.ps" />
+    <None Include="light.ps" />
+    <None Include="ssao.ps" />
+    <None Include="ssaoblur.ps" />
+    <None Include="gbuffer.vs" />
+    <None Include="light.vs" />
+    <None Include="ssao.vs" />
+    <None Include="ssaoblur.vs" />
+  </ItemGroup>
+</Project>

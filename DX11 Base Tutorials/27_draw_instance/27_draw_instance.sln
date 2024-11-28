@@ -1,9 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30804.86
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35514.174 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "21_draw_instance", "27_draw_instance.vcxproj", "{B81BEF9A-CA93-465A-B479-5CDBA3C3B166}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6FCB998B-4E37-4CAC-8C7B-55D73F23E155} = {6FCB998B-4E37-4CAC-8C7B-55D73F23E155}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common_framework", "..\CommonFramework\CommonFramework.vcxproj", "{6FCB998B-4E37-4CAC-8C7B-55D73F23E155}"
 EndProject

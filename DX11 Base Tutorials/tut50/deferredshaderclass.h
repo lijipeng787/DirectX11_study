@@ -1,8 +1,8 @@
 #ifndef _DEFERREDSHADERCLASS_H_
 #define _DEFERREDSHADERCLASS_H_
 
-#include <d3d11.h>
 #include <DirectXMath.h>
+#include <d3d11.h>
 #include <d3dcompiler.h>
 #include <fstream>
 
@@ -11,35 +11,37 @@ using namespace DirectX;
 
 class DeferredShaderClass {
 private:
-	struct MatrixBufferType {
-		XMMATRIX world;
-		XMMATRIX view;
-		XMMATRIX projection;
-	};
+  struct MatrixBufferType {
+    XMMATRIX world;
+    XMMATRIX view;
+    XMMATRIX projection;
+  };
 
 public:
-	DeferredShaderClass();
-	DeferredShaderClass(const DeferredShaderClass&);
-	~DeferredShaderClass();
+  DeferredShaderClass();
+  DeferredShaderClass(const DeferredShaderClass &);
+  ~DeferredShaderClass();
 
-	bool Initialize(HWND);
-	void Shutdown();
-	bool Render(int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&, ID3D11ShaderResourceView*);
-
-private:
-	bool InitializeShader(HWND, WCHAR*, WCHAR*);
-	void ShutdownShader();
-	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
-
-	bool SetShaderParameters(const XMMATRIX&, const XMMATRIX&, const XMMATRIX&, ID3D11ShaderResourceView*);
-	void RenderShader(int);
+  bool Initialize(HWND);
+  void Shutdown();
+  bool Render(int, const XMMATRIX &, const XMMATRIX &, const XMMATRIX &,
+              ID3D11ShaderResourceView *);
 
 private:
-	ID3D11VertexShader* vertex_shader_;
-	ID3D11PixelShader* pixel_shader_;
-	ID3D11InputLayout* layout_;
-	ID3D11SamplerState* m_sampleStateWrap;
-	ID3D11Buffer* matrix_buffer_;
+  bool InitializeShader(HWND, WCHAR *, WCHAR *);
+  void ShutdownShader();
+  void OutputShaderErrorMessage(ID3D10Blob *, HWND, WCHAR *);
+
+  bool SetShaderParameters(const XMMATRIX &, const XMMATRIX &, const XMMATRIX &,
+                           ID3D11ShaderResourceView *);
+  void RenderShader(int);
+
+private:
+  ID3D11VertexShader *vertex_shader_;
+  ID3D11PixelShader *pixel_shader_;
+  ID3D11InputLayout *layout_;
+  ID3D11SamplerState *m_sampleStateWrap;
+  ID3D11Buffer *matrix_buffer_;
 };
 
 #endif

@@ -6,36 +6,30 @@
 
 using namespace DirectX;
 
-TextureClass::TextureClass() {
-	texture_ = nullptr;
-}
+TextureClass::TextureClass() { texture_ = nullptr; }
 
-TextureClass::TextureClass(const TextureClass& other) {
-}
+TextureClass::TextureClass(const TextureClass &other) {}
 
-TextureClass::~TextureClass() {
-}
+TextureClass::~TextureClass() {}
 
-bool TextureClass::Initialize(WCHAR* filename) {
+bool TextureClass::Initialize(WCHAR *filename) {
 
-	auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
+  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
-	auto result = CreateDDSTextureFromFile(device, filename, NULL, &texture_);
-	if (FAILED(result)) {
-		return false;
-	}
+  auto result = CreateDDSTextureFromFile(device, filename, NULL, &texture_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	return true;
+  return true;
 }
 
 void TextureClass::Shutdown() {
 
-	if (texture_) {
-		texture_->Release();
-		texture_ = nullptr;
-	}
+  if (texture_) {
+    texture_->Release();
+    texture_ = nullptr;
+  }
 }
 
-ID3D11ShaderResourceView* TextureClass::GetTexture() {
-	return texture_;
-}
+ID3D11ShaderResourceView *TextureClass::GetTexture() { return texture_; }

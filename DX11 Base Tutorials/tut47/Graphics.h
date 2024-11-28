@@ -1,6 +1,5 @@
 
 
-
 #include "../CommonFramework/GraphicsBase.h"
 #include <DirectXMath.h>
 
@@ -13,52 +12,55 @@ class TextureShaderClass;
 class LightClass;
 class SimpleMoveableSurface;
 
-class GraphicsClass :public GraphicsBase {
+class GraphicsClass : public GraphicsBase {
 public:
-	GraphicsClass();
+  GraphicsClass();
 
-	GraphicsClass(const GraphicsClass& rhs) = delete;
+  GraphicsClass(const GraphicsClass &rhs) = delete;
 
-	GraphicsClass& operator=(const GraphicsClass& rhs) = delete;
+  GraphicsClass &operator=(const GraphicsClass &rhs) = delete;
 
-	virtual ~GraphicsClass();
+  virtual ~GraphicsClass();
+
 public:
-	virtual bool Initialize(int, int, HWND)override;
+  virtual bool Initialize(int, int, HWND) override;
 
-	virtual void Shutdown()override;
+  virtual void Shutdown() override;
 
-	virtual bool Frame()override;
+  virtual void Frame(float) override;
 
-	virtual bool Render()override;
+  virtual bool Render() override;
+
 public:
-	void TestIntersection(int, int);
+  void TestIntersection(int, int);
 
-	void SetMousePosition(int x, int y) {
-		mouse_x_ = x;
-		mouse_y_ = y;
-	}
+  void SetMousePosition(int x, int y) {
+    mouse_x_ = x;
+    mouse_y_ = y;
+  }
+
 private:
-	bool RaySphereIntersect(const DirectX::XMFLOAT3&, const DirectX::XMFLOAT3&, float);
+  bool RaySphereIntersect(const DirectX::XMFLOAT3 &, const DirectX::XMFLOAT3 &,
+                          float);
+
 private:
-	
+  Camera *camera_ = nullptr;
 
-	Camera *camera_ = nullptr;
+  ModelClass *model_;
 
-	ModelClass* model_;
+  TextureShaderClass *texture_shader_;
 
-	TextureShaderClass* texture_shader_;
+  LightShaderClass *light_shader_;
 
-	LightShaderClass* light_shader_;
+  LightClass *light_;
 
-	LightClass* light_;
+  TextClass *text_;
 
-	TextClass* text_;
+  SimpleMoveableSurface *bitmap_;
 
-	SimpleMoveableSurface* bitmap_;
+  int screen_width_ = 0, screen_height_ = 0;
 
-	int screen_width_ = 0, screen_height_ = 0;
-
-	int mouse_x_, mouse_y_;
+  int mouse_x_, mouse_y_;
 };
 
 #endif

@@ -4,17 +4,19 @@
 
 class TextureClass {
 public:
-	TextureClass() {}
+  TextureClass() {}
 
-	TextureClass(const TextureClass&) = delete;
+  TextureClass(const TextureClass &) = delete;
 
-	~TextureClass() {}
+  ~TextureClass() {}
+
 public:
-	bool Initialize(WCHAR*);
+  bool Initialize(WCHAR *);
 
-	void Shutdown();
+  void Shutdown();
 
-	ID3D11ShaderResourceView* GetTexture();
+  ID3D11ShaderResourceView *GetTexture();
+
 private:
-	ID3D11ShaderResourceView * texture_;
+  ID3D11ShaderResourceView *texture_;
 };

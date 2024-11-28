@@ -8,39 +8,43 @@ class ModelClass;
 class LightClass;
 class LightShaderClass;
 
-class GraphicsClass :public GraphicsBase {
+class GraphicsClass : public GraphicsBase {
 public:
-	GraphicsClass();
+  GraphicsClass();
 
-	GraphicsClass(const GraphicsClass& rhs) = delete;
+  GraphicsClass(const GraphicsClass &rhs) = delete;
 
-	GraphicsClass& operator=(const GraphicsClass& rhs) = delete;
+  GraphicsClass &operator=(const GraphicsClass &rhs) = delete;
 
-	virtual ~GraphicsClass();
+  virtual ~GraphicsClass();
+
 public:
-	virtual bool Initialize(int, int, HWND)override;
+  virtual bool Initialize(int, int, HWND) override;
 
-	virtual void Shutdown()override;
+  virtual void Shutdown() override;
 
-	virtual bool Frame()override;
+  virtual void Frame(float) override;
 
-	virtual bool Render()override;
+  virtual bool Render() override;
 
-	void SetFameTime(float frame_time);
+  void SetFameTime(float frame_time);
+
 private:
-	bool RenderRefractionToTexture();
+  bool RenderRefractionToTexture();
 
-	bool RenderReflectionToTexture();
+  bool RenderReflectionToTexture();
 
-	bool RenderScene();
+  bool RenderScene();
+
 private:
-	float frame_time_ = 0.0f;
+  float frame_time_ = 0.0f;
 
-	Camera *camera_ = nullptr;
+  Camera *camera_ = nullptr;
 
-	ModelClass* model_ = nullptr;
+  ModelClass *model_ = nullptr;
 
-	LightShaderClass* light_shader_ = nullptr;
+  LightShaderClass *light_shader_ = nullptr;
 
-	LightClass *m_Light1 = nullptr, *m_Light2 = nullptr, *m_Light3 = nullptr, *m_Light4 = nullptr;
+  LightClass *m_Light1 = nullptr, *m_Light2 = nullptr, *m_Light3 = nullptr,
+             *m_Light4 = nullptr;
 };

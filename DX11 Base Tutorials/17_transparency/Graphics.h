@@ -8,35 +8,38 @@ class ModelClass;
 class TextureShaderClass;
 class TransparentShaderClass;
 
-class GraphicsClass :public GraphicsBase {
+class GraphicsClass : public GraphicsBase {
 public:
-	GraphicsClass();
+  GraphicsClass();
 
-	GraphicsClass(const GraphicsClass& rhs) = delete;
+  GraphicsClass(const GraphicsClass &rhs) = delete;
 
-	GraphicsClass& operator=(const GraphicsClass& rhs) = delete;
+  GraphicsClass &operator=(const GraphicsClass &rhs) = delete;
 
-	virtual ~GraphicsClass();
+  virtual ~GraphicsClass();
+
 public:
-	virtual bool Initialize(int, int, HWND)override;
+  virtual bool Initialize(int, int, HWND) override;
 
-	virtual void Shutdown()override;
+  virtual void Shutdown() override;
 
-	virtual bool Frame()override;
+  virtual void Frame(float) override;
 
-	virtual bool Render()override;
+  virtual bool Render() override;
+
 private:
-	bool RenderToTexture();
+  bool RenderToTexture();
 
-	bool RenderScene();
+  bool RenderScene();
+
 private:
-	Camera *camera_ = nullptr;
+  Camera *camera_ = nullptr;
 
-	ModelClass *model_1_ = nullptr;
+  ModelClass *model_1_ = nullptr;
 
-	ModelClass *model_2_ = nullptr;
+  ModelClass *model_2_ = nullptr;
 
-	TextureShaderClass* texture_shader_ = nullptr;
+  TextureShaderClass *texture_shader_ = nullptr;
 
-	TransparentShaderClass* transparent_shader_ = nullptr;
+  TransparentShaderClass *transparent_shader_ = nullptr;
 };

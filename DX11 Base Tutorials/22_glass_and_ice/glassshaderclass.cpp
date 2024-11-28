@@ -8,301 +8,318 @@ using namespace std;
 using namespace DirectX;
 
 struct MatrixBufferType {
-	XMMATRIX world;
-	XMMATRIX view;
-	XMMATRIX projection;
+  XMMATRIX world;
+  XMMATRIX view;
+  XMMATRIX projection;
 };
 
 struct GlassBufferType {
-	float refractionScale;
-	XMFLOAT3 padding;
+  float refractionScale;
+  XMFLOAT3 padding;
 };
 
 bool GlassShaderClass::Initialize(HWND hwnd) {
 
-	auto result = InitializeShader(hwnd, L"glass.hlsl", L"glass.hlsl");
-	if (!result) {
-		return false;
-	}
+  auto result = InitializeShader(hwnd, L"glass.hlsl", L"glass.hlsl");
+  if (!result) {
+    return false;
+  }
 
-	return true;
+  return true;
 }
 
-void GlassShaderClass::Shutdown() {
-	ShutdownShader();
+void GlassShaderClass::Shutdown() { ShutdownShader(); }
+
+bool GlassShaderClass::Render(int indexCount, const XMMATRIX &worldMatrix,
+                              const XMMATRIX &viewMatrix,
+                              const XMMATRIX &projectionMatrix,
+                              ID3D11ShaderResourceView *colorTexture,
+                              ID3D11ShaderResourceView *normalTexture,
+                              ID3D11ShaderResourceView *refractionTexture,
+                              float refractionScale) {
+
+  auto result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix,
+                                    colorTexture, normalTexture,
+                                    refractionTexture, refractionScale);
+  if (!result) {
+    return false;
+  }
+
+  RenderShader(indexCount);
+
+  return true;
 }
 
-bool GlassShaderClass::Render(int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
-							  const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* colorTexture,
-							  ID3D11ShaderResourceView* normalTexture, ID3D11ShaderResourceView* refractionTexture,
-							  float refractionScale) {
+bool GlassShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
+                                        WCHAR *psFilename) {
 
-	auto result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, colorTexture,
-									  normalTexture, refractionTexture, refractionScale);
-	if (!result) {
-		return false;
-	}
+  ID3D10Blob *errorMessage = nullptr;
+  ID3D10Blob *vertexShaderBuffer = nullptr;
 
+  auto result = D3DCompileFromFile(vsFilename, NULL, NULL, "GlassVertexShader",
+                                   "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+                                   &vertexShaderBuffer, &errorMessage);
+  if (FAILED(result)) {
+    if (errorMessage) {
+      OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
+    } else {
+      MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
+    }
 
-	RenderShader(indexCount);
+    return false;
+  }
 
-	return true;
-}
+  ID3D10Blob *pixelShaderBuffer = nullptr;
 
-bool GlassShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename) {
+  result = D3DCompileFromFile(psFilename, NULL, NULL, "GlassPixelShader",
+                              "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+                              &pixelShaderBuffer, &errorMessage);
+  if (FAILED(result)) {
+    if (errorMessage) {
+      OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
+    } else {
+      MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
+    }
 
-	ID3D10Blob* errorMessage = nullptr;
-	ID3D10Blob* vertexShaderBuffer = nullptr;
+    return false;
+  }
 
-	auto result = D3DCompileFromFile(vsFilename, NULL, NULL, "GlassVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
-									 &vertexShaderBuffer, &errorMessage);
-	if (FAILED(result)) {
-		if (errorMessage) {
-			OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
-		}
-		else {
-			MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
-		}
+  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
-		return false;
-	}
+  result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
+                                      vertexShaderBuffer->GetBufferSize(), NULL,
+                                      &vertex_shader_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	ID3D10Blob* pixelShaderBuffer = nullptr;
+  result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
+                                     pixelShaderBuffer->GetBufferSize(), NULL,
+                                     &pixel_shader_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	result = D3DCompileFromFile(psFilename, NULL, NULL, "GlassPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
-								&pixelShaderBuffer, &errorMessage);
-	if (FAILED(result)) {
-		if (errorMessage) {
-			OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
-		}
-		else {
-			MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
-		}
+  D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
 
-		return false;
-	}
+  polygonLayout[0].SemanticName = "POSITION";
+  polygonLayout[0].SemanticIndex = 0;
+  polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+  polygonLayout[0].InputSlot = 0;
+  polygonLayout[0].AlignedByteOffset = 0;
+  polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+  polygonLayout[0].InstanceDataStepRate = 0;
 
-	auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
+  polygonLayout[1].SemanticName = "TEXCOORD";
+  polygonLayout[1].SemanticIndex = 0;
+  polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+  polygonLayout[1].InputSlot = 0;
+  polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+  polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+  polygonLayout[1].InstanceDataStepRate = 0;
 
-	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL,
-										&vertex_shader_);
-	if (FAILED(result)) {
-		return false;
-	}
+  unsigned int numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
-	result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL,
-									   &pixel_shader_);
-	if (FAILED(result)) {
-		return false;
-	}
+  result = device->CreateInputLayout(
+      polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(),
+      vertexShaderBuffer->GetBufferSize(), &layout_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
+  vertexShaderBuffer->Release();
+  vertexShaderBuffer = 0;
 
-	polygonLayout[0].SemanticName = "POSITION";
-	polygonLayout[0].SemanticIndex = 0;
-	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[0].InputSlot = 0;
-	polygonLayout[0].AlignedByteOffset = 0;
-	polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[0].InstanceDataStepRate = 0;
+  pixelShaderBuffer->Release();
+  pixelShaderBuffer = 0;
 
-	polygonLayout[1].SemanticName = "TEXCOORD";
-	polygonLayout[1].SemanticIndex = 0;
-	polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	polygonLayout[1].InputSlot = 0;
-	polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[1].InstanceDataStepRate = 0;
+  D3D11_SAMPLER_DESC samplerDesc;
 
-	unsigned int numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
+  samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+  samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+  samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+  samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+  samplerDesc.MipLODBias = 0.0f;
+  samplerDesc.MaxAnisotropy = 1;
+  samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+  samplerDesc.BorderColor[0] = 0;
+  samplerDesc.BorderColor[1] = 0;
+  samplerDesc.BorderColor[2] = 0;
+  samplerDesc.BorderColor[3] = 0;
+  samplerDesc.MinLOD = 0;
+  samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(),
-									   vertexShaderBuffer->GetBufferSize(), &layout_);
-	if (FAILED(result)) {
-		return false;
-	}
+  result = device->CreateSamplerState(&samplerDesc, &sample_state_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	vertexShaderBuffer->Release();
-	vertexShaderBuffer = 0;
+  D3D11_BUFFER_DESC matrixBufferDesc;
 
-	pixelShaderBuffer->Release();
-	pixelShaderBuffer = 0;
+  matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+  matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+  matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+  matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+  matrixBufferDesc.MiscFlags = 0;
+  matrixBufferDesc.StructureByteStride = 0;
 
-	D3D11_SAMPLER_DESC samplerDesc;
+  result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+  D3D11_BUFFER_DESC glassBufferDesc;
 
-	result = device->CreateSamplerState(&samplerDesc, &sample_state_);
-	if (FAILED(result)) {
-		return false;
-	}
+  glassBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+  glassBufferDesc.ByteWidth = sizeof(GlassBufferType);
+  glassBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+  glassBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+  glassBufferDesc.MiscFlags = 0;
+  glassBufferDesc.StructureByteStride = 0;
 
-	D3D11_BUFFER_DESC matrixBufferDesc;
+  result = device->CreateBuffer(&glassBufferDesc, NULL, &glass_buffer_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
-	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	matrixBufferDesc.MiscFlags = 0;
-	matrixBufferDesc.StructureByteStride = 0;
-
-	result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
-	if (FAILED(result)) {
-		return false;
-	}
-
-	D3D11_BUFFER_DESC glassBufferDesc;
-
-	glassBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	glassBufferDesc.ByteWidth = sizeof(GlassBufferType);
-	glassBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	glassBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	glassBufferDesc.MiscFlags = 0;
-	glassBufferDesc.StructureByteStride = 0;
-
-	result = device->CreateBuffer(&glassBufferDesc, NULL, &glass_buffer_);
-	if (FAILED(result)) {
-		return false;
-	}
-
-	return true;
+  return true;
 }
 
 void GlassShaderClass::ShutdownShader() {
 
-	if (glass_buffer_) {
-		glass_buffer_->Release();
-		glass_buffer_ = 0;
-	}
+  if (glass_buffer_) {
+    glass_buffer_->Release();
+    glass_buffer_ = 0;
+  }
 
-	if (matrix_buffer_) {
-		matrix_buffer_->Release();
-		matrix_buffer_ = nullptr;
-	}
+  if (matrix_buffer_) {
+    matrix_buffer_->Release();
+    matrix_buffer_ = nullptr;
+  }
 
-	if (sample_state_) {
-		sample_state_->Release();
-		sample_state_ = nullptr;
-	}
+  if (sample_state_) {
+    sample_state_->Release();
+    sample_state_ = nullptr;
+  }
 
-	if (layout_) {
-		layout_->Release();
-		layout_ = nullptr;
-	}
+  if (layout_) {
+    layout_->Release();
+    layout_ = nullptr;
+  }
 
-	if (pixel_shader_) {
-		pixel_shader_->Release();
-		pixel_shader_ = nullptr;
-	}
+  if (pixel_shader_) {
+    pixel_shader_->Release();
+    pixel_shader_ = nullptr;
+  }
 
-	if (vertex_shader_) {
-		vertex_shader_->Release();
-		vertex_shader_ = nullptr;
-	}
+  if (vertex_shader_) {
+    vertex_shader_->Release();
+    vertex_shader_ = nullptr;
+  }
 }
 
-void GlassShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename) {
+void GlassShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage,
+                                                HWND hwnd,
+                                                WCHAR *shaderFilename) {
 
-	auto compileErrors = (char*)(errorMessage->GetBufferPointer());
+  auto compileErrors = (char *)(errorMessage->GetBufferPointer());
 
-	auto bufferSize = errorMessage->GetBufferSize();
+  auto bufferSize = errorMessage->GetBufferSize();
 
-	ofstream fout;
-	fout.open("shader-error.txt");
+  ofstream fout;
+  fout.open("shader-error.txt");
 
-	int i = 0;
-	for (i = 0; i < bufferSize; i++) {
-		fout << compileErrors[i];
-	}
+  int i = 0;
+  for (i = 0; i < bufferSize; i++) {
+    fout << compileErrors[i];
+  }
 
-	fout.close();
+  fout.close();
 
-	errorMessage->Release();
-	errorMessage = 0;
+  errorMessage->Release();
+  errorMessage = 0;
 
-	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
+  MessageBox(hwnd,
+             L"Error compiling shader.  Check shader-error.txt for message.",
+             shaderFilename, MB_OK);
 }
 
-bool GlassShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
-										   const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* colorTexture,
-										   ID3D11ShaderResourceView* normalTexture, ID3D11ShaderResourceView* refractionTexture,
-										   float refractionScale) {
+bool GlassShaderClass::SetShaderParameters(
+    const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix,
+    const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView *colorTexture,
+    ID3D11ShaderResourceView *normalTexture,
+    ID3D11ShaderResourceView *refractionTexture, float refractionScale) {
 
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
+  D3D11_MAPPED_SUBRESOURCE mappedResource;
 
-	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
+  auto device_context =
+      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result)) {
-		return false;
-	}
+  auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD,
+                                    0, &mappedResource);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	MatrixBufferType* dataPtr;
+  MatrixBufferType *dataPtr;
 
-	dataPtr = (MatrixBufferType*)mappedResource.pData;
+  dataPtr = (MatrixBufferType *)mappedResource.pData;
 
-	XMMATRIX worldMatrixCopy = XMMatrixTranspose(worldMatrix);
-	XMMATRIX viewMatrixCopy = XMMatrixTranspose(viewMatrix);
-	XMMATRIX projectionMatrixCopy = XMMatrixTranspose(projectionMatrix);
+  XMMATRIX worldMatrixCopy = XMMatrixTranspose(worldMatrix);
+  XMMATRIX viewMatrixCopy = XMMatrixTranspose(viewMatrix);
+  XMMATRIX projectionMatrixCopy = XMMatrixTranspose(projectionMatrix);
 
-	dataPtr->world = worldMatrixCopy;
-	dataPtr->view = viewMatrixCopy;
-	dataPtr->projection = projectionMatrixCopy;
+  dataPtr->world = worldMatrixCopy;
+  dataPtr->view = viewMatrixCopy;
+  dataPtr->projection = projectionMatrixCopy;
 
-	device_context->Unmap(matrix_buffer_, 0);
+  device_context->Unmap(matrix_buffer_, 0);
 
-	unsigned int buffer_number = 0;
+  unsigned int buffer_number = 0;
 
-	device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
+  device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
-	device_context->PSSetShaderResources(0, 1, &colorTexture);
-	device_context->PSSetShaderResources(1, 1, &normalTexture);
-	device_context->PSSetShaderResources(2, 1, &refractionTexture);
+  device_context->PSSetShaderResources(0, 1, &colorTexture);
+  device_context->PSSetShaderResources(1, 1, &normalTexture);
+  device_context->PSSetShaderResources(2, 1, &refractionTexture);
 
-	result = device_context->Map(glass_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result)) {
-		return false;
-	}
+  auto device_context =
+      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	GlassBufferType* dataPtr2;
+  result = device_context->Map(glass_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
+                               &mappedResource);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	dataPtr2 = (GlassBufferType*)mappedResource.pData;
+  GlassBufferType *dataPtr2;
 
-	dataPtr2->refractionScale = refractionScale;
-	dataPtr2->padding = XMFLOAT3(0.0f, 0.0f, 0.0f);
+  dataPtr2 = (GlassBufferType *)mappedResource.pData;
 
-	device_context->Unmap(glass_buffer_, 0);
+  dataPtr2->refractionScale = refractionScale;
+  dataPtr2->padding = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-	buffer_number = 0;
+  device_context->Unmap(glass_buffer_, 0);
 
-	device_context->PSSetConstantBuffers(buffer_number, 1, &glass_buffer_);
+  buffer_number = 0;
 
-	return true;
+  device_context->PSSetConstantBuffers(buffer_number, 1, &glass_buffer_);
+
+  return true;
 }
 
 void GlassShaderClass::RenderShader(int indexCount) {
 
-	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
+  auto device_context =
+      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	device_context->IASetInputLayout(layout_);
+  device_context->IASetInputLayout(layout_);
 
-	device_context->VSSetShader(vertex_shader_, NULL, 0);
+  device_context->VSSetShader(vertex_shader_, NULL, 0);
 
-	device_context->PSSetShader(pixel_shader_, NULL, 0);
+  device_context->PSSetShader(pixel_shader_, NULL, 0);
 
-	device_context->PSSetSamplers(0, 1, &sample_state_);
+  device_context->PSSetSamplers(0, 1, &sample_state_);
 
-	device_context->DrawIndexed(indexCount, 0, 0);
+  device_context->DrawIndexed(indexCount, 0, 0);
 }

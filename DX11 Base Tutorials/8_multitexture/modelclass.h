@@ -9,41 +9,44 @@ class TextureArrayClass;
 
 class ModelClass {
 public:
-	ModelClass() {}
+  ModelClass() {}
 
-	ModelClass(const ModelClass& rhs) = delete;
+  ModelClass(const ModelClass &rhs) = delete;
 
-	~ModelClass() {}
+  ~ModelClass() {}
+
 public:
-	bool Initialize(char*, WCHAR*, WCHAR*);
+  bool Initialize(char *, WCHAR *, WCHAR *);
 
-	void Shutdown();
+  void Shutdown();
 
-	void Render();
+  void Render();
 
-	int GetIndexCount();
+  int GetIndexCount();
 
-	ID3D11ShaderResourceView** GetTextureArray();
+  ID3D11ShaderResourceView **GetTextureArray();
+
 private:
-	bool InitializeBuffers();
+  bool InitializeBuffers();
 
-	void ShutdownBuffers();
+  void ShutdownBuffers();
 
-	void RenderBuffers();
+  void RenderBuffers();
 
-	bool LoadTextures(WCHAR*, WCHAR*);
+  bool LoadTextures(WCHAR *, WCHAR *);
 
-	void ReleaseTextures();
+  void ReleaseTextures();
 
-	bool LoadModel(char*);
+  bool LoadModel(char *);
 
-	void ReleaseModel();
+  void ReleaseModel();
+
 private:
-	ID3D11Buffer * vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
+  ID3D11Buffer *vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
 
-	int vertex_count_ = 0, index_count_ = 0;
+  int vertex_count_ = 0, index_count_ = 0;
 
-	ModelType* model_ = nullptr;
+  ModelType *model_ = nullptr;
 
-	TextureArrayClass* texture_array_ = nullptr;
+  TextureArrayClass *texture_array_ = nullptr;
 };

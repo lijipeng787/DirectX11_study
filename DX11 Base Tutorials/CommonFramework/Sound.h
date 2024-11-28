@@ -4,38 +4,38 @@
 
 class SoundClass {
 public:
-	SoundClass();
+  SoundClass();
 
-	SoundClass(const SoundClass& rhs) = delete;
+  SoundClass(const SoundClass &rhs) = delete;
 
-	SoundClass& operator=(const SoundClass& rhs) = delete;
+  SoundClass &operator=(const SoundClass &rhs) = delete;
 
-	~SoundClass();
+  ~SoundClass();
 
 public:
-	bool Initialize(HWND, char* sound_filename);
+  bool Initialize(HWND, char *sound_filename);
 
-	void Shutdown();
-
-private:
-	bool InitializeDirectSound(HWND);
-
-	void ShutdownDirectSound();
-
-	bool LoadWaveFile(char*, IDirectSoundBuffer8**, IDirectSound3DBuffer8**);
-
-	void ShutdownWaveFile(IDirectSoundBuffer8**, IDirectSound3DBuffer8**);
-
-	bool PlayWaveFile();
+  void Shutdown();
 
 private:
-	IDirectSound8* sound_device_ = nullptr;
+  bool InitializeDirectSound(HWND);
 
-	IDirectSoundBuffer* primary_buffer_ = nullptr;
+  void ShutdownDirectSound();
 
-	IDirectSound3DListener8* listener_ = nullptr;
+  bool LoadWaveFile(char *, IDirectSoundBuffer8 **, IDirectSound3DBuffer8 **);
 
-	IDirectSoundBuffer8* secondary_buffer_ = nullptr;
+  void ShutdownWaveFile(IDirectSoundBuffer8 **, IDirectSound3DBuffer8 **);
 
-	IDirectSound3DBuffer8* secondary_3D_buffer_ = nullptr;
+  bool PlayWaveFile();
+
+private:
+  IDirectSound8 *sound_device_ = nullptr;
+
+  IDirectSoundBuffer *primary_buffer_ = nullptr;
+
+  IDirectSound3DListener8 *listener_ = nullptr;
+
+  IDirectSoundBuffer8 *secondary_buffer_ = nullptr;
+
+  IDirectSound3DBuffer8 *secondary_3D_buffer_ = nullptr;
 };

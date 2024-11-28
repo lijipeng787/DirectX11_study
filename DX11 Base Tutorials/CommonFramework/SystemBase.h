@@ -9,61 +9,63 @@ class Timer;
 
 class SystemBase {
 public:
-	SystemBase();
+  SystemBase();
 
-	SystemBase(const SystemBase& rhs) = delete;
+  SystemBase(const SystemBase &rhs) = delete;
 
-	SystemBase& operator=(const SystemBase& rhs) = delete;
+  SystemBase &operator=(const SystemBase &rhs) = delete;
 
-	virtual ~SystemBase();
-
-public:
-	virtual bool PreInitialize();
-
-	virtual bool Initialize();
-
-	virtual bool PostInitialize();
-
-	virtual void Shutdown();
-
-	virtual void Run();
-
-	virtual bool Frame();
-
-	virtual void SetWindProc(LRESULT(CALLBACK* WindProc)(HWND, UINT, WPARAM, LPARAM));
+  virtual ~SystemBase();
 
 public:
-	void GetScreenWidthAndHeight(unsigned int& width, unsigned int& height)const;
+  virtual bool PreInitialize();
 
-	LPCWSTR GetApplicationName();
+  virtual bool Initialize();
 
-	HINSTANCE GetApplicationInstance();
+  virtual bool PostInitialize();
 
-	HWND GetApplicationHandle();
+  virtual void Shutdown();
 
-	Input& GetInputComponent()const;
+  virtual void Run();
 
-	Timer& GetTimerComponent()const;
+  virtual bool Frame();
 
-	void InitializeWindows(int& output_width, int& output_height);
+  virtual void SetWindProc(LRESULT(CALLBACK *WindProc)(HWND, UINT, WPARAM,
+                                                       LPARAM));
 
-	void ShutdownWindows();
+public:
+  void GetScreenWidthAndHeight(unsigned int &width, unsigned int &height) const;
 
-	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
+  LPCWSTR GetApplicationName();
+
+  HINSTANCE GetApplicationInstance();
+
+  HWND GetApplicationHandle();
+
+  Input &GetInputComponent() const;
+
+  Timer &GetTimerComponent() const;
+
+  void InitializeWindows(int &output_width, int &output_height);
+
+  void ShutdownWindows();
+
+  LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
 
 private:
-	unsigned int screen_width_ = 0, screen_height_ = 0;
+  unsigned int screen_width_ = 0, screen_height_ = 0;
 
-	LPCWSTR application_name_ = {};
+  LPCWSTR application_name_ = {};
 
-	HINSTANCE hinstance_ = {};
+  HINSTANCE hinstance_ = {};
 
-	HWND hwnd_ = {};
+  HWND hwnd_ = {};
 
 private:
-	Input* input_ = nullptr;
+  Input *input_ = nullptr;
 
-	Timer* timer_ = nullptr;
+  Timer *timer_ = nullptr;
+
 private:
-	LRESULT(CALLBACK* windd_proc_)(HWND, UINT, WPARAM, LPARAM);
+  LRESULT(CALLBACK *windd_proc_)(HWND, UINT, WPARAM, LPARAM);
 };

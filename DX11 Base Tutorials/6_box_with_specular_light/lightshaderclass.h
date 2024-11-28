@@ -1,5 +1,5 @@
-#include <d3d11.h>
 #include <DirectXMath.h>
+#include <d3d11.h>
 
 struct MatrixBufferType;
 struct CameraBufferType;
@@ -7,41 +7,47 @@ struct LightBufferType;
 
 class LightShaderClass {
 public:
-	LightShaderClass() {}
+  LightShaderClass() {}
 
-	LightShaderClass(const LightShaderClass&) = delete;
+  LightShaderClass(const LightShaderClass &) = delete;
 
-	~LightShaderClass() {}
+  ~LightShaderClass() {}
+
 public:
-	bool Initialize(HWND);
+  bool Initialize(HWND);
 
-	void Shutdown();
+  void Shutdown();
 
-	bool Render(int,
-				const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&,
-				ID3D11ShaderResourceView*,
-				const DirectX::XMFLOAT3&, const DirectX::XMFLOAT4&, const DirectX::XMFLOAT4&,
-				const DirectX::XMFLOAT3&, const DirectX::XMFLOAT4&, float);
+  bool Render(int, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &,
+              const DirectX::XMMATRIX &, ID3D11ShaderResourceView *,
+              const DirectX::XMFLOAT3 &, const DirectX::XMFLOAT4 &,
+              const DirectX::XMFLOAT4 &, const DirectX::XMFLOAT3 &,
+              const DirectX::XMFLOAT4 &, float);
+
 private:
-	bool InitializeShader(HWND, WCHAR*, WCHAR*);
+  bool InitializeShader(HWND, WCHAR *, WCHAR *);
 
-	void ShutdownShader();
-	
-	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
+  void ShutdownShader();
 
-	bool SetShaderParameters(const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&,
-							 ID3D11ShaderResourceView*,
-							 const DirectX::XMFLOAT3&, const DirectX::XMFLOAT4&, const DirectX::XMFLOAT4&,
-							 const DirectX::XMFLOAT3&, const DirectX::XMFLOAT4&, float);
-	void RenderShader(int);
+  void OutputShaderErrorMessage(ID3D10Blob *, HWND, WCHAR *);
+
+  bool SetShaderParameters(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &,
+                           const DirectX::XMMATRIX &,
+                           ID3D11ShaderResourceView *,
+                           const DirectX::XMFLOAT3 &, const DirectX::XMFLOAT4 &,
+                           const DirectX::XMFLOAT4 &, const DirectX::XMFLOAT3 &,
+                           const DirectX::XMFLOAT4 &, float);
+  void RenderShader(int);
+
 private:
-	ID3D11VertexShader * vertex_shader_ = nullptr;
+  ID3D11VertexShader *vertex_shader_ = nullptr;
 
-	ID3D11PixelShader* pixel_shader_ = nullptr;
+  ID3D11PixelShader *pixel_shader_ = nullptr;
 
-	ID3D11InputLayout* layout_ = nullptr;
+  ID3D11InputLayout *layout_ = nullptr;
 
-	ID3D11SamplerState* sample_state_ = nullptr;
+  ID3D11SamplerState *sample_state_ = nullptr;
 
-	ID3D11Buffer* matrix_buffer_ = nullptr, *camera_buffer_ = nullptr, *light_buffer_ = nullptr;
+  ID3D11Buffer *matrix_buffer_ = nullptr, *camera_buffer_ = nullptr,
+               *light_buffer_ = nullptr;
 };

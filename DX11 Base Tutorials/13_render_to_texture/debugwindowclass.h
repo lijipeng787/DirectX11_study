@@ -6,35 +6,38 @@ struct VertexType;
 
 class DebugWindowClass {
 public:
-	DebugWindowClass() {}
+  DebugWindowClass() {}
 
-	DebugWindowClass(const DebugWindowClass&) = delete;
+  DebugWindowClass(const DebugWindowClass &) = delete;
 
-	~DebugWindowClass() {}
+  ~DebugWindowClass() {}
+
 public:
-	bool Initialize(int, int, int, int);
+  bool Initialize(int, int, int, int);
 
-	void Shutdown();
+  void Shutdown();
 
-	bool Render(int, int);
+  bool Render(int, int);
 
-	int GetIndexCount();
+  int GetIndexCount();
+
 private:
-	bool InitializeBuffers();
+  bool InitializeBuffers();
 
-	void ShutdownBuffers();
+  void ShutdownBuffers();
 
-	bool UpdateBuffers(int, int);
+  bool UpdateBuffers(int, int);
 
-	void RenderBuffers();
+  void RenderBuffers();
+
 private:
-	ID3D11Buffer * vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
+  ID3D11Buffer *vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
 
-	int vertex_count_ = 0, index_count_ = 0;
+  int vertex_count_ = 0, index_count_ = 0;
 
-	int screen_width_ = 0, screen_height_ = 0;
+  int screen_width_ = 0, screen_height_ = 0;
 
-	int bitmap_width_ = 0, bitmap_height_ = 0;
+  int bitmap_width_ = 0, bitmap_height_ = 0;
 
-	int previous_pos_x_ = 0, previous_pos_y_ = 0;
+  int previous_pos_x_ = 0, previous_pos_y_ = 0;
 };

@@ -8,14 +8,11 @@ enum class ShaderParameterType { Matrix, Vector3, Vector4, Texture, Float };
 
 class ShaderParameterInfo {
 public:
-  ShaderParameterInfo(std::string name, ShaderParameterType type) {
-    this->name = name;
-    this->type = type;
-  }
+  explicit ShaderParameterInfo(std::string name, ShaderParameterType type) : name_(name), type_(type) {}
 
 public:
-  std::string name;
-  ShaderParameterType type;
+  std::string name_;
+  ShaderParameterType type_;
 };
 
 class ShaderParameterLayout {

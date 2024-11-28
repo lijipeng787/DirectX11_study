@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Windows.h>
 #include "../CommonFramework/GraphicsBase.h"
+#include <Windows.h>
 
 class DirectX11Device;
 class Camera;
@@ -12,58 +12,57 @@ class RenderTextureClass;
 class HorizontalBlurShaderClass;
 class TextureShaderClass;
 
-class GraphicsClass :public GraphicsBase {
+class GraphicsClass : public GraphicsBase {
 public:
-	GraphicsClass();
+  GraphicsClass();
 
-	GraphicsClass(const GraphicsClass& rhs) = delete;
+  GraphicsClass(const GraphicsClass &rhs) = delete;
 
-	GraphicsClass& operator=(const GraphicsClass& rhs) = delete;
+  GraphicsClass &operator=(const GraphicsClass &rhs) = delete;
 
-	virtual ~GraphicsClass();
+  virtual ~GraphicsClass();
+
 public:
-	virtual bool Initialize(int, int, HWND)override;
+  virtual bool Initialize(int, int, HWND) override;
 
-	virtual void Shutdown()override;
+  virtual void Shutdown() override;
 
-	virtual bool Frame()override;
+  virtual void Frame(float) override;
 
-	virtual bool Render()override;
+  virtual bool Render() override;
 
-	inline void SetRotation(float rotation_) {
-		rotation_ = rotation_;
-	}
+  inline void SetRotation(float rotation_) { rotation_ = rotation_; }
+
 private:
-	bool RenderSceneToTexture(float rotation_);
+  bool RenderSceneToTexture(float rotation_);
 
-	bool DownSampleTexture();
+  bool DownSampleTexture();
 
-	bool RenderHorizontalBlurToTexture();
+  bool RenderHorizontalBlurToTexture();
 
-	bool RenderVerticalBlurToTexture();
+  bool RenderVerticalBlurToTexture();
 
-	bool UpSampleTexture();
+  bool UpSampleTexture();
 
-	bool Render2DTextureScene();
+  bool Render2DTextureScene();
+
 private:
-	float rotation_ = 0.0f;
+  float rotation_ = 0.0f;
 
-	Camera *camera_ = nullptr;
+  Camera *camera_ = nullptr;
 
-	ModelClass *model_ = nullptr;
+  ModelClass *model_ = nullptr;
 
-	TextureShaderClass* texture_shader_ = nullptr;
+  TextureShaderClass *texture_shader_ = nullptr;
 
-	HorizontalBlurShaderClass* m_HorizontalBlurShader = nullptr;
+  HorizontalBlurShaderClass *m_HorizontalBlurShader = nullptr;
 
-	VerticalBlurShaderClass* m_VerticalBlurShader = nullptr;
+  VerticalBlurShaderClass *m_VerticalBlurShader = nullptr;
 
-	RenderTextureClass 
-		*render_texture_ = nullptr, 
-		*m_DownSampleTexure = nullptr,
-		*m_HorizontalBlurTexture = nullptr, 
-		*m_VerticalBlurTexture = nullptr,
-		*m_UpSampleTexure = nullptr;
+  RenderTextureClass *render_texture_ = nullptr, *m_DownSampleTexure = nullptr,
+                     *m_HorizontalBlurTexture = nullptr,
+                     *m_VerticalBlurTexture = nullptr,
+                     *m_UpSampleTexure = nullptr;
 
-	OrthoWindowClass *m_SmallWindow = nullptr, *m_FullScreenWindow = nullptr;
+  OrthoWindowClass *m_SmallWindow = nullptr, *m_FullScreenWindow = nullptr;
 };

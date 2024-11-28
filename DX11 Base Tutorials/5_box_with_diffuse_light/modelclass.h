@@ -7,41 +7,44 @@ class TextureClass;
 
 class ModelClass {
 public:
-	ModelClass() {}
+  ModelClass() {}
 
-	ModelClass(const ModelClass&) = delete;
+  ModelClass(const ModelClass &) = delete;
 
-	~ModelClass() {}
+  ~ModelClass() {}
+
 public:
-	bool Initialize(char*, WCHAR*);
+  bool Initialize(char *, WCHAR *);
 
-	void Shutdown();
+  void Shutdown();
 
-	void Render();
+  void Render();
 
-	int GetIndexCount();
+  int GetIndexCount();
 
-	ID3D11ShaderResourceView* GetTexture();
+  ID3D11ShaderResourceView *GetTexture();
+
 private:
-	bool InitializeBuffers();
+  bool InitializeBuffers();
 
-	void ShutdownBuffers();
+  void ShutdownBuffers();
 
-	void RenderBuffers();
+  void RenderBuffers();
 
-	bool LoadTexture(WCHAR*);
+  bool LoadTexture(WCHAR *);
 
-	void ReleaseTexture();
+  void ReleaseTexture();
 
-	bool LoadModel(char*);
+  bool LoadModel(char *);
 
-	void ReleaseModel();
+  void ReleaseModel();
+
 private:
-	ID3D11Buffer * vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
+  ID3D11Buffer *vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
 
-	int vertex_count_ = 0, index_count_ = 0;
+  int vertex_count_ = 0, index_count_ = 0;
 
-	TextureClass* texture_ = nullptr;
+  TextureClass *texture_ = nullptr;
 
-	ModelType* model_ = nullptr;
+  ModelType *model_ = nullptr;
 };

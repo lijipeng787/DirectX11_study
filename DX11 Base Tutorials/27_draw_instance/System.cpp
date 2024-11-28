@@ -1,7 +1,7 @@
 #include "System.h"
 
-#include "../CommonFramework/Timer.h"
 #include "../CommonFramework/Input.h"
+#include "../CommonFramework/Timer.h"
 #include "Graphics.h"
 
 System::System() {}
@@ -10,77 +10,68 @@ System::~System() {}
 
 bool System::Initialize() {
 
-	ApplicationInstance = this;
-	SetWindProc(WndProc);
+  ApplicationInstance = this;
+  SetWindProc(WndProc);
 
-	SystemBase::Initialize();
+  SystemBase::Initialize();
 
-	unsigned int screenWidth = 800, screenHeight = 600;
+  unsigned int screenWidth = 800, screenHeight = 600;
 
-	//GetScreenWidthAndHeight(screenWidth, screenHeight);
+  // GetScreenWidthAndHeight(screenWidth, screenHeight);
 
-	{
-		graphics_ = new GraphicsClass();
-		if (!graphics_) {
-			return false;
-		}
-		bool result = graphics_->Initialize(screenWidth, screenHeight, GetApplicationHandle());
-		if (!result) {
-			return false;
-		}
-	}
+  {
+    graphics_ = new GraphicsClass();
+    if (!graphics_) {
+      return false;
+    }
+    bool result = graphics_->Initialize(screenWidth, screenHeight,
+                                        GetApplicationHandle());
+    if (!result) {
+      return false;
+    }
+  }
 
-	return true;
+  return true;
 }
 
 bool System::Frame() {
 
-	SystemBase::Frame();
+  SystemBase::Frame();
 
-	bool result;
+  graphics_->Frame(0.0f);
 
-	result = graphics_->Frame();
-	if (!result) {
-		return false;
-	}
+  graphics_->Render();
 
-	result = graphics_->Render();
-	if (!result) {
-		return false;
-	}
-
-	return true;
+  return true;
 }
 
 void System::Shutdown() {
 
-	SystemBase::Shutdown();
+  SystemBase::Shutdown();
 
-	if (graphics_) {
-		graphics_->Shutdown();
-		delete graphics_;
-		graphics_ = 0;
-	}
+  if (graphics_) {
+    graphics_->Shutdown();
+    delete graphics_;
+    graphics_ = 0;
+  }
 }
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam) {
+LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam,
+                         LPARAM lparam) {
 
-	switch (umessage) {
-		case WM_DESTROY:
-		{
-			PostQuitMessage(0);
-			return 0;
-		}
+  switch (umessage) {
+  case WM_DESTROY: {
+    PostQuitMessage(0);
+    return 0;
+  }
 
-		case WM_CLOSE:
-		{
-			PostQuitMessage(0);
-			return 0;
-		}
+  case WM_CLOSE: {
+    PostQuitMessage(0);
+    return 0;
+  }
 
-		default:
-		{
-			return ApplicationInstance->MessageHandler(hwnd, umessage, wparam, lparam);
-		}
-	}
+  default: {
+    return ApplicationInstance->MessageHandler(hwnd, umessage, wparam, lparam);
+  }
+  }
 }

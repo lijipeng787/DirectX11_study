@@ -10,31 +10,33 @@ class ModelClass;
 class LightShaderClass;
 class LightClass;
 
-class GraphicsClass :public GraphicsBase {
+class GraphicsClass : public GraphicsBase {
 public:
-	GraphicsClass() {}
+  GraphicsClass() {}
 
-	GraphicsClass(const GraphicsClass& rhs) = delete;
+  GraphicsClass(const GraphicsClass &rhs) = delete;
 
-	GraphicsClass& operator=(const GraphicsClass& rhs) = delete;
+  GraphicsClass &operator=(const GraphicsClass &rhs) = delete;
 
-	virtual ~GraphicsClass() {}
+  virtual ~GraphicsClass() {}
+
 public:
-	virtual bool Initialize(int, int, HWND)override;
+  virtual bool Initialize(int, int, HWND) override;
 
-	virtual void Shutdown()override;
+  virtual void Shutdown() override;
 
-	virtual bool Frame()override;
+  virtual void Frame(float) override;
 
-	virtual bool Render()override;
+  virtual void Render() override;
+
 private:
-	Camera * camera_ = nullptr;
+  Camera *camera_ = nullptr;
 
-	ModelClass *model_ = nullptr;
+  ModelClass *model_ = nullptr;
 
-	LightShaderClass* light_shader_ = nullptr;
+  LightShaderClass *light_shader_ = nullptr;
 
-	LightClass* light_ = nullptr;
+  LightClass *light_ = nullptr;
 
-	static float rotation_;
+  static float rotation_;
 };

@@ -9,29 +9,32 @@ class TextureClass;
 
 class FontClass {
 public:
-	FontClass() {}
+  FontClass() {}
 
-	FontClass(const FontClass& rhs) = delete;
+  FontClass(const FontClass &rhs) = delete;
 
-	~FontClass() {}
+  ~FontClass() {}
+
 public:
-	bool Initialize(char*, WCHAR*);
+  bool Initialize(char *, WCHAR *);
 
-	void Shutdown();
+  void Shutdown();
 
-	ID3D11ShaderResourceView* GetTexture();
+  ID3D11ShaderResourceView *GetTexture();
 
-	void BuildVertexArray(void*, char*, float, float);
+  void BuildVertexArray(void *, char *, float, float);
+
 private:
-	bool LoadFontData(char*);
+  bool LoadFontData(char *);
 
-	void ReleaseFontData();
+  void ReleaseFontData();
 
-	bool LoadTexture(WCHAR*);
+  bool LoadTexture(WCHAR *);
 
-	void ReleaseTexture();
+  void ReleaseTexture();
+
 private:
-	FontType * font_ = nullptr;
+  FontType *font_ = nullptr;
 
-	TextureClass* texture_ = nullptr;
+  TextureClass *texture_ = nullptr;
 };

@@ -6,6 +6,8 @@
 
 class IRenderGroup {
 public:
+  IRenderGroup() = default;
+
   virtual ~IRenderGroup() = default;
 
 public:

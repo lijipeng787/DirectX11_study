@@ -2,25 +2,28 @@
 
 #include <DirectXMath.h>
 
-class FrustumClass{
+class FrustumClass {
 public:
-	FrustumClass() {}
+  FrustumClass() {}
 
-	FrustumClass(const FrustumClass& rhs) = delete;
+  FrustumClass(const FrustumClass &rhs) = delete;
 
-	FrustumClass& operator=(const FrustumClass& rhs) = delete;
-	
-	~FrustumClass() {}
+  FrustumClass &operator=(const FrustumClass &rhs) = delete;
+
+  ~FrustumClass() {}
+
 public:
-	void ConstructFrustum(float, const DirectX::XMMATRIX&, const DirectX::XMMATRIX& );
+  void ConstructFrustum(float, const DirectX::XMMATRIX &,
+                        const DirectX::XMMATRIX &);
 
-	bool CheckPoint(float, float, float);
-	
-	bool CheckCube(float, float, float, float);
-	
-	bool CheckSphere(float, float, float, float);
-	
-	bool CheckRectangle(float, float, float, float, float, float);
+  bool CheckPoint(float, float, float);
+
+  bool CheckCube(float, float, float, float);
+
+  bool CheckSphere(float, float, float, float);
+
+  bool CheckRectangle(float, float, float, float, float, float);
+
 private:
-	DirectX::XMVECTOR planes_[6];
+  DirectX::XMVECTOR planes_[6];
 };

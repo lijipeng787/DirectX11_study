@@ -2,10 +2,10 @@
 
 #include <new>
 
+#include "lightclass.h"
 #include "ModelClass.h"
 #include "RenderSystem.h"
 #include "StandardRenderGroup.h"
-#include "lightclass.h"
 
 #include <DirectXMath.h>
 
@@ -14,9 +14,7 @@
 #include "../CommonFramework/Input.h"
 #include "../CommonFramework/TypeDefine.h"
 
-#include "lightclass.h"
 #include "lightshaderclass.h"
-#include "modelclass.h"
 
 using namespace DirectX;
 

@@ -9,37 +9,40 @@ class RenderTextureClass;
 class TextureShaderClass;
 class GlassShaderClass;
 
-class GraphicsClass :public GraphicsBase {
+class GraphicsClass : public GraphicsBase {
 public:
-	GraphicsClass() {}
+  GraphicsClass() {}
 
-	GraphicsClass(const GraphicsClass& rhs) = delete;
+  GraphicsClass(const GraphicsClass &rhs) = delete;
 
-	GraphicsClass& operator=(const GraphicsClass& rhs) = delete;
+  GraphicsClass &operator=(const GraphicsClass &rhs) = delete;
 
-	virtual ~GraphicsClass() {}
+  virtual ~GraphicsClass() {}
+
 public:
-	virtual bool Initialize(int, int, HWND)override;
+  virtual bool Initialize(int, int, HWND) override;
 
-	virtual void Shutdown()override;
+  virtual void Shutdown() override;
 
-	virtual bool Frame()override;
+  virtual void Frame(float) override;
 
-	virtual bool Render()override;
+  virtual bool Render() override;
+
 private:
-	bool RenderToTexture(float rotation_);
+  bool RenderToTexture(float rotation_);
+
 private:
-	float rotation_ = 0.0f;
+  float rotation_ = 0.0f;
 
-	Camera *camera_ = nullptr;
+  Camera *camera_ = nullptr;
 
-	ModelClass* model_;
+  ModelClass *model_;
 
-	ModelClass* window_model_;
+  ModelClass *window_model_;
 
-	RenderTextureClass* render_texture_;
+  RenderTextureClass *render_texture_;
 
-	TextureShaderClass* texture_shader_;
+  TextureShaderClass *texture_shader_;
 
-	GlassShaderClass* glass_shader_;
+  GlassShaderClass *glass_shader_;
 };

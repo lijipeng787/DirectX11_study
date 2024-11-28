@@ -8,288 +8,310 @@ using namespace std;
 using namespace DirectX;
 
 struct MatrixBufferType {
-	XMMATRIX world;
-	XMMATRIX view;
-	XMMATRIX projection;
+  XMMATRIX world;
+  XMMATRIX view;
+  XMMATRIX projection;
 };
 
 struct ScreenSizeBufferType {
-	float screenWidth;
-	XMFLOAT3 padding;
+  float screenWidth;
+  XMFLOAT3 padding;
 };
 
 bool HorizontalBlurShaderClass::Initialize(HWND hwnd) {
-	auto result = InitializeShader(hwnd, L"horizontal_blur.hlsl", L"horizontal_blur.hlsl");
-	if (!result) {
-		return false;
-	}
+  auto result =
+      InitializeShader(hwnd, L"horizontal_blur.hlsl", L"horizontal_blur.hlsl");
+  if (!result) {
+    return false;
+  }
 
-	return true;
+  return true;
 }
 
-void HorizontalBlurShaderClass::Shutdown() {
-	ShutdownShader();
-}
+void HorizontalBlurShaderClass::Shutdown() { ShutdownShader(); }
 
 bool HorizontalBlurShaderClass::Render(int indexCount,
-									   const XMMATRIX& worldMatrix,
-									   const XMMATRIX& viewMatrix,
-									   const XMMATRIX& projectionMatrix,
-									   ID3D11ShaderResourceView* texture,
-									   float screenWidth) {
-	auto result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, screenWidth);
-	if (!result) {
-		return false;
-	}
+                                       const XMMATRIX &worldMatrix,
+                                       const XMMATRIX &viewMatrix,
+                                       const XMMATRIX &projectionMatrix,
+                                       ID3D11ShaderResourceView *texture,
+                                       float screenWidth) {
+  auto result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix,
+                                    texture, screenWidth);
+  if (!result) {
+    return false;
+  }
 
-	RenderShader(indexCount);
+  RenderShader(indexCount);
 
-	return true;
+  return true;
 }
 
-bool HorizontalBlurShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename) {
+bool HorizontalBlurShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
+                                                 WCHAR *psFilename) {
 
-	ID3D10Blob* errorMessage = nullptr;
-	ID3D10Blob* vertexShaderBuffer = nullptr;
+  ID3D10Blob *errorMessage = nullptr;
+  ID3D10Blob *vertexShaderBuffer = nullptr;
 
-	auto result = D3DCompileFromFile(vsFilename, NULL, NULL, "HorizontalBlurVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
-									 &vertexShaderBuffer, &errorMessage);
-	if (FAILED(result)) {
-		if (errorMessage) {
-			OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
-		}
-		else {
-			MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
-		}
+  auto result = D3DCompileFromFile(
+      vsFilename, NULL, NULL, "HorizontalBlurVertexShader", "vs_5_0",
+      D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
+  if (FAILED(result)) {
+    if (errorMessage) {
+      OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
+    } else {
+      MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
+    }
 
-		return false;
-	}
+    return false;
+  }
 
-	ID3D10Blob* pixelShaderBuffer = nullptr;
+  ID3D10Blob *pixelShaderBuffer = nullptr;
 
-	result = D3DCompileFromFile(psFilename, NULL, NULL, "HorizontalBlurPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
-								&pixelShaderBuffer, &errorMessage);
-	if (FAILED(result)) {
+  result = D3DCompileFromFile(
+      psFilename, NULL, NULL, "HorizontalBlurPixelShader", "ps_5_0",
+      D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage);
+  if (FAILED(result)) {
 
-		if (errorMessage) {
-			OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
-		}
-		else {
-			MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
-		}
+    if (errorMessage) {
+      OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
+    } else {
+      MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
+    }
 
-		return false;
-	}
+    return false;
+  }
 
-	auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
+  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
-	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertex_shader_);
-	if (FAILED(result)) {
-		return false;
-	}
+  result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
+                                      vertexShaderBuffer->GetBufferSize(), NULL,
+                                      &vertex_shader_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &pixel_shader_);
-	if (FAILED(result)) {
-		return false;
-	}
+  result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
+                                     pixelShaderBuffer->GetBufferSize(), NULL,
+                                     &pixel_shader_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
+  D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
 
-	polygonLayout[0].SemanticName = "POSITION";
-	polygonLayout[0].SemanticIndex = 0;
-	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[0].InputSlot = 0;
-	polygonLayout[0].AlignedByteOffset = 0;
-	polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[0].InstanceDataStepRate = 0;
+  polygonLayout[0].SemanticName = "POSITION";
+  polygonLayout[0].SemanticIndex = 0;
+  polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+  polygonLayout[0].InputSlot = 0;
+  polygonLayout[0].AlignedByteOffset = 0;
+  polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+  polygonLayout[0].InstanceDataStepRate = 0;
 
-	polygonLayout[1].SemanticName = "TEXCOORD";
-	polygonLayout[1].SemanticIndex = 0;
-	polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	polygonLayout[1].InputSlot = 0;
-	polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[1].InstanceDataStepRate = 0;
+  polygonLayout[1].SemanticName = "TEXCOORD";
+  polygonLayout[1].SemanticIndex = 0;
+  polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+  polygonLayout[1].InputSlot = 0;
+  polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+  polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+  polygonLayout[1].InstanceDataStepRate = 0;
 
-	unsigned int numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
+  unsigned int numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
-	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(),
-									   &layout_);
-	if (FAILED(result)) {
-		return false;
-	}
+  result = device->CreateInputLayout(
+      polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(),
+      vertexShaderBuffer->GetBufferSize(), &layout_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	vertexShaderBuffer->Release();
-	vertexShaderBuffer = 0;
+  vertexShaderBuffer->Release();
+  vertexShaderBuffer = 0;
 
-	pixelShaderBuffer->Release();
-	pixelShaderBuffer = 0;
+  pixelShaderBuffer->Release();
+  pixelShaderBuffer = 0;
 
-	D3D11_SAMPLER_DESC samplerDesc;
+  D3D11_SAMPLER_DESC samplerDesc;
 
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+  samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+  samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+  samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+  samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+  samplerDesc.MipLODBias = 0.0f;
+  samplerDesc.MaxAnisotropy = 1;
+  samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+  samplerDesc.BorderColor[0] = 0;
+  samplerDesc.BorderColor[1] = 0;
+  samplerDesc.BorderColor[2] = 0;
+  samplerDesc.BorderColor[3] = 0;
+  samplerDesc.MinLOD = 0;
+  samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	result = device->CreateSamplerState(&samplerDesc, &sample_state_);
-	if (FAILED(result)) {
-		return false;
-	}
+  result = device->CreateSamplerState(&samplerDesc, &sample_state_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	D3D11_BUFFER_DESC matrixBufferDesc;
+  D3D11_BUFFER_DESC matrixBufferDesc;
 
-	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
-	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	matrixBufferDesc.MiscFlags = 0;
-	matrixBufferDesc.StructureByteStride = 0;
+  matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+  matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+  matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+  matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+  matrixBufferDesc.MiscFlags = 0;
+  matrixBufferDesc.StructureByteStride = 0;
 
-	result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
-	if (FAILED(result)) {
-		return false;
-	}
+  result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	D3D11_BUFFER_DESC screenSizeBufferDesc;
+  D3D11_BUFFER_DESC screenSizeBufferDesc;
 
-	screenSizeBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	screenSizeBufferDesc.ByteWidth = sizeof(ScreenSizeBufferType);
-	screenSizeBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	screenSizeBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	screenSizeBufferDesc.MiscFlags = 0;
-	screenSizeBufferDesc.StructureByteStride = 0;
+  screenSizeBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+  screenSizeBufferDesc.ByteWidth = sizeof(ScreenSizeBufferType);
+  screenSizeBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+  screenSizeBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+  screenSizeBufferDesc.MiscFlags = 0;
+  screenSizeBufferDesc.StructureByteStride = 0;
 
-	result = device->CreateBuffer(&screenSizeBufferDesc, NULL, &screen_size_buffer_);
-	if (FAILED(result)) {
-		return false;
-	}
+  result =
+      device->CreateBuffer(&screenSizeBufferDesc, NULL, &screen_size_buffer_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	return true;
+  return true;
 }
 
 void HorizontalBlurShaderClass::ShutdownShader() {
-	if (screen_size_buffer_) {
-		screen_size_buffer_->Release();
-		screen_size_buffer_ = 0;
-	}
+  if (screen_size_buffer_) {
+    screen_size_buffer_->Release();
+    screen_size_buffer_ = 0;
+  }
 
-	if (matrix_buffer_) {
-		matrix_buffer_->Release();
-		matrix_buffer_ = nullptr;
-	}
+  if (matrix_buffer_) {
+    matrix_buffer_->Release();
+    matrix_buffer_ = nullptr;
+  }
 
-	if (sample_state_) {
-		sample_state_->Release();
-		sample_state_ = nullptr;
-	}
+  if (sample_state_) {
+    sample_state_->Release();
+    sample_state_ = nullptr;
+  }
 
-	if (layout_) {
-		layout_->Release();
-		layout_ = nullptr;
-	}
+  if (layout_) {
+    layout_->Release();
+    layout_ = nullptr;
+  }
 
-	if (pixel_shader_) {
-		pixel_shader_->Release();
-		pixel_shader_ = nullptr;
-	}
+  if (pixel_shader_) {
+    pixel_shader_->Release();
+    pixel_shader_ = nullptr;
+  }
 
-	if (vertex_shader_) {
-		vertex_shader_->Release();
-		vertex_shader_ = nullptr;
-	}
+  if (vertex_shader_) {
+    vertex_shader_->Release();
+    vertex_shader_ = nullptr;
+  }
 }
 
-void HorizontalBlurShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename) {
-	
-	ofstream fout;
+void HorizontalBlurShaderClass::OutputShaderErrorMessage(
+    ID3D10Blob *errorMessage, HWND hwnd, WCHAR *shaderFilename) {
 
-	auto compileErrors = static_cast<char*>(errorMessage->GetBufferPointer());
+  ofstream fout;
 
-	auto bufferSize = errorMessage->GetBufferSize();
+  auto compileErrors = static_cast<char *>(errorMessage->GetBufferPointer());
 
-	fout.open("shader-error.txt");
+  auto bufferSize = errorMessage->GetBufferSize();
 
-	unsigned int i = 0;
-	for (i = 0; i < bufferSize; i++) {
-		fout << compileErrors[i];
-	}
+  fout.open("shader-error.txt");
 
-	fout.close();
+  unsigned int i = 0;
+  for (i = 0; i < bufferSize; i++) {
+    fout << compileErrors[i];
+  }
 
-	errorMessage->Release();
-	errorMessage = 0;
+  fout.close();
 
-	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
+  errorMessage->Release();
+  errorMessage = 0;
+
+  MessageBox(hwnd,
+             L"Error compiling shader.  Check shader-error.txt for message.",
+             shaderFilename, MB_OK);
 }
 
-bool HorizontalBlurShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
-													const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, float screenWidth) {
+bool HorizontalBlurShaderClass::SetShaderParameters(
+    const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix,
+    const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView *texture,
+    float screenWidth) {
 
-	XMMATRIX worldMatrixCopy = XMMatrixTranspose(worldMatrix);
-	XMMATRIX viewMatrixCopy = XMMatrixTranspose(viewMatrix);
-	XMMATRIX projectionMatrixCopy = XMMatrixTranspose(projectionMatrix);
+  XMMATRIX worldMatrixCopy = XMMatrixTranspose(worldMatrix);
+  XMMATRIX viewMatrixCopy = XMMatrixTranspose(viewMatrix);
+  XMMATRIX projectionMatrixCopy = XMMatrixTranspose(projectionMatrix);
 
-	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
+  auto device_context =
+      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
+  D3D11_MAPPED_SUBRESOURCE mappedResource;
 
-	auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result)) {
-		return false;
-	}
+  auto device_context =
+      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	MatrixBufferType* dataPtr = nullptr;
+  result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
+                               &mappedResource);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	dataPtr = (MatrixBufferType*)mappedResource.pData;
-	dataPtr->world = worldMatrixCopy;
-	dataPtr->view = viewMatrixCopy;
-	dataPtr->projection = projectionMatrixCopy;
+  MatrixBufferType *dataPtr = nullptr;
 
-	device_context->Unmap(matrix_buffer_, 0);
+  dataPtr = (MatrixBufferType *)mappedResource.pData;
+  dataPtr->world = worldMatrixCopy;
+  dataPtr->view = viewMatrixCopy;
+  dataPtr->projection = projectionMatrixCopy;
 
-	unsigned int buffer_number = 0;
+  device_context->Unmap(matrix_buffer_, 0);
 
-	device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
+  unsigned int buffer_number = 0;
 
-	result = device_context->Map(screen_size_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result)) {
-		return false;
-	}
+  device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
-	ScreenSizeBufferType* dataPtr2 = (ScreenSizeBufferType*)mappedResource.pData;
-	dataPtr2->screenWidth = screenWidth;
-	dataPtr2->padding = XMFLOAT3(0.0f, 0.0f, 0.0f);
+  auto device_context =
+      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	device_context->Unmap(screen_size_buffer_, 0);
+  result = device_context->Map(screen_size_buffer_, 0, D3D11_MAP_WRITE_DISCARD,
+                               0, &mappedResource);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	buffer_number = 1;
+  ScreenSizeBufferType *dataPtr2 = (ScreenSizeBufferType *)mappedResource.pData;
+  dataPtr2->screenWidth = screenWidth;
+  dataPtr2->padding = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-	device_context->VSSetConstantBuffers(buffer_number, 1, &screen_size_buffer_);
+  device_context->Unmap(screen_size_buffer_, 0);
 
-	device_context->PSSetShaderResources(0, 1, &texture);
+  buffer_number = 1;
 
-	return true;
+  device_context->VSSetConstantBuffers(buffer_number, 1, &screen_size_buffer_);
+
+  device_context->PSSetShaderResources(0, 1, &texture);
+
+  return true;
 }
 
 void HorizontalBlurShaderClass::RenderShader(int indexCount) {
-	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
+  auto device_context =
+      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	device_context->IASetInputLayout(layout_);
+  device_context->IASetInputLayout(layout_);
 
-	device_context->VSSetShader(vertex_shader_, NULL, 0);
-	device_context->PSSetShader(pixel_shader_, NULL, 0);
+  device_context->VSSetShader(vertex_shader_, NULL, 0);
+  device_context->PSSetShader(pixel_shader_, NULL, 0);
 
-	device_context->PSSetSamplers(0, 1, &sample_state_);
+  device_context->PSSetSamplers(0, 1, &sample_state_);
 
-	device_context->DrawIndexed(indexCount, 0, 0);
+  device_context->DrawIndexed(indexCount, 0, 0);
 }

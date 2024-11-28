@@ -4,27 +4,37 @@
 
 #include <memory>
 
-class ModelClass;
-class PBRModelClass;
+class Model;
+class PBRModel;
 class IShader;
-class OrthoWindowClass;
+class OrthoWindow;
 
 class RenderableObject : public IRenderable {
 public:
-  RenderableObject(std::shared_ptr<ModelClass> model,
+  explicit RenderableObject(std::shared_ptr<Model> model,
                    std::shared_ptr<IShader> shader);
 
-  RenderableObject(std::shared_ptr<PBRModelClass> model,
+  explicit RenderableObject(std::shared_ptr<PBRModel> model,
                    std::shared_ptr<IShader> shader);
 
-  RenderableObject(std::shared_ptr<OrthoWindowClass> window_model,
+  explicit RenderableObject(std::shared_ptr<OrthoWindow> window_model,
                    std::shared_ptr<IShader> shader);
+
+  RenderableObject(RenderableObject&) noexcept = default;
+
+  RenderableObject& operator=(RenderableObject&) noexcept = default;
+
+  RenderableObject(RenderableObject&&) noexcept = default;
+
+  RenderableObject& operator=(RenderableObject&&) noexcept = default;
+
+  virtual ~RenderableObject() = default;
 
 public:
   void Render(const IShader &shader,
               const ShaderParameterContainer &parameters) const override;
 
-  DirectX::XMMATRIX GetWorldMatrix() const override;
+  DirectX::XMMATRIX GetWorldMatrix() const noexcept override;
 
   void SetParameterCallback(ShaderParameterCallback callback) override;
 
@@ -36,10 +46,10 @@ public:
   void SetWorldMatrix(const DirectX::XMMATRIX &worldMatrix);
 
 private:
-  std::shared_ptr<ModelClass> model_;
-  std::shared_ptr<PBRModelClass> pbr_model_;
+  std::shared_ptr<Model> model_;
+  std::shared_ptr<PBRModel> pbr_model_;
 
-  std::shared_ptr<OrthoWindowClass> window_model_;
+  std::shared_ptr<OrthoWindow> window_model_;
 
   bool is_window_model_ = false;
   bool is_pbr_model_ = false;

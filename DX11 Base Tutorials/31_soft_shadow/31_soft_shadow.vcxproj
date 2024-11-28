@@ -152,56 +152,56 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="depthshaderclass.h" />
+    <ClInclude Include="depthshader.h" />
     <ClInclude Include="Graphics.h" />
-    <ClInclude Include="horizontalblurshaderclass.h" />
+    <ClInclude Include="horizontalblurshader.h" />
     <ClInclude Include="IRenderable.h" />
     <ClInclude Include="IRenderGroup.h" />
     <ClInclude Include="IShader.h" />
-    <ClInclude Include="lightclass.h" />
-    <ClInclude Include="modelclass.h" />
-    <ClInclude Include="orthowindowclass.h" />
-    <ClInclude Include="pbrshaderclass.h" />
-    <ClInclude Include="positionclass.h" />
+    <ClInclude Include="light.h" />
+    <ClInclude Include="model.h" />
+    <ClInclude Include="orthowindow.h" />
+    <ClInclude Include="pbrshader.h" />
+    <ClInclude Include="position.h" />
     <ClInclude Include="RenderableObject.h" />
     <ClInclude Include="RenderPass.h" />
     <ClInclude Include="RenderPipeline.h" />
-    <ClInclude Include="rendertextureclass.h" />
+    <ClInclude Include="rendertexture.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderBase.h" />
     <ClInclude Include="ShaderParameterCallback.h" />
     <ClInclude Include="ShaderParameterContainer.h" />
     <ClInclude Include="ShaderParameterLayout.h" />
-    <ClInclude Include="shadowshaderclass.h" />
-    <ClInclude Include="softshadowshaderclass.h" />
+    <ClInclude Include="shadowshader.h" />
+    <ClInclude Include="softshadowshader.h" />
     <ClInclude Include="StandardRenderGroup.h" />
     <ClInclude Include="System.h" />
-    <ClInclude Include="textureclass.h" />
-    <ClInclude Include="textureshaderclass.h" />
-    <ClInclude Include="verticalblurshaderclass.h" />
+    <ClInclude Include="texture.h" />
+    <ClInclude Include="textureshader.h" />
+    <ClInclude Include="verticalblurshader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="depthshaderclass.cpp" />
+    <ClCompile Include="depthshader.cpp" />
     <ClCompile Include="Graphics.cpp" />
-    <ClCompile Include="horizontalblurshaderclass.cpp" />
-    <ClCompile Include="lightclass.cpp" />
+    <ClCompile Include="horizontalblurshader.cpp" />
+    <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="modelclass.cpp" />
-    <ClCompile Include="orthowindowclass.cpp" />
-    <ClCompile Include="pbrshaderclass.cpp" />
-    <ClCompile Include="positionclass.cpp" />
+    <ClCompile Include="model.cpp" />
+    <ClCompile Include="orthowindow.cpp" />
+    <ClCompile Include="pbrshader.cpp" />
+    <ClCompile Include="position.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
     <ClCompile Include="RenderPass.cpp" />
     <ClCompile Include="RenderPipeline.cpp" />
-    <ClCompile Include="rendertextureclass.cpp" />
+    <ClCompile Include="rendertexture.cpp" />
     <ClCompile Include="ShaderBase.cpp" />
     <ClCompile Include="ShaderParameterContainer.cpp" />
-    <ClCompile Include="shadowshaderclass.cpp" />
-    <ClCompile Include="softshadowshaderclass.cpp" />
+    <ClCompile Include="shadowshader.cpp" />
+    <ClCompile Include="softshadowshader.cpp" />
     <ClCompile Include="System.cpp" />
-    <ClCompile Include="textureclass.cpp" />
-    <ClCompile Include="textureshaderclass.cpp" />
-    <ClCompile Include="verticalblurshaderclass.cpp" />
+    <ClCompile Include="texture.cpp" />
+    <ClCompile Include="textureshader.cpp" />
+    <ClCompile Include="verticalblurshader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.ps" />

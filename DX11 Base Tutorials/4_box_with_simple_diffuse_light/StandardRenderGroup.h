@@ -3,10 +3,8 @@
 #include "GameObject.h"
 #include "IRenderGroup.h"
 
-
 #include <memory>
 #include <vector>
-
 
 class StandardRenderGroup : public IRenderGroup {
 public:

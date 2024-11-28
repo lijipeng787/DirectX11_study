@@ -4,17 +4,18 @@
 
 class TextureArrayClass {
 public:
-	TextureArrayClass() {}
+  TextureArrayClass() {}
 
-	TextureArrayClass(const TextureArrayClass& rhs) = delete;
+  TextureArrayClass(const TextureArrayClass &rhs) = delete;
 
-	~TextureArrayClass() {}
+  ~TextureArrayClass() {}
 
-	bool Initialize(WCHAR*, WCHAR*);
+  bool Initialize(WCHAR *, WCHAR *);
 
-	void Shutdown();
+  void Shutdown();
 
-	ID3D11ShaderResourceView** GetTextureArray();
+  ID3D11ShaderResourceView **GetTextureArray();
+
 private:
-	ID3D11ShaderResourceView * textures_[2];
+  ID3D11ShaderResourceView *textures_[2];
 };

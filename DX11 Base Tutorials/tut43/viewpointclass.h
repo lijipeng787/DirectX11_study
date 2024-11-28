@@ -5,27 +5,26 @@
 
 using namespace DirectX;
 
-class ViewPointClass
-{
+class ViewPointClass {
 public:
-	ViewPointClass();
-	ViewPointClass(const ViewPointClass&);
-	~ViewPointClass();
+  ViewPointClass();
+  ViewPointClass(const ViewPointClass &);
+  ~ViewPointClass();
 
-	void SetPosition(float, float, float);
-	void SetLookAt(float, float, float);
-	void SetProjectionParameters(float, float, float, float);
+  void SetPosition(float, float, float);
+  void SetLookAt(float, float, float);
+  void SetProjectionParameters(float, float, float, float);
 
-	void GenerateViewMatrix();
-	void GenerateProjectionMatrix();
+  void GenerateViewMatrix();
+  void GenerateProjectionMatrix();
 
-	void GetViewMatrix( XMMATRIX& );
-	void GetProjectionMatrix( XMMATRIX& );
+  void GetViewMatrix(XMMATRIX &);
+  void GetProjectionMatrix(XMMATRIX &);
 
 private:
-	XMFLOAT3 m_position, m_lookAt;
-	XMMATRIX m_viewMatrix, projection_matrix_;
-	float m_fieldOfView, m_aspectRatio, m_nearPlane, m_farPlane;
+  XMFLOAT3 m_position, m_lookAt;
+  XMMATRIX m_viewMatrix, projection_matrix_;
+  float m_fieldOfView, m_aspectRatio, m_nearPlane, m_farPlane;
 };
 
 #endif

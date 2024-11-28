@@ -8,422 +8,439 @@
 using namespace std;
 
 struct MatrixBufferType {
-	XMMATRIX world;
-	XMMATRIX view;
-	XMMATRIX projection;
-	XMMATRIX lightView;
-	XMMATRIX lightProjection;
-	XMMATRIX lightView2;
-	XMMATRIX lightProjection2;
+  XMMATRIX world;
+  XMMATRIX view;
+  XMMATRIX projection;
+  XMMATRIX lightView;
+  XMMATRIX lightProjection;
+  XMMATRIX lightView2;
+  XMMATRIX lightProjection2;
 };
 
 struct LightBufferType {
-	XMFLOAT4 ambientColor;
-	XMFLOAT4 diffuseColor;
-	XMFLOAT4 diffuseColor2;
+  XMFLOAT4 ambientColor;
+  XMFLOAT4 diffuseColor;
+  XMFLOAT4 diffuseColor2;
 };
 
 struct LightBufferType2 {
-	XMFLOAT3 lightPosition;
-	float padding1;
-	XMFLOAT3 lightPosition2;
-	float padding2;
+  XMFLOAT3 lightPosition;
+  float padding1;
+  XMFLOAT3 lightPosition2;
+  float padding2;
 };
 
 ShadowShaderClass::ShadowShaderClass() {
-	vertex_shader_ = nullptr;
-	pixel_shader_ = nullptr;
-	layout_ = nullptr;
-	m_sampleStateWrap = 0;
-	m_sampleStateClamp = 0;
-	matrix_buffer_ = nullptr;
-	light_buffer_ = nullptr;
-	m_lightBuffer2 = 0;
+  vertex_shader_ = nullptr;
+  pixel_shader_ = nullptr;
+  layout_ = nullptr;
+  m_sampleStateWrap = 0;
+  m_sampleStateClamp = 0;
+  matrix_buffer_ = nullptr;
+  light_buffer_ = nullptr;
+  m_lightBuffer2 = 0;
 }
 
-ShadowShaderClass::ShadowShaderClass(const ShadowShaderClass& other) {}
+ShadowShaderClass::ShadowShaderClass(const ShadowShaderClass &other) {}
 
 ShadowShaderClass::~ShadowShaderClass() {}
 
 bool ShadowShaderClass::Initialize(HWND hwnd) {
 
-	auto result = InitializeShader(hwnd, L"shadow.vs", L"shadow.ps");
-	if (!result) {
-		return false;
-	}
+  auto result = InitializeShader(hwnd, L"shadow.vs", L"shadow.ps");
+  if (!result) {
+    return false;
+  }
 
-	return true;
+  return true;
 }
 
-void ShadowShaderClass::Shutdown() {
-	ShutdownShader();
-}
+void ShadowShaderClass::Shutdown() { ShutdownShader(); }
 
 bool ShadowShaderClass::Render(
-	int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
-	const XMMATRIX& projectionMatrix, const XMMATRIX& lightViewMatrix, const XMMATRIX& lightProjectionMatrix,
-	ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depthMapTexture, const XMFLOAT3& lightPosition,
-	const XMFLOAT4& ambientColor, const XMFLOAT4& diffuseColor, const XMMATRIX& lightViewMatrix2, const XMMATRIX& lightProjectionMatrix2,
-	ID3D11ShaderResourceView* depthMapTexture2, const XMFLOAT3& lightPosition2, const XMFLOAT4& diffuseColor2) {
+    int indexCount, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix,
+    const XMMATRIX &projectionMatrix, const XMMATRIX &lightViewMatrix,
+    const XMMATRIX &lightProjectionMatrix, ID3D11ShaderResourceView *texture,
+    ID3D11ShaderResourceView *depthMapTexture, const XMFLOAT3 &lightPosition,
+    const XMFLOAT4 &ambientColor, const XMFLOAT4 &diffuseColor,
+    const XMMATRIX &lightViewMatrix2, const XMMATRIX &lightProjectionMatrix2,
+    ID3D11ShaderResourceView *depthMapTexture2, const XMFLOAT3 &lightPosition2,
+    const XMFLOAT4 &diffuseColor2) {
 
-	auto result = SetShaderParameters(
-		worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix, texture,
-		depthMapTexture, lightPosition, ambientColor, diffuseColor, lightViewMatrix2, lightProjectionMatrix2, depthMapTexture2,
-		lightPosition2, diffuseColor2);
-	if (!result) {
-		return false;
-	}
+  auto result = SetShaderParameters(
+      worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
+      lightProjectionMatrix, texture, depthMapTexture, lightPosition,
+      ambientColor, diffuseColor, lightViewMatrix2, lightProjectionMatrix2,
+      depthMapTexture2, lightPosition2, diffuseColor2);
+  if (!result) {
+    return false;
+  }
 
-	RenderShader(indexCount);
+  RenderShader(indexCount);
 
-	return true;
+  return true;
 }
 
-bool ShadowShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename) {
-	
-	ID3D10Blob* errorMessage;
-	ID3D10Blob* vertexShaderBuffer;
+bool ShadowShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
+                                         WCHAR *psFilename) {
 
-	auto result = D3DCompileFromFile(vsFilename, NULL, NULL, "ShadowVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
-		&vertexShaderBuffer, &errorMessage);
-	if (FAILED(result)) {
+  ID3D10Blob *errorMessage;
+  ID3D10Blob *vertexShaderBuffer;
 
-		if (errorMessage) {
-			OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
-		}
-		else {
-			MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
-		}
+  auto result = D3DCompileFromFile(vsFilename, NULL, NULL, "ShadowVertexShader",
+                                   "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+                                   &vertexShaderBuffer, &errorMessage);
+  if (FAILED(result)) {
 
-		return false;
-	}
+    if (errorMessage) {
+      OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
+    } else {
+      MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
+    }
 
-	ID3D10Blob* pixelShaderBuffer;
+    return false;
+  }
 
-	result = D3DCompileFromFile(psFilename, NULL, NULL, "ShadowPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
-		&pixelShaderBuffer, &errorMessage);
-	if (FAILED(result)) {
+  ID3D10Blob *pixelShaderBuffer;
 
-		if (errorMessage) {
-			OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
-		}
-		else {
-			MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
-		}
+  result = D3DCompileFromFile(psFilename, NULL, NULL, "ShadowPixelShader",
+                              "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+                              &pixelShaderBuffer, &errorMessage);
+  if (FAILED(result)) {
 
-		return false;
-	}
+    if (errorMessage) {
+      OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
+    } else {
+      MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
+    }
 
-	auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
+    return false;
+  }
 
-	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertex_shader_);
-	if (FAILED(result)) {
-		return false;
-	}
+  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
-	result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &pixel_shader_);
-	if (FAILED(result)) {
-		return false;
-	}
+  result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
+                                      vertexShaderBuffer->GetBufferSize(), NULL,
+                                      &vertex_shader_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];
+  result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
+                                     pixelShaderBuffer->GetBufferSize(), NULL,
+                                     &pixel_shader_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	polygonLayout[0].SemanticName = "POSITION";
-	polygonLayout[0].SemanticIndex = 0;
-	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[0].InputSlot = 0;
-	polygonLayout[0].AlignedByteOffset = 0;
-	polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[0].InstanceDataStepRate = 0;
+  D3D11_INPUT_ELEMENT_DESC polygonLayout[3];
 
-	polygonLayout[1].SemanticName = "TEXCOORD";
-	polygonLayout[1].SemanticIndex = 0;
-	polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	polygonLayout[1].InputSlot = 0;
-	polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[1].InstanceDataStepRate = 0;
+  polygonLayout[0].SemanticName = "POSITION";
+  polygonLayout[0].SemanticIndex = 0;
+  polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+  polygonLayout[0].InputSlot = 0;
+  polygonLayout[0].AlignedByteOffset = 0;
+  polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+  polygonLayout[0].InstanceDataStepRate = 0;
 
-	polygonLayout[2].SemanticName = "NORMAL";
-	polygonLayout[2].SemanticIndex = 0;
-	polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[2].InputSlot = 0;
-	polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[2].InstanceDataStepRate = 0;
+  polygonLayout[1].SemanticName = "TEXCOORD";
+  polygonLayout[1].SemanticIndex = 0;
+  polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+  polygonLayout[1].InputSlot = 0;
+  polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+  polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+  polygonLayout[1].InstanceDataStepRate = 0;
 
-	unsigned int numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
+  polygonLayout[2].SemanticName = "NORMAL";
+  polygonLayout[2].SemanticIndex = 0;
+  polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+  polygonLayout[2].InputSlot = 0;
+  polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+  polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+  polygonLayout[2].InstanceDataStepRate = 0;
 
-	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(),
-		&layout_);
-	if (FAILED(result)) {
-		return false;
-	}
+  unsigned int numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
-	vertexShaderBuffer->Release();
-	vertexShaderBuffer = 0;
+  result = device->CreateInputLayout(
+      polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(),
+      vertexShaderBuffer->GetBufferSize(), &layout_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	pixelShaderBuffer->Release();
-	pixelShaderBuffer = 0;
+  vertexShaderBuffer->Release();
+  vertexShaderBuffer = 0;
 
-	D3D11_SAMPLER_DESC samplerDesc;
+  pixelShaderBuffer->Release();
+  pixelShaderBuffer = 0;
 
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+  D3D11_SAMPLER_DESC samplerDesc;
 
-	result = device->CreateSamplerState(&samplerDesc, &m_sampleStateWrap);
-	if (FAILED(result)) {
-		return false;
-	}
+  samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+  samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+  samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+  samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+  samplerDesc.MipLODBias = 0.0f;
+  samplerDesc.MaxAnisotropy = 1;
+  samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+  samplerDesc.BorderColor[0] = 0;
+  samplerDesc.BorderColor[1] = 0;
+  samplerDesc.BorderColor[2] = 0;
+  samplerDesc.BorderColor[3] = 0;
+  samplerDesc.MinLOD = 0;
+  samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	// Create a clamp texture sampler state description.
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+  result = device->CreateSamplerState(&samplerDesc, &m_sampleStateWrap);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	result = device->CreateSamplerState(&samplerDesc, &m_sampleStateClamp);
-	if (FAILED(result)) {
-		return false;
-	}
+  // Create a clamp texture sampler state description.
+  samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+  samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+  samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 
-	D3D11_BUFFER_DESC matrixBufferDesc;
+  result = device->CreateSamplerState(&samplerDesc, &m_sampleStateClamp);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
-	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	matrixBufferDesc.MiscFlags = 0;
-	matrixBufferDesc.StructureByteStride = 0;
+  D3D11_BUFFER_DESC matrixBufferDesc;
 
-	result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
-	if (FAILED(result)) {
-		return false;
-	}
+  matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+  matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+  matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+  matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+  matrixBufferDesc.MiscFlags = 0;
+  matrixBufferDesc.StructureByteStride = 0;
 
-	D3D11_BUFFER_DESC lightBufferDesc;
+  result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
-	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	lightBufferDesc.MiscFlags = 0;
-	lightBufferDesc.StructureByteStride = 0;
+  D3D11_BUFFER_DESC lightBufferDesc;
 
-	result = device->CreateBuffer(&lightBufferDesc, NULL, &light_buffer_);
-	if (FAILED(result)) {
-		return false;
-	}
+  lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+  lightBufferDesc.ByteWidth = sizeof(LightBufferType);
+  lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+  lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+  lightBufferDesc.MiscFlags = 0;
+  lightBufferDesc.StructureByteStride = 0;
 
-	D3D11_BUFFER_DESC lightBufferDesc2;
+  result = device->CreateBuffer(&lightBufferDesc, NULL, &light_buffer_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	lightBufferDesc2.Usage = D3D11_USAGE_DYNAMIC;
-	lightBufferDesc2.ByteWidth = sizeof(LightBufferType2);
-	lightBufferDesc2.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightBufferDesc2.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	lightBufferDesc2.MiscFlags = 0;
-	lightBufferDesc2.StructureByteStride = 0;
+  D3D11_BUFFER_DESC lightBufferDesc2;
 
-	result = device->CreateBuffer(&lightBufferDesc2, NULL, &m_lightBuffer2);
-	if (FAILED(result)) {
-		return false;
-	}
+  lightBufferDesc2.Usage = D3D11_USAGE_DYNAMIC;
+  lightBufferDesc2.ByteWidth = sizeof(LightBufferType2);
+  lightBufferDesc2.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+  lightBufferDesc2.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+  lightBufferDesc2.MiscFlags = 0;
+  lightBufferDesc2.StructureByteStride = 0;
 
-	return true;
+  result = device->CreateBuffer(&lightBufferDesc2, NULL, &m_lightBuffer2);
+  if (FAILED(result)) {
+    return false;
+  }
+
+  return true;
 }
 
 void ShadowShaderClass::ShutdownShader() {
-	// Release the light constant buffers.
-	if (light_buffer_) {
-		light_buffer_->Release();
-		light_buffer_ = nullptr;
-	}
+  // Release the light constant buffers.
+  if (light_buffer_) {
+    light_buffer_->Release();
+    light_buffer_ = nullptr;
+  }
 
-	if (m_lightBuffer2) {
-		m_lightBuffer2->Release();
-		m_lightBuffer2 = 0;
-	}
+  if (m_lightBuffer2) {
+    m_lightBuffer2->Release();
+    m_lightBuffer2 = 0;
+  }
 
-	if (matrix_buffer_) {
-		matrix_buffer_->Release();
-		matrix_buffer_ = nullptr;
-	}
+  if (matrix_buffer_) {
+    matrix_buffer_->Release();
+    matrix_buffer_ = nullptr;
+  }
 
-	// Release the sampler states.
-	if (m_sampleStateWrap) {
-		m_sampleStateWrap->Release();
-		m_sampleStateWrap = 0;
-	}
+  // Release the sampler states.
+  if (m_sampleStateWrap) {
+    m_sampleStateWrap->Release();
+    m_sampleStateWrap = 0;
+  }
 
-	if (m_sampleStateClamp) {
-		m_sampleStateClamp->Release();
-		m_sampleStateClamp = 0;
-	}
+  if (m_sampleStateClamp) {
+    m_sampleStateClamp->Release();
+    m_sampleStateClamp = 0;
+  }
 
-	if (layout_) {
-		layout_->Release();
-		layout_ = nullptr;
-	}
+  if (layout_) {
+    layout_->Release();
+    layout_ = nullptr;
+  }
 
-	if (pixel_shader_) {
-		pixel_shader_->Release();
-		pixel_shader_ = nullptr;
-	}
+  if (pixel_shader_) {
+    pixel_shader_->Release();
+    pixel_shader_ = nullptr;
+  }
 
-	if (vertex_shader_) {
-		vertex_shader_->Release();
-		vertex_shader_ = nullptr;
-	}
+  if (vertex_shader_) {
+    vertex_shader_->Release();
+    vertex_shader_ = nullptr;
+  }
 }
 
-void ShadowShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename) {
-	char* compileErrors;
-	SIZE_T bufferSize, i;
-	ofstream fout;
+void ShadowShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage,
+                                                 HWND hwnd,
+                                                 WCHAR *shaderFilename) {
+  char *compileErrors;
+  SIZE_T bufferSize, i;
+  ofstream fout;
 
+  compileErrors = (char *)(errorMessage->GetBufferPointer());
 
+  bufferSize = errorMessage->GetBufferSize();
 
-	compileErrors = (char*)(errorMessage->GetBufferPointer());
+  fout.open("shader-error.txt");
 
+  for (i = 0; i < bufferSize; i++) {
+    fout << compileErrors[i];
+  }
 
-	bufferSize = errorMessage->GetBufferSize();
+  fout.close();
 
+  errorMessage->Release();
+  errorMessage = 0;
 
-	fout.open("shader-error.txt");
-
-
-	for (i = 0; i < bufferSize; i++) {
-		fout << compileErrors[i];
-	}
-
-
-	fout.close();
-
-
-	errorMessage->Release();
-	errorMessage = 0;
-
-
-	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
-
-
+  MessageBox(hwnd,
+             L"Error compiling shader.  Check shader-error.txt for message.",
+             shaderFilename, MB_OK);
 }
 
 bool ShadowShaderClass::SetShaderParameters(
-	const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
-	const XMMATRIX& projectionMatrix, const XMMATRIX& lightViewMatrix, const XMMATRIX& lightProjectionMatrix,
-	ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depthMapTexture, const XMFLOAT3& lightPosition,
-	const XMFLOAT4& ambientColor, const XMFLOAT4& diffuseColor, const XMMATRIX& lightViewMatrix2,
-	const XMMATRIX& lightProjectionMatrix2, ID3D11ShaderResourceView* depthMapTexture2, const XMFLOAT3& lightPosition2, const XMFLOAT4& diffuseColor2) {
+    const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix,
+    const XMMATRIX &projectionMatrix, const XMMATRIX &lightViewMatrix,
+    const XMMATRIX &lightProjectionMatrix, ID3D11ShaderResourceView *texture,
+    ID3D11ShaderResourceView *depthMapTexture, const XMFLOAT3 &lightPosition,
+    const XMFLOAT4 &ambientColor, const XMFLOAT4 &diffuseColor,
+    const XMMATRIX &lightViewMatrix2, const XMMATRIX &lightProjectionMatrix2,
+    ID3D11ShaderResourceView *depthMapTexture2, const XMFLOAT3 &lightPosition2,
+    const XMFLOAT4 &diffuseColor2) {
 
-	XMMATRIX worldMatrixCopy = worldMatrix;
-	XMMATRIX viewMatrixCopy = viewMatrix;
-	XMMATRIX projectionMatrixCopy = projectionMatrix;
-	XMMATRIX lightViewMatrixCopy = lightViewMatrix;
-	XMMATRIX lightProjectionMatrixCopy = lightProjectionMatrix;
-	XMMATRIX lightViewMatrix2Copy = lightViewMatrix2;
-	XMMATRIX lightProjectionMatrix2Copy = lightProjectionMatrix2;
+  XMMATRIX worldMatrixCopy = worldMatrix;
+  XMMATRIX viewMatrixCopy = viewMatrix;
+  XMMATRIX projectionMatrixCopy = projectionMatrix;
+  XMMATRIX lightViewMatrixCopy = lightViewMatrix;
+  XMMATRIX lightProjectionMatrixCopy = lightProjectionMatrix;
+  XMMATRIX lightViewMatrix2Copy = lightViewMatrix2;
+  XMMATRIX lightProjectionMatrix2Copy = lightProjectionMatrix2;
 
-	worldMatrixCopy = XMMatrixTranspose(worldMatrix);
-	viewMatrixCopy = XMMatrixTranspose(viewMatrix);
-	projectionMatrixCopy = XMMatrixTranspose(projectionMatrix);
-	lightViewMatrixCopy = XMMatrixTranspose(lightViewMatrix);
-	lightProjectionMatrixCopy = XMMatrixTranspose(lightProjectionMatrix);
-	lightViewMatrix2Copy = XMMatrixTranspose(lightViewMatrix2);
-	lightProjectionMatrix2Copy = XMMatrixTranspose(lightProjectionMatrix2);
+  worldMatrixCopy = XMMatrixTranspose(worldMatrix);
+  viewMatrixCopy = XMMatrixTranspose(viewMatrix);
+  projectionMatrixCopy = XMMatrixTranspose(projectionMatrix);
+  lightViewMatrixCopy = XMMatrixTranspose(lightViewMatrix);
+  lightProjectionMatrixCopy = XMMatrixTranspose(lightProjectionMatrix);
+  lightViewMatrix2Copy = XMMatrixTranspose(lightViewMatrix2);
+  lightProjectionMatrix2Copy = XMMatrixTranspose(lightProjectionMatrix2);
 
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
+  D3D11_MAPPED_SUBRESOURCE mappedResource;
+  auto device_context =
+      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result)) {
-		return false;
-	}
+  auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD,
+                                    0, &mappedResource);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	MatrixBufferType* dataPtr;
+  MatrixBufferType *dataPtr;
 
-	dataPtr = (MatrixBufferType*)mappedResource.pData;
+  dataPtr = (MatrixBufferType *)mappedResource.pData;
 
-	dataPtr->world = worldMatrixCopy;
-	dataPtr->view = viewMatrixCopy;
-	dataPtr->projection = projectionMatrixCopy;
-	dataPtr->lightView = lightViewMatrixCopy;
-	dataPtr->lightProjection = lightProjectionMatrixCopy;
-	dataPtr->lightView2 = lightViewMatrix2Copy;
-	dataPtr->lightProjection2 = lightProjectionMatrix2Copy;
+  dataPtr->world = worldMatrixCopy;
+  dataPtr->view = viewMatrixCopy;
+  dataPtr->projection = projectionMatrixCopy;
+  dataPtr->lightView = lightViewMatrixCopy;
+  dataPtr->lightProjection = lightProjectionMatrixCopy;
+  dataPtr->lightView2 = lightViewMatrix2Copy;
+  dataPtr->lightProjection2 = lightProjectionMatrix2Copy;
 
-	device_context->Unmap(matrix_buffer_, 0);
+  device_context->Unmap(matrix_buffer_, 0);
 
-	unsigned int buffer_number = 0;
+  unsigned int buffer_number = 0;
 
-	device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
+  device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
-	device_context->PSSetShaderResources(0, 1, &texture);
-	device_context->PSSetShaderResources(1, 1, &depthMapTexture);
-	device_context->PSSetShaderResources(2, 1, &depthMapTexture2);
+  device_context->PSSetShaderResources(0, 1, &texture);
+  device_context->PSSetShaderResources(1, 1, &depthMapTexture);
+  device_context->PSSetShaderResources(2, 1, &depthMapTexture2);
 
-	result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result)) {
-		return false;
-	}
+  auto device_context =
+      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	LightBufferType* dataPtr2;
-	dataPtr2 = (LightBufferType*)mappedResource.pData;
+  result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
+                               &mappedResource);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	dataPtr2->ambientColor = ambientColor;
-	dataPtr2->diffuseColor = diffuseColor;
-	dataPtr2->diffuseColor2 = diffuseColor2;
+  LightBufferType *dataPtr2;
+  dataPtr2 = (LightBufferType *)mappedResource.pData;
 
-	device_context->Unmap(light_buffer_, 0);
+  dataPtr2->ambientColor = ambientColor;
+  dataPtr2->diffuseColor = diffuseColor;
+  dataPtr2->diffuseColor2 = diffuseColor2;
 
-	buffer_number = 0;
+  device_context->Unmap(light_buffer_, 0);
 
-	device_context->PSSetConstantBuffers(buffer_number, 1, &light_buffer_);
+  buffer_number = 0;
 
-	result = device_context->Map(m_lightBuffer2, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result)) {
-		return false;
-	}
+  device_context->PSSetConstantBuffers(buffer_number, 1, &light_buffer_);
 
-	LightBufferType2* dataPtr3;
+  auto device_context =
+      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	dataPtr3 = (LightBufferType2*)mappedResource.pData;
+  result = device_context->Map(m_lightBuffer2, 0, D3D11_MAP_WRITE_DISCARD, 0,
+                               &mappedResource);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	dataPtr3->lightPosition = lightPosition;
-	dataPtr3->lightPosition2 = lightPosition2;
-	dataPtr3->padding1 = 0.0f;
-	dataPtr3->padding2 = 0.0f;
+  LightBufferType2 *dataPtr3;
 
-	device_context->Unmap(m_lightBuffer2, 0);
+  dataPtr3 = (LightBufferType2 *)mappedResource.pData;
 
-	// Set the position of the light constant buffer in the vertex shader.
-	buffer_number = 1;
+  dataPtr3->lightPosition = lightPosition;
+  dataPtr3->lightPosition2 = lightPosition2;
+  dataPtr3->padding1 = 0.0f;
+  dataPtr3->padding2 = 0.0f;
 
-	// Finally set the light constant buffer in the vertex shader with the updated values.
-	device_context->VSSetConstantBuffers(buffer_number, 1, &m_lightBuffer2);
+  device_context->Unmap(m_lightBuffer2, 0);
 
-	return true;
+  // Set the position of the light constant buffer in the vertex shader.
+  buffer_number = 1;
+
+  // Finally set the light constant buffer in the vertex shader with the updated
+  // values.
+  device_context->VSSetConstantBuffers(buffer_number, 1, &m_lightBuffer2);
+
+  return true;
 }
 
 void ShadowShaderClass::RenderShader(int indexCount) {
 
-	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
+  auto device_context =
+      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	device_context->IASetInputLayout(layout_);
-	device_context->VSSetShader(vertex_shader_, NULL, 0);
-	device_context->PSSetShader(pixel_shader_, NULL, 0);
-	device_context->PSSetSamplers(0, 1, &m_sampleStateClamp);
-	device_context->PSSetSamplers(1, 1, &m_sampleStateWrap);
+  device_context->IASetInputLayout(layout_);
+  device_context->VSSetShader(vertex_shader_, NULL, 0);
+  device_context->PSSetShader(pixel_shader_, NULL, 0);
+  device_context->PSSetSamplers(0, 1, &m_sampleStateClamp);
+  device_context->PSSetSamplers(1, 1, &m_sampleStateWrap);
 
-	device_context->DrawIndexed(indexCount, 0, 0);
+  device_context->DrawIndexed(indexCount, 0, 0);
 }

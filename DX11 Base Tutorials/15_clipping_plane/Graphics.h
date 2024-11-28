@@ -7,31 +7,34 @@ class Camera;
 class ModelClass;
 class ClipPlaneShaderClass;
 
-class GraphicsClass :public GraphicsBase {
+class GraphicsClass : public GraphicsBase {
 public:
-	GraphicsClass();
+  GraphicsClass();
 
-	GraphicsClass(const GraphicsClass& rhs) = delete;
+  GraphicsClass(const GraphicsClass &rhs) = delete;
 
-	GraphicsClass& operator=(const GraphicsClass& rhs) = delete;
+  GraphicsClass &operator=(const GraphicsClass &rhs) = delete;
 
-	virtual ~GraphicsClass();
+  virtual ~GraphicsClass();
+
 public:
-	virtual bool Initialize(int, int, HWND)override;
+  virtual bool Initialize(int, int, HWND) override;
 
-	virtual void Shutdown()override;
+  virtual void Shutdown() override;
 
-	virtual bool Frame()override;
+  virtual void Frame(float) override;
 
-	virtual bool Render()override;
+  virtual bool Render() override;
+
 private:
-	bool RenderToTexture();
+  bool RenderToTexture();
 
-	bool RenderScene();
+  bool RenderScene();
+
 private:
-	Camera *camera_ = nullptr;
+  Camera *camera_ = nullptr;
 
-	ModelClass *model_ = nullptr;
+  ModelClass *model_ = nullptr;
 
-	ClipPlaneShaderClass* clipplane_shader_ = nullptr;
+  ClipPlaneShaderClass *clipplane_shader_ = nullptr;
 };

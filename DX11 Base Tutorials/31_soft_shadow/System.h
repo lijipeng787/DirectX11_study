@@ -1,9 +1,8 @@
 #pragma once
 
 #include "../CommonFramework2/SystemBase.h"
-
-class GraphicsClass;
-class PositionClass;
+#include "position.h"
+#include "Graphics.h"
 
 class System : public SystemBase {
 public:
@@ -26,9 +25,9 @@ private:
   bool HandleInput(float frame_time);
 
 private:
-  GraphicsClass *graphics_;
+  std::unique_ptr<GraphicsClass> graphics_;
 
-  PositionClass *position_;
+  std::unique_ptr<Position> position_;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

@@ -3,269 +3,281 @@
 #include "../CommonFramework/DirectX11Device.h"
 
 GlowMapShaderClass::GlowMapShaderClass() {
-	vertex_shader_ = nullptr;
-	pixel_shader_ = nullptr;
-	layout_ = nullptr;
-	matrix_buffer_ = nullptr;
-	sample_state_ = nullptr;
+  vertex_shader_ = nullptr;
+  pixel_shader_ = nullptr;
+  layout_ = nullptr;
+  matrix_buffer_ = nullptr;
+  sample_state_ = nullptr;
 }
 
-GlowMapShaderClass::GlowMapShaderClass(const GlowMapShaderClass& other) {}
+GlowMapShaderClass::GlowMapShaderClass(const GlowMapShaderClass &other) {}
 
 GlowMapShaderClass::~GlowMapShaderClass() {}
 
 bool GlowMapShaderClass::Initialize(HWND hwnd) {
-	
-	auto result = InitializeShader(hwnd, L"glowmap.vs", L"glowmap.ps");
-	if (!result) {
-		return false;
-	}
 
-	return true;
+  auto result = InitializeShader(hwnd, L"glowmap.vs", L"glowmap.ps");
+  if (!result) {
+    return false;
+  }
+
+  return true;
 }
 
-void GlowMapShaderClass::Shutdown() {
-	ShutdownShader();
+void GlowMapShaderClass::Shutdown() { ShutdownShader(); }
+
+bool GlowMapShaderClass::Render(int indexCount, const XMMATRIX &worldMatrix,
+                                const XMMATRIX &viewMatrix,
+                                const XMMATRIX &projectionMatrix,
+                                ID3D11ShaderResourceView *texture,
+                                ID3D11ShaderResourceView *glowMap) {
+
+  auto result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix,
+                                    texture, glowMap);
+  if (!result) {
+    return false;
+  }
+
+  RenderShader(indexCount);
+
+  return true;
 }
 
-bool GlowMapShaderClass::Render(
-	int indexCount, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
-	const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* glowMap) {
+bool GlowMapShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
+                                          WCHAR *psFilename) {
 
-	auto result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, glowMap);
-	if (!result) {
-		return false;
-	}
+  ID3D10Blob *errorMessage;
+  ID3D10Blob *vertexShaderBuffer;
 
-	RenderShader(indexCount);
+  auto result = D3DCompileFromFile(
+      vsFilename, NULL, NULL, "GlowMapVertexShader", "vs_5_0",
+      D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
 
-	return true;
-}
+  if (FAILED(result)) {
 
-bool GlowMapShaderClass::InitializeShader(HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename) {
+    if (errorMessage) {
+      OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
+    } else {
+      MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
+    }
 
-	ID3D10Blob* errorMessage;
-	ID3D10Blob* vertexShaderBuffer;
+    return false;
+  }
 
-	auto result = D3DCompileFromFile(
-		vsFilename, NULL, NULL, "GlowMapVertexShader", "vs_5_0",
-		D3D10_SHADER_ENABLE_STRICTNESS, 0,
-		&vertexShaderBuffer, &errorMessage);
+  ID3D10Blob *pixelShaderBuffer;
 
-	if (FAILED(result)) {
+  result = D3DCompileFromFile(psFilename, NULL, NULL, "GlowMapPixelShader",
+                              "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+                              &pixelShaderBuffer, &errorMessage);
 
-		if (errorMessage) {
-			OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
-		}
-		else {
-			MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
-		}
+  if (FAILED(result)) {
 
-		return false;
-	}
+    if (errorMessage) {
+      OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
+    } else {
+      MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
+    }
 
-	ID3D10Blob* pixelShaderBuffer;
+    return false;
+  }
 
-	result = D3DCompileFromFile(
-		psFilename, NULL, NULL, "GlowMapPixelShader", "ps_5_0",
-		D3D10_SHADER_ENABLE_STRICTNESS, 0,
-		&pixelShaderBuffer, &errorMessage);
+  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
-	if (FAILED(result)) {
+  result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
+                                      vertexShaderBuffer->GetBufferSize(), NULL,
+                                      &vertex_shader_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-		if (errorMessage) {
-			OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
-		}
-		else {
-			MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
-		}
+  result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
+                                     pixelShaderBuffer->GetBufferSize(), NULL,
+                                     &pixel_shader_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-		return false;
-	}
+  D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
 
-	auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
+  polygonLayout[0].SemanticName = "POSITION";
+  polygonLayout[0].SemanticIndex = 0;
+  polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+  polygonLayout[0].InputSlot = 0;
+  polygonLayout[0].AlignedByteOffset = 0;
+  polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+  polygonLayout[0].InstanceDataStepRate = 0;
 
-	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertex_shader_);
-	if (FAILED(result)) {
-		return false;
-	}
+  polygonLayout[1].SemanticName = "TEXCOORD";
+  polygonLayout[1].SemanticIndex = 0;
+  polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+  polygonLayout[1].InputSlot = 0;
+  polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+  polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+  polygonLayout[1].InstanceDataStepRate = 0;
 
-	result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &pixel_shader_);
-	if (FAILED(result)) {
-		return false;
-	}
+  unsigned int numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
+  result = device->CreateInputLayout(
+      polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(),
+      vertexShaderBuffer->GetBufferSize(), &layout_);
 
-	polygonLayout[0].SemanticName = "POSITION";
-	polygonLayout[0].SemanticIndex = 0;
-	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[0].InputSlot = 0;
-	polygonLayout[0].AlignedByteOffset = 0;
-	polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[0].InstanceDataStepRate = 0;
+  if (FAILED(result)) {
+    return false;
+  }
 
-	polygonLayout[1].SemanticName = "TEXCOORD";
-	polygonLayout[1].SemanticIndex = 0;
-	polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	polygonLayout[1].InputSlot = 0;
-	polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[1].InstanceDataStepRate = 0;
+  vertexShaderBuffer->Release();
+  vertexShaderBuffer = 0;
 
-	unsigned int numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
+  pixelShaderBuffer->Release();
+  pixelShaderBuffer = 0;
 
-	result = device->CreateInputLayout(
-		polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), 
-		vertexShaderBuffer->GetBufferSize(),&layout_);
-	
-	if (FAILED(result)) {
-		return false;
-	}
+  D3D11_BUFFER_DESC matrixBufferDesc;
 
-	vertexShaderBuffer->Release();
-	vertexShaderBuffer = 0;
+  matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+  matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+  matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+  matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+  matrixBufferDesc.MiscFlags = 0;
+  matrixBufferDesc.StructureByteStride = 0;
 
-	pixelShaderBuffer->Release();
-	pixelShaderBuffer = 0;
+  result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	D3D11_BUFFER_DESC matrixBufferDesc;
+  D3D11_SAMPLER_DESC samplerDesc;
 
-	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
-	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	matrixBufferDesc.MiscFlags = 0;
-	matrixBufferDesc.StructureByteStride = 0;
+  samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+  samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+  samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+  samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+  samplerDesc.MipLODBias = 0.0f;
+  samplerDesc.MaxAnisotropy = 1;
+  samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+  samplerDesc.BorderColor[0] = 0;
+  samplerDesc.BorderColor[1] = 0;
+  samplerDesc.BorderColor[2] = 0;
+  samplerDesc.BorderColor[3] = 0;
+  samplerDesc.MinLOD = 0;
+  samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
-	if (FAILED(result)) {
-		return false;
-	}
+  result = device->CreateSamplerState(&samplerDesc, &sample_state_);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	D3D11_SAMPLER_DESC samplerDesc;
-
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	result = device->CreateSamplerState(&samplerDesc, &sample_state_);
-	if (FAILED(result)) {
-		return false;
-	}
-
-	return true;
+  return true;
 }
 
 void GlowMapShaderClass::ShutdownShader() {
 
-	if (sample_state_) {
-		sample_state_->Release();
-		sample_state_ = nullptr;
-	}
+  if (sample_state_) {
+    sample_state_->Release();
+    sample_state_ = nullptr;
+  }
 
-	if (matrix_buffer_) {
-		matrix_buffer_->Release();
-		matrix_buffer_ = nullptr;
-	}
+  if (matrix_buffer_) {
+    matrix_buffer_->Release();
+    matrix_buffer_ = nullptr;
+  }
 
-	if (layout_) {
-		layout_->Release();
-		layout_ = nullptr;
-	}
+  if (layout_) {
+    layout_->Release();
+    layout_ = nullptr;
+  }
 
-	if (pixel_shader_) {
-		pixel_shader_->Release();
-		pixel_shader_ = nullptr;
-	}
+  if (pixel_shader_) {
+    pixel_shader_->Release();
+    pixel_shader_ = nullptr;
+  }
 
-	if (vertex_shader_) {
-		vertex_shader_->Release();
-		vertex_shader_ = nullptr;
-	}
+  if (vertex_shader_) {
+    vertex_shader_->Release();
+    vertex_shader_ = nullptr;
+  }
 }
 
-void GlowMapShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename) {
+void GlowMapShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage,
+                                                  HWND hwnd,
+                                                  WCHAR *shaderFilename) {
 
-	char* compileErrors;
-	SIZE_T bufferSize, i;
-	ofstream fout;
+  char *compileErrors;
+  SIZE_T bufferSize, i;
+  ofstream fout;
 
-	compileErrors = (char*)(errorMessage->GetBufferPointer());
+  compileErrors = (char *)(errorMessage->GetBufferPointer());
 
-	bufferSize = errorMessage->GetBufferSize();
+  bufferSize = errorMessage->GetBufferSize();
 
-	fout.open("shader-error.txt");
+  fout.open("shader-error.txt");
 
-	for (i = 0; i < bufferSize; i++) {
-		fout << compileErrors[i];
-	}
+  for (i = 0; i < bufferSize; i++) {
+    fout << compileErrors[i];
+  }
 
-	fout.close();
+  fout.close();
 
-	errorMessage->Release();
-	errorMessage = 0;
+  errorMessage->Release();
+  errorMessage = 0;
 
-	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
+  MessageBox(hwnd,
+             L"Error compiling shader.  Check shader-error.txt for message.",
+             shaderFilename, MB_OK);
 }
 
-bool GlowMapShaderClass::SetShaderParameters(const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
-	const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* glowMap) {
+bool GlowMapShaderClass::SetShaderParameters(
+    const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix,
+    const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView *texture,
+    ID3D11ShaderResourceView *glowMap) {
 
-	XMMATRIX worldMatrixCopy = worldMatrix;
-	XMMATRIX viewMatrixCopy = viewMatrix;
-	XMMATRIX projectionMatrixCopy = projectionMatrix;
+  XMMATRIX worldMatrixCopy = worldMatrix;
+  XMMATRIX viewMatrixCopy = viewMatrix;
+  XMMATRIX projectionMatrixCopy = projectionMatrix;
 
-	worldMatrixCopy = XMMatrixTranspose(worldMatrix);
-	viewMatrixCopy = XMMatrixTranspose(viewMatrix);
-	projectionMatrixCopy = XMMatrixTranspose(projectionMatrix);
+  worldMatrixCopy = XMMatrixTranspose(worldMatrix);
+  viewMatrixCopy = XMMatrixTranspose(viewMatrix);
+  projectionMatrixCopy = XMMatrixTranspose(projectionMatrix);
 
-	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
+  D3D11_MAPPED_SUBRESOURCE mappedResource;
 
-	auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result)) {
-		return false;
-	}
+  auto device_context =
+      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	MatrixBufferType* dataPtr;
+  result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
+                               &mappedResource);
+  if (FAILED(result)) {
+    return false;
+  }
 
-	dataPtr = (MatrixBufferType*)mappedResource.pData;
+  MatrixBufferType *dataPtr;
 
-	dataPtr->world = worldMatrixCopy;
-	dataPtr->view = viewMatrixCopy;
-	dataPtr->projection = projectionMatrixCopy;
+  dataPtr = (MatrixBufferType *)mappedResource.pData;
 
-	device_context->Unmap(matrix_buffer_, 0);
+  dataPtr->world = worldMatrixCopy;
+  dataPtr->view = viewMatrixCopy;
+  dataPtr->projection = projectionMatrixCopy;
 
-	unsigned int buffer_number = 0;
+  device_context->Unmap(matrix_buffer_, 0);
 
-	device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
+  unsigned int buffer_number = 0;
 
-	device_context->PSSetShaderResources(0, 1, &texture);
-	device_context->PSSetShaderResources(1, 1, &glowMap);
+  device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
-	return true;
+  device_context->PSSetShaderResources(0, 1, &texture);
+  device_context->PSSetShaderResources(1, 1, &glowMap);
+
+  return true;
 }
 
 void GlowMapShaderClass::RenderShader(int indexCount) {
 
-	auto device_context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
+  auto device_context =
+      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-	device_context->IASetInputLayout(layout_);
-	device_context->VSSetShader(vertex_shader_, NULL, 0);
-	device_context->PSSetShader(pixel_shader_, NULL, 0);
-	device_context->PSSetSamplers(0, 1, &sample_state_);
+  device_context->IASetInputLayout(layout_);
+  device_context->VSSetShader(vertex_shader_, NULL, 0);
+  device_context->PSSetShader(pixel_shader_, NULL, 0);
+  device_context->PSSetSamplers(0, 1, &sample_state_);
 
-	device_context->DrawIndexed(indexCount, 0, 0);
+  device_context->DrawIndexed(indexCount, 0, 0);
 }

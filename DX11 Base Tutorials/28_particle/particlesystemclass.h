@@ -7,68 +7,70 @@ struct VertexType;
 
 struct TextureClass;
 
-class ParticleSystemClass
-{
+class ParticleSystemClass {
 public:
-	ParticleSystemClass() {}
+  ParticleSystemClass() {}
 
-	ParticleSystemClass(const ParticleSystemClass& rhs) = delete;
-	
-	~ParticleSystemClass() {}
+  ParticleSystemClass(const ParticleSystemClass &rhs) = delete;
+
+  ~ParticleSystemClass() {}
+
 public:
-	bool Initialize(WCHAR*);
+  bool Initialize(WCHAR *);
 
-	void Shutdown();
+  void Shutdown();
 
-	bool Frame(float);
+  bool Frame(float);
 
-	void Render();
+  void Render();
 
-	ID3D11ShaderResourceView* GetTexture();
+  ID3D11ShaderResourceView *GetTexture();
 
-	int GetIndexCount();
+  int GetIndexCount();
+
 private:
-	bool LoadTexture(WCHAR*);
+  bool LoadTexture(WCHAR *);
 
-	void ReleaseTexture();
+  void ReleaseTexture();
 
-	bool InitializeParticleSystem();
+  bool InitializeParticleSystem();
 
-	void ShutdownParticleSystem();
+  void ShutdownParticleSystem();
 
-	bool InitializeBuffers();
+  bool InitializeBuffers();
 
-	void ShutdownBuffers();
+  void ShutdownBuffers();
 
-	void EmitParticles(float);
+  void EmitParticles(float);
 
-	void UpdateParticles(float);
+  void UpdateParticles(float);
 
-	void KillParticles();
+  void KillParticles();
 
-	bool UpdateBuffers();
+  bool UpdateBuffers();
 
-	void RenderBuffers();
+  void RenderBuffers();
+
 private:
-	float particle_deviatio_x_, particle_deviation_y_, particle_deviation_z_;
+  float particle_deviatio_x_, particle_deviation_y_, particle_deviation_z_;
 
-	float particle_velocity_, particle_velocity_variation_;
+  float particle_velocity_, particle_velocity_variation_;
 
-	float particle_size_, particles_per_second_;
+  float particle_size_, particles_per_second_;
 
-	int max_particles_;
+  int max_particles_;
 
-	int current_particle_count_;
+  int current_particle_count_;
 
-	float accumulated_time_;
+  float accumulated_time_;
 
-	TextureClass* texture_;
+  TextureClass *texture_;
 
-	ParticleType* particle_list_;
+  ParticleType *particle_list_;
 
-	int vertex_count_, index_count_;
+  int vertex_count_, index_count_;
 
-	VertexType* vertices_;
+  VertexType *vertices_;
 
-	ID3D11Buffer *vertex_buffer_, *index_buffer_;
+  ID3D11Buffer *vertex_buffer_, *index_buffer_;
 };

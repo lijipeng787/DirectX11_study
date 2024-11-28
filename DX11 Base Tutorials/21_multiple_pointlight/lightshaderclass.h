@@ -2,51 +2,52 @@
 
 const int NUM_LIGHTS = 4;
 
-#include <d3d11.h>
 #include <DirectXMath.h>
+#include <d3d11.h>
 
 using namespace DirectX;
 
 class LightShaderClass {
 public:
-	LightShaderClass();
+  LightShaderClass();
 
-	LightShaderClass(const LightShaderClass&);
-	
-	~LightShaderClass();
+  LightShaderClass(const LightShaderClass &);
+
+  ~LightShaderClass();
+
 public:
-	bool Initialize(HWND);
-	
-	void Shutdown();
-	
-	bool Render(
-		int, 
-		const XMMATRIX&, const XMMATRIX&, const XMMATRIX&, 
-		ID3D11ShaderResourceView*, const XMFLOAT4[], const XMFLOAT4[]);
+  bool Initialize(HWND);
+
+  void Shutdown();
+
+  bool Render(int, const XMMATRIX &, const XMMATRIX &, const XMMATRIX &,
+              ID3D11ShaderResourceView *, const XMFLOAT4[], const XMFLOAT4[]);
+
 private:
-	bool InitializeShader(HWND, WCHAR*, WCHAR*);
+  bool InitializeShader(HWND, WCHAR *, WCHAR *);
 
-	void ShutdownShader();
+  void ShutdownShader();
 
-	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
+  void OutputShaderErrorMessage(ID3D10Blob *, HWND, WCHAR *);
 
-	bool SetShaderParameters(
-		const XMMATRIX&, const XMMATRIX&, const XMMATRIX&,
-		ID3D11ShaderResourceView*, const XMFLOAT4[], const XMFLOAT4[]);
+  bool SetShaderParameters(const XMMATRIX &, const XMMATRIX &, const XMMATRIX &,
+                           ID3D11ShaderResourceView *, const XMFLOAT4[],
+                           const XMFLOAT4[]);
 
-	void RenderShader(int);
+  void RenderShader(int);
+
 private:
-	ID3D11VertexShader* vertex_shader_;
+  ID3D11VertexShader *vertex_shader_;
 
-	ID3D11PixelShader* pixel_shader_;
-	
-	ID3D11InputLayout* layout_;
-	
-	ID3D11SamplerState* sample_state_;
-	
-	ID3D11Buffer* matrix_buffer_;
-	
-	ID3D11Buffer* m_lightColorBuffer;
-	
-	ID3D11Buffer* m_lightPositionBuffer;
+  ID3D11PixelShader *pixel_shader_;
+
+  ID3D11InputLayout *layout_;
+
+  ID3D11SamplerState *sample_state_;
+
+  ID3D11Buffer *matrix_buffer_;
+
+  ID3D11Buffer *m_lightColorBuffer;
+
+  ID3D11Buffer *m_lightPositionBuffer;
 };

@@ -7,7 +7,6 @@
 #include "IRenderGroup.h"
 #include "lightclass.h"
 
-
 class Scene {
 public:
   void AddRenderGroup(std::shared_ptr<IRenderGroup> renderGroup);

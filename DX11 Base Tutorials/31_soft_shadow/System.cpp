@@ -4,7 +4,9 @@
 #include "../CommonFramework2/Timer.h"
 
 #include "Graphics.h"
-#include "positionclass.h"
+#include "position.h"
+
+using namespace std;
 
 bool System::Initialize() {
 
@@ -18,7 +20,7 @@ bool System::Initialize() {
   GetScreenWidthAndHeight(screenWidth, screenHeight);
 
   {
-    graphics_ = new GraphicsClass();
+    graphics_ = make_unique<GraphicsClass>();
     if (!graphics_) {
       return false;
     }
@@ -30,7 +32,7 @@ bool System::Initialize() {
   }
 
   {
-    position_ = new PositionClass();
+    position_ = make_unique<Position>();
     if (!position_) {
       return false;
     }
@@ -46,9 +48,7 @@ bool System::Frame() {
 
   SystemBase::Frame();
 
-  bool result;
-
-  result = GetInputComponent().Frame();
+  auto result = GetInputComponent().Frame();
   if (result == false) {
     return false;
   }
@@ -70,12 +70,9 @@ bool System::Frame() {
   graphics_->SetPosition(posX, posY, posZ);
   graphics_->SetRotation(rotX, rotY, rotZ);
 
-  graphics_->Frame(0.0f);
-  if (!result) {
-    return false;
-  }
-
   auto delta_time = GetTimerComponent().GetTime();
+
+  graphics_->Frame(delta_time);
 
   graphics_->Render();
   if (!result) {
@@ -122,11 +119,6 @@ void System::Shutdown() {
 
   SystemBase::Shutdown();
 
-  if (graphics_) {
-    graphics_->Shutdown();
-    delete graphics_;
-    graphics_ = 0;
-  }
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam,

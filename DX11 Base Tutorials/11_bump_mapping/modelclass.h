@@ -1,7 +1,7 @@
 #pragma once
 
-#include <d3d11.h>
 #include <DirectXMath.h>
+#include <d3d11.h>
 
 struct VertexType;
 struct ModelType;
@@ -11,47 +11,51 @@ class TextureArrayClass;
 
 class ModelClass {
 public:
-	ModelClass() {}
+  ModelClass() {}
 
-	ModelClass(const ModelClass&);
-	
-	~ModelClass() {}
+  ModelClass(const ModelClass &);
+
+  ~ModelClass() {}
+
 public:
-	bool Initialize(char*, WCHAR*, WCHAR*);
-	
-	void Shutdown();
-	
-	void Render();
+  bool Initialize(char *, WCHAR *, WCHAR *);
 
-	int GetIndexCount();
-	
-	ID3D11ShaderResourceView** GetTextureArray();
+  void Shutdown();
+
+  void Render();
+
+  int GetIndexCount();
+
+  ID3D11ShaderResourceView **GetTextureArray();
+
 private:
-	bool InitializeBuffers();
+  bool InitializeBuffers();
 
-	void ShutdownBuffers();
-	
-	void RenderBuffers();
+  void ShutdownBuffers();
 
-	bool LoadTextures(WCHAR*, WCHAR*);
-	
-	void ReleaseTextures();
+  void RenderBuffers();
 
-	bool LoadModel(char*);
-	
-	void ReleaseModel();
+  bool LoadTextures(WCHAR *, WCHAR *);
 
-	void CalculateModelVectors();
-	
-	void CalculateTangentBinormal(TempVertexType*, TempVertexType*, TempVertexType*, VectorType&, VectorType&);
-	
-	void CalculateNormal(VectorType*, VectorType*, VectorType&);
+  void ReleaseTextures();
+
+  bool LoadModel(char *);
+
+  void ReleaseModel();
+
+  void CalculateModelVectors();
+
+  void CalculateTangentBinormal(TempVertexType *, TempVertexType *,
+                                TempVertexType *, VectorType &, VectorType &);
+
+  void CalculateNormal(VectorType *, VectorType *, VectorType &);
+
 private:
-	ID3D11Buffer * vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
+  ID3D11Buffer *vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
 
-	int vertex_count_ = 0, index_count_ = 0;
+  int vertex_count_ = 0, index_count_ = 0;
 
-	ModelType* model_ = nullptr;
+  ModelType *model_ = nullptr;
 
-	TextureArrayClass* texture_array_ = nullptr;
+  TextureArrayClass *texture_array_ = nullptr;
 };

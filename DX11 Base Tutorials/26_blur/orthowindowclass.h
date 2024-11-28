@@ -6,26 +6,29 @@ struct VertexType;
 
 class OrthoWindowClass {
 public:
-	OrthoWindowClass() {}
+  OrthoWindowClass() {}
 
-	OrthoWindowClass(const OrthoWindowClass&) = delete;
+  OrthoWindowClass(const OrthoWindowClass &) = delete;
 
-	~OrthoWindowClass() {}
+  ~OrthoWindowClass() {}
+
 public:
-	bool Initialize(int, int);
+  bool Initialize(int, int);
 
-	void Shutdown();
+  void Shutdown();
 
-	void Render();
+  void Render();
 
-	int GetIndexCount();
+  int GetIndexCount();
+
 private:
-	bool InitializeBuffers(int, int);
+  bool InitializeBuffers(int, int);
 
-	void ShutdownBuffers();
+  void ShutdownBuffers();
 
-	void RenderBuffers();
+  void RenderBuffers();
+
 private:
-	ID3D11Buffer * vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
-	int vertex_count_ = 0, index_count_ = 0;
+  ID3D11Buffer *vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
+  int vertex_count_ = 0, index_count_ = 0;
 };

@@ -1,118 +1,116 @@
 #pragma once
 
-#include <dxgi.h>
-#include <d3dcommon.h>
-#include <d3d11.h>
 #include <DirectXMath.h>
+#include <d3d11.h>
+#include <d3dcommon.h>
+#include <dxgi.h>
 
 class DirectX11Device {
 public:
-	DirectX11Device() {}
+  DirectX11Device() {}
 
-	DirectX11Device(const DirectX11Device& rhs) = delete;
+  DirectX11Device(const DirectX11Device &rhs) = delete;
 
-	DirectX11Device& operator=(const DirectX11Device& rhs) = delete;
+  DirectX11Device &operator=(const DirectX11Device &rhs) = delete;
 
-	~DirectX11Device() {}
-
-public:
-	inline static DirectX11Device* GetD3d11DeviceInstance() {
-
-		if (nullptr == device_instance_) {
-			device_instance_ = new DirectX11Device;
-		}
-
-		return device_instance_;
-	}
+  ~DirectX11Device() {}
 
 public:
-	inline unsigned int GetScreenWidth() { return screen_width_; }
+  inline static DirectX11Device *GetD3d11DeviceInstance() {
 
-	inline unsigned int GetScreenHeight() { return screen_height_; }
+    if (nullptr == device_instance_) {
+      device_instance_ = new DirectX11Device;
+    }
+
+    return device_instance_;
+  }
 
 public:
-	bool Initialize(
-		unsigned int screenWidth, unsigned int screenHeight,
-		bool vsync, HWND hwnd, bool fullscreen,
-		float screenDepth, float screenNear
-	);
+  inline unsigned int GetScreenWidth() { return screen_width_; }
 
-	void Shutdown();
+  inline unsigned int GetScreenHeight() { return screen_height_; }
 
-	void BeginScene(float red, float green, float blue, float alpha);
+public:
+  bool Initialize(unsigned int screenWidth, unsigned int screenHeight,
+                  bool vsync, HWND hwnd, bool fullscreen, float screenDepth,
+                  float screenNear);
 
-	void EndScene();
+  void Shutdown();
 
-	void TurnZBufferOn();
+  void BeginScene(float red, float green, float blue, float alpha);
 
-	void TurnZBufferOff();
+  void EndScene();
 
-	void TurnOnAlphaBlending();
+  void TurnZBufferOn();
 
-	void TurnOffAlphaBlending();
+  void TurnZBufferOff();
 
-	void TurnOnCulling();
+  void TurnOnAlphaBlending();
 
-	void TurnOffCulling();
+  void TurnOffAlphaBlending();
 
-	void SetBackBufferRenderTarget();
+  void TurnOnCulling();
 
-	void ResetViewport();
+  void TurnOffCulling();
 
-	ID3D11Device* GetDevice();
+  void SetBackBufferRenderTarget();
 
-	ID3D11DeviceContext* GetDeviceContext();
+  void ResetViewport();
 
-	void GetProjectionMatrix(DirectX::XMMATRIX& projection_matrix);
+  ID3D11Device *GetDevice();
 
-	void GetWorldMatrix(DirectX::XMMATRIX& world_matrix);
+  ID3D11DeviceContext *GetDeviceContext();
 
-	void GetOrthoMatrix(DirectX::XMMATRIX& orthonality_matrix);
+  void GetProjectionMatrix(DirectX::XMMATRIX &projection_matrix);
 
-	void GetVideoCardInfo(char*, int&);
+  void GetWorldMatrix(DirectX::XMMATRIX &world_matrix);
 
-	ID3D11DepthStencilView* GetDepthStencilView()const;
+  void GetOrthoMatrix(DirectX::XMMATRIX &orthonality_matrix);
+
+  void GetVideoCardInfo(char *, int &);
+
+  ID3D11DepthStencilView *GetDepthStencilView() const;
 
 private:
-	bool vsync_enabled_ = false;
+  bool vsync_enabled_ = false;
 
-	unsigned int videocard_Memory_ = 0;
+  unsigned int videocard_Memory_ = 0;
 
-	char videocard_description_[128] = {};
+  char videocard_description_[128] = {};
 
-	IDXGISwapChain* swap_chain_ = nullptr;
+  IDXGISwapChain *swap_chain_ = nullptr;
 
-	ID3D11Device* device_ = nullptr;
+  ID3D11Device *device_ = nullptr;
 
-	static DirectX11Device* device_instance_;
+  static DirectX11Device *device_instance_;
 
-	ID3D11DeviceContext* device_context_ = nullptr;
+  ID3D11DeviceContext *device_context_ = nullptr;
 
-	ID3D11RenderTargetView* render_target_view_ = nullptr;
+  ID3D11RenderTargetView *render_target_view_ = nullptr;
 
-	ID3D11Texture2D* depth_stencil_buffer_ = nullptr;
+  ID3D11Texture2D *depth_stencil_buffer_ = nullptr;
 
-	ID3D11DepthStencilState* depth_stencil_state_ = nullptr;
+  ID3D11DepthStencilState *depth_stencil_state_ = nullptr;
 
-	ID3D11DepthStencilView* depth_stencil_view_ = nullptr;
+  ID3D11DepthStencilView *depth_stencil_view_ = nullptr;
 
-	ID3D11RasterizerState* raster_state_ = nullptr;
+  ID3D11RasterizerState *raster_state_ = nullptr;
 
-	ID3D11RasterizerState* m_rasterStateNoCulling = nullptr;
+  ID3D11RasterizerState *m_rasterStateNoCulling = nullptr;
 
-	DirectX::XMMATRIX projection_matrix_ = {};
+  DirectX::XMMATRIX projection_matrix_ = {};
 
-	DirectX::XMMATRIX world_matrix_ = {};
+  DirectX::XMMATRIX world_matrix_ = {};
 
-	DirectX::XMMATRIX orthonality_matrix_ = {};
+  DirectX::XMMATRIX orthonality_matrix_ = {};
 
-	ID3D11DepthStencilState* depth_disabled_stencil_state_ = nullptr;
+  ID3D11DepthStencilState *depth_disabled_stencil_state_ = nullptr;
 
-	ID3D11BlendState* alpha_enable_blending_state_ = nullptr;
+  ID3D11BlendState *alpha_enable_blending_state_ = nullptr;
 
-	ID3D11BlendState* alpha_disable_blending_state_ = nullptr;
+  ID3D11BlendState *alpha_disable_blending_state_ = nullptr;
 
-	D3D11_VIEWPORT viewport_ = {};
+  D3D11_VIEWPORT viewport_ = {};
 
-	unsigned int screen_width_ = 0, screen_height_ = 0;
+  unsigned int screen_width_ = 0, screen_height_ = 0;
 };

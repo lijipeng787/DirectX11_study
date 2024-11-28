@@ -13,7 +13,9 @@ public:
     return renderables_;
   }
 
-  void AddRenderable(std::shared_ptr<IRenderable> renderable);
+  void AddRenderable(std::shared_ptr<IRenderable> renderable) {
+      renderables_.push_back(std::move(renderable));
+  }
 
 private:
   std::vector<std::shared_ptr<IRenderable>> renderables_;

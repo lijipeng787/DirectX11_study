@@ -1,47 +1,50 @@
 #pragma once
 
-#include <d3d11.h>
 #include <DirectXMath.h>
+#include <d3d11.h>
 
 class RenderTextureClass {
 public:
-	RenderTextureClass() {}
+  RenderTextureClass() {}
 
-	RenderTextureClass(const RenderTextureClass&) = delete;
+  RenderTextureClass(const RenderTextureClass &) = delete;
 
-	~RenderTextureClass() {}
+  ~RenderTextureClass() {}
+
 public:
-	bool Initialize(int, int, float, float);
+  bool Initialize(int, int, float, float);
 
-	void Shutdown();
+  void Shutdown();
 
-	void SetRenderTarget();
+  void SetRenderTarget();
 
-	void ClearRenderTarget(float, float, float, float);
+  void ClearRenderTarget(float, float, float, float);
 
-	ID3D11ShaderResourceView* GetShaderResourceView();
+  ID3D11ShaderResourceView *GetShaderResourceView();
 
-	void GetProjectionMatrix(DirectX::XMMATRIX&);
+  void GetProjectionMatrix(DirectX::XMMATRIX &);
 
-	void GetOrthoMatrix(DirectX::XMMATRIX&);
+  void GetOrthoMatrix(DirectX::XMMATRIX &);
 
-	int GetTextureWidth();
+  int GetTextureWidth();
 
-	int GetTextureHeight();
+  int GetTextureHeight();
+
 private:
-	int texture_width_ = 0, texture_height_ = 0;
+  int texture_width_ = 0, texture_height_ = 0;
 
-	ID3D11Texture2D* render_target_texture_ = nullptr, *depth_stencil_buffer_ = nullptr;
+  ID3D11Texture2D *render_target_texture_ = nullptr,
+                  *depth_stencil_buffer_ = nullptr;
 
-	ID3D11RenderTargetView* render_target_view_ = nullptr;
+  ID3D11RenderTargetView *render_target_view_ = nullptr;
 
-	ID3D11ShaderResourceView* shader_resource_view_ = nullptr;
+  ID3D11ShaderResourceView *shader_resource_view_ = nullptr;
 
-	ID3D11DepthStencilView* depth_stencil_view_ = nullptr;
+  ID3D11DepthStencilView *depth_stencil_view_ = nullptr;
 
-	D3D11_VIEWPORT viewport_{};
+  D3D11_VIEWPORT viewport_{};
 
-	DirectX::XMMATRIX projection_matrix_{};
+  DirectX::XMMATRIX projection_matrix_{};
 
-	DirectX::XMMATRIX ortho_matrix_{};
+  DirectX::XMMATRIX ortho_matrix_{};
 };

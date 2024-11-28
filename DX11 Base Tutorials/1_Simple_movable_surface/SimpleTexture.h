@@ -6,19 +6,21 @@ using namespace DirectX;
 
 class SimpleTexture {
 public:
-	SimpleTexture() {}
+  SimpleTexture() {}
 
-	SimpleTexture(const SimpleTexture& rhs) = delete;
+  SimpleTexture(const SimpleTexture &rhs) = delete;
 
-	SimpleTexture& operator=(const SimpleTexture& rhs) = delete;
+  SimpleTexture &operator=(const SimpleTexture &rhs) = delete;
 
-	~SimpleTexture() {}
+  ~SimpleTexture() {}
+
 public:
-	bool LoadDDSTextureFromFile(WCHAR *ddsFilename);
+  bool LoadDDSTextureFromFile(WCHAR *ddsFilename);
 
-	ID3D11ShaderResourceView* GetTexture();
+  ID3D11ShaderResourceView *GetTexture();
 
-	void Release();
+  void Release();
+
 private:
-	ID3D11ShaderResourceView * texture_srv_;
+  ID3D11ShaderResourceView *texture_srv_;
 };

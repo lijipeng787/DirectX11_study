@@ -6,15 +6,15 @@ RenderPass::RenderPass(const std::string &name, std::shared_ptr<IShader> shader)
     : pass_name_(name), shader_(shader) {}
 
 void RenderPass::AddInputTexture(const std::string &name,
-                                 std::shared_ptr<RenderTextureClass> texture) {
+                                 std::shared_ptr<RenderTexture> texture) {
   input_textures_[name] = texture;
 }
 
-void RenderPass::SetOutputTexture(std::shared_ptr<RenderTextureClass> texture) {
+void RenderPass::SetOutputTexture(std::shared_ptr<RenderTexture> texture) {
   output_texture_ = texture;
 }
 
-std::shared_ptr<RenderTextureClass> RenderPass::GetOutputTexture() const {
+std::shared_ptr<RenderTexture> RenderPass::GetOutputTexture() const {
   return output_texture_;
 }
 

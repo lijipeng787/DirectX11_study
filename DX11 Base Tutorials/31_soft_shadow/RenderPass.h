@@ -7,19 +7,19 @@
 
 #include "IRenderable.h"
 #include "IShader.h"
-#include "RenderTextureClass.h"
+#include "RenderTexture.h"
 
 class RenderPass {
 public:
-  RenderPass(const std::string &name, std::shared_ptr<IShader> shader);
+  explicit RenderPass(const std::string &name, std::shared_ptr<IShader> shader);
 
 public:
   void AddInputTexture(const std::string &name,
-                       std::shared_ptr<RenderTextureClass> texture);
+                       std::shared_ptr<RenderTexture> texture);
 
-  void SetOutputTexture(std::shared_ptr<RenderTextureClass> texture);
+  void SetOutputTexture(std::shared_ptr<RenderTexture> texture);
 
-  std::shared_ptr<RenderTextureClass> GetOutputTexture() const;
+  std::shared_ptr<RenderTexture> GetOutputTexture() const;
 
   void SetPassParameters(const ShaderParameterContainer &params);
 
@@ -41,9 +41,9 @@ private:
 
   std::shared_ptr<IShader> shader_;
 
-  std::map<std::string, std::shared_ptr<RenderTextureClass>> input_textures_;
+  std::map<std::string, std::shared_ptr<RenderTexture>> input_textures_;
 
-  std::shared_ptr<RenderTextureClass> output_texture_;
+  std::shared_ptr<RenderTexture> output_texture_;
 
   ShaderParameterContainer pass_parameters_;
 
