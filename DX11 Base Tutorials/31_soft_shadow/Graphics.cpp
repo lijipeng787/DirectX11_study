@@ -48,10 +48,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   {
     // Create the cube model object.
     m_CubeModel = make_shared<Model>();
-    if (nullptr == m_CubeModel) {
-      return false;
-    }
-
     // Initialize the cube model object.
     result = m_CubeModel->Initialize("./data/cube.txt", L"./data/wall01.dds");
     if (!result) {
@@ -63,10 +59,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     m_SphereModel = make_shared<Model>();
-    if (nullptr == m_SphereModel) {
-      return false;
-    }
-
     result = m_SphereModel->Initialize("./data/sphere.txt", L"./data/ice.dds");
     if (!result) {
       MessageBox(hwnd, L"Could not initialize the sphere model object.",
@@ -77,10 +69,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     spherePBRModel = make_shared<PBRModel>();
-    if (nullptr == spherePBRModel) {
-      return false;
-    }
-
     result = spherePBRModel->Initialize(
         "./data/sphere.txt", "./data/pbr_albedo.tga", "./data/pbr_normal.tga",
         "./data/pbr_roughmetal.tga");
@@ -93,10 +81,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     m_GroundModel = make_shared<Model>();
-    if (nullptr == m_GroundModel) {
-      return false;
-    }
-
     result =
         m_GroundModel->Initialize("./data/plane01.txt", L"./data/metal001.dds");
     if (!result) {
@@ -123,10 +107,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   {
     // Create the render to texture object.
     render_texture_ = make_shared<RenderTexture>();
-    if (!render_texture_) {
-      return false;
-    }
-
     // Initialize the render to texture object.
     result = render_texture_->Initialize(SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT,
                                          SCREEN_DEPTH, SCREEN_NEAR);
@@ -139,10 +119,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     depth_shader_ = make_shared<DepthShader>();
-    if (!depth_shader_) {
-      return false;
-    }
-
     result = depth_shader_->Initialize(hwnd);
     if (!result) {
       MessageBox(hwnd, L"Could not initialize the depth shader object.",
@@ -153,10 +129,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     m_BlackWhiteRenderTexture = make_shared<RenderTexture>();
-    if (!m_BlackWhiteRenderTexture) {
-      return false;
-    }
-
     result = m_BlackWhiteRenderTexture->Initialize(
         SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
     if (!result) {
@@ -171,10 +143,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   {
     // Create the shadow shader object.
     m_ShadowShader = make_shared<ShadowShader>();
-    if (!m_ShadowShader) {
-      return false;
-    }
-
     // Initialize the shadow shader object.
     result = m_ShadowShader->Initialize(hwnd);
     if (!result) {
@@ -191,10 +159,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   {
     // Create the down sample render to texture object.
     m_DownSampleTexure = make_shared<RenderTexture>();
-    if (!m_DownSampleTexure) {
-      return false;
-    }
-
     // Initialize the down sample render to texture object.
     result = m_DownSampleTexure->Initialize(downSampleWidth, downSampleHeight,
                                             100.0f, 1.0f);
@@ -209,10 +173,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     m_SmallWindow = make_shared<OrthoWindow>();
-    if (!m_SmallWindow) {
-      return false;
-    }
-
     result = m_SmallWindow->Initialize(downSampleWidth, downSampleHeight);
     if (!result) {
       MessageBox(hwnd, L"Could not initialize the small ortho window object.",
@@ -223,10 +183,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     texture_shader_ = make_shared<TextureShader>();
-    if (!texture_shader_) {
-      return false;
-    }
-
     result = texture_shader_->Initialize(hwnd);
     if (!result) {
       MessageBox(hwnd, L"Could not initialize the texture shader object.",
@@ -237,10 +193,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     m_HorizontalBlurTexture = make_shared<RenderTexture>();
-    if (!m_HorizontalBlurTexture) {
-      return false;
-    }
-
     result = m_HorizontalBlurTexture->Initialize(
         downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
     if (!result) {
@@ -254,10 +206,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     m_HorizontalBlurShader = make_shared<HorizontalBlurShader>();
-    if (!m_HorizontalBlurShader) {
-      return false;
-    }
-
     result = m_HorizontalBlurShader->Initialize(hwnd);
     if (!result) {
       MessageBox(hwnd,
@@ -269,10 +217,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     m_VerticalBlurTexture = make_shared<RenderTexture>();
-    if (!m_VerticalBlurTexture) {
-      return false;
-    }
-
     result = m_VerticalBlurTexture->Initialize(
         downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
     if (!result) {
@@ -286,10 +230,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     m_VerticalBlurShader = make_shared<VerticalBlurShader>();
-    if (!m_VerticalBlurShader) {
-      return false;
-    }
-
     result = m_VerticalBlurShader->Initialize(hwnd);
     if (!result) {
       MessageBox(hwnd, L"Could not initialize the vertical blur shader object.",
@@ -300,10 +240,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     m_UpSampleTexure = make_shared<RenderTexture>();
-    if (!m_UpSampleTexure) {
-      return false;
-    }
-
     result = m_UpSampleTexure->Initialize(SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT,
                                           SCREEN_DEPTH, 0.1f);
     if (!result) {
@@ -316,10 +252,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     m_FullScreenWindow = make_shared<OrthoWindow>();
-    if (!m_FullScreenWindow) {
-      return false;
-    }
-
     result = m_FullScreenWindow->Initialize(SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
     if (!result) {
       MessageBox(hwnd,
@@ -331,10 +263,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     m_SoftShadowShader = make_shared<SoftShadowShader>();
-    if (!m_SoftShadowShader) {
-      return false;
-    }
-
     result = m_SoftShadowShader->Initialize(hwnd);
     if (!result) {
       MessageBox(hwnd, L"Could not initialize the soft shadow shader object.",
@@ -345,10 +273,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   {
     PBRShader_ = make_shared<PbrShader>();
-    if (!PBRShader_) {
-      return false;
-    }
-
     result = PBRShader_->Initialize(hwnd);
     if (!result) {
       MessageBox(hwnd, L"Could not initialize the soft shadow shader object.",
@@ -358,10 +282,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   cube_group_ = make_shared<StandardRenderGroup>();
-  if (!cube_group_) {
-      return false;
-  }
-
   SetupRenderPipeline();
 
   return true;
@@ -377,7 +297,7 @@ void GraphicsClass::Frame(float deltaTime) {
   camera_->SetRotation(rot_x_, rot_y_, rot_z_);
 
   // Update the position of the light each frame.
-  lightPositionX += 0.05f;
+  lightPositionX += 0.001f * deltaTime;
   if (lightPositionX > 5.0f) {
     lightPositionX = -5.0f;
   }
@@ -386,18 +306,18 @@ void GraphicsClass::Frame(float deltaTime) {
   light_->SetPosition(lightPositionX, 8.0f, -5.0f);
 
   static float rotation_y = 0.0f;
-  if (0.001 < 360.0f - rotation_y)
+  if (0.000001 < 360.0f - rotation_y)
       rotation_y = 0.0f;
   rotation_y +=
-      DirectX::XM_PI * 0.001f * deltaTime; // Rotate 9 degrees per second
-  
-  XMMATRIX translationMatrix;
-  XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(0.0f, rotation_y, 0.0f);
+      DirectX::XM_PI * 0.001f * deltaTime;
 
-  for (const auto& renderable : cube_group_->GetRenderables()) {
-      translationMatrix = renderable->GetWorldMatrix();
-      renderable->SetWorldMatrix(rotationMatrix * translationMatrix);
-  }
+  XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(0.0f, rotation_y, 0.0f);
+  
+   XMMATRIX translationMatrix;
+   for (const auto& renderable : cube_group_->GetRenderables()) {
+       translationMatrix = renderable->GetWorldMatrix();
+       renderable->SetWorldMatrix(rotationMatrix * translationMatrix);
+   }
 
   // Render the graphics scene.
   Render();
@@ -472,13 +392,13 @@ void GraphicsClass::SetupRenderPipeline() {
   Vertical_blur_to_texture_pass->NeedTurnOffZBuffer();
   ShaderParameterContainer RenderVerticalBlurToTexturePassParams;
   m_VerticalBlurTexture->GetOrthoMatrix(orthoMatrix);
-  RenderHorizontalBlurToTexturePassParams.SetMatrix("orthoMatrix", orthoMatrix);
-  RenderHorizontalBlurToTexturePassParams.SetFloat(
+  RenderVerticalBlurToTexturePassParams.SetMatrix("orthoMatrix", orthoMatrix);
+  RenderVerticalBlurToTexturePassParams.SetFloat(
       "screenHeight", (float)(SHADOW_MAP_HEIGHT / 2));
-  RenderHorizontalBlurToTexturePassParams.SetTexture(
+      RenderVerticalBlurToTexturePassParams.SetTexture(
       "texture", m_HorizontalBlurTexture->GetShaderResourceView());
   Vertical_blur_to_texture_pass->SetPassParameters(
-      RenderHorizontalBlurToTexturePassParams);
+    RenderVerticalBlurToTexturePassParams);
   render_pipeline_.AddRenderPass(Vertical_blur_to_texture_pass);
 
   auto up_sample_texture_pass =

@@ -1,0 +1,896 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{C1EAF461-DBDE-FDD9-3F5B-DF49719BEF11}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="0_simple_triangle\colorshaderclass.cpp" />
+    <ClCompile Include="0_simple_triangle\Graphics.cpp" />
+    <ClCompile Include="0_simple_triangle\main.cpp" />
+    <ClCompile Include="0_simple_triangle\modelclass.cpp" />
+    <ClCompile Include="0_simple_triangle\System.cpp" />
+    <ClCompile Include="10_frustum_culling\fontclass.cpp" />
+    <ClCompile Include="10_frustum_culling\fontshaderclass.cpp" />
+    <ClCompile Include="10_frustum_culling\Frustum.cpp" />
+    <ClCompile Include="10_frustum_culling\Graphics.cpp" />
+    <ClCompile Include="10_frustum_culling\lightclass.cpp" />
+    <ClCompile Include="10_frustum_culling\lightshaderclass.cpp" />
+    <ClCompile Include="10_frustum_culling\main.cpp" />
+    <ClCompile Include="10_frustum_culling\modelclass.cpp" />
+    <ClCompile Include="10_frustum_culling\modellistclass.cpp" />
+    <ClCompile Include="10_frustum_culling\positionclass.cpp" />
+    <ClCompile Include="10_frustum_culling\System.cpp" />
+    <ClCompile Include="10_frustum_culling\textclass.cpp" />
+    <ClCompile Include="10_frustum_culling\textureclass.cpp" />
+    <ClCompile Include="11_bump_mapping\bumpmapshaderclass.cpp" />
+    <ClCompile Include="11_bump_mapping\Graphics.cpp" />
+    <ClCompile Include="11_bump_mapping\lightclass.cpp" />
+    <ClCompile Include="11_bump_mapping\main.cpp" />
+    <ClCompile Include="11_bump_mapping\modelclass.cpp" />
+    <ClCompile Include="11_bump_mapping\System.cpp" />
+    <ClCompile Include="11_bump_mapping\texturearrayclass.cpp" />
+    <ClCompile Include="12_specular_mapping\Graphics.cpp" />
+    <ClCompile Include="12_specular_mapping\lightclass.cpp" />
+    <ClCompile Include="12_specular_mapping\main.cpp" />
+    <ClCompile Include="12_specular_mapping\modelclass.cpp" />
+    <ClCompile Include="12_specular_mapping\specmapshaderclass.cpp" />
+    <ClCompile Include="12_specular_mapping\System.cpp" />
+    <ClCompile Include="12_specular_mapping\texturearrayclass.cpp" />
+    <ClCompile Include="13_render_to_texture\debugwindowclass.cpp" />
+    <ClCompile Include="13_render_to_texture\Graphics.cpp" />
+    <ClCompile Include="13_render_to_texture\lightclass.cpp" />
+    <ClCompile Include="13_render_to_texture\lightshaderclass.cpp" />
+    <ClCompile Include="13_render_to_texture\main.cpp" />
+    <ClCompile Include="13_render_to_texture\modelclass.cpp" />
+    <ClCompile Include="13_render_to_texture\rendertextureclass.cpp" />
+    <ClCompile Include="13_render_to_texture\System.cpp" />
+    <ClCompile Include="13_render_to_texture\textureclass.cpp" />
+    <ClCompile Include="13_render_to_texture\textureshaderclass.cpp" />
+    <ClCompile Include="14_post_process_fog\fogshaderclass.cpp" />
+    <ClCompile Include="14_post_process_fog\Graphics.cpp" />
+    <ClCompile Include="14_post_process_fog\main.cpp" />
+    <ClCompile Include="14_post_process_fog\modelclass.cpp" />
+    <ClCompile Include="14_post_process_fog\System.cpp" />
+    <ClCompile Include="14_post_process_fog\textureclass.cpp" />
+    <ClCompile Include="15_clipping_plane\clipplaneshaderclass.cpp" />
+    <ClCompile Include="15_clipping_plane\Graphics.cpp" />
+    <ClCompile Include="15_clipping_plane\main.cpp" />
+    <ClCompile Include="15_clipping_plane\modelclass.cpp" />
+    <ClCompile Include="15_clipping_plane\System.cpp" />
+    <ClCompile Include="15_clipping_plane\textureclass.cpp" />
+    <ClCompile Include="16_texture_translation\Graphics.cpp" />
+    <ClCompile Include="16_texture_translation\main.cpp" />
+    <ClCompile Include="16_texture_translation\modelclass.cpp" />
+    <ClCompile Include="16_texture_translation\System.cpp" />
+    <ClCompile Include="16_texture_translation\textureclass.cpp" />
+    <ClCompile Include="16_texture_translation\translateshaderclass.cpp" />
+    <ClCompile Include="17_transparency\Graphics.cpp" />
+    <ClCompile Include="17_transparency\main.cpp" />
+    <ClCompile Include="17_transparency\modelclass.cpp" />
+    <ClCompile Include="17_transparency\System.cpp" />
+    <ClCompile Include="17_transparency\textureclass.cpp" />
+    <ClCompile Include="17_transparency\textureshaderclass.cpp" />
+    <ClCompile Include="17_transparency\transparentshaderclass.cpp" />
+    <ClCompile Include="18_reflection\Graphics.cpp" />
+    <ClCompile Include="18_reflection\main.cpp" />
+    <ClCompile Include="18_reflection\modelclass.cpp" />
+    <ClCompile Include="18_reflection\reflectionshaderclass.cpp" />
+    <ClCompile Include="18_reflection\rendertextureclass.cpp" />
+    <ClCompile Include="18_reflection\System.cpp" />
+    <ClCompile Include="18_reflection\textureclass.cpp" />
+    <ClCompile Include="18_reflection\textureshaderclass.cpp" />
+    <ClCompile Include="19_screen_fade\bitmapclass.cpp" />
+    <ClCompile Include="19_screen_fade\fadeshaderclass.cpp" />
+    <ClCompile Include="19_screen_fade\Graphics.cpp" />
+    <ClCompile Include="19_screen_fade\main.cpp" />
+    <ClCompile Include="19_screen_fade\modelclass.cpp" />
+    <ClCompile Include="19_screen_fade\rendertextureclass.cpp" />
+    <ClCompile Include="19_screen_fade\System.cpp" />
+    <ClCompile Include="19_screen_fade\textureclass.cpp" />
+    <ClCompile Include="19_screen_fade\textureshaderclass.cpp" />
+    <ClCompile Include="1_simple_movable_surface\GraphicsModule.cpp" />
+    <ClCompile Include="1_simple_movable_surface\main.cpp" />
+    <ClCompile Include="1_simple_movable_surface\modelclass.cpp" />
+    <ClCompile Include="1_simple_movable_surface\SimpleMovableSurface.cpp" />
+    <ClCompile Include="1_simple_movable_surface\SimpleTexture.cpp" />
+    <ClCompile Include="1_simple_movable_surface\System.cpp" />
+    <ClCompile Include="1_simple_movable_surface\TextureShader.cpp" />
+    <ClCompile Include="20_refraction\Graphics.cpp" />
+    <ClCompile Include="20_refraction\lightclass.cpp" />
+    <ClCompile Include="20_refraction\lightshaderclass.cpp" />
+    <ClCompile Include="20_refraction\main.cpp" />
+    <ClCompile Include="20_refraction\modelclass.cpp" />
+    <ClCompile Include="20_refraction\refractionshaderclass.cpp" />
+    <ClCompile Include="20_refraction\rendertextureclass.cpp" />
+    <ClCompile Include="20_refraction\System.cpp" />
+    <ClCompile Include="20_refraction\textureclass.cpp" />
+    <ClCompile Include="20_refraction\watershaderclass.cpp" />
+    <ClCompile Include="21_multiple_pointlight\Graphics.cpp" />
+    <ClCompile Include="21_multiple_pointlight\lightclass.cpp" />
+    <ClCompile Include="21_multiple_pointlight\lightshaderclass.cpp" />
+    <ClCompile Include="21_multiple_pointlight\main.cpp" />
+    <ClCompile Include="21_multiple_pointlight\modelclass.cpp" />
+    <ClCompile Include="21_multiple_pointlight\System.cpp" />
+    <ClCompile Include="21_multiple_pointlight\textureclass.cpp" />
+    <ClCompile Include="22_glass_and_ice\glassshaderclass.cpp" />
+    <ClCompile Include="22_glass_and_ice\Graphics.cpp" />
+    <ClCompile Include="22_glass_and_ice\main.cpp" />
+    <ClCompile Include="22_glass_and_ice\modelclass.cpp" />
+    <ClCompile Include="22_glass_and_ice\rendertextureclass.cpp" />
+    <ClCompile Include="22_glass_and_ice\System.cpp" />
+    <ClCompile Include="22_glass_and_ice\textureclass.cpp" />
+    <ClCompile Include="22_glass_and_ice\textureshaderclass.cpp" />
+    <ClCompile Include="23_fire\fireshaderclass.cpp" />
+    <ClCompile Include="23_fire\Graphics.cpp" />
+    <ClCompile Include="23_fire\main.cpp" />
+    <ClCompile Include="23_fire\modelclass.cpp" />
+    <ClCompile Include="23_fire\System.cpp" />
+    <ClCompile Include="23_fire\textureclass.cpp" />
+    <ClCompile Include="24_billboard\Graphics.cpp" />
+    <ClCompile Include="24_billboard\main.cpp" />
+    <ClCompile Include="24_billboard\modelclass.cpp" />
+    <ClCompile Include="24_billboard\positionclass.cpp" />
+    <ClCompile Include="24_billboard\System.cpp" />
+    <ClCompile Include="24_billboard\textureclass.cpp" />
+    <ClCompile Include="24_billboard\textureshaderclass.cpp" />
+    <ClCompile Include="24_billboard\timerclass.cpp" />
+    <ClCompile Include="25_depth_buffer\depthshaderclass.cpp" />
+    <ClCompile Include="25_depth_buffer\Graphics.cpp" />
+    <ClCompile Include="25_depth_buffer\main.cpp" />
+    <ClCompile Include="25_depth_buffer\modelclass.cpp" />
+    <ClCompile Include="25_depth_buffer\System.cpp" />
+    <ClCompile Include="26_blur\Graphics.cpp" />
+    <ClCompile Include="26_blur\horizontalblurshaderclass.cpp" />
+    <ClCompile Include="26_blur\main.cpp" />
+    <ClCompile Include="26_blur\modelclass.cpp" />
+    <ClCompile Include="26_blur\orthowindowclass.cpp" />
+    <ClCompile Include="26_blur\rendertextureclass.cpp" />
+    <ClCompile Include="26_blur\System.cpp" />
+    <ClCompile Include="26_blur\textureclass.cpp" />
+    <ClCompile Include="26_blur\textureshaderclass.cpp" />
+    <ClCompile Include="26_blur\verticalblurshaderclass.cpp" />
+    <ClCompile Include="27_draw_instance\Graphics.cpp" />
+    <ClCompile Include="27_draw_instance\main.cpp" />
+    <ClCompile Include="27_draw_instance\modelclass.cpp" />
+    <ClCompile Include="27_draw_instance\System.cpp" />
+    <ClCompile Include="27_draw_instance\textureclass.cpp" />
+    <ClCompile Include="27_draw_instance\textureshaderclass.cpp" />
+    <ClCompile Include="28_particle\Graphics.cpp" />
+    <ClCompile Include="28_particle\main.cpp" />
+    <ClCompile Include="28_particle\particleshaderclass.cpp" />
+    <ClCompile Include="28_particle\particlesystemclass.cpp" />
+    <ClCompile Include="28_particle\System.cpp" />
+    <ClCompile Include="28_particle\textureclass.cpp" />
+    <ClCompile Include="29_shadow_mapping\depthshaderclass.cpp" />
+    <ClCompile Include="29_shadow_mapping\Graphics.cpp" />
+    <ClCompile Include="29_shadow_mapping\lightclass.cpp" />
+    <ClCompile Include="29_shadow_mapping\main.cpp" />
+    <ClCompile Include="29_shadow_mapping\modelclass.cpp" />
+    <ClCompile Include="29_shadow_mapping\positionclass.cpp" />
+    <ClCompile Include="29_shadow_mapping\rendertextureclass.cpp" />
+    <ClCompile Include="29_shadow_mapping\shadowshaderclass.cpp" />
+    <ClCompile Include="29_shadow_mapping\System.cpp" />
+    <ClCompile Include="29_shadow_mapping\textureclass.cpp" />
+    <ClCompile Include="2_alphamap\alphamapshaderclass.cpp" />
+    <ClCompile Include="2_alphamap\Graphics.cpp" />
+    <ClCompile Include="2_alphamap\main.cpp" />
+    <ClCompile Include="2_alphamap\modelclass.cpp" />
+    <ClCompile Include="2_alphamap\System.cpp" />
+    <ClCompile Include="2_alphamap\texturearrayclass.cpp" />
+    <ClCompile Include="30_multiple_light_shadow_mapping\depthshaderclass.cpp" />
+    <ClCompile Include="30_multiple_light_shadow_mapping\Graphics.cpp" />
+    <ClCompile Include="30_multiple_light_shadow_mapping\lightclass.cpp" />
+    <ClCompile Include="30_multiple_light_shadow_mapping\main.cpp" />
+    <ClCompile Include="30_multiple_light_shadow_mapping\modelclass.cpp" />
+    <ClCompile Include="30_multiple_light_shadow_mapping\positionclass.cpp" />
+    <ClCompile Include="30_multiple_light_shadow_mapping\rendertextureclass.cpp" />
+    <ClCompile Include="30_multiple_light_shadow_mapping\shadowshaderclass.cpp" />
+    <ClCompile Include="30_multiple_light_shadow_mapping\System.cpp" />
+    <ClCompile Include="30_multiple_light_shadow_mapping\textureclass.cpp" />
+    <ClCompile Include="31_soft_shadow\depthshader.cpp" />
+    <ClCompile Include="31_soft_shadow\depthshaderclass.cpp" />
+    <ClCompile Include="31_soft_shadow\Graphics.cpp" />
+    <ClCompile Include="31_soft_shadow\horizontalblurshader.cpp" />
+    <ClCompile Include="31_soft_shadow\horizontalblurshaderclass.cpp" />
+    <ClCompile Include="31_soft_shadow\light.cpp" />
+    <ClCompile Include="31_soft_shadow\lightclass.cpp" />
+    <ClCompile Include="31_soft_shadow\main.cpp" />
+    <ClCompile Include="31_soft_shadow\merged_cpp_files.cpp" />
+    <ClCompile Include="31_soft_shadow\model.cpp" />
+    <ClCompile Include="31_soft_shadow\modelclass.cpp" />
+    <ClCompile Include="31_soft_shadow\orthowindow.cpp" />
+    <ClCompile Include="31_soft_shadow\orthowindowclass.cpp" />
+    <ClCompile Include="31_soft_shadow\pbrshader.cpp" />
+    <ClCompile Include="31_soft_shadow\pbrshaderclass.cpp" />
+    <ClCompile Include="31_soft_shadow\position.cpp" />
+    <ClCompile Include="31_soft_shadow\positionclass.cpp" />
+    <ClCompile Include="31_soft_shadow\RenderableObject.cpp" />
+    <ClCompile Include="31_soft_shadow\RenderPass.cpp" />
+    <ClCompile Include="31_soft_shadow\RenderPipeline.cpp" />
+    <ClCompile Include="31_soft_shadow\RenderSystem.cpp" />
+    <ClCompile Include="31_soft_shadow\rendertexture.cpp" />
+    <ClCompile Include="31_soft_shadow\rendertextureclass.cpp" />
+    <ClCompile Include="31_soft_shadow\ShaderBase.cpp" />
+    <ClCompile Include="31_soft_shadow\ShaderParameterContainer.cpp" />
+    <ClCompile Include="31_soft_shadow\shadowshader.cpp" />
+    <ClCompile Include="31_soft_shadow\shadowshaderclass.cpp" />
+    <ClCompile Include="31_soft_shadow\softshadowshader.cpp" />
+    <ClCompile Include="31_soft_shadow\softshadowshaderclass.cpp" />
+    <ClCompile Include="31_soft_shadow\System.cpp" />
+    <ClCompile Include="31_soft_shadow\texture.cpp" />
+    <ClCompile Include="31_soft_shadow\textureclass.cpp" />
+    <ClCompile Include="31_soft_shadow\textureshader.cpp" />
+    <ClCompile Include="31_soft_shadow\textureshaderclass.cpp" />
+    <ClCompile Include="31_soft_shadow\verticalblurshader.cpp" />
+    <ClCompile Include="31_soft_shadow\verticalblurshaderclass.cpp" />
+    <ClCompile Include="32_physically _based_rendering\applicationclass.cpp" />
+    <ClCompile Include="32_physically _based_rendering\cameraclass.cpp" />
+    <ClCompile Include="32_physically _based_rendering\d3dclass.cpp" />
+    <ClCompile Include="32_physically _based_rendering\inputclass.cpp" />
+    <ClCompile Include="32_physically _based_rendering\lightclass.cpp" />
+    <ClCompile Include="32_physically _based_rendering\main.cpp" />
+    <ClCompile Include="32_physically _based_rendering\modelclass.cpp" />
+    <ClCompile Include="32_physically _based_rendering\pbrshaderclass.cpp" />
+    <ClCompile Include="32_physically _based_rendering\systemclass.cpp" />
+    <ClCompile Include="32_physically _based_rendering\textureclass.cpp" />
+    <ClCompile Include="33_ssao\applicationclass.cpp" />
+    <ClCompile Include="33_ssao\cameraclass.cpp" />
+    <ClCompile Include="33_ssao\d3dclass.cpp" />
+    <ClCompile Include="33_ssao\deferredbuffersclass.cpp" />
+    <ClCompile Include="33_ssao\gbuffershaderclass.cpp" />
+    <ClCompile Include="33_ssao\inputclass.cpp" />
+    <ClCompile Include="33_ssao\lightclass.cpp" />
+    <ClCompile Include="33_ssao\lightshaderclass.cpp" />
+    <ClCompile Include="33_ssao\main.cpp" />
+    <ClCompile Include="33_ssao\modelclass.cpp" />
+    <ClCompile Include="33_ssao\orthowindowclass.cpp" />
+    <ClCompile Include="33_ssao\rendertextureclass.cpp" />
+    <ClCompile Include="33_ssao\ssaoblurshaderclass.cpp" />
+    <ClCompile Include="33_ssao\ssaoshaderclass.cpp" />
+    <ClCompile Include="33_ssao\systemclass.cpp" />
+    <ClCompile Include="33_ssao\textureclass.cpp" />
+    <ClCompile Include="3_triangle_with_simple_diffuse_light\Graphics.cpp" />
+    <ClCompile Include="3_triangle_with_simple_diffuse_light\lightclass.cpp" />
+    <ClCompile Include="3_triangle_with_simple_diffuse_light\lightshaderclass.cpp" />
+    <ClCompile Include="3_triangle_with_simple_diffuse_light\main.cpp" />
+    <ClCompile Include="3_triangle_with_simple_diffuse_light\modelclass.cpp" />
+    <ClCompile Include="3_triangle_with_simple_diffuse_light\System.cpp" />
+    <ClCompile Include="3_triangle_with_simple_diffuse_light\textureclass.cpp" />
+    <ClCompile Include="4_box_with_simple_diffuse_light\GameObject.cpp" />
+    <ClCompile Include="4_box_with_simple_diffuse_light\Graphics.cpp" />
+    <ClCompile Include="4_box_with_simple_diffuse_light\lightshaderclass.cpp" />
+    <ClCompile Include="4_box_with_simple_diffuse_light\main.cpp" />
+    <ClCompile Include="4_box_with_simple_diffuse_light\modelclass.cpp" />
+    <ClCompile Include="4_box_with_simple_diffuse_light\RenderPipeline.cpp" />
+    <ClCompile Include="4_box_with_simple_diffuse_light\RenderSystem.cpp" />
+    <ClCompile Include="4_box_with_simple_diffuse_light\Scene.cpp" />
+    <ClCompile Include="4_box_with_simple_diffuse_light\System.cpp" />
+    <ClCompile Include="4_box_with_simple_diffuse_light\textureclass.cpp" />
+    <ClCompile Include="5_box_with_diffuse_light\DDSTextureLoader.cpp" />
+    <ClCompile Include="5_box_with_diffuse_light\Graphics.cpp" />
+    <ClCompile Include="5_box_with_diffuse_light\lightclass.cpp" />
+    <ClCompile Include="5_box_with_diffuse_light\lightshaderclass.cpp" />
+    <ClCompile Include="5_box_with_diffuse_light\main.cpp" />
+    <ClCompile Include="5_box_with_diffuse_light\modelclass.cpp" />
+    <ClCompile Include="5_box_with_diffuse_light\System.cpp" />
+    <ClCompile Include="5_box_with_diffuse_light\textureclass.cpp" />
+    <ClCompile Include="6_box_with_specular_light\Graphics.cpp" />
+    <ClCompile Include="6_box_with_specular_light\lightclass.cpp" />
+    <ClCompile Include="6_box_with_specular_light\lightshaderclass.cpp" />
+    <ClCompile Include="6_box_with_specular_light\main.cpp" />
+    <ClCompile Include="6_box_with_specular_light\modelclass.cpp" />
+    <ClCompile Include="6_box_with_specular_light\System.cpp" />
+    <ClCompile Include="6_box_with_specular_light\textureclass.cpp" />
+    <ClCompile Include="7_lightmap\Graphics.cpp" />
+    <ClCompile Include="7_lightmap\lightmapshaderclass.cpp" />
+    <ClCompile Include="7_lightmap\main.cpp" />
+    <ClCompile Include="7_lightmap\modelclass.cpp" />
+    <ClCompile Include="7_lightmap\System.cpp" />
+    <ClCompile Include="7_lightmap\texturearrayclass.cpp" />
+    <ClCompile Include="8_multitexture\Graphics.cpp" />
+    <ClCompile Include="8_multitexture\main.cpp" />
+    <ClCompile Include="8_multitexture\modelclass.cpp" />
+    <ClCompile Include="8_multitexture\multitextureshaderclass.cpp" />
+    <ClCompile Include="8_multitexture\System.cpp" />
+    <ClCompile Include="8_multitexture\texturearrayclass.cpp" />
+    <ClCompile Include="9_simple_font\fontclass.cpp" />
+    <ClCompile Include="9_simple_font\fontshaderclass.cpp" />
+    <ClCompile Include="9_simple_font\Graphics.cpp" />
+    <ClCompile Include="9_simple_font\main.cpp" />
+    <ClCompile Include="9_simple_font\System.cpp" />
+    <ClCompile Include="9_simple_font\textclass.cpp" />
+    <ClCompile Include="9_simple_font\textureclass.cpp" />
+    <ClCompile Include="commonframework2\Camera.cpp" />
+    <ClCompile Include="commonframework2\Cpu.cpp" />
+    <ClCompile Include="commonframework2\DirectX11Device.cpp" />
+    <ClCompile Include="commonframework2\Fps.cpp" />
+    <ClCompile Include="commonframework2\Frustum.cpp" />
+    <ClCompile Include="commonframework2\GraphicsBase.cpp" />
+    <ClCompile Include="commonframework2\Input.cpp" />
+    <ClCompile Include="commonframework2\stdafx.cpp" />
+    <ClCompile Include="commonframework2\SystemBase.cpp" />
+    <ClCompile Include="commonframework2\Timer.cpp" />
+    <ClCompile Include="commonframework2\WindowsApplication.cpp" />
+    <ClCompile Include="commonframework\Camera.cpp" />
+    <ClCompile Include="commonframework\Cpu.cpp" />
+    <ClCompile Include="commonframework\DirectX11Device.cpp" />
+    <ClCompile Include="commonframework\Fps.cpp" />
+    <ClCompile Include="commonframework\Frustum.cpp" />
+    <ClCompile Include="commonframework\GraphicsBase.cpp" />
+    <ClCompile Include="commonframework\Input.cpp" />
+    <ClCompile Include="commonframework\Light.cpp" />
+    <ClCompile Include="commonframework\Sound.cpp" />
+    <ClCompile Include="commonframework\stdafx.cpp" />
+    <ClCompile Include="commonframework\SystemBase.cpp" />
+    <ClCompile Include="commonframework\Timer.cpp" />
+    <ClCompile Include="commonframework\WindowsApplication.cpp" />
+    <ClCompile Include="model_convert\main.cpp" />
+    <ClCompile Include="tut43\Graphics.cpp" />
+    <ClCompile Include="tut43\lightclass.cpp" />
+    <ClCompile Include="tut43\main.cpp" />
+    <ClCompile Include="tut43\modelclass.cpp" />
+    <ClCompile Include="tut43\projectionshaderclass.cpp" />
+    <ClCompile Include="tut43\System.cpp" />
+    <ClCompile Include="tut43\textureclass.cpp" />
+    <ClCompile Include="tut43\viewpointclass.cpp" />
+    <ClCompile Include="tut44\Graphics.cpp" />
+    <ClCompile Include="tut44\lightclass.cpp" />
+    <ClCompile Include="tut44\main.cpp" />
+    <ClCompile Include="tut44\modelclass.cpp" />
+    <ClCompile Include="tut44\projectionshaderclass.cpp" />
+    <ClCompile Include="tut44\System.cpp" />
+    <ClCompile Include="tut44\textureclass.cpp" />
+    <ClCompile Include="tut44\viewpointclass.cpp" />
+    <ClCompile Include="tut46\bitmapclass.cpp" />
+    <ClCompile Include="tut46\glowmapshaderclass.cpp" />
+    <ClCompile Include="tut46\glowshaderclass.cpp" />
+    <ClCompile Include="tut46\Graphics.cpp" />
+    <ClCompile Include="tut46\horizontalblurshaderclass.cpp" />
+    <ClCompile Include="tut46\main.cpp" />
+    <ClCompile Include="tut46\orthowindowclass.cpp" />
+    <ClCompile Include="tut46\rendertextureclass.cpp" />
+    <ClCompile Include="tut46\System.cpp" />
+    <ClCompile Include="tut46\textureclass.cpp" />
+    <ClCompile Include="tut46\textureshaderclass.cpp" />
+    <ClCompile Include="tut46\verticalblurshaderclass.cpp" />
+    <ClCompile Include="tut47\bitmapclass.cpp" />
+    <ClCompile Include="tut47\fontclass.cpp" />
+    <ClCompile Include="tut47\fontshaderclass.cpp" />
+    <ClCompile Include="tut47\Graphics.cpp" />
+    <ClCompile Include="tut47\lightclass.cpp" />
+    <ClCompile Include="tut47\lightshaderclass.cpp" />
+    <ClCompile Include="tut47\main.cpp" />
+    <ClCompile Include="tut47\modelclass.cpp" />
+    <ClCompile Include="tut47\System.cpp" />
+    <ClCompile Include="tut47\textclass.cpp" />
+    <ClCompile Include="tut47\textureclass.cpp" />
+    <ClCompile Include="tut47\textureshaderclass.cpp" />
+    <ClCompile Include="tut48\depthshaderclass.cpp" />
+    <ClCompile Include="tut48\Graphics.cpp" />
+    <ClCompile Include="tut48\lightclass.cpp" />
+    <ClCompile Include="tut48\main.cpp" />
+    <ClCompile Include="tut48\modelclass.cpp" />
+    <ClCompile Include="tut48\positionclass.cpp" />
+    <ClCompile Include="tut48\rendertextureclass.cpp" />
+    <ClCompile Include="tut48\shadowshaderclass.cpp" />
+    <ClCompile Include="tut48\System.cpp" />
+    <ClCompile Include="tut48\textureclass.cpp" />
+    <ClCompile Include="tut49\depthshaderclass.cpp" />
+    <ClCompile Include="tut49\Graphics.cpp" />
+    <ClCompile Include="tut49\lightclass.cpp" />
+    <ClCompile Include="tut49\main.cpp" />
+    <ClCompile Include="tut49\modelclass.cpp" />
+    <ClCompile Include="tut49\positionclass.cpp" />
+    <ClCompile Include="tut49\rendertextureclass.cpp" />
+    <ClCompile Include="tut49\shadowshaderclass.cpp" />
+    <ClCompile Include="tut49\System.cpp" />
+    <ClCompile Include="tut49\textureclass.cpp" />
+    <ClCompile Include="tut49\transparentdepthshaderclass.cpp" />
+    <ClCompile Include="tut49\treeclass.cpp" />
+    <ClCompile Include="tut50\deferredbuffersclass.cpp" />
+    <ClCompile Include="tut50\deferredshaderclass.cpp" />
+    <ClCompile Include="tut50\Graphics.cpp" />
+    <ClCompile Include="tut50\lightclass.cpp" />
+    <ClCompile Include="tut50\lightshaderclass.cpp" />
+    <ClCompile Include="tut50\main.cpp" />
+    <ClCompile Include="tut50\modelclass.cpp" />
+    <ClCompile Include="tut50\orthowindowclass.cpp" />
+    <ClCompile Include="tut50\System.cpp" />
+    <ClCompile Include="tut50\textureclass.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="0_simple_triangle\colorshaderclass.h" />
+    <ClInclude Include="0_simple_triangle\Graphics.h" />
+    <ClInclude Include="0_simple_triangle\modelclass.h" />
+    <ClInclude Include="0_simple_triangle\System.h" />
+    <ClInclude Include="10_frustum_culling\fontclass.h" />
+    <ClInclude Include="10_frustum_culling\fontshaderclass.h" />
+    <ClInclude Include="10_frustum_culling\Frustum.h" />
+    <ClInclude Include="10_frustum_culling\Graphics.h" />
+    <ClInclude Include="10_frustum_culling\lightclass.h" />
+    <ClInclude Include="10_frustum_culling\lightshaderclass.h" />
+    <ClInclude Include="10_frustum_culling\modelclass.h" />
+    <ClInclude Include="10_frustum_culling\modellistclass.h" />
+    <ClInclude Include="10_frustum_culling\positionclass.h" />
+    <ClInclude Include="10_frustum_culling\System.h" />
+    <ClInclude Include="10_frustum_culling\textclass.h" />
+    <ClInclude Include="10_frustum_culling\textureclass.h" />
+    <ClInclude Include="11_bump_mapping\bumpmapshaderclass.h" />
+    <ClInclude Include="11_bump_mapping\Graphics.h" />
+    <ClInclude Include="11_bump_mapping\lightclass.h" />
+    <ClInclude Include="11_bump_mapping\modelclass.h" />
+    <ClInclude Include="11_bump_mapping\System.h" />
+    <ClInclude Include="11_bump_mapping\texturearrayclass.h" />
+    <ClInclude Include="12_specular_mapping\Graphics.h" />
+    <ClInclude Include="12_specular_mapping\lightclass.h" />
+    <ClInclude Include="12_specular_mapping\modelclass.h" />
+    <ClInclude Include="12_specular_mapping\specmapshaderclass.h" />
+    <ClInclude Include="12_specular_mapping\System.h" />
+    <ClInclude Include="12_specular_mapping\texturearrayclass.h" />
+    <ClInclude Include="13_render_to_texture\debugwindowclass.h" />
+    <ClInclude Include="13_render_to_texture\Graphics.h" />
+    <ClInclude Include="13_render_to_texture\lightclass.h" />
+    <ClInclude Include="13_render_to_texture\lightshaderclass.h" />
+    <ClInclude Include="13_render_to_texture\modelclass.h" />
+    <ClInclude Include="13_render_to_texture\rendertextureclass.h" />
+    <ClInclude Include="13_render_to_texture\System.h" />
+    <ClInclude Include="13_render_to_texture\textureclass.h" />
+    <ClInclude Include="13_render_to_texture\textureshaderclass.h" />
+    <ClInclude Include="14_post_process_fog\fogshaderclass.h" />
+    <ClInclude Include="14_post_process_fog\Graphics.h" />
+    <ClInclude Include="14_post_process_fog\modelclass.h" />
+    <ClInclude Include="14_post_process_fog\System.h" />
+    <ClInclude Include="14_post_process_fog\textureclass.h" />
+    <ClInclude Include="15_clipping_plane\clipplaneshaderclass.h" />
+    <ClInclude Include="15_clipping_plane\Graphics.h" />
+    <ClInclude Include="15_clipping_plane\modelclass.h" />
+    <ClInclude Include="15_clipping_plane\System.h" />
+    <ClInclude Include="15_clipping_plane\textureclass.h" />
+    <ClInclude Include="16_texture_translation\Graphics.h" />
+    <ClInclude Include="16_texture_translation\modelclass.h" />
+    <ClInclude Include="16_texture_translation\System.h" />
+    <ClInclude Include="16_texture_translation\textureclass.h" />
+    <ClInclude Include="16_texture_translation\translateshaderclass.h" />
+    <ClInclude Include="17_transparency\Graphics.h" />
+    <ClInclude Include="17_transparency\modelclass.h" />
+    <ClInclude Include="17_transparency\System.h" />
+    <ClInclude Include="17_transparency\textureclass.h" />
+    <ClInclude Include="17_transparency\textureshaderclass.h" />
+    <ClInclude Include="17_transparency\transparentshaderclass.h" />
+    <ClInclude Include="18_reflection\Graphics.h" />
+    <ClInclude Include="18_reflection\modelclass.h" />
+    <ClInclude Include="18_reflection\reflectionshaderclass.h" />
+    <ClInclude Include="18_reflection\rendertextureclass.h" />
+    <ClInclude Include="18_reflection\System.h" />
+    <ClInclude Include="18_reflection\textureclass.h" />
+    <ClInclude Include="18_reflection\textureshaderclass.h" />
+    <ClInclude Include="19_screen_fade\bitmapclass.h" />
+    <ClInclude Include="19_screen_fade\fadeshaderclass.h" />
+    <ClInclude Include="19_screen_fade\Graphics.h" />
+    <ClInclude Include="19_screen_fade\modelclass.h" />
+    <ClInclude Include="19_screen_fade\rendertextureclass.h" />
+    <ClInclude Include="19_screen_fade\System.h" />
+    <ClInclude Include="19_screen_fade\textureclass.h" />
+    <ClInclude Include="19_screen_fade\textureshaderclass.h" />
+    <ClInclude Include="1_simple_movable_surface\GraphicsModule.h" />
+    <ClInclude Include="1_simple_movable_surface\modelclass.h" />
+    <ClInclude Include="1_simple_movable_surface\SimpleMovableSurface.h" />
+    <ClInclude Include="1_simple_movable_surface\SimpleTexture.h" />
+    <ClInclude Include="1_simple_movable_surface\System.h" />
+    <ClInclude Include="1_simple_movable_surface\TextureShader.h" />
+    <ClInclude Include="20_refraction\Graphics.h" />
+    <ClInclude Include="20_refraction\lightclass.h" />
+    <ClInclude Include="20_refraction\lightshaderclass.h" />
+    <ClInclude Include="20_refraction\modelclass.h" />
+    <ClInclude Include="20_refraction\refractionshaderclass.h" />
+    <ClInclude Include="20_refraction\rendertextureclass.h" />
+    <ClInclude Include="20_refraction\System.h" />
+    <ClInclude Include="20_refraction\textureclass.h" />
+    <ClInclude Include="20_refraction\watershaderclass.h" />
+    <ClInclude Include="21_multiple_pointlight\Graphics.h" />
+    <ClInclude Include="21_multiple_pointlight\lightclass.h" />
+    <ClInclude Include="21_multiple_pointlight\lightshaderclass.h" />
+    <ClInclude Include="21_multiple_pointlight\modelclass.h" />
+    <ClInclude Include="21_multiple_pointlight\System.h" />
+    <ClInclude Include="21_multiple_pointlight\textureclass.h" />
+    <ClInclude Include="22_glass_and_ice\glassshaderclass.h" />
+    <ClInclude Include="22_glass_and_ice\Graphics.h" />
+    <ClInclude Include="22_glass_and_ice\modelclass.h" />
+    <ClInclude Include="22_glass_and_ice\rendertextureclass.h" />
+    <ClInclude Include="22_glass_and_ice\System.h" />
+    <ClInclude Include="22_glass_and_ice\textureclass.h" />
+    <ClInclude Include="22_glass_and_ice\textureshaderclass.h" />
+    <ClInclude Include="23_fire\fireshaderclass.h" />
+    <ClInclude Include="23_fire\Graphics.h" />
+    <ClInclude Include="23_fire\modelclass.h" />
+    <ClInclude Include="23_fire\System.h" />
+    <ClInclude Include="23_fire\textureclass.h" />
+    <ClInclude Include="24_billboard\Graphics.h" />
+    <ClInclude Include="24_billboard\modelclass.h" />
+    <ClInclude Include="24_billboard\positionclass.h" />
+    <ClInclude Include="24_billboard\System.h" />
+    <ClInclude Include="24_billboard\textureclass.h" />
+    <ClInclude Include="24_billboard\textureshaderclass.h" />
+    <ClInclude Include="24_billboard\timerclass.h" />
+    <ClInclude Include="25_depth_buffer\depthshaderclass.h" />
+    <ClInclude Include="25_depth_buffer\Graphics.h" />
+    <ClInclude Include="25_depth_buffer\modelclass.h" />
+    <ClInclude Include="25_depth_buffer\System.h" />
+    <ClInclude Include="26_blur\Graphics.h" />
+    <ClInclude Include="26_blur\horizontalblurshaderclass.h" />
+    <ClInclude Include="26_blur\modelclass.h" />
+    <ClInclude Include="26_blur\orthowindowclass.h" />
+    <ClInclude Include="26_blur\rendertextureclass.h" />
+    <ClInclude Include="26_blur\System.h" />
+    <ClInclude Include="26_blur\textureclass.h" />
+    <ClInclude Include="26_blur\textureshaderclass.h" />
+    <ClInclude Include="26_blur\verticalblurshaderclass.h" />
+    <ClInclude Include="27_draw_instance\Graphics.h" />
+    <ClInclude Include="27_draw_instance\modelclass.h" />
+    <ClInclude Include="27_draw_instance\System.h" />
+    <ClInclude Include="27_draw_instance\textureclass.h" />
+    <ClInclude Include="27_draw_instance\textureshaderclass.h" />
+    <ClInclude Include="28_particle\Graphics.h" />
+    <ClInclude Include="28_particle\particleshaderclass.h" />
+    <ClInclude Include="28_particle\particlesystemclass.h" />
+    <ClInclude Include="28_particle\System.h" />
+    <ClInclude Include="28_particle\textureclass.h" />
+    <ClInclude Include="29_shadow_mapping\depthshaderclass.h" />
+    <ClInclude Include="29_shadow_mapping\Graphics.h" />
+    <ClInclude Include="29_shadow_mapping\lightclass.h" />
+    <ClInclude Include="29_shadow_mapping\modelclass.h" />
+    <ClInclude Include="29_shadow_mapping\positionclass.h" />
+    <ClInclude Include="29_shadow_mapping\rendertextureclass.h" />
+    <ClInclude Include="29_shadow_mapping\shadowshaderclass.h" />
+    <ClInclude Include="29_shadow_mapping\System.h" />
+    <ClInclude Include="29_shadow_mapping\textureclass.h" />
+    <ClInclude Include="2_alphamap\alphamapshaderclass.h" />
+    <ClInclude Include="2_alphamap\Graphics.h" />
+    <ClInclude Include="2_alphamap\modelclass.h" />
+    <ClInclude Include="2_alphamap\System.h" />
+    <ClInclude Include="2_alphamap\texturearrayclass.h" />
+    <ClInclude Include="30_multiple_light_shadow_mapping\depthshaderclass.h" />
+    <ClInclude Include="30_multiple_light_shadow_mapping\Graphics.h" />
+    <ClInclude Include="30_multiple_light_shadow_mapping\lightclass.h" />
+    <ClInclude Include="30_multiple_light_shadow_mapping\modelclass.h" />
+    <ClInclude Include="30_multiple_light_shadow_mapping\positionclass.h" />
+    <ClInclude Include="30_multiple_light_shadow_mapping\rendertextureclass.h" />
+    <ClInclude Include="30_multiple_light_shadow_mapping\shadowshaderclass.h" />
+    <ClInclude Include="30_multiple_light_shadow_mapping\System.h" />
+    <ClInclude Include="30_multiple_light_shadow_mapping\textureclass.h" />
+    <ClInclude Include="31_soft_shadow\depthshader.h" />
+    <ClInclude Include="31_soft_shadow\depthshaderclass.h" />
+    <ClInclude Include="31_soft_shadow\GameObject.h" />
+    <ClInclude Include="31_soft_shadow\Graphics.h" />
+    <ClInclude Include="31_soft_shadow\horizontalblurshader.h" />
+    <ClInclude Include="31_soft_shadow\horizontalblurshaderclass.h" />
+    <ClInclude Include="31_soft_shadow\IRenderable.h" />
+    <ClInclude Include="31_soft_shadow\IRenderGroup.h" />
+    <ClInclude Include="31_soft_shadow\IShader.h" />
+    <ClInclude Include="31_soft_shadow\light.h" />
+    <ClInclude Include="31_soft_shadow\lightclass.h" />
+    <ClInclude Include="31_soft_shadow\model.h" />
+    <ClInclude Include="31_soft_shadow\modelclass.h" />
+    <ClInclude Include="31_soft_shadow\orthowindow.h" />
+    <ClInclude Include="31_soft_shadow\orthowindowclass.h" />
+    <ClInclude Include="31_soft_shadow\pbrshader.h" />
+    <ClInclude Include="31_soft_shadow\pbrshaderclass.h" />
+    <ClInclude Include="31_soft_shadow\position.h" />
+    <ClInclude Include="31_soft_shadow\positionclass.h" />
+    <ClInclude Include="31_soft_shadow\RenderableObject.h" />
+    <ClInclude Include="31_soft_shadow\RenderPass.h" />
+    <ClInclude Include="31_soft_shadow\RenderPipeline.h" />
+    <ClInclude Include="31_soft_shadow\RenderSystem.h" />
+    <ClInclude Include="31_soft_shadow\rendertexture.h" />
+    <ClInclude Include="31_soft_shadow\rendertextureclass.h" />
+    <ClInclude Include="31_soft_shadow\Scene.h" />
+    <ClInclude Include="31_soft_shadow\ShaderBase.h" />
+    <ClInclude Include="31_soft_shadow\ShaderParameterCallback.h" />
+    <ClInclude Include="31_soft_shadow\ShaderParameterContainer.h" />
+    <ClInclude Include="31_soft_shadow\ShaderParameterLayout.h" />
+    <ClInclude Include="31_soft_shadow\shadowshader.h" />
+    <ClInclude Include="31_soft_shadow\shadowshaderclass.h" />
+    <ClInclude Include="31_soft_shadow\softshadowshader.h" />
+    <ClInclude Include="31_soft_shadow\softshadowshaderclass.h" />
+    <ClInclude Include="31_soft_shadow\StandardRenderGroup.h" />
+    <ClInclude Include="31_soft_shadow\System.h" />
+    <ClInclude Include="31_soft_shadow\texture.h" />
+    <ClInclude Include="31_soft_shadow\textureclass.h" />
+    <ClInclude Include="31_soft_shadow\textureshader.h" />
+    <ClInclude Include="31_soft_shadow\textureshaderclass.h" />
+    <ClInclude Include="31_soft_shadow\verticalblurshader.h" />
+    <ClInclude Include="31_soft_shadow\verticalblurshaderclass.h" />
+    <ClInclude Include="32_physically _based_rendering\applicationclass.h" />
+    <ClInclude Include="32_physically _based_rendering\cameraclass.h" />
+    <ClInclude Include="32_physically _based_rendering\d3dclass.h" />
+    <ClInclude Include="32_physically _based_rendering\inputclass.h" />
+    <ClInclude Include="32_physically _based_rendering\lightclass.h" />
+    <ClInclude Include="32_physically _based_rendering\modelclass.h" />
+    <ClInclude Include="32_physically _based_rendering\pbrshaderclass.h" />
+    <ClInclude Include="32_physically _based_rendering\systemclass.h" />
+    <ClInclude Include="32_physically _based_rendering\textureclass.h" />
+    <ClInclude Include="33_ssao\applicationclass.h" />
+    <ClInclude Include="33_ssao\cameraclass.h" />
+    <ClInclude Include="33_ssao\d3dclass.h" />
+    <ClInclude Include="33_ssao\deferredbuffersclass.h" />
+    <ClInclude Include="33_ssao\gbuffershaderclass.h" />
+    <ClInclude Include="33_ssao\inputclass.h" />
+    <ClInclude Include="33_ssao\lightclass.h" />
+    <ClInclude Include="33_ssao\lightshaderclass.h" />
+    <ClInclude Include="33_ssao\modelclass.h" />
+    <ClInclude Include="33_ssao\orthowindowclass.h" />
+    <ClInclude Include="33_ssao\rendertextureclass.h" />
+    <ClInclude Include="33_ssao\ssaoblurshaderclass.h" />
+    <ClInclude Include="33_ssao\ssaoshaderclass.h" />
+    <ClInclude Include="33_ssao\systemclass.h" />
+    <ClInclude Include="33_ssao\textureclass.h" />
+    <ClInclude Include="3_triangle_with_simple_diffuse_light\Graphics.h" />
+    <ClInclude Include="3_triangle_with_simple_diffuse_light\lightclass.h" />
+    <ClInclude Include="3_triangle_with_simple_diffuse_light\lightshaderclass.h" />
+    <ClInclude Include="3_triangle_with_simple_diffuse_light\modelclass.h" />
+    <ClInclude Include="3_triangle_with_simple_diffuse_light\System.h" />
+    <ClInclude Include="3_triangle_with_simple_diffuse_light\textureclass.h" />
+    <ClInclude Include="4_box_with_simple_diffuse_light\GameObject.h" />
+    <ClInclude Include="4_box_with_simple_diffuse_light\Graphics.h" />
+    <ClInclude Include="4_box_with_simple_diffuse_light\IRenderable.h" />
+    <ClInclude Include="4_box_with_simple_diffuse_light\IRenderGroup.h" />
+    <ClInclude Include="4_box_with_simple_diffuse_light\IShader.h" />
+    <ClInclude Include="4_box_with_simple_diffuse_light\lightclass.h" />
+    <ClInclude Include="4_box_with_simple_diffuse_light\lightshaderclass.h" />
+    <ClInclude Include="4_box_with_simple_diffuse_light\modelclass.h" />
+    <ClInclude Include="4_box_with_simple_diffuse_light\RenderPipeline.h" />
+    <ClInclude Include="4_box_with_simple_diffuse_light\RenderSystem.h" />
+    <ClInclude Include="4_box_with_simple_diffuse_light\Scene.h" />
+    <ClInclude Include="4_box_with_simple_diffuse_light\StandardRenderGroup.h" />
+    <ClInclude Include="4_box_with_simple_diffuse_light\System.h" />
+    <ClInclude Include="4_box_with_simple_diffuse_light\textureclass.h" />
+    <ClInclude Include="5_box_with_diffuse_light\d3dx12.h" />
+    <ClInclude Include="5_box_with_diffuse_light\dds.h" />
+    <ClInclude Include="5_box_with_diffuse_light\DDSTextureLoader.h" />
+    <ClInclude Include="5_box_with_diffuse_light\Graphics.h" />
+    <ClInclude Include="5_box_with_diffuse_light\lightclass.h" />
+    <ClInclude Include="5_box_with_diffuse_light\lightshaderclass.h" />
+    <ClInclude Include="5_box_with_diffuse_light\modelclass.h" />
+    <ClInclude Include="5_box_with_diffuse_light\System.h" />
+    <ClInclude Include="5_box_with_diffuse_light\textureclass.h" />
+    <ClInclude Include="6_box_with_specular_light\Graphics.h" />
+    <ClInclude Include="6_box_with_specular_light\lightclass.h" />
+    <ClInclude Include="6_box_with_specular_light\lightshaderclass.h" />
+    <ClInclude Include="6_box_with_specular_light\modelclass.h" />
+    <ClInclude Include="6_box_with_specular_light\System.h" />
+    <ClInclude Include="6_box_with_specular_light\textureclass.h" />
+    <ClInclude Include="7_lightmap\Graphics.h" />
+    <ClInclude Include="7_lightmap\lightmapshaderclass.h" />
+    <ClInclude Include="7_lightmap\modelclass.h" />
+    <ClInclude Include="7_lightmap\System.h" />
+    <ClInclude Include="7_lightmap\texturearrayclass.h" />
+    <ClInclude Include="8_multitexture\Graphics.h" />
+    <ClInclude Include="8_multitexture\modelclass.h" />
+    <ClInclude Include="8_multitexture\multitextureshaderclass.h" />
+    <ClInclude Include="8_multitexture\System.h" />
+    <ClInclude Include="8_multitexture\texturearrayclass.h" />
+    <ClInclude Include="9_simple_font\fontclass.h" />
+    <ClInclude Include="9_simple_font\fontshaderclass.h" />
+    <ClInclude Include="9_simple_font\Graphics.h" />
+    <ClInclude Include="9_simple_font\System.h" />
+    <ClInclude Include="9_simple_font\textclass.h" />
+    <ClInclude Include="9_simple_font\textureclass.h" />
+    <ClInclude Include="commonframework2\Camera.h" />
+    <ClInclude Include="commonframework2\Cpu.h" />
+    <ClInclude Include="commonframework2\DirectX11Device.h" />
+    <ClInclude Include="commonframework2\Fps.h" />
+    <ClInclude Include="commonframework2\Frustum.h" />
+    <ClInclude Include="commonframework2\GraphicsBase.h" />
+    <ClInclude Include="commonframework2\Input.h" />
+    <ClInclude Include="commonframework2\Interface.h" />
+    <ClInclude Include="commonframework2\IRuntimeModule.h" />
+    <ClInclude Include="commonframework2\RasterizationStateManager.h" />
+    <ClInclude Include="commonframework2\stdafx.h" />
+    <ClInclude Include="commonframework2\SystemBase.h" />
+    <ClInclude Include="commonframework2\targetver.h" />
+    <ClInclude Include="commonframework2\Timer.h" />
+    <ClInclude Include="commonframework2\TypeDefine.h" />
+    <ClInclude Include="commonframework2\WindowsApplication.h" />
+    <ClInclude Include="commonframework\Camera.h" />
+    <ClInclude Include="commonframework\Cpu.h" />
+    <ClInclude Include="commonframework\DirectX11Device.h" />
+    <ClInclude Include="commonframework\Fps.h" />
+    <ClInclude Include="commonframework\Frustum.h" />
+    <ClInclude Include="commonframework\GraphicsBase.h" />
+    <ClInclude Include="commonframework\Input.h" />
+    <ClInclude Include="commonframework\Interface.h" />
+    <ClInclude Include="commonframework\IRuntimeModule.h" />
+    <ClInclude Include="commonframework\Light.h" />
+    <ClInclude Include="commonframework\RasterizationStateManager.h" />
+    <ClInclude Include="commonframework\Sound.h" />
+    <ClInclude Include="commonframework\stdafx.h" />
+    <ClInclude Include="commonframework\SystemBase.h" />
+    <ClInclude Include="commonframework\targetver.h" />
+    <ClInclude Include="commonframework\Timer.h" />
+    <ClInclude Include="commonframework\TypeDefine.h" />
+    <ClInclude Include="commonframework\WindowsApplication.h" />
+    <ClInclude Include="tut43\Graphics.h" />
+    <ClInclude Include="tut43\lightclass.h" />
+    <ClInclude Include="tut43\modelclass.h" />
+    <ClInclude Include="tut43\projectionshaderclass.h" />
+    <ClInclude Include="tut43\System.h" />
+    <ClInclude Include="tut43\textureclass.h" />
+    <ClInclude Include="tut43\viewpointclass.h" />
+    <ClInclude Include="tut44\Graphics.h" />
+    <ClInclude Include="tut44\lightclass.h" />
+    <ClInclude Include="tut44\modelclass.h" />
+    <ClInclude Include="tut44\projectionshaderclass.h" />
+    <ClInclude Include="tut44\System.h" />
+    <ClInclude Include="tut44\textureclass.h" />
+    <ClInclude Include="tut44\viewpointclass.h" />
+    <ClInclude Include="tut46\bitmapclass.h" />
+    <ClInclude Include="tut46\glowmapshaderclass.h" />
+    <ClInclude Include="tut46\glowshaderclass.h" />
+    <ClInclude Include="tut46\Graphics.h" />
+    <ClInclude Include="tut46\horizontalblurshaderclass.h" />
+    <ClInclude Include="tut46\orthowindowclass.h" />
+    <ClInclude Include="tut46\rendertextureclass.h" />
+    <ClInclude Include="tut46\System.h" />
+    <ClInclude Include="tut46\textureclass.h" />
+    <ClInclude Include="tut46\textureshaderclass.h" />
+    <ClInclude Include="tut46\verticalblurshaderclass.h" />
+    <ClInclude Include="tut47\bitmapclass.h" />
+    <ClInclude Include="tut47\fontclass.h" />
+    <ClInclude Include="tut47\fontshaderclass.h" />
+    <ClInclude Include="tut47\Graphics.h" />
+    <ClInclude Include="tut47\lightclass.h" />
+    <ClInclude Include="tut47\lightshaderclass.h" />
+    <ClInclude Include="tut47\modelclass.h" />
+    <ClInclude Include="tut47\System.h" />
+    <ClInclude Include="tut47\textclass.h" />
+    <ClInclude Include="tut47\textureclass.h" />
+    <ClInclude Include="tut47\textureshaderclass.h" />
+    <ClInclude Include="tut48\depthshaderclass.h" />
+    <ClInclude Include="tut48\Graphics.h" />
+    <ClInclude Include="tut48\lightclass.h" />
+    <ClInclude Include="tut48\modelclass.h" />
+    <ClInclude Include="tut48\positionclass.h" />
+    <ClInclude Include="tut48\rendertextureclass.h" />
+    <ClInclude Include="tut48\shadowshaderclass.h" />
+    <ClInclude Include="tut48\System.h" />
+    <ClInclude Include="tut48\textureclass.h" />
+    <ClInclude Include="tut49\depthshaderclass.h" />
+    <ClInclude Include="tut49\Graphics.h" />
+    <ClInclude Include="tut49\lightclass.h" />
+    <ClInclude Include="tut49\modelclass.h" />
+    <ClInclude Include="tut49\positionclass.h" />
+    <ClInclude Include="tut49\rendertextureclass.h" />
+    <ClInclude Include="tut49\shadowshaderclass.h" />
+    <ClInclude Include="tut49\System.h" />
+    <ClInclude Include="tut49\textureclass.h" />
+    <ClInclude Include="tut49\transparentdepthshaderclass.h" />
+    <ClInclude Include="tut49\treeclass.h" />
+    <ClInclude Include="tut50\deferredbuffersclass.h" />
+    <ClInclude Include="tut50\deferredshaderclass.h" />
+    <ClInclude Include="tut50\Graphics.h" />
+    <ClInclude Include="tut50\lightclass.h" />
+    <ClInclude Include="tut50\lightshaderclass.h" />
+    <ClInclude Include="tut50\modelclass.h" />
+    <ClInclude Include="tut50\orthowindowclass.h" />
+    <ClInclude Include="tut50\System.h" />
+    <ClInclude Include="tut50\textureclass.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
