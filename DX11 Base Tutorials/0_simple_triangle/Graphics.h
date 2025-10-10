@@ -16,7 +16,7 @@ public:
 
   GraphicsClass &operator=(const GraphicsClass &) = delete;
 
-  virtual ~GraphicsClass() noexcept override;
+  virtual ~GraphicsClass() noexcept override = default;
 
 public:
   bool Initialize(int screenWidth, int screenHeight, HWND hwnd) override;

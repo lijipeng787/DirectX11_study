@@ -13,8 +13,6 @@
 
 GraphicsClass::GraphicsClass() = default;
 
-GraphicsClass::~GraphicsClass() { Shutdown(); }
-
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   directx_device_ = DirectX11Device::GetD3d11DeviceInstance();

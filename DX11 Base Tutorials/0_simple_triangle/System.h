@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../CommonFramework/SystemBase.h"
+#include <memory>
 
 class GraphicsClass;
 
@@ -22,9 +23,9 @@ public:
   virtual bool Frame() override;
 
 private:
-  GraphicsClass *graphics_ = nullptr;
+  std::unique_ptr<GraphicsClass> graphics_;
 };
 
-static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-static System *ApplicationInstance = nullptr;
+extern System *ApplicationInstance;

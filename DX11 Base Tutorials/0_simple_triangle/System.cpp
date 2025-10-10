@@ -1,5 +1,8 @@
 #include "System.h"
 #include "Graphics.h"
+#include <memory>
+
+System *ApplicationInstance = nullptr;
 
 System::System() {}
 
@@ -17,13 +20,11 @@ bool System::Initialize() {
 
   // GetScreenWidthAndHeight(screenWidth, screenHeight);
 
-  graphics_ = new GraphicsClass();
-  if (!graphics_) {
-    return false;
-  }
+  graphics_ = std::make_unique<GraphicsClass>();
   bool result =
       graphics_->Initialize(screenWidth, screenHeight, GetApplicationHandle());
   if (!result) {
+    graphics_.reset();
     return false;
   }
 
@@ -34,8 +35,7 @@ void System::Shutdown() {
 
   if (graphics_) {
     graphics_->Shutdown();
-    delete graphics_;
-    graphics_ = 0;
+    graphics_.reset();
   }
 }
 

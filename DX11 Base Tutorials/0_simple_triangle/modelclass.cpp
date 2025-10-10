@@ -29,15 +29,8 @@ bool ModelClass::InitializeBuffers() {
   vertex_count_ = 3;
   index_count_ = 3;
 
-  auto vertices = new VertexType[vertex_count_];
-  if (!vertices) {
-    return false;
-  }
-
-  auto indices = new unsigned long[index_count_];
-  if (!indices) {
-    return false;
-  }
+  VertexType vertices[3];
+  unsigned long indices[3];
 
   // Load the vertex array with data.
   vertices[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f); // Bottom left.
@@ -95,12 +88,6 @@ bool ModelClass::InitializeBuffers() {
   if (FAILED(result)) {
     return false;
   }
-
-  delete[] vertices;
-  vertices = 0;
-
-  delete[] indices;
-  indices = 0;
 
   return true;
 }
