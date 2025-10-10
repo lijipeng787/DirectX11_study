@@ -5,7 +5,7 @@
 
 struct MatrixBufferType;
 
-class ColorShaderClass {
+class alignas(16) ColorShaderClass {
 public:
   ColorShaderClass() {}
 
@@ -18,8 +18,8 @@ public:
 
   void Shutdown();
 
-  bool Render(int, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &,
-              const DirectX::XMMATRIX &);
+  bool Render(int indexCount, const DirectX::XMMATRIX &,
+              const DirectX::XMMATRIX &, const DirectX::XMMATRIX &) noexcept;
 
 private:
   bool InitializeShader(HWND, WCHAR *, WCHAR *);

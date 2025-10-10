@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../CommonFramework/GraphicsBase.h"
+#include <memory>
 
 class DirectX11Device;
 class Camera;
@@ -11,27 +12,27 @@ class GraphicsClass : public GraphicsBase {
 public:
   GraphicsClass();
 
-  GraphicsClass(const GraphicsClass &rhs) = delete;
+  GraphicsClass(const GraphicsClass &) = delete;
 
-  GraphicsClass &operator=(const GraphicsClass &rhs) = delete;
+  GraphicsClass &operator=(const GraphicsClass &) = delete;
 
-  virtual ~GraphicsClass();
+  virtual ~GraphicsClass() noexcept override;
 
 public:
-  virtual bool Initialize(int, int, HWND) override;
+  bool Initialize(int screenWidth, int screenHeight, HWND hwnd) override;
 
-  virtual void Shutdown() override;
+  void Shutdown() override;
 
-  virtual void Frame(float deltatime) override;
+  void Frame(float deltaTime) override;
 
-  virtual void Render() override;
+  void Render() override;
 
 private:
-  DirectX11Device *directx_device_ = nullptr;
+  DirectX11Device *directx_device_ = nullptr; // non-owning singleton
 
-  Camera *camera_ = nullptr;
+  std::unique_ptr<Camera> camera_;
 
-  ModelClass *model_ = nullptr;
+  std::unique_ptr<ModelClass> model_;
 
-  ColorShaderClass *color_shader_ = nullptr;
+  std::unique_ptr<ColorShaderClass> color_shader_;
 };

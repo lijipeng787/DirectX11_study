@@ -2,7 +2,7 @@
 
 #include <DirectXMath.h>
 
-class Camera {
+class alignas(16) Camera {
 public:
   Camera() = default;
 
@@ -45,12 +45,12 @@ public:
 
   void GetBaseViewMatrix(DirectX::XMMATRIX &outViewMatrix) const;
 
+  static constexpr float PI = 3.14159265358979323846f;
+  static constexpr float HALF_PI = 3.14159265358979323846f / 2.0f;
+
 private:
   float position_x_ = 0.0f, position_y_ = 0.0f, position_z_ = 0.0f;
   float rotation_x_ = 0.0f, rotation_y_ = 0.0f, rotation_z_ = 0.0f;
-
-  static constexpr float PI = 3.14159265358979323846f;
-  static constexpr float HALF_PI = 3.14159265358979323846f / 2.0f;
 
   DirectX::XMFLOAT3 position_{0.0f, 0.0f, 0.0f};
   DirectX::XMFLOAT3 rotation_{0.0f, 0.0f, 0.0f};

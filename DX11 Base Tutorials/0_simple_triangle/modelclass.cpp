@@ -24,8 +24,6 @@ void ModelClass::Shutdown() { ShutdownBuffers(); }
 
 void ModelClass::Render() { RenderBuffers(); }
 
-int ModelClass::GetIndexCount() { return index_count_; }
-
 bool ModelClass::InitializeBuffers() {
 
   vertex_count_ = 3;

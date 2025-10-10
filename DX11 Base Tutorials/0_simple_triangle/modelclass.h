@@ -6,7 +6,7 @@ using namespace DirectX;
 
 struct VertexType;
 
-class ModelClass {
+class alignas(16) ModelClass {
 public:
   ModelClass() {}
 
@@ -21,7 +21,7 @@ public:
 
   void Render();
 
-  int GetIndexCount();
+  int GetIndexCount() const noexcept { return index_count_; }
 
 private:
   bool InitializeBuffers();

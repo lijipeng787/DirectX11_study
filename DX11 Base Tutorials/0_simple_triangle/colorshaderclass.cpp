@@ -28,7 +28,7 @@ void ColorShaderClass::Shutdown() { ShutdownShader(); }
 
 bool ColorShaderClass::Render(int indexCount, const XMMATRIX &worldMatrix,
                               const XMMATRIX &viewMatrix,
-                              const XMMATRIX &projectionMatrix) {
+                              const XMMATRIX &projectionMatrix) noexcept {
 
   auto result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix);
   if (!result) {
