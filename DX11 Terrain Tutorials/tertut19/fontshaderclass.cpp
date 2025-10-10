@@ -31,7 +31,7 @@ bool FontShaderClass::Initialize( ID3D11Device* device, HWND hwnd )
 
 
 	// Initialize the vertex and pixel shaders.
-	result = InitializeShader( device, hwnd, L"../../tertut19/font.vs", L"../../tertut19/font.ps" );
+	result = InitializeShader( device, hwnd, L"../tertut19/font.vs", L"../tertut19/font.ps" );
 	if( !result )
 	{
 		return false;

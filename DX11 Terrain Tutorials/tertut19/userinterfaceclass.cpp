@@ -42,7 +42,7 @@ bool UserInterfaceClass::Initialize(D3DClass* Direct3D, int screenWidth, int scr
 	}
 
 	// Initialize the first font object.
-	result = m_Font1->Initialize(Direct3D->GetDevice(), "../../tertut19/data/font/font01.txt", L"../../tertut19/data/font/font01.dds", 32.0f, 3);
+	result = m_Font1->Initialize(Direct3D->GetDevice(), "../tertut19/data/font/font01.txt", L"../tertut19/data/font/font01.dds", 32.0f, 3);
 	if(!result)
 	{
 		return false;
