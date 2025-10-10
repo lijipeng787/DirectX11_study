@@ -5,7 +5,7 @@
 
 struct MatrixBufferType;
 
-class alignas(16) ColorShaderClass {
+class ColorShaderClass {
 public:
   ColorShaderClass() {}
 

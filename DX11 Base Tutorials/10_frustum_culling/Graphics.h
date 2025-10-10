@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../CommonFramework/GraphicsBase.h"
+#include "../CommonFramework2/GraphicsBase.h"
 
 class DirectX11Device;
 class Camera;

@@ -1,5 +1,3 @@
-#include "GraphicsModule.h"
-
 #include <new>
 
 #include "../CommonFramework/Camera.h"
@@ -7,14 +5,15 @@
 #include "../CommonFramework/Input.h"
 #include "../CommonFramework/TypeDefine.h"
 
+#include "Graphics.h"
 #include "SimpleMovableSurface.h"
 #include "TextureShader.h"
 
-GraphicsModule::GraphicsModule() {}
+GraphicsClass::GraphicsClass() = default;
 
-GraphicsModule::~GraphicsModule() {}
+GraphicsClass::~GraphicsClass() {}
 
-bool GraphicsModule::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
+bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
@@ -26,12 +25,12 @@ bool GraphicsModule::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
     return false;
   }
 
-  camera_ = new Camera;
-  new (camera_) Camera();
-  if (!camera_) {
-    return false;
+  std::unique_ptr<Camera> tempCamera{ new (std::nothrow) Camera() };
+  if (!tempCamera) {
+      MessageBox(hwnd, L"Failed to allocate Camera.", L"Error", MB_OK);
+      return false;
   }
-  camera_->SetPosition(0.0f, 0.0f, -10.0f);
+  tempCamera->SetPosition(0.0f, 0.0f, -10.0f);
 
   texture_shader_ = new TextureShader;
   new (texture_shader_) TextureShader();
@@ -66,10 +65,12 @@ bool GraphicsModule::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
     return false;
   }
 
+  camera_ = std::move(tempCamera);
+
   return true;
 }
 
-void GraphicsModule::Shutdown() {
+void GraphicsClass::Shutdown() {
 
   if (bitmap_) {
     bitmap_->Release();
@@ -83,23 +84,15 @@ void GraphicsModule::Shutdown() {
     texture_shader_ = nullptr;
   }
 
-  if (camera_) {
-    delete camera_;
-    camera_ = nullptr;
-  }
+  camera_.reset();
 }
 
-bool GraphicsModule::Frame() {
-
-  bool result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+void GraphicsClass::Frame(float deltaTime) {
+    (void)deltaTime; // Placeholder for future per-frame updates.
+    Render();
 }
 
-bool GraphicsModule::Render() {
+void GraphicsClass::Render() {
 
   auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
@@ -124,19 +117,15 @@ bool GraphicsModule::Render() {
 
   auto result = bitmap_->Render();
   if (!result) {
-    return false;
   }
 
   result =
       texture_shader_->Render(bitmap_->GetIndexCount(), worldMatrix, viewMatrix,
                               orthoMatrix, bitmap_->GetTexture());
   if (!result) {
-    return false;
   }
 
   directx11_device_->TurnZBufferOn();
 
   directx11_device_->EndScene();
-
-  return true;
 }

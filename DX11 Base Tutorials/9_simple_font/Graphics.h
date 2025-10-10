@@ -23,7 +23,7 @@ public:
 
   virtual void Frame(float) override;
 
-  virtual bool Render() override;
+  virtual void Render() override;
 
 private:
   Camera *camera_ = nullptr;

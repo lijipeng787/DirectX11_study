@@ -76,7 +76,6 @@ bool TextureShader::InitializeShader(HWND hwnd, WCHAR *vsFilename,
   }
 
   auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
-  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
   result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
                                       vertexShaderBuffer->GetBufferSize(), NULL,
@@ -224,14 +223,11 @@ bool TextureShader::SetShaderParameters(const XMMATRIX &worldMatrix,
                                         const XMMATRIX &projectionMatrix,
                                         ID3D11ShaderResourceView *texture) {
 
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
   D3D11_MAPPED_SUBRESOURCE mappedResource;
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
+  auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);
   if (FAILED(result)) {
     return false;

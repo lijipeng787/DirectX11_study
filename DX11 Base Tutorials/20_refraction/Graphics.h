@@ -26,7 +26,7 @@ public:
 
   virtual void Frame(float) override;
 
-  virtual bool Render() override;
+  virtual void Render() override;
 
   void SetFameTime(float frame_time);
 

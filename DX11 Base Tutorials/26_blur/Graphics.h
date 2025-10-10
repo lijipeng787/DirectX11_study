@@ -29,7 +29,7 @@ public:
 
   virtual void Frame(float) override;
 
-  virtual bool Render() override;
+  virtual void Render() override;
 
   inline void SetRotation(float rotation_) { rotation_ = rotation_; }
 
