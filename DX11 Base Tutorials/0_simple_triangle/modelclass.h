@@ -2,6 +2,8 @@
 
 #include <d3d11.h>
 
+#include <wrl\client.h>
+
 struct VertexType;
 
 class ModelClass {
@@ -29,7 +31,7 @@ private:
   void RenderBuffers();
 
 private:
-  ID3D11Buffer *vertex_buffer_ = nullptr, *index_buffer_ = nullptr;
+  Microsoft::WRL::ComPtr<ID3D11Buffer> vertex_buffer_, index_buffer_;
 
   int vertex_count_ = 0, index_count_ = 0;
 };

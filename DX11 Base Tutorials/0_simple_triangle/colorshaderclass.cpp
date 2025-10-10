@@ -40,8 +40,8 @@ bool ColorShaderClass::Render(int indexCount, const XMMATRIX &worldMatrix,
   return true;
 }
 
-bool ColorShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
-                                        WCHAR *psFilename) {
+bool ColorShaderClass::InitializeShader(HWND hwnd, const wchar_t *vsFilename,
+                                        const wchar_t *psFilename) {
 
   ID3D10Blob *errorMessage = nullptr;
   ID3D10Blob *vertexShaderBuffer = nullptr;
@@ -132,7 +132,7 @@ bool ColorShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
   matrixBufferDesc.MiscFlags = 0;
   matrixBufferDesc.StructureByteStride = 0;
 
-  result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
+  result = device->CreateBuffer(&matrixBufferDesc, NULL, matrix_buffer_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -141,31 +141,15 @@ bool ColorShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
 }
 
 void ColorShaderClass::ShutdownShader() {
-
-  if (matrix_buffer_) {
-    matrix_buffer_->Release();
-    matrix_buffer_ = nullptr;
-  }
-
-  if (layout_) {
-    layout_->Release();
-    layout_ = nullptr;
-  }
-
-  if (pixel_shader_) {
-    pixel_shader_->Release();
-    pixel_shader_ = nullptr;
-  }
-
-  if (vertex_shader_) {
-    vertex_shader_->Release();
-    vertex_shader_ = nullptr;
-  }
+  matrix_buffer_.Reset();
+  layout_.Reset();
+  pixel_shader_.Reset();
+  vertex_shader_.Reset();
 }
 
 void ColorShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage,
                                                 HWND hwnd,
-                                                WCHAR *shaderFilename) {
+                                                const wchar_t *shaderFilename) {
 
   auto compileErrors = (char *)(errorMessage->GetBufferPointer());
 
@@ -198,29 +182,23 @@ bool ColorShaderClass::SetShaderParameters(const XMMATRIX &worldMatrix,
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD,
+  auto result = device_context->Map(matrix_buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD,
                                     0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }
 
-  MatrixBufferType *dataPtr;
+  MatrixBufferType *dataPtr = (MatrixBufferType *)mappedResource.pData;
 
-  dataPtr = (MatrixBufferType *)mappedResource.pData;
+  dataPtr->world = XMMatrixTranspose(worldMatrix);
+  dataPtr->view = XMMatrixTranspose(viewMatrix);
+  dataPtr->projection = XMMatrixTranspose(projectionMatrix);
 
-  XMMATRIX worldMatrixCopy = XMMatrixTranspose(worldMatrix);
-  XMMATRIX viewMatrixCopy = XMMatrixTranspose(viewMatrix);
-  XMMATRIX projectionMatrixCopy = XMMatrixTranspose(projectionMatrix);
-
-  dataPtr->world = worldMatrixCopy;
-  dataPtr->view = viewMatrixCopy;
-  dataPtr->projection = projectionMatrixCopy;
-
-  device_context->Unmap(matrix_buffer_, 0);
+  device_context->Unmap(matrix_buffer_.Get(), 0);
 
   unsigned int buffer_number = 0;
-
-  device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
+  ID3D11Buffer *cb = matrix_buffer_.Get();
+  device_context->VSSetConstantBuffers(buffer_number, 1, &cb);
 
   return true;
 }
@@ -230,11 +208,11 @@ void ColorShaderClass::RenderShader(int indexCount) {
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  device_context->IASetInputLayout(layout_);
+  device_context->IASetInputLayout(layout_.Get());
 
-  device_context->VSSetShader(vertex_shader_, NULL, 0);
+  device_context->VSSetShader(vertex_shader_.Get(), NULL, 0);
 
-  device_context->PSSetShader(pixel_shader_, NULL, 0);
+  device_context->PSSetShader(pixel_shader_.Get(), NULL, 0);
 
   device_context->DrawIndexed(indexCount, 0, 0);
 }

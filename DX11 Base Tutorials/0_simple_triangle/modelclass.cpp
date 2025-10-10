@@ -64,7 +64,7 @@ bool ModelClass::InitializeBuffers() {
   auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
   auto result =
-      device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
+      device->CreateBuffer(&vertex_buffer_desc, &vertex_data, vertex_buffer_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -84,7 +84,7 @@ bool ModelClass::InitializeBuffers() {
   indexData.SysMemPitch = 0;
   indexData.SysMemSlicePitch = 0;
 
-  result = device->CreateBuffer(&index_buffer_desc, &indexData, &index_buffer_);
+  result = device->CreateBuffer(&index_buffer_desc, &indexData, index_buffer_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -93,16 +93,8 @@ bool ModelClass::InitializeBuffers() {
 }
 
 void ModelClass::ShutdownBuffers() {
-
-  if (index_buffer_) {
-    index_buffer_->Release();
-    index_buffer_ = nullptr;
-  }
-
-  if (vertex_buffer_) {
-    vertex_buffer_->Release();
-    vertex_buffer_ = nullptr;
-  }
+  index_buffer_.Reset();
+  vertex_buffer_.Reset();
 }
 
 void ModelClass::RenderBuffers() {
@@ -113,9 +105,10 @@ void ModelClass::RenderBuffers() {
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  device_context->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
+  ID3D11Buffer *vb = vertex_buffer_.Get();
+  device_context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
 
-  device_context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
+  device_context->IASetIndexBuffer(index_buffer_.Get(), DXGI_FORMAT_R32_UINT, 0);
 
   device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

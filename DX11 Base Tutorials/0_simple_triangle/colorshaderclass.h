@@ -2,6 +2,7 @@
 
 #include <DirectXMath.h>
 #include <d3d11.h>
+#include <wrl/client.h>
 
 struct MatrixBufferType;
 
@@ -22,11 +23,11 @@ public:
               const DirectX::XMMATRIX &, const DirectX::XMMATRIX &) noexcept;
 
 private:
-  bool InitializeShader(HWND, WCHAR *, WCHAR *);
+  bool InitializeShader(HWND, const wchar_t *, const wchar_t *);
 
   void ShutdownShader();
 
-  void OutputShaderErrorMessage(ID3D10Blob *, HWND, WCHAR *);
+  void OutputShaderErrorMessage(ID3D10Blob *, HWND, const wchar_t *);
 
   bool SetShaderParameters(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &,
                            const DirectX::XMMATRIX &);
@@ -34,11 +35,11 @@ private:
   void RenderShader(int);
 
 private:
-  ID3D11VertexShader *vertex_shader_ = nullptr;
+  Microsoft::WRL::ComPtr<ID3D11VertexShader> vertex_shader_;
 
-  ID3D11PixelShader *pixel_shader_ = nullptr;
+  Microsoft::WRL::ComPtr<ID3D11PixelShader> pixel_shader_;
 
-  ID3D11InputLayout *layout_ = nullptr;
+  Microsoft::WRL::ComPtr<ID3D11InputLayout> layout_;
 
-  ID3D11Buffer *matrix_buffer_ = nullptr;
+  Microsoft::WRL::ComPtr<ID3D11Buffer> matrix_buffer_;
 };
