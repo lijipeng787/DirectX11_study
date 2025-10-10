@@ -4,37 +4,39 @@
 #ifndef _SHADERMANAGERCLASS_H_
 #define _SHADERMANAGERCLASS_H_
 
-
 ///////////////////////
 // MY CLASS INCLUDES //
 ///////////////////////
 #include "d3dclass.h"
-#include "textureshaderclass.h"
-#include "fontshaderclass.h"
 #include "foliageshaderclass.h"
-
+#include "fontshaderclass.h"
+#include "textureshaderclass.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ShaderManagerClass
 ////////////////////////////////////////////////////////////////////////////////
-class ShaderManagerClass
-{
+class ShaderManagerClass {
 public:
-	ShaderManagerClass();
-	ShaderManagerClass(const ShaderManagerClass&);
-	~ShaderManagerClass();
+  ShaderManagerClass();
+  ShaderManagerClass(const ShaderManagerClass &);
+  ~ShaderManagerClass();
 
-	bool Initialize(D3DClass*, HWND);
-	void Shutdown();
+  bool Initialize(D3DClass *, HWND);
+  void Shutdown();
 
-	void RenderTextureShader( ID3D11DeviceContext*, int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&, ID3D11ShaderResourceView* );
-	void RenderFontShader( ID3D11DeviceContext*, int, const XMMATRIX&, const XMMATRIX&, const XMMATRIX&, ID3D11ShaderResourceView*, XMFLOAT4& );
-	void RenderFoliageShader( ID3D11DeviceContext*, int, int, const XMMATRIX&, const XMMATRIX&, ID3D11ShaderResourceView* );
+  void RenderTextureShader(ID3D11DeviceContext *, int, const XMMATRIX &,
+                           const XMMATRIX &, const XMMATRIX &,
+                           ID3D11ShaderResourceView *);
+  void RenderFontShader(ID3D11DeviceContext *, int, const XMMATRIX &,
+                        const XMMATRIX &, const XMMATRIX &,
+                        ID3D11ShaderResourceView *, XMFLOAT4 &);
+  void RenderFoliageShader(ID3D11DeviceContext *, int, int, const XMMATRIX &,
+                           const XMMATRIX &, ID3D11ShaderResourceView *);
 
 private:
-	TextureShaderClass* m_TextureShader;
-	FontShaderClass* m_FontShader;
-	FoliageShaderClass* m_FoliageShader;
+  TextureShaderClass *m_TextureShader;
+  FontShaderClass *m_FontShader;
+  FoliageShaderClass *m_FoliageShader;
 };
 
 #endif
