@@ -45,7 +45,7 @@ bool System::Frame() {
   SystemBase::Frame();
 
   graphics_->Frame(0.0f);
-  
+
   return true;
 }
 

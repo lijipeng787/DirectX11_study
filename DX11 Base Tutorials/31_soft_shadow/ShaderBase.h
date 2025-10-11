@@ -15,13 +15,13 @@ public:
 
 public:
   // Interface implementation
-  bool Initialize(HWND hwnd) override;
+  bool Initialize(HWND hwnd, ID3D11Device *device) override;
 
   void Shutdown() override;
 
-  virtual bool
-  Render(int indexCount,
-         const ShaderParameterContainer &parameters) const override = 0;
+  virtual bool Render(int indexCount,
+                      const ShaderParameterContainer &parameters,
+                      ID3D11DeviceContext *deviceContext) const override = 0;
 
 protected:
   // Protected utility methods for shader compilation and setup
@@ -30,12 +30,13 @@ protected:
                                 const std::wstring &psFilename,
                                 const std::string &psEntryName,
                                 const D3D11_INPUT_ELEMENT_DESC *layoutDesc,
-                                UINT numElements);
+                                UINT numElements, ID3D11Device *device);
 
-  bool CreateConstantBuffer(UINT byteWidth, ID3D11Buffer **buffer);
+  bool CreateConstantBuffer(UINT byteWidth, ID3D11Buffer **buffer,
+                            ID3D11Device *device);
 
   bool CreateSamplerState(
-      ID3D11SamplerState **samplerState,
+      ID3D11SamplerState **samplerState, ID3D11Device *device,
       D3D11_TEXTURE_ADDRESS_MODE addressMode = D3D11_TEXTURE_ADDRESS_WRAP);
 
   // Shader resources
@@ -71,15 +72,17 @@ protected:
   bool InitializeBlurShader(HWND hwnd, const std::wstring &vsFilename,
                             const std::string &vsEntryName,
                             const std::wstring &psFilename,
-                            const std::string &psEntryName);
+                            const std::string &psEntryName,
+                            ID3D11Device *device);
 
   bool SetBaseShaderParameters(const DirectX::XMMATRIX &worldMatrix,
                                const DirectX::XMMATRIX &viewMatrix,
                                const DirectX::XMMATRIX &projectionMatrix,
                                ID3D11ShaderResourceView *texture,
-                               float screenSize) const;
+                               float screenSize,
+                               ID3D11DeviceContext *deviceContext) const;
 
-  void RenderShader(int indexCount) const;
+  void RenderShader(int indexCount, ID3D11DeviceContext *deviceContext) const;
 
 protected:
   Microsoft::WRL::ComPtr<ID3D11Buffer> matrix_buffer_;

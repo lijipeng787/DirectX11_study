@@ -24,7 +24,8 @@ void RenderPass::SetPassParameters(const ShaderParameterContainer &params) {
 
 void RenderPass::Execute(
     const std::vector<std::shared_ptr<IRenderable>> &renderables,
-    const ShaderParameterContainer &globalFrameParams) {
+    const ShaderParameterContainer &globalFrameParams,
+    ID3D11DeviceContext *deviceContext) {
   if (output_texture_) {
     output_texture_->SetRenderTarget();
     output_texture_->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
@@ -50,7 +51,7 @@ void RenderPass::Execute(
         callback(objectParams);
       }
 
-      renderable->Render(*shader_, objectParams);
+      renderable->Render(*shader_, objectParams, deviceContext);
     }
   }
 

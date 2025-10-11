@@ -20,8 +20,7 @@ public:
   virtual ~GraphicsClass() noexcept override;
 
 public:
-  bool Initialize(int screenWidth, int screenHeight,
-                          HWND hwnd) override;
+  bool Initialize(int screenWidth, int screenHeight, HWND hwnd) override;
 
   void Shutdown() override;
 

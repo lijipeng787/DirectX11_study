@@ -1,9 +1,11 @@
 #include "System.h"
+#include <memory>
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
                    int iCmdshow) {
 
-  System *system = new System();
+  // 使用智能指针管理System生命周期，避免手动new/delete
+  auto system = std::make_unique<System>();
   if (!system) {
     return 0;
   }
@@ -14,8 +16,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
   }
 
   system->Shutdown();
-  delete system;
-  system = nullptr;
+  // system会自动析构，无需手动delete
 
   return 0;
 }

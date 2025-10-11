@@ -264,8 +264,8 @@ bool LightShaderClass::SetShaderParameters(const XMMATRIX &worldMatrix,
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
-                               &mappedResource);
+  auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD,
+                                    0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }

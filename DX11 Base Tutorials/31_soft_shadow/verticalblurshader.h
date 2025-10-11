@@ -14,10 +14,10 @@ public:
   ~VerticalBlurShader() = default;
 
 public:
-  bool Initialize(HWND hwnd) override;
+  bool Initialize(HWND hwnd, ID3D11Device *device) override;
 
-  bool Render(int indexCount,
-              const ShaderParameterContainer &parameters) const override;
+  bool Render(int indexCount, const ShaderParameterContainer &parameters,
+              ID3D11DeviceContext *deviceContext) const override;
 };
 
 #endif

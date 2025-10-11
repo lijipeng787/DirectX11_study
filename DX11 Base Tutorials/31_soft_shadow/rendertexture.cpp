@@ -5,7 +5,7 @@
 using namespace DirectX;
 
 bool RenderTexture::Initialize(int textureWidth, int textureHeight,
-                                    float screenDepth, float screenNear) {
+                               float screenDepth, float screenNear) {
   D3D11_TEXTURE2D_DESC textureDesc;
   D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
   D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
@@ -117,7 +117,7 @@ void RenderTexture::SetRenderTarget() {
 }
 
 void RenderTexture::ClearRenderTarget(float red, float green, float blue,
-                                           float alpha) {
+                                      float alpha) {
   float color[4];
 
   color[0] = red;

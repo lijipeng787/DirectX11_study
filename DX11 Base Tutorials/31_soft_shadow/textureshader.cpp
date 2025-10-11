@@ -1,6 +1,5 @@
 #include "textureshader.h"
 
-#include "../CommonFramework2/DirectX11Device.h"
 #include "ShaderParameterContainer.h"
 
 #include <d3dcompiler.h>
@@ -9,9 +8,8 @@
 using namespace std;
 using namespace DirectX;
 
-bool TextureShader::Initialize(HWND hwnd) { return InitializeShader(hwnd); }
+bool TextureShader::Initialize(HWND hwnd, ID3D11Device *device) {
 
-bool TextureShader::InitializeShader(HWND hwnd) {
   // Define input layout
   D3D11_INPUT_ELEMENT_DESC polygonLayout[2] = {
       {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
@@ -22,18 +20,19 @@ bool TextureShader::InitializeShader(HWND hwnd) {
   // Initialize base shader components
   if (!InitializeShaderFromFile(hwnd, L"./texture.vs", "TextureVertexShader",
                                 L"./texture.ps", "TexturePixelShader",
-                                polygonLayout, _countof(polygonLayout))) {
+                                polygonLayout, _countof(polygonLayout),
+                                device)) {
     return false;
   }
 
   // Create matrix buffer
   if (!CreateConstantBuffer(sizeof(MatrixBufferType),
-                            matrix_buffer_.GetAddressOf())) {
+                            matrix_buffer_.GetAddressOf(), device)) {
     return false;
   }
 
   // Create sampler state
-  if (!CreateSamplerState(sampler_state_.GetAddressOf())) {
+  if (!CreateSamplerState(sampler_state_.GetAddressOf(), device)) {
     return false;
   }
 
@@ -41,28 +40,42 @@ bool TextureShader::InitializeShader(HWND hwnd) {
 }
 
 bool TextureShader::Render(int indexCount,
-                           const ShaderParameterContainer &parameters) const {
+                           const ShaderParameterContainer &parameters,
+                           ID3D11DeviceContext *deviceContext) const {
+
   auto worldMatrix = parameters.GetMatrix("deviceWorldMatrix");
   auto viewMatrix = parameters.GetMatrix("baseViewMatrix");
   auto orthoMatrix = parameters.GetMatrix("orthoMatrix");
   auto texture = parameters.GetTexture("texture");
 
-  if (!SetShaderParameters(worldMatrix, viewMatrix, orthoMatrix, texture)) {
+  if (!SetShaderParameters(worldMatrix, viewMatrix, orthoMatrix, texture,
+                           deviceContext)) {
     return false;
   }
 
-  RenderShader(indexCount);
+  // Set the vertex input layout
+  deviceContext->IASetInputLayout(layout_.Get());
+
+  // Set the vertex and pixel shaders
+  deviceContext->VSSetShader(vertex_shader_.Get(), nullptr, 0);
+  deviceContext->PSSetShader(pixel_shader_.Get(), nullptr, 0);
+
+  // Set the sampler state in the pixel shader
+  deviceContext->PSSetSamplers(0, 1, sampler_state_.GetAddressOf());
+
+  // Render the geometry
+  deviceContext->DrawIndexed(indexCount, 0, 0);
+
   return true;
 }
 
 bool TextureShader::SetShaderParameters(
     const DirectX::XMMATRIX &worldMatrix, const DirectX::XMMATRIX &viewMatrix,
     const DirectX::XMMATRIX &projectionMatrix,
-    ID3D11ShaderResourceView *texture) const {
-  D3D11_MAPPED_SUBRESOURCE mappedResource;
+    ID3D11ShaderResourceView *texture,
+    ID3D11DeviceContext *deviceContext) const {
 
-  auto deviceContext =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
+  D3D11_MAPPED_SUBRESOURCE mappedResource;
 
   DirectX::XMMATRIX worldMatrixCopy = DirectX::XMMatrixTranspose(worldMatrix);
   DirectX::XMMATRIX viewMatrixCopy = DirectX::XMMatrixTranspose(viewMatrix);
@@ -90,22 +103,4 @@ bool TextureShader::SetShaderParameters(
   deviceContext->PSSetShaderResources(0, 1, &texture);
 
   return true;
-}
-
-void TextureShader::RenderShader(int indexCount) const {
-  auto deviceContext =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
-  // Set the vertex input layout
-  deviceContext->IASetInputLayout(layout_.Get());
-
-  // Set the vertex and pixel shaders
-  deviceContext->VSSetShader(vertex_shader_.Get(), nullptr, 0);
-  deviceContext->PSSetShader(pixel_shader_.Get(), nullptr, 0);
-
-  // Set the sampler state in the pixel shader
-  deviceContext->PSSetSamplers(0, 1, sampler_state_.GetAddressOf());
-
-  // Render the geometry
-  deviceContext->DrawIndexed(indexCount, 0, 0);
 }

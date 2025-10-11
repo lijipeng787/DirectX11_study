@@ -143,7 +143,7 @@ void GraphicsClass::Render() {
       light_->GetDiffuseColor());
 
   if (!result) {
-      return;
+    return;
   }
 
   directx_device->EndScene();

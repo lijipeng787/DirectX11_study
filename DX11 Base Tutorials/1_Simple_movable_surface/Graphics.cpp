@@ -25,10 +25,10 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
     return false;
   }
 
-  std::unique_ptr<Camera> tempCamera{ new (std::nothrow) Camera() };
+  std::unique_ptr<Camera> tempCamera{new (std::nothrow) Camera()};
   if (!tempCamera) {
-      MessageBox(hwnd, L"Failed to allocate Camera.", L"Error", MB_OK);
-      return false;
+    MessageBox(hwnd, L"Failed to allocate Camera.", L"Error", MB_OK);
+    return false;
   }
   tempCamera->SetPosition(0.0f, 0.0f, -10.0f);
 
@@ -88,8 +88,8 @@ void GraphicsClass::Shutdown() {
 }
 
 void GraphicsClass::Frame(float deltaTime) {
-    (void)deltaTime; // Placeholder for future per-frame updates.
-    Render();
+  (void)deltaTime; // Placeholder for future per-frame updates.
+  Render();
 }
 
 void GraphicsClass::Render() {

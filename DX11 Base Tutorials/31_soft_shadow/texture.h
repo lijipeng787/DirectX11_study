@@ -18,7 +18,7 @@ public:
   virtual ~Texture() = default;
 
 public:
-  bool Initialize(const WCHAR *filename);
+  bool Initialize(const WCHAR *filename, ID3D11Device *device);
 
   ID3D11ShaderResourceView *GetTexture() const { return texture_.Get(); };
 
@@ -44,7 +44,7 @@ public:
   ~TGATexture() = default;
 
 public:
-  bool Initialize(const char *);
+  bool Initialize(const char *, ID3D11Device *device);
 
   ID3D11ShaderResourceView *GetTexture() const { return m_textureView.Get(); }
 

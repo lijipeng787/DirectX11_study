@@ -189,9 +189,7 @@ void GraphicsClass::Shutdown() {
 }
 }
 
-void GraphicsClass::Frame(float deltaTime) {
-  Render();
-}
+void GraphicsClass::Frame(float deltaTime) { Render(); }
 
 void GraphicsClass::TestIntersection(int mouseX, int mouseY) {
 

@@ -222,8 +222,8 @@ bool TextClass::UpdateSentence(SentenceType *sentence, char *text,
 
   D3D11_MAPPED_SUBRESOURCE mappedResource;
 
-  auto result = device_context->Map(sentence->vertexBuffer, 0,
-                               D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+  auto result = device_context->Map(
+      sentence->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }

@@ -82,10 +82,7 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-void GraphicsClass::Frame(float deltaTime) {
-
-  Render();
-}
+void GraphicsClass::Frame(float deltaTime) { Render(); }
 
 void GraphicsClass::Render() {
 

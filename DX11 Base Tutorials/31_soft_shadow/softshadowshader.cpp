@@ -3,14 +3,11 @@
 #include <d3dcompiler.h>
 #include <fstream>
 
-#include "../CommonFramework2/DirectX11Device.h"
-
 using namespace std;
 using namespace DirectX;
 
-bool SoftShadowShader::Initialize(HWND hwnd) { return InitializeShader(hwnd); }
+bool SoftShadowShader::Initialize(HWND hwnd, ID3D11Device *device) {
 
-bool SoftShadowShader::InitializeShader(HWND hwnd) {
   // Define vertex input layout
   D3D11_INPUT_ELEMENT_DESC polygonLayout[] = {
       {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
@@ -24,34 +21,34 @@ bool SoftShadowShader::InitializeShader(HWND hwnd) {
   if (!InitializeShaderFromFile(hwnd, L"./softshadow.vs",
                                 "SoftShadowVertexShader", L"./softshadow.ps",
                                 "SoftShadowPixelShader", polygonLayout,
-                                _countof(polygonLayout))) {
+                                _countof(polygonLayout), device)) {
     return false;
   }
 
   // Create constant buffers
   if (!CreateConstantBuffer(sizeof(MatrixBufferType),
-                            matrix_buffer_.GetAddressOf())) {
+                            matrix_buffer_.GetAddressOf(), device)) {
     return false;
   }
 
   if (!CreateConstantBuffer(sizeof(LightBufferType),
-                            light_buffer_.GetAddressOf())) {
+                            light_buffer_.GetAddressOf(), device)) {
     return false;
   }
 
   if (!CreateConstantBuffer(sizeof(LightPositionBufferType),
-                            light_position_buffer_.GetAddressOf())) {
+                            light_position_buffer_.GetAddressOf(), device)) {
     return false;
   }
 
   // Create wrap sampler state for regular textures
-  if (!CreateSamplerState(sampler_state_wrap_.GetAddressOf(),
+  if (!CreateSamplerState(sampler_state_wrap_.GetAddressOf(), device,
                           D3D11_TEXTURE_ADDRESS_WRAP)) {
     return false;
   }
 
   // Create clamp sampler state for shadow map
-  if (!CreateSamplerState(sampler_state_clamp_.GetAddressOf(),
+  if (!CreateSamplerState(sampler_state_clamp_.GetAddressOf(), device,
                           D3D11_TEXTURE_ADDRESS_CLAMP)) {
     return false;
   }
@@ -59,8 +56,10 @@ bool SoftShadowShader::InitializeShader(HWND hwnd) {
   return true;
 }
 
-bool SoftShadowShader::Render(
-    int indexCount, const ShaderParameterContainer &parameters) const {
+bool SoftShadowShader::Render(int indexCount,
+                              const ShaderParameterContainer &parameters,
+                              ID3D11DeviceContext *deviceContext) const {
+
   auto worldMatrix = parameters.GetMatrix("worldMatrix");
   auto viewMatrix = parameters.GetMatrix("viewMatrix");
   auto projectionMatrix = parameters.GetMatrix("projectionMatrix");
@@ -72,11 +71,24 @@ bool SoftShadowShader::Render(
 
   if (!SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture,
                            shadowTexture, lightPosition, ambientColor,
-                           diffuseColor)) {
+                           diffuseColor, deviceContext)) {
     return false;
   }
 
-  RenderShader(indexCount);
+  // Set the vertex input layout
+  deviceContext->IASetInputLayout(layout_.Get());
+
+  // Set the vertex and pixel shaders
+  deviceContext->VSSetShader(vertex_shader_.Get(), nullptr, 0);
+  deviceContext->PSSetShader(pixel_shader_.Get(), nullptr, 0);
+
+  // Set the sampler states
+  deviceContext->PSSetSamplers(0, 1, sampler_state_clamp_.GetAddressOf());
+  deviceContext->PSSetSamplers(1, 1, sampler_state_wrap_.GetAddressOf());
+
+  // Draw the geometry
+  deviceContext->DrawIndexed(indexCount, 0, 0);
+
   return true;
 }
 
@@ -86,10 +98,10 @@ bool SoftShadowShader::SetShaderParameters(
     ID3D11ShaderResourceView *texture, ID3D11ShaderResourceView *shadowTexture,
     const DirectX::XMFLOAT3 &lightPosition,
     const DirectX::XMFLOAT4 &ambientColor,
-    const DirectX::XMFLOAT4 &diffuseColor) const {
+    const DirectX::XMFLOAT4 &diffuseColor,
+    ID3D11DeviceContext *deviceContext) const {
+
   D3D11_MAPPED_SUBRESOURCE mappedResource;
-  auto deviceContext =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   // Update matrix buffer
   DirectX::XMMATRIX worldMatrixT = XMMatrixTranspose(worldMatrix);
@@ -145,23 +157,4 @@ bool SoftShadowShader::SetShaderParameters(
   deviceContext->PSSetShaderResources(1, 1, &shadowTexture);
 
   return true;
-}
-
-void SoftShadowShader::RenderShader(int indexCount) const {
-  auto deviceContext =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
-  // Set the vertex input layout
-  deviceContext->IASetInputLayout(layout_.Get());
-
-  // Set the vertex and pixel shaders
-  deviceContext->VSSetShader(vertex_shader_.Get(), nullptr, 0);
-  deviceContext->PSSetShader(pixel_shader_.Get(), nullptr, 0);
-
-  // Set the sampler states
-  deviceContext->PSSetSamplers(0, 1, sampler_state_clamp_.GetAddressOf());
-  deviceContext->PSSetSamplers(1, 1, sampler_state_wrap_.GetAddressOf());
-
-  // Draw the geometry
-  deviceContext->DrawIndexed(indexCount, 0, 0);
 }

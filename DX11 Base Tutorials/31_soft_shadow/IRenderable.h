@@ -15,13 +15,13 @@ public:
   virtual ~IRenderable() = default;
 
 public:
-  virtual void
-  Render(const IShader &shader,
-         const ShaderParameterContainer &parameterContainer) const = 0;
+  virtual void Render(const IShader &shader,
+                      const ShaderParameterContainer &parameterContainer,
+                      ID3D11DeviceContext *deviceContext) const = 0;
 
   virtual DirectX::XMMATRIX GetWorldMatrix() const noexcept = 0;
 
-  virtual void SetWorldMatrix(const DirectX::XMMATRIX& worldMatrix) = 0;
+  virtual void SetWorldMatrix(const DirectX::XMMATRIX &worldMatrix) = 0;
 
   virtual void SetParameterCallback(ShaderParameterCallback callback) = 0;
 

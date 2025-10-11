@@ -12,27 +12,27 @@ class OrthoWindow;
 class RenderableObject : public IRenderable {
 public:
   explicit RenderableObject(std::shared_ptr<Model> model,
-                   std::shared_ptr<IShader> shader);
+                            std::shared_ptr<IShader> shader);
 
   explicit RenderableObject(std::shared_ptr<PBRModel> model,
-                   std::shared_ptr<IShader> shader);
+                            std::shared_ptr<IShader> shader);
 
   explicit RenderableObject(std::shared_ptr<OrthoWindow> window_model,
-                   std::shared_ptr<IShader> shader);
+                            std::shared_ptr<IShader> shader);
 
-  RenderableObject(RenderableObject&) noexcept = default;
+  RenderableObject(RenderableObject &) noexcept = default;
 
-  RenderableObject& operator=(RenderableObject&) noexcept = default;
+  RenderableObject &operator=(RenderableObject &) noexcept = default;
 
-  RenderableObject(RenderableObject&&) noexcept = default;
+  RenderableObject(RenderableObject &&) noexcept = default;
 
-  RenderableObject& operator=(RenderableObject&&) noexcept = default;
+  RenderableObject &operator=(RenderableObject &&) noexcept = default;
 
   virtual ~RenderableObject() = default;
 
 public:
-  void Render(const IShader &shader,
-              const ShaderParameterContainer &parameters) const override;
+  void Render(const IShader &shader, const ShaderParameterContainer &parameters,
+              ID3D11DeviceContext *deviceContext) const override;
 
   DirectX::XMMATRIX GetWorldMatrix() const noexcept override;
 

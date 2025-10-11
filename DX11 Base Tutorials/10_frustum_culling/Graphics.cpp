@@ -205,8 +205,7 @@ void GraphicsClass::Render() {
 
     radius = 1.0f;
 
-    renderModel =
-        camera_->CheckSphere(positionX, positionY, positionZ, radius);
+    renderModel = camera_->CheckSphere(positionX, positionY, positionZ, radius);
 
     if (renderModel) {
 

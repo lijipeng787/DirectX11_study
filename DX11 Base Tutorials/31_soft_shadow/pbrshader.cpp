@@ -1,16 +1,13 @@
 #include "pbrshader.h"
 
-#include "../CommonFramework2/DirectX11Device.h"
-
 #include <d3dcompiler.h>
 #include <fstream>
 
 using namespace DirectX;
 using namespace std;
 
-bool PbrShader::Initialize(HWND hwnd) { return InitializeShader(hwnd); }
+bool PbrShader::Initialize(HWND hwnd, ID3D11Device *device) {
 
-bool PbrShader::InitializeShader(HWND hwnd) {
   // Define vertex input layout for PBR rendering
   D3D11_INPUT_ELEMENT_DESC polygonLayout[] = {
       {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
@@ -27,28 +24,28 @@ bool PbrShader::InitializeShader(HWND hwnd) {
   // Initialize base shader components
   if (!InitializeShaderFromFile(hwnd, L"./pbr.vs", "PbrVertexShader",
                                 L"./pbr.ps", "PbrPixelShader", polygonLayout,
-                                _countof(polygonLayout))) {
+                                _countof(polygonLayout), device)) {
     return false;
   }
 
   // Create constant buffers
   if (!CreateConstantBuffer(sizeof(MatrixBufferType),
-                            matrix_buffer_.GetAddressOf())) {
+                            matrix_buffer_.GetAddressOf(), device)) {
     return false;
   }
 
   if (!CreateConstantBuffer(sizeof(CameraBufferType),
-                            camera_buffer_.GetAddressOf())) {
+                            camera_buffer_.GetAddressOf(), device)) {
     return false;
   }
 
   if (!CreateConstantBuffer(sizeof(LightBufferType),
-                            light_buffer_.GetAddressOf())) {
+                            light_buffer_.GetAddressOf(), device)) {
     return false;
   }
 
   // Create sampler state for PBR textures
-  if (!CreateSamplerState(sampler_state_.GetAddressOf())) {
+  if (!CreateSamplerState(sampler_state_.GetAddressOf(), device)) {
     return false;
   }
 
@@ -56,7 +53,9 @@ bool PbrShader::InitializeShader(HWND hwnd) {
 }
 
 bool PbrShader::Render(int indexCount,
-                       const ShaderParameterContainer &parameters) const {
+                       const ShaderParameterContainer &parameters,
+                       ID3D11DeviceContext *deviceContext) const {
+
   // Get required parameters from container
   auto worldMatrix = parameters.GetMatrix("worldMatrix");
   auto viewMatrix = parameters.GetMatrix("viewMatrix");
@@ -70,11 +69,20 @@ bool PbrShader::Render(int indexCount,
   // Set shader parameters
   if (!SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix,
                            diffuseTexture, normalMap, rmTexture, lightDirection,
-                           cameraPosition)) {
+                           cameraPosition, deviceContext)) {
     return false;
   }
 
-  RenderShader(indexCount);
+  // Set the vertex input layout
+  deviceContext->IASetInputLayout(layout_.Get());
+
+  // Set the vertex and pixel shaders
+  deviceContext->VSSetShader(vertex_shader_.Get(), nullptr, 0);
+  deviceContext->PSSetShader(pixel_shader_.Get(), nullptr, 0);
+
+  // Draw the geometry
+  deviceContext->DrawIndexed(indexCount, 0, 0);
+
   return true;
 }
 
@@ -85,10 +93,10 @@ bool PbrShader::SetShaderParameters(
     ID3D11ShaderResourceView *normalMap,
     ID3D11ShaderResourceView *roughnessMetallicTexture,
     const DirectX::XMFLOAT3 &lightDirection,
-    const DirectX::XMFLOAT3 &cameraPosition) const {
+    const DirectX::XMFLOAT3 &cameraPosition,
+    ID3D11DeviceContext *deviceContext) const {
+
   D3D11_MAPPED_SUBRESOURCE mappedResource;
-  auto deviceContext =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   // Update matrix buffer
   DirectX::XMMATRIX worldMatrixT = XMMatrixTranspose(worldMatrix);
@@ -146,19 +154,4 @@ bool PbrShader::SetShaderParameters(
   deviceContext->PSSetSamplers(0, 1, sampler_state_.GetAddressOf());
 
   return true;
-}
-
-void PbrShader::RenderShader(int indexCount) const {
-  auto deviceContext =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
-  // Set the vertex input layout
-  deviceContext->IASetInputLayout(layout_.Get());
-
-  // Set the vertex and pixel shaders
-  deviceContext->VSSetShader(vertex_shader_.Get(), nullptr, 0);
-  deviceContext->PSSetShader(pixel_shader_.Get(), nullptr, 0);
-
-  // Draw the geometry
-  deviceContext->DrawIndexed(indexCount, 0, 0);
 }

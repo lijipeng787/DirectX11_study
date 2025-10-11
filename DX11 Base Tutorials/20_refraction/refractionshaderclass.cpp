@@ -288,8 +288,8 @@ bool RefractionShaderClass::SetShaderParameters(
 
   device_context->PSSetShaderResources(0, 1, &texture);
 
-  auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
-                               &mappedResource);
+  auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD,
+                                    0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }

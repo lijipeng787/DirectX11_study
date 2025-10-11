@@ -24,7 +24,8 @@ public:
   void SetPassParameters(const ShaderParameterContainer &params);
 
   void Execute(const std::vector<std::shared_ptr<IRenderable>> &renderables,
-               const ShaderParameterContainer &globalFrameParams);
+               const ShaderParameterContainer &globalFrameParams,
+               ID3D11DeviceContext *deviceContext);
 
   void NeedTurnOffZBuffer() { need_turn_z_buffer_off_ = true; }
 

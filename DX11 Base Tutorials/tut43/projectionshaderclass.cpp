@@ -100,9 +100,9 @@ bool ProjectionShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
 
   auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
-  auto result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
-                                      vertexShaderBuffer->GetBufferSize(), NULL,
-                                      &vertex_shader_);
+  auto result = device->CreateVertexShader(
+      vertexShaderBuffer->GetBufferPointer(),
+      vertexShaderBuffer->GetBufferSize(), NULL, &vertex_shader_);
   if (FAILED(result)) {
     return false;
   }

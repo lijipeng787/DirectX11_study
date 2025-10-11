@@ -19,13 +19,13 @@ bool OrthoWindow::Initialize(int windowWidth, int windowHeight) {
 
 void OrthoWindow::Shutdown() { ShutdownBuffers(); }
 
-void OrthoWindow::Render(
-    const IShader &shader,
-    const ShaderParameterContainer &parameterContainer) const {
+void OrthoWindow::Render(const IShader &shader,
+                         const ShaderParameterContainer &parameterContainer,
+                         ID3D11DeviceContext *deviceContext) const {
 
   RenderBuffers();
 
-  shader.Render(GetIndexCount(), parameterContainer);
+  shader.Render(GetIndexCount(), parameterContainer, deviceContext);
 }
 
 void OrthoWindow::SetParameterCallback(ShaderParameterCallback callback) {}

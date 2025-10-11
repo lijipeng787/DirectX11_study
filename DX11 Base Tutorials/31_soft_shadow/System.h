@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../CommonFramework2/SystemBase.h"
-#include "position.h"
 #include "Graphics.h"
+#include "position.h"
 
 class System : public SystemBase {
 public:
@@ -31,5 +31,3 @@ private:
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-
-static System *ApplicationInstance = nullptr;

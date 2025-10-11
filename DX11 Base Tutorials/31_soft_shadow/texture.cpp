@@ -10,8 +10,7 @@
 using namespace DirectX;
 using namespace std;
 
-bool Texture::Initialize(const WCHAR *filename) {
-  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
+bool Texture::Initialize(const WCHAR *filename, ID3D11Device *device) {
   auto result = CreateDDSTextureFromFile(device, filename, nullptr,
                                          texture_.GetAddressOf());
   if (FAILED(result)) {
@@ -20,7 +19,7 @@ bool Texture::Initialize(const WCHAR *filename) {
   return true;
 }
 
-bool TGATexture::Initialize(const char *filename) {
+bool TGATexture::Initialize(const char *filename, ID3D11Device *device) {
 
   D3D11_TEXTURE2D_DESC textureDesc;
   D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -45,8 +44,6 @@ bool TGATexture::Initialize(const char *filename) {
   textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
   // Create the empty texture.
-  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
-
   auto hResult =
       device->CreateTexture2D(&textureDesc, NULL, m_texture.GetAddressOf());
   if (FAILED(hResult)) {

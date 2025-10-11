@@ -31,14 +31,12 @@ public:
   ~SoftShadowShader() = default;
 
 public:
-  bool Initialize(HWND hwnd) override;
+  bool Initialize(HWND hwnd, ID3D11Device *device) override;
 
-  bool Render(int indexCount,
-              const ShaderParameterContainer &parameters) const override;
+  bool Render(int indexCount, const ShaderParameterContainer &parameters,
+              ID3D11DeviceContext *deviceContext) const override;
 
 protected:
-  bool InitializeShader(HWND hwnd);
-
   bool SetShaderParameters(const DirectX::XMMATRIX &worldMatrix,
                            const DirectX::XMMATRIX &viewMatrix,
                            const DirectX::XMMATRIX &projectionMatrix,
@@ -46,15 +44,18 @@ protected:
                            ID3D11ShaderResourceView *shadowTexture,
                            const DirectX::XMFLOAT3 &lightPosition,
                            const DirectX::XMFLOAT4 &ambientColor,
-                           const DirectX::XMFLOAT4 &diffuseColor) const;
-
-  void RenderShader(int indexCount) const;
+                           const DirectX::XMFLOAT4 &diffuseColor,
+                           ID3D11DeviceContext *deviceContext) const;
 
 private:
   Microsoft::WRL::ComPtr<ID3D11Buffer> matrix_buffer_;
+
   Microsoft::WRL::ComPtr<ID3D11Buffer> light_buffer_;
+
   Microsoft::WRL::ComPtr<ID3D11Buffer> light_position_buffer_;
+
   Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_state_wrap_;
+
   Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_state_clamp_;
 };
 

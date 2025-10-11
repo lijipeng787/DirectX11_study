@@ -25,7 +25,8 @@ bool RenderTextureClass::Initialize(int textureWidth, int textureHeight,
 
   auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
-  auto result = device->CreateTexture2D(&textureDesc, NULL, &render_target_texture_);
+  auto result =
+      device->CreateTexture2D(&textureDesc, NULL, &render_target_texture_);
   if (FAILED(result)) {
     return false;
   }

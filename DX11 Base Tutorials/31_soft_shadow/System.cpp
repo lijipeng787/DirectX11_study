@@ -10,10 +10,14 @@ using namespace std;
 
 bool System::Initialize() {
 
-  ApplicationInstance = this;
   SetWindProc(WndProc);
 
   SystemBase::Initialize();
+
+  // 将System实例指针存储到窗口的用户数据中
+  // 这样WndProc可以通过窗口句柄获取System实例，而不需要全局变量
+  SetWindowLongPtr(GetApplicationHandle(), GWLP_USERDATA,
+                   reinterpret_cast<LONG_PTR>(this));
 
   unsigned int screenWidth = 0, screenHeight = 0;
 
@@ -115,11 +119,7 @@ bool System::HandleInput(float frameTime) {
   return true;
 }
 
-void System::Shutdown() {
-
-  SystemBase::Shutdown();
-
-}
+void System::Shutdown() { SystemBase::Shutdown(); }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam,
                          LPARAM lparam) {
@@ -136,7 +136,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam,
   }
 
   default: {
-    return ApplicationInstance->MessageHandler(hwnd, umessage, wparam, lparam);
+    // 从窗口用户数据中获取System实例指针，避免全局变量
+    System *system =
+        reinterpret_cast<System *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    if (system) {
+      return system->MessageHandler(hwnd, umessage, wparam, lparam);
+    }
+    return DefWindowProc(hwnd, umessage, wparam, lparam);
   }
   }
 }

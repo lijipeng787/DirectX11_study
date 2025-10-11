@@ -4,7 +4,7 @@
 #include <d3dcompiler.h>
 #include <fstream>
 
-bool ShaderBase::Initialize(HWND hwnd) {
+bool ShaderBase::Initialize(HWND hwnd, ID3D11Device *device) {
   // To be implemented by derived classes
   return true;
 }
@@ -19,7 +19,9 @@ void ShaderBase::Shutdown() {
 bool ShaderBase::InitializeShaderFromFile(
     HWND hwnd, const std::wstring &vsFilename, const std::string &vsEntryName,
     const std::wstring &psFilename, const std::string &psEntryName,
-    const D3D11_INPUT_ELEMENT_DESC *layoutDesc, UINT numElements) {
+    const D3D11_INPUT_ELEMENT_DESC *layoutDesc, UINT numElements,
+    ID3D11Device *device) {
+
   HRESULT result;
   Microsoft::WRL::ComPtr<ID3D10Blob> errorMessage;
   Microsoft::WRL::ComPtr<ID3D10Blob> vertexShaderBuffer;
@@ -54,8 +56,6 @@ bool ShaderBase::InitializeShaderFromFile(
   }
 
   // Create vertex shader
-  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
-
   result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
                                       vertexShaderBuffer->GetBufferSize(),
                                       nullptr, &vertex_shader_);
@@ -85,18 +85,19 @@ bool ShaderBase::InitializeShaderFromFile(
   return true;
 }
 
-bool ShaderBase::CreateConstantBuffer(UINT byteWidth, ID3D11Buffer **buffer) {
+bool ShaderBase::CreateConstantBuffer(UINT byteWidth, ID3D11Buffer **buffer,
+                                      ID3D11Device *device) {
   D3D11_BUFFER_DESC bufferDesc = {};
   bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
   bufferDesc.ByteWidth = byteWidth;
   bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
   bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
   return SUCCEEDED(device->CreateBuffer(&bufferDesc, nullptr, buffer));
 }
 
 bool ShaderBase::CreateSamplerState(ID3D11SamplerState **samplerState,
+                                    ID3D11Device *device,
                                     D3D11_TEXTURE_ADDRESS_MODE addressMode) {
   D3D11_SAMPLER_DESC samplerDesc = {};
   samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -109,7 +110,6 @@ bool ShaderBase::CreateSamplerState(ID3D11SamplerState **samplerState,
   samplerDesc.MinLOD = 0;
   samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
   return SUCCEEDED(device->CreateSamplerState(&samplerDesc, samplerState));
 }
 
@@ -133,7 +133,8 @@ bool BlurShaderBase::InitializeBlurShader(HWND hwnd,
                                           const std::wstring &vsFilename,
                                           const std::string &vsEntryName,
                                           const std::wstring &psFilename,
-                                          const std::string &psEntryName) {
+                                          const std::string &psEntryName,
+                                          ID3D11Device *device) {
   // Define the standard input layout for blur shaders
   D3D11_INPUT_ELEMENT_DESC polygonLayout[2] = {
       {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
@@ -144,24 +145,24 @@ bool BlurShaderBase::InitializeBlurShader(HWND hwnd,
   // Initialize base shader components
   if (!InitializeShaderFromFile(hwnd, vsFilename, vsEntryName, psFilename,
                                 psEntryName, polygonLayout,
-                                _countof(polygonLayout))) {
+                                _countof(polygonLayout), device)) {
     return false;
   }
 
   // Create the matrix constant buffer
   if (!CreateConstantBuffer(sizeof(MatrixBufferType),
-                            matrix_buffer_.GetAddressOf())) {
+                            matrix_buffer_.GetAddressOf(), device)) {
     return false;
   }
 
   // Create the screen size constant buffer
   if (!CreateConstantBuffer(sizeof(ScreenSizeBufferType),
-                            screen_size_buffer_.GetAddressOf())) {
+                            screen_size_buffer_.GetAddressOf(), device)) {
     return false;
   }
 
   // Create sampler state
-  if (!CreateSamplerState(sampler_state_.GetAddressOf())) {
+  if (!CreateSamplerState(sampler_state_.GetAddressOf(), device)) {
     return false;
   }
 
@@ -171,10 +172,9 @@ bool BlurShaderBase::InitializeBlurShader(HWND hwnd,
 bool BlurShaderBase::SetBaseShaderParameters(
     const DirectX::XMMATRIX &worldMatrix, const DirectX::XMMATRIX &viewMatrix,
     const DirectX::XMMATRIX &projectionMatrix,
-    ID3D11ShaderResourceView *texture, float screenSize) const {
+    ID3D11ShaderResourceView *texture, float screenSize,
+    ID3D11DeviceContext *deviceContext) const {
   D3D11_MAPPED_SUBRESOURCE mappedResource;
-  auto deviceContext =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   // Transpose matrices for the shader
   DirectX::XMMATRIX worldMatrixCopy = DirectX::XMMatrixTranspose(worldMatrix);
@@ -217,10 +217,8 @@ bool BlurShaderBase::SetBaseShaderParameters(
   return true;
 }
 
-void BlurShaderBase::RenderShader(int indexCount) const {
-  auto deviceContext =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
+void BlurShaderBase::RenderShader(int indexCount,
+                                  ID3D11DeviceContext *deviceContext) const {
   deviceContext->IASetInputLayout(layout_.Get());
   deviceContext->VSSetShader(vertex_shader_.Get(), nullptr, 0);
   deviceContext->PSSetShader(pixel_shader_.Get(), nullptr, 0);

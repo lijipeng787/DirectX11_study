@@ -39,7 +39,7 @@ bool System::Frame() {
   graphics_->SetFrameTime(delta_time);
 
   graphics_->Frame(0.0f);
-  
+
   return true;
 }
 

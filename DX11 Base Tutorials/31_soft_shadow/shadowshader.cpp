@@ -1,15 +1,13 @@
 #include "shadowshader.h"
 
-#include "../CommonFramework2/DirectX11Device.h"
 #include "ShaderParameterContainer.h"
 
 #include <fstream>
 
 using namespace DirectX;
 
-bool ShadowShader::Initialize(HWND hwnd) { return InitializeShader(hwnd); }
+bool ShadowShader::Initialize(HWND hwnd, ID3D11Device *device) {
 
-bool ShadowShader::InitializeShader(HWND hwnd) {
   // Define the shader input layout
   D3D11_INPUT_ELEMENT_DESC polygonLayout[] = {
       {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
@@ -22,24 +20,25 @@ bool ShadowShader::InitializeShader(HWND hwnd) {
   // Initialize shader files
   if (!InitializeShaderFromFile(hwnd, L"./shadow.vs", "ShadowVertexShader",
                                 L"./shadow.ps", "ShadowPixelShader",
-                                polygonLayout, _countof(polygonLayout))) {
+                                polygonLayout, _countof(polygonLayout),
+                                device)) {
     return false;
   }
 
   // Create matrix constant buffer
   if (!CreateConstantBuffer(sizeof(MatrixBufferType),
-                            matrix_buffer_.GetAddressOf())) {
+                            matrix_buffer_.GetAddressOf(), device)) {
     return false;
   }
 
   // Create light constant buffer
   if (!CreateConstantBuffer(sizeof(LightBufferType),
-                            light_buffer_.GetAddressOf())) {
+                            light_buffer_.GetAddressOf(), device)) {
     return false;
   }
 
   // Create sampler state with clamp addressing
-  if (!CreateSamplerState(sampler_state_clamp_.GetAddressOf(),
+  if (!CreateSamplerState(sampler_state_clamp_.GetAddressOf(), device,
                           D3D11_TEXTURE_ADDRESS_CLAMP)) {
     return false;
   }
@@ -48,7 +47,9 @@ bool ShadowShader::InitializeShader(HWND hwnd) {
 }
 
 bool ShadowShader::Render(int indexCount,
-                          const ShaderParameterContainer &parameters) const {
+                          const ShaderParameterContainer &parameters,
+                          ID3D11DeviceContext *deviceContext) const {
+
   auto worldMatrix = parameters.GetMatrix("worldMatrix");
   auto viewMatrix = parameters.GetMatrix("viewMatrix");
   auto projectionMatrix = parameters.GetMatrix("projectionMatrix");
@@ -59,11 +60,23 @@ bool ShadowShader::Render(int indexCount,
 
   if (!SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix,
                            lightViewMatrix, lightProjectionMatrix,
-                           depthMapTexture, lightPosition)) {
+                           depthMapTexture, lightPosition, deviceContext)) {
     return false;
   }
 
-  RenderShader(indexCount);
+  // Set the vertex input layout
+  deviceContext->IASetInputLayout(layout_.Get());
+
+  // Set the vertex and pixel shaders
+  deviceContext->VSSetShader(vertex_shader_.Get(), nullptr, 0);
+  deviceContext->PSSetShader(pixel_shader_.Get(), nullptr, 0);
+
+  // Set the sampler state
+  deviceContext->PSSetSamplers(0, 1, sampler_state_clamp_.GetAddressOf());
+
+  // Render the geometry
+  deviceContext->DrawIndexed(indexCount, 0, 0);
+
   return true;
 }
 
@@ -73,9 +86,9 @@ bool ShadowShader::SetShaderParameters(
     const DirectX::XMMATRIX &lightViewMatrix,
     const DirectX::XMMATRIX &lightProjectionMatrix,
     ID3D11ShaderResourceView *depthMapTexture,
-    const DirectX::XMFLOAT3 &lightPosition) const {
-  auto deviceContext =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
+    const DirectX::XMFLOAT3 &lightPosition,
+    ID3D11DeviceContext *deviceContext) const {
+
   D3D11_MAPPED_SUBRESOURCE mappedResource;
 
   // Transpose matrices for shader
@@ -120,22 +133,4 @@ bool ShadowShader::SetShaderParameters(
   deviceContext->PSSetShaderResources(0, 1, &depthMapTexture);
 
   return true;
-}
-
-void ShadowShader::RenderShader(int indexCount) const {
-  auto deviceContext =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
-  // Set the vertex input layout
-  deviceContext->IASetInputLayout(layout_.Get());
-
-  // Set the vertex and pixel shaders
-  deviceContext->VSSetShader(vertex_shader_.Get(), nullptr, 0);
-  deviceContext->PSSetShader(pixel_shader_.Get(), nullptr, 0);
-
-  // Set the sampler state
-  deviceContext->PSSetSamplers(0, 1, sampler_state_clamp_.GetAddressOf());
-
-  // Render the geometry
-  deviceContext->DrawIndexed(indexCount, 0, 0);
 }

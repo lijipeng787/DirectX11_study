@@ -26,9 +26,9 @@ public:
 
   void Shutdown();
 
-  void
-  Render(const IShader &shader,
-         const ShaderParameterContainer &parameterContainer) const override;
+  void Render(const IShader &shader,
+              const ShaderParameterContainer &parameterContainer,
+              ID3D11DeviceContext *deviceContext) const override;
 
   void SetParameterCallback(ShaderParameterCallback callback) override;
 
@@ -40,7 +40,7 @@ public:
     return device_world_matrix_;
   }
 
-  void SetWorldMatrix(const DirectX::XMMATRIX&) override {}
+  void SetWorldMatrix(const DirectX::XMMATRIX &) override {}
 
 private:
   bool InitializeBuffers(int, int);
@@ -51,7 +51,9 @@ private:
 
 private:
   Microsoft::WRL::ComPtr<ID3D11Buffer> vertex_buffer_, index_buffer_;
+
   int vertex_count_, index_count_;
+
   DirectX::XMMATRIX device_world_matrix_;
 };
 

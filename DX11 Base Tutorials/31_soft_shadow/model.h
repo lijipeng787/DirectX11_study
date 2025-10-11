@@ -17,19 +17,19 @@ public:
 
   Model(const Model &) = delete;
 
-  Model& operator=(const Model &) = delete;
+  Model &operator=(const Model &) = delete;
 
   ~Model();
 
 public:
   bool Initialize(const std::string &modelFilename,
-                  const std::wstring &textureFilename);
+                  const std::wstring &textureFilename, ID3D11Device *device);
 
   void Shutdown();
 
-  void
-  Render(const IShader &shader,
-         const ShaderParameterContainer &parameterContainer) const override;
+  void Render(const IShader &shader,
+              const ShaderParameterContainer &parameterContainer,
+              ID3D11DeviceContext *deviceContext) const override;
 
   void SetParameterCallback(ShaderParameterCallback callback) override;
 
@@ -41,18 +41,18 @@ public:
 
   DirectX::XMMATRIX GetWorldMatrix() const noexcept { return world_matrix_; }
 
-  void SetWorldMatrix(const DirectX::XMMATRIX &worldMatrix) override{
+  void SetWorldMatrix(const DirectX::XMMATRIX &worldMatrix) override {
     world_matrix_ = worldMatrix;
   }
 
 private:
-  bool InitializeBuffers();
+  bool InitializeBuffers(ID3D11Device *device);
 
   void ShutdownBuffers();
 
-  void RenderBuffers() const;
+  void RenderBuffers(ID3D11DeviceContext *deviceContext) const;
 
-  bool LoadTexture(const std::wstring &filename);
+  bool LoadTexture(const std::wstring &filename, ID3D11Device *device);
 
   bool LoadModel(const std::string &filename);
 
@@ -121,13 +121,13 @@ public:
 
 public:
   bool Initialize(const char *, const std::string &, const std::string &,
-                  const std::string &);
+                  const std::string &, ID3D11Device *device);
 
   void Shutdown();
 
-  void
-  Render(const IShader &shader,
-         const ShaderParameterContainer &parameterContainer) const override;
+  void Render(const IShader &shader,
+              const ShaderParameterContainer &parameterContainer,
+              ID3D11DeviceContext *deviceContext) const override;
 
   void SetParameterCallback(ShaderParameterCallback callback) override;
 
@@ -144,12 +144,12 @@ public:
   DirectX::XMMATRIX GetWorldMatrix() const noexcept { return world_matrix_; }
 
 private:
-  bool InitializeBuffers();
+  bool InitializeBuffers(ID3D11Device *device);
 
-  void RenderBuffers() const;
+  void RenderBuffers(ID3D11DeviceContext *deviceContext) const;
 
   bool LoadTextures(const std::string &, const std::string &,
-                    const std::string &);
+                    const std::string &, ID3D11Device *device);
 
   void ReleaseTextures();
 

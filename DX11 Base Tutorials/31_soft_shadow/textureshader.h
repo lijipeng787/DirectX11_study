@@ -20,20 +20,17 @@ public:
   ~TextureShader() = default;
 
 public:
-  bool Initialize(HWND hwnd) override;
+  bool Initialize(HWND hwnd, ID3D11Device *device) override;
 
-  bool Render(int indexCount,
-              const ShaderParameterContainer &parameters) const override;
+  bool Render(int indexCount, const ShaderParameterContainer &parameters,
+              ID3D11DeviceContext *deviceContext) const override;
 
 private:
-  bool InitializeShader(HWND hwnd);
-
   bool SetShaderParameters(const DirectX::XMMATRIX &worldMatrix,
                            const DirectX::XMMATRIX &viewMatrix,
                            const DirectX::XMMATRIX &projectionMatrix,
-                           ID3D11ShaderResourceView *texture) const;
-
-  void RenderShader(int indexCount) const;
+                           ID3D11ShaderResourceView *texture,
+                           ID3D11DeviceContext *deviceContext) const;
 
 private:
   Microsoft::WRL::ComPtr<ID3D11Buffer> matrix_buffer_;

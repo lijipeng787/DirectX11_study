@@ -18,8 +18,7 @@ void RenderPipeline::Execute(const ShaderParameterContainer &frameParams) {
   DirectX11Device::GetD3d11DeviceInstance()->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
   for (const auto &pass : render_passes_) {
-    auto pass_name = pass->GetPassName();
-    pass->Execute(renderable_objects_, globalFrameParams);
+    pass->Execute(renderable_objects_, globalFrameParams, device_context_);
   }
 
   DirectX11Device::GetD3d11DeviceInstance()->EndScene();

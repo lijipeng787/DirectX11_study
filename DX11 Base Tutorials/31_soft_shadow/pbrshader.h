@@ -31,14 +31,12 @@ public:
   ~PbrShader() = default;
 
 public:
-  bool Initialize(HWND hwnd) override;
+  bool Initialize(HWND hwnd, ID3D11Device *device) override;
 
-  bool Render(int indexCount,
-              const ShaderParameterContainer &parameters) const override;
+  bool Render(int indexCount, const ShaderParameterContainer &parameters,
+              ID3D11DeviceContext *deviceContext) const override;
 
 protected:
-  bool InitializeShader(HWND hwnd);
-
   bool SetShaderParameters(const DirectX::XMMATRIX &worldMatrix,
                            const DirectX::XMMATRIX &viewMatrix,
                            const DirectX::XMMATRIX &projectionMatrix,
@@ -46,9 +44,8 @@ protected:
                            ID3D11ShaderResourceView *normalMap,
                            ID3D11ShaderResourceView *roughnessMetallicTexture,
                            const DirectX::XMFLOAT3 &lightDirection,
-                           const DirectX::XMFLOAT3 &cameraPosition) const;
-
-  void RenderShader(int indexCount) const;
+                           const DirectX::XMFLOAT3 &cameraPosition,
+                           ID3D11DeviceContext *deviceContext) const;
 
 private:
   Microsoft::WRL::ComPtr<ID3D11Buffer> matrix_buffer_;

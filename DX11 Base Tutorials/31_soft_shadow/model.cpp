@@ -13,9 +13,10 @@ using namespace DirectX;
 Model::~Model() { Shutdown(); }
 
 bool Model::Initialize(const std::string &modelFilename,
-                            const std::wstring &textureFilename) {
-  if (!LoadModel(modelFilename) || !InitializeBuffers() ||
-      !LoadTexture(textureFilename)) {
+                       const std::wstring &textureFilename,
+                       ID3D11Device *device) {
+  if (!LoadModel(modelFilename) || !InitializeBuffers(device) ||
+      !LoadTexture(textureFilename, device)) {
     return false;
   }
   return true;
@@ -26,13 +27,13 @@ void Model::Shutdown() {
   ReleaseModel();
 }
 
-void Model::Render(
-    const IShader &shader,
-    const ShaderParameterContainer &parameterContainer) const {
+void Model::Render(const IShader &shader,
+                   const ShaderParameterContainer &parameterContainer,
+                   ID3D11DeviceContext *deviceContext) const {
 
-  RenderBuffers();
+  RenderBuffers(deviceContext);
 
-  shader.Render(GetIndexCount(), parameterContainer);
+  shader.Render(GetIndexCount(), parameterContainer, deviceContext);
 }
 
 void Model::SetParameterCallback(ShaderParameterCallback callback) {}
@@ -45,7 +46,7 @@ ID3D11ShaderResourceView *Model::GetTexture() const {
   return texture_ ? texture_->GetTexture() : nullptr;
 }
 
-bool Model::InitializeBuffers() {
+bool Model::InitializeBuffers(ID3D11Device *device) {
   std::vector<Vertex> vertices(vertex_count_);
   std::vector<unsigned long> indices(index_count_);
 
@@ -64,7 +65,6 @@ bool Model::InitializeBuffers() {
   D3D11_SUBRESOURCE_DATA vertexData = {};
   vertexData.pSysMem = vertices.data();
 
-  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
   HRESULT result =
       device->CreateBuffer(&vertexBufferDesc, &vertexData, &vertex_buffer_);
   if (FAILED(result)) {
@@ -92,13 +92,10 @@ void Model::ShutdownBuffers() {
   vertex_buffer_.Reset();
 }
 
-void Model::RenderBuffers() const {
+void Model::RenderBuffers(ID3D11DeviceContext *deviceContext) const {
 
   UINT stride = sizeof(Vertex);
   UINT offset = 0;
-
-  auto deviceContext =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   deviceContext->IASetVertexBuffers(0, 1, vertex_buffer_.GetAddressOf(),
                                     &stride, &offset);
@@ -106,9 +103,9 @@ void Model::RenderBuffers() const {
   deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-bool Model::LoadTexture(const std::wstring &filename) {
+bool Model::LoadTexture(const std::wstring &filename, ID3D11Device *device) {
   texture_ = std::make_unique<Texture>();
-  return texture_->Initialize(filename.c_str());
+  return texture_->Initialize(filename.c_str(), device);
 }
 
 bool Model::LoadModel(const std::string &filename) {
@@ -147,9 +144,10 @@ bool Model::LoadModel(const std::string &filename) {
 void Model::ReleaseModel() { model_.clear(); }
 
 bool PBRModel::Initialize(const char *modelFilename,
-                               const string &textureFilename1,
-                               const string &textureFilename2,
-                               const string &textureFilename3) {
+                          const string &textureFilename1,
+                          const string &textureFilename2,
+                          const string &textureFilename3,
+                          ID3D11Device *device) {
 
   auto result = LoadModel(modelFilename);
   if (!result) {
@@ -159,12 +157,13 @@ bool PBRModel::Initialize(const char *modelFilename,
   // Calculate the tangent and binormal vectors for the model.
   CalculateModelVectors();
 
-  result = InitializeBuffers();
+  result = InitializeBuffers(device);
   if (!result) {
     return false;
   }
 
-  result = LoadTextures(textureFilename1, textureFilename2, textureFilename3);
+  result = LoadTextures(textureFilename1, textureFilename2, textureFilename3,
+                        device);
   if (!result) {
     return false;
   }
@@ -174,20 +173,20 @@ bool PBRModel::Initialize(const char *modelFilename,
 
 void PBRModel::Shutdown() { ReleaseTextures(); }
 
-void PBRModel::Render(
-    const IShader &shader,
-    const ShaderParameterContainer &parameterContainer) const {
+void PBRModel::Render(const IShader &shader,
+                      const ShaderParameterContainer &parameterContainer,
+                      ID3D11DeviceContext *deviceContext) const {
 
-  RenderBuffers();
+  RenderBuffers(deviceContext);
 
-  shader.Render(GetIndexCount(), parameterContainer);
+  shader.Render(GetIndexCount(), parameterContainer, deviceContext);
 }
 
 ID3D11ShaderResourceView *PBRModel::GetTexture(int index) {
   return m_Textures[index].GetTexture();
 }
 
-bool PBRModel::InitializeBuffers() {
+bool PBRModel::InitializeBuffers(ID3D11Device *device) {
 
   D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
   D3D11_SUBRESOURCE_DATA vertexData, indexData;
@@ -217,8 +216,6 @@ bool PBRModel::InitializeBuffers() {
   vertexData.pSysMem = vertices;
   vertexData.SysMemPitch = 0;
   vertexData.SysMemSlicePitch = 0;
-
-  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
   auto result =
       device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer);
@@ -257,13 +254,10 @@ ShaderParameterCallback PBRModel::GetParameterCallback() const {
   return [this](ShaderParameterContainer &params) { assert(0); };
 }
 
-void PBRModel::RenderBuffers() const {
+void PBRModel::RenderBuffers(ID3D11DeviceContext *deviceContext) const {
 
   unsigned int stride = sizeof(VertexType);
   unsigned int offset = 0;
-
-  auto deviceContext =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   deviceContext->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(),
                                     &stride, &offset);
@@ -273,23 +267,22 @@ void PBRModel::RenderBuffers() const {
   deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-bool PBRModel::LoadTextures(const string &filename1,
-                                 const string &filename2,
-                                 const string &filename3) {
+bool PBRModel::LoadTextures(const string &filename1, const string &filename2,
+                            const string &filename3, ID3D11Device *device) {
 
   m_Textures = new TGATexture[3];
 
-  auto result = m_Textures[0].Initialize(filename1.c_str());
+  auto result = m_Textures[0].Initialize(filename1.c_str(), device);
   if (!result) {
     return false;
   }
 
-  result = m_Textures[1].Initialize(filename2.c_str());
+  result = m_Textures[1].Initialize(filename2.c_str(), device);
   if (!result) {
     return false;
   }
 
-  result = m_Textures[2].Initialize(filename3.c_str());
+  result = m_Textures[2].Initialize(filename3.c_str(), device);
   if (!result) {
     return false;
   }
@@ -415,10 +408,10 @@ void PBRModel::CalculateModelVectors() {
 }
 
 void PBRModel::CalculateTangentBinormal(TempVertexType vertex1,
-                                             TempVertexType vertex2,
-                                             TempVertexType vertex3,
-                                             VectorType &tangent,
-                                             VectorType &binormal) {
+                                        TempVertexType vertex2,
+                                        TempVertexType vertex3,
+                                        VectorType &tangent,
+                                        VectorType &binormal) {
 
   float vector1[3], vector2[3];
   float tuVector[2], tvVector[2];
