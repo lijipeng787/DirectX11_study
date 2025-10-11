@@ -30,7 +30,7 @@ bool ModelClass::InitializeBuffers() {
   index_count_ = 3;
 
   VertexType vertices[3];
-  unsigned long indices[3];
+  uint32_t indices[3];
 
   // Load the vertex array with data.
   vertices[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f); // Bottom left.
@@ -63,8 +63,8 @@ bool ModelClass::InitializeBuffers() {
 
   auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
-  auto result =
-      device->CreateBuffer(&vertex_buffer_desc, &vertex_data, vertex_buffer_.GetAddressOf());
+  auto result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data,
+                                     vertex_buffer_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -72,7 +72,7 @@ bool ModelClass::InitializeBuffers() {
   D3D11_BUFFER_DESC index_buffer_desc;
 
   index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
-  index_buffer_desc.ByteWidth = sizeof(unsigned long) * index_count_;
+  index_buffer_desc.ByteWidth = sizeof(uint32_t) * index_count_;
   index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
   index_buffer_desc.CPUAccessFlags = 0;
   index_buffer_desc.MiscFlags = 0;
@@ -84,7 +84,8 @@ bool ModelClass::InitializeBuffers() {
   indexData.SysMemPitch = 0;
   indexData.SysMemSlicePitch = 0;
 
-  result = device->CreateBuffer(&index_buffer_desc, &indexData, index_buffer_.GetAddressOf());
+  result = device->CreateBuffer(&index_buffer_desc, &indexData,
+                                index_buffer_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -108,7 +109,8 @@ void ModelClass::RenderBuffers() {
   ID3D11Buffer *vb = vertex_buffer_.Get();
   device_context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
 
-  device_context->IASetIndexBuffer(index_buffer_.Get(), DXGI_FORMAT_R32_UINT, 0);
+  device_context->IASetIndexBuffer(index_buffer_.Get(), DXGI_FORMAT_R32_UINT,
+                                   0);
 
   device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

@@ -1,5 +1,4 @@
 #include <memory>
-#include <new>
 #include <utility>
 #include <windows.h>
 
@@ -28,41 +27,31 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
     return false;
   }
 
-  // Stage allocations in temporaries for strong exception / failure safety.
-  std::unique_ptr<Camera> tempCamera{new (std::nothrow) Camera()};
-  if (!tempCamera) {
-    MessageBox(hwnd, L"Failed to allocate Camera.", L"Error", MB_OK);
-    return false;
-  }
-  tempCamera->SetPosition(0.0f, 0.0f, -10.0f);
+  try {
+    auto tempCamera = std::make_unique<Camera>();
+    tempCamera->SetPosition(0.0f, 0.0f, -10.0f);
 
-  std::unique_ptr<ModelClass> tempModel{new (std::nothrow) ModelClass()};
-  if (!tempModel) {
-    MessageBox(hwnd, L"Failed to allocate ModelClass.", L"Error", MB_OK);
-    return false;
-  }
-  if (!tempModel->Initialize()) {
-    MessageBox(hwnd, L"Could not initialize the model object.", L"Error",
-               MB_OK);
-    return false;
-  }
+    auto tempModel = std::make_unique<ModelClass>();
+    if (!tempModel->Initialize()) {
+      MessageBox(hwnd, L"Could not initialize the model object.", L"Error",
+                 MB_OK);
+      return false;
+    }
 
-  std::unique_ptr<ColorShaderClass> tempShader{new (std::nothrow)
-                                                   ColorShaderClass()};
-  if (!tempShader) {
-    MessageBox(hwnd, L"Failed to allocate ColorShaderClass.", L"Error", MB_OK);
-    return false;
-  }
-  if (!tempShader->Initialize(hwnd)) {
-    MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error",
-               MB_OK);
-    return false;
-  }
+    auto tempShader = std::make_unique<ColorShaderClass>();
+    if (!tempShader->Initialize(hwnd)) {
+      MessageBox(hwnd, L"Could not initialize the color shader object.",
+                 L"Error", MB_OK);
+      return false;
+    }
 
-  // Commit after success.
-  camera_ = std::move(tempCamera);
-  model_ = std::move(tempModel);
-  color_shader_ = std::move(tempShader);
+    camera_ = std::move(tempCamera);
+    model_ = std::move(tempModel);
+    color_shader_ = std::move(tempShader);
+  } catch (const std::bad_alloc &) {
+    MessageBox(hwnd, L"Memory allocation failed.", L"Error", MB_OK);
+    return false;
+  }
 
   return true;
 }

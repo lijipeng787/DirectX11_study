@@ -44,7 +44,7 @@ bool ColorShaderClass::InitializeShader(HWND hwnd, const wchar_t *vsFilename,
                                         const wchar_t *psFilename) {
 
   ID3D10Blob *errorMessage = nullptr;
-  ID3D10Blob *vertexShaderBuffer = nullptr;
+  Microsoft::WRL::ComPtr<ID3D10Blob> vertexShaderBuffer;
 
   auto result = D3DCompileFromFile(vsFilename, NULL, NULL, "ColorVertexShader",
                                    "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
@@ -59,7 +59,7 @@ bool ColorShaderClass::InitializeShader(HWND hwnd, const wchar_t *vsFilename,
     return false;
   }
 
-  ID3D10Blob *pixelShaderBuffer = nullptr;
+  Microsoft::WRL::ComPtr<ID3D10Blob> pixelShaderBuffer;
 
   result = D3DCompileFromFile(psFilename, NULL, NULL, "ColorPixelShader",
                               "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
@@ -78,14 +78,14 @@ bool ColorShaderClass::InitializeShader(HWND hwnd, const wchar_t *vsFilename,
 
   result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
                                       vertexShaderBuffer->GetBufferSize(), NULL,
-                                      &vertex_shader_);
+                                      vertex_shader_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
 
   result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
                                      pixelShaderBuffer->GetBufferSize(), NULL,
-                                     &pixel_shader_);
+                                     pixel_shader_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -112,16 +112,13 @@ bool ColorShaderClass::InitializeShader(HWND hwnd, const wchar_t *vsFilename,
 
   result = device->CreateInputLayout(
       polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(),
-      vertexShaderBuffer->GetBufferSize(), &layout_);
+      vertexShaderBuffer->GetBufferSize(), layout_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
 
-  vertexShaderBuffer->Release();
-  vertexShaderBuffer = 0;
-
-  pixelShaderBuffer->Release();
-  pixelShaderBuffer = 0;
+  vertexShaderBuffer.Reset();
+  pixelShaderBuffer.Reset();
 
   D3D11_BUFFER_DESC matrixBufferDesc;
 
@@ -132,7 +129,8 @@ bool ColorShaderClass::InitializeShader(HWND hwnd, const wchar_t *vsFilename,
   matrixBufferDesc.MiscFlags = 0;
   matrixBufferDesc.StructureByteStride = 0;
 
-  result = device->CreateBuffer(&matrixBufferDesc, NULL, matrix_buffer_.GetAddressOf());
+  result = device->CreateBuffer(&matrixBufferDesc, NULL,
+                                matrix_buffer_.GetAddressOf());
   if (FAILED(result)) {
     return false;
   }
@@ -155,14 +153,8 @@ void ColorShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage,
 
   auto bufferSize = errorMessage->GetBufferSize();
 
-  ofstream fout;
-  fout.open("shader-error.txt");
-
-  int i = 0;
-  for (i = 0; i < bufferSize; i++) {
-    fout << compileErrors[i];
-  }
-
+  std::ofstream fout("shader-error.txt", std::ios::out | std::ios::binary);
+  fout.write(compileErrors, bufferSize);
   fout.close();
 
   errorMessage->Release();
@@ -182,8 +174,8 @@ bool ColorShaderClass::SetShaderParameters(const XMMATRIX &worldMatrix,
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  auto result = device_context->Map(matrix_buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD,
-                                    0, &mappedResource);
+  auto result = device_context->Map(
+      matrix_buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }
