@@ -66,17 +66,12 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
-  bool result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 
@@ -95,15 +90,10 @@ bool GraphicsClass::Render() {
   directx_device->TurnOnAlphaBlending();
 
   auto result = text_->Render(worldMatrix, orthoMatrix);
-  if (!result) {
-    return false;
-  }
 
   directx_device->TurnOffAlphaBlending();
 
   directx_device->TurnZBufferOn();
 
   directx_device->EndScene();
-
-  return true;
 }

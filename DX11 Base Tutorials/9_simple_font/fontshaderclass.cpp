@@ -276,9 +276,6 @@ bool FontShaderClass::SetShaderParameters(const XMMATRIX &worldMatrix,
 
   device_context->PSSetShaderResources(0, 1, &texture);
 
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
   result = device_context->Map(pixel_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);
   if (FAILED(result)) {

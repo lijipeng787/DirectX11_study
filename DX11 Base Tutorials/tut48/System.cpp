@@ -77,15 +77,7 @@ bool System::Frame() {
   graphics_->SetPosition(posX, posY, posZ);
   graphics_->SetRotation(rotX, rotY, rotZ);
 
-  result = graphics_->Frame();
-  if (!result) {
-    return false;
-  }
-
-  result = graphics_->Render();
-  if (!result) {
-    return false;
-  }
+  graphics_->Frame(0.0f);
 
   return true;
 }

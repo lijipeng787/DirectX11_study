@@ -74,17 +74,11 @@ bool System::Frame() {
   graphics_->SetPosition(posX, posY, posZ);
   graphics_->SetRotation(rotX, rotY, rotZ);
 
-  result = graphics_->Frame();
-  if (!result) {
-    return false;
-  }
+  graphics_->Frame(0.0f);
 
   auto delta_time = GetTimerComponent().GetTime();
 
-  result = graphics_->Render();
-  if (!result) {
-    return false;
-  }
+  graphics_->Render();
 
   return true;
 }

@@ -354,19 +354,12 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
-  bool result;
-
-  result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   bool result;
 
@@ -671,6 +664,4 @@ bool GraphicsClass::RenderGlowScene() {
   DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOn();
 
   DirectX11Device::GetD3d11DeviceInstance()->EndScene();
-
-  return true;
 }

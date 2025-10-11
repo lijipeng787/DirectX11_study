@@ -78,8 +78,6 @@ bool RenderTextureClass::Initialize(int textureWidth, int textureHeight,
   depthBufferDesc.CPUAccessFlags = 0;
   depthBufferDesc.MiscFlags = 0;
 
-  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
-
   result =
       device->CreateTexture2D(&depthBufferDesc, NULL, &depth_stencil_buffer_);
   if (FAILED(result)) {
@@ -167,10 +165,7 @@ void RenderTextureClass::ClearRenderTarget(float red, float green, float blue,
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  auto deviceContext =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
-  result = device->CreateTexture2D(render_target_view_, color);
+  device_context->ClearRenderTargetView(render_target_view_, color);
   device_context->ClearDepthStencilView(depth_stencil_view_, D3D11_CLEAR_DEPTH,
                                         1.0f, 0);
 }

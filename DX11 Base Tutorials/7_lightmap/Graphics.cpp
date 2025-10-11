@@ -99,17 +99,12 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
-  auto result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 
@@ -132,6 +127,4 @@ bool GraphicsClass::Render() {
                            projectionMatrix, model_->GetTextureArray());
 
   directx_device_->EndScene();
-
-  return true;
 }

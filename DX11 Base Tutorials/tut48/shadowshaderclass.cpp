@@ -316,9 +316,6 @@ bool ShadowShaderClass::SetShaderParameters(
 
   D3D11_MAPPED_SUBRESOURCE mappedResource;
 
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
   result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);
   if (FAILED(result)) {
@@ -342,9 +339,6 @@ bool ShadowShaderClass::SetShaderParameters(
 
   device_context->PSSetShaderResources(0, 1, &texture);
   device_context->PSSetShaderResources(1, 1, &depthMapTexture);
-
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);

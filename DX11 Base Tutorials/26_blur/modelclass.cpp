@@ -93,9 +93,8 @@ bool ModelClass::InitializeBuffers() {
   vertex_data.SysMemSlicePitch = 0;
 
   auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
-  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
-  result =
+  auto result =
       device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
   if (FAILED(result)) {
     return false;

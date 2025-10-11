@@ -379,9 +379,6 @@ bool ShadowShaderClass::SetShaderParameters(
   device_context->PSSetShaderResources(1, 1, &depthMapTexture);
   device_context->PSSetShaderResources(2, 1, &depthMapTexture2);
 
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
   result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);
   if (FAILED(result)) {
@@ -400,9 +397,6 @@ bool ShadowShaderClass::SetShaderParameters(
   buffer_number = 0;
 
   device_context->PSSetConstantBuffers(buffer_number, 1, &light_buffer_);
-
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   result = device_context->Map(m_lightBuffer2, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);

@@ -51,12 +51,7 @@ bool System::Frame() {
 
   bool result;
 
-  result = graphics_->Frame();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  graphics_->Frame(0.0f);
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam,

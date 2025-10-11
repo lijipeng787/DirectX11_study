@@ -308,9 +308,6 @@ bool WaterShaderClass::SetShaderParameters(
 
   device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
   result = device_context->Map(reflection_buffer_, 0, D3D11_MAP_WRITE_DISCARD,
                                0, &mappedResource);
   if (FAILED(result)) {
@@ -336,9 +333,6 @@ bool WaterShaderClass::SetShaderParameters(
   device_context->PSSetShaderResources(1, 1, &refractionTexture);
 
   device_context->PSSetShaderResources(2, 1, &normalTexture);
-
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   result = device_context->Map(water_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);

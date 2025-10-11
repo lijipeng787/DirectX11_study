@@ -116,19 +116,12 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
-  bool result;
-
-  result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
   static float rotation_ = 0.0f;
@@ -160,6 +153,4 @@ bool GraphicsClass::Render() {
                           light_->GetDirection(), light_->GetDiffuseColor());
 
   directx_device_->EndScene();
-
-  return true;
 }

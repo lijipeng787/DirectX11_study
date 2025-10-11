@@ -87,10 +87,7 @@ void RenderTextureClass::ClearRenderTarget(
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  auto deviceContext =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
-  result = device->CreateTexture2D(render_target_view_, color);
+  device_context->ClearRenderTargetView(render_target_view_, color);
 
   device_context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH,
                                         1.0f, 0);

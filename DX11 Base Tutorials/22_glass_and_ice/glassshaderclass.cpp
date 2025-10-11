@@ -283,9 +283,6 @@ bool GlassShaderClass::SetShaderParameters(
   device_context->PSSetShaderResources(1, 1, &normalTexture);
   device_context->PSSetShaderResources(2, 1, &refractionTexture);
 
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
   result = device_context->Map(glass_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);
   if (FAILED(result)) {

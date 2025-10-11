@@ -183,18 +183,11 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
-  bool result;
-
-  result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+void GraphicsClass::Frame(float deltaTime) {
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
   XMMATRIX viewMatrix2, projectionMatrix2;
@@ -238,6 +231,4 @@ bool GraphicsClass::Render() {
   }
 
   DirectX11Device::GetD3d11DeviceInstance()->EndScene();
-
-  return true;
 }

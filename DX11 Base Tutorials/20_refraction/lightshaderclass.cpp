@@ -267,10 +267,8 @@ bool LightShaderClass::SetShaderParameters(const XMMATRIX &worldMatrix,
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   D3D11_MAPPED_SUBRESOURCE mappedResource;
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
+  auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);
   if (FAILED(result)) {
     return false;
@@ -292,9 +290,6 @@ bool LightShaderClass::SetShaderParameters(const XMMATRIX &worldMatrix,
   unsigned int buffer_number = 0;
 
   device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
-
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);

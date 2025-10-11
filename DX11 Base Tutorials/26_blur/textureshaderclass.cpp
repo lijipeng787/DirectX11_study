@@ -79,7 +79,6 @@ bool TextureShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
   }
 
   auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
-  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
   result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
                                       vertexShaderBuffer->GetBufferSize(), NULL,
@@ -233,7 +232,7 @@ bool TextureShaderClass::SetShaderParameters(
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
+  auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);
   if (FAILED(result)) {
     return false;

@@ -209,7 +209,7 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
   camera_->SetPosition(pos_x_, pos_y_, pos_z_);
   camera_->SetRotation(rot_x_, rot_y_, rot_z_);
@@ -218,12 +218,7 @@ bool GraphicsClass::Frame() {
   UpdateLighting();
 
   // Render the graphics.
-  auto result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
 void GraphicsClass::UpdateLighting() {
@@ -245,7 +240,7 @@ void GraphicsClass::UpdateLighting() {
   light_->SetLookAt(0.0f - offsetX, 0.0f, 2.0f);
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
       lightOrthoMatrix;
@@ -311,8 +306,6 @@ bool GraphicsClass::Render() {
   directx_device_->TurnOffAlphaBlending();
 
   directx_device_->EndScene();
-
-  return true;
 }
 
 bool GraphicsClass::RenderSceneToTexture() {

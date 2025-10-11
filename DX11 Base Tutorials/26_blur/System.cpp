@@ -38,8 +38,6 @@ bool System::Frame() {
 
   SystemBase::Frame();
 
-  bool result;
-
   GetInputComponent().Frame();
 
   auto delta_time = GetTimerComponent().GetTime();
@@ -52,15 +50,7 @@ bool System::Frame() {
 
   graphics_->SetRotation(rotation_);
 
-  result = graphics_->Frame();
-  if (!result) {
-    return false;
-  }
-
-  result = graphics_->Render();
-  if (!result) {
-    return false;
-  }
+  graphics_->Frame(0.0f);
 
   return true;
 }

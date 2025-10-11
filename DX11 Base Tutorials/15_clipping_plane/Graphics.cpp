@@ -99,19 +99,12 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
-  bool result;
-
-  result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   XMFLOAT4 clipPlane;
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
@@ -135,11 +128,6 @@ bool GraphicsClass::Render() {
   auto result = clipplane_shader_->Render(model_->GetIndexCount(), worldMatrix,
                                           viewMatrix, projectionMatrix,
                                           model_->GetTexture(), clipPlane);
-  if (!result) {
-    return false;
-  }
 
   directx_device->EndScene();
-
-  return true;
 }

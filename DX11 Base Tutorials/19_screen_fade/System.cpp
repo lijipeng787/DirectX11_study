@@ -38,23 +38,13 @@ bool System::Frame() {
 
   SystemBase::Frame();
 
-  bool result;
-
   GetInputComponent().Frame();
 
   auto delta_time = GetTimerComponent().GetTime();
 
   graphics_->SetFameTime(delta_time);
 
-  result = graphics_->Frame();
-  if (!result) {
-    return false;
-  }
-
-  result = graphics_->Render();
-  if (!result) {
-    return false;
-  }
+  graphics_->Frame(delta_time);
 
   return true;
 }

@@ -315,9 +315,6 @@ bool LightShaderClass::SetShaderParameters(
 
   device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
   result = device_context->Map(camera_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);
   if (FAILED(result)) {
@@ -338,9 +335,6 @@ bool LightShaderClass::SetShaderParameters(
   device_context->VSSetConstantBuffers(buffer_number, 1, &camera_buffer_);
 
   device_context->PSSetShaderResources(0, 1, &texture);
-
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);

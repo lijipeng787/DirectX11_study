@@ -283,9 +283,6 @@ bool HorizontalBlurShaderClass::SetShaderParameters(
 
   device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
   result = device_context->Map(screen_size_buffer_, 0, D3D11_MAP_WRITE_DISCARD,
                                0, &mappedResource);
   if (FAILED(result)) {

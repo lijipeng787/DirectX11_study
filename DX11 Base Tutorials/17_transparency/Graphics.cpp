@@ -141,19 +141,12 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
-  bool result;
-
-  result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
   bool result;
@@ -176,9 +169,6 @@ bool GraphicsClass::Render() {
   result = texture_shader_->Render(model_1_->GetIndexCount(), worldMatrix,
                                    viewMatrix, projectionMatrix,
                                    model_1_->GetTexture());
-  if (!result) {
-    return false;
-  }
 
   worldMatrix = XMMatrixTranslation(1.0f, 0.0f, -1.0f);
 
@@ -189,13 +179,8 @@ bool GraphicsClass::Render() {
   result = transparent_shader_->Render(model_2_->GetIndexCount(), worldMatrix,
                                        viewMatrix, projectionMatrix,
                                        model_2_->GetTexture(), blendAmount);
-  if (!result) {
-    return false;
-  }
 
   directx_device_->TurnOffAlphaBlending();
 
   directx_device_->EndScene();
-
-  return true;
 }

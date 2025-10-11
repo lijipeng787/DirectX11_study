@@ -43,7 +43,10 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
     if (!camera_) {
       return false;
     }
-    camera_->SetPosition(0.0f, 0.0f, -10.0f);
+    // Set the position and rotation of the camera.
+    camera_->SetPosition(-15.0f, 8.0f, 5.0f);
+    camera_->SetRotation(0.0f, 45.0f, 0.0f);
+
     camera_->Render();
     camera_->GetViewMatrix(baseViewMatrix);
   }
@@ -258,7 +261,7 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
   // Update the position of the water to simulate motion.
   water_translation_ += 0.001f;
@@ -266,33 +269,16 @@ bool GraphicsClass::Frame() {
     water_translation_ -= 1.0f;
   }
 
-  // Set the position and rotation_ of the camera.
-  camera_->SetPosition(-10.0f, 6.0f, -10.0f);
-  camera_->SetRotation(0.0f, 45.0f, 0.0f);
-
-  return true;
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
-  bool result;
+  RenderRefractionToTexture();
 
-  result = RenderRefractionToTexture();
-  if (!result) {
-    return false;
-  }
+  RenderReflectionToTexture();
 
-  result = RenderReflectionToTexture();
-  if (!result) {
-    return false;
-  }
-
-  result = RenderScene();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  RenderScene();
 }
 
 bool GraphicsClass::RenderRefractionToTexture() {

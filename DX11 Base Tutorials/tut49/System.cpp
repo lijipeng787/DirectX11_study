@@ -74,15 +74,7 @@ bool System::Frame() {
   auto delta_time = GetTimerComponent().GetTime();
   graphics_->SetDeltaTime(delta_time);
 
-  result = graphics_->Frame();
-  if (!result) {
-    return false;
-  }
-
-  result = graphics_->Render();
-  if (!result) {
-    return false;
-  }
+  graphics_->Frame(0.0f);
 
   return true;
 }

@@ -210,9 +210,8 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
-  bool result;
   static float lightPositionX = -5.0f;
 
   camera_->SetPosition(pos_x_, pos_y_, pos_z_);
@@ -225,12 +224,7 @@ bool GraphicsClass::Frame() {
 
   light_->SetPosition(lightPositionX, 8.0f, -5.0f);
 
-  result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
 bool GraphicsClass::RenderSceneToTexture() {
@@ -291,7 +285,7 @@ bool GraphicsClass::RenderSceneToTexture() {
   return true;
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
   XMMATRIX lightViewMatrix, lightProjectionMatrix;
@@ -299,9 +293,6 @@ bool GraphicsClass::Render() {
   float posX, posY, posZ;
 
   result = RenderSceneToTexture();
-  if (!result) {
-    return false;
-  }
 
   DirectX11Device::GetD3d11DeviceInstance()->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -326,9 +317,6 @@ bool GraphicsClass::Render() {
       lightViewMatrix, lightProjectionMatrix, m_CubeModel->GetTexture(),
       render_texture_->GetShaderResourceView(), light_->GetPosition(),
       light_->GetAmbientColor(), light_->GetDiffuseColor());
-  if (!result) {
-    return false;
-  }
 
   DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(worldMatrix);
   m_SphereModel->GetPosition(posX, posY, posZ);
@@ -340,9 +328,6 @@ bool GraphicsClass::Render() {
       lightViewMatrix, lightProjectionMatrix, m_SphereModel->GetTexture(),
       render_texture_->GetShaderResourceView(), light_->GetPosition(),
       light_->GetAmbientColor(), light_->GetDiffuseColor());
-  if (!result) {
-    return false;
-  }
 
   DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(worldMatrix);
 
@@ -355,11 +340,6 @@ bool GraphicsClass::Render() {
       lightViewMatrix, lightProjectionMatrix, m_GroundModel->GetTexture(),
       render_texture_->GetShaderResourceView(), light_->GetPosition(),
       light_->GetAmbientColor(), light_->GetDiffuseColor());
-  if (!result) {
-    return false;
-  }
 
   DirectX11Device::GetD3d11DeviceInstance()->EndScene();
-
-  return true;
 }

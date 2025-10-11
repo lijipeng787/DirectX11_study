@@ -339,9 +339,6 @@ bool FireShaderClass::SetShaderParameters(
 
   device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
   result = device_context->Map(noise_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);
   if (FAILED(result)) {
@@ -365,9 +362,6 @@ bool FireShaderClass::SetShaderParameters(
   device_context->PSSetShaderResources(0, 1, &fireTexture);
   device_context->PSSetShaderResources(1, 1, &noiseTexture);
   device_context->PSSetShaderResources(2, 1, &alphaTexture);
-
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   result = device_context->Map(distortion_buffer_, 0, D3D11_MAP_WRITE_DISCARD,
                                0, &mappedResource);

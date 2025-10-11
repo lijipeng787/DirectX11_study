@@ -189,15 +189,8 @@ void GraphicsClass::Shutdown() {
 }
 }
 
-bool GraphicsClass::Frame() {
-  bool result;
-
-  result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+void GraphicsClass::Frame(float deltaTime) {
+  Render();
 }
 
 void GraphicsClass::TestIntersection(int mouseX, int mouseY) {
@@ -300,7 +293,7 @@ bool GraphicsClass::RaySphereIntersect(const XMFLOAT3 &rayOrigin,
   return true;
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix,
       translateMatrix;
@@ -350,6 +343,4 @@ bool GraphicsClass::Render() {
   directx_device_->TurnZBufferOn();
 
   directx_device_->EndScene();
-
-  return true;
 }

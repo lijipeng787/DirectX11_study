@@ -181,19 +181,11 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
-
-  bool result;
-
-  result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+void GraphicsClass::Frame(float deltaTime) {
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
   bool result;
@@ -201,18 +193,12 @@ bool GraphicsClass::Render() {
   camera_->SetPosition(0.0f, 0.0f, -5.0f);
 
   result = RenderToTexture();
-  if (!result) {
-    return false;
-  }
 
   auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
   directx_device_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
   result = RenderScene();
-  if (!result) {
-    return false;
-  }
 
   directx_device_->TurnZBufferOff();
 
@@ -221,22 +207,14 @@ bool GraphicsClass::Render() {
   directx_device_->GetOrthoMatrix(orthoMatrix);
 
   result = debug_window_->Render(50, 50);
-  if (!result) {
-    return false;
-  }
 
   result = texture_shader_->Render(debug_window_->GetIndexCount(), worldMatrix,
                                    viewMatrix, orthoMatrix,
                                    render_texture_->GetShaderResourceView());
-  if (!result) {
-    return false;
-  }
 
   directx_device_->TurnZBufferOn();
 
   directx_device_->EndScene();
-
-  return true;
 }
 
 bool GraphicsClass::RenderToTexture() {

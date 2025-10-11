@@ -43,7 +43,7 @@ bool System::Frame() {
 
   SystemBase::Frame();
 
-  bool keyDown, result;
+  bool keyDown;
 
   GetInputComponent().Frame();
 
@@ -63,16 +63,10 @@ bool System::Frame() {
   graphics_->SetPosition(x, y, z);
 
   // Do the frame processing for the graphics object.
-  result = graphics_->Frame();
-  if (!result) {
-    return false;
-  }
+  graphics_->Frame(0.0f);
 
   // Finally render the graphics to the screen.
-  result = graphics_->Render();
-  if (!result) {
-    return false;
-  }
+  graphics_->Render();
 
   return true;
 }

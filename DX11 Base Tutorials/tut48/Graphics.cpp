@@ -203,7 +203,7 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
   bool result;
   static float lightAngle = 270.0f;
@@ -300,7 +300,7 @@ bool GraphicsClass::RenderSceneToTexture() {
   return true;
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
   XMMATRIX lightViewMatrix, lightOrthoMatrix;
@@ -371,6 +371,4 @@ bool GraphicsClass::Render() {
   }
 
   DirectX11Device::GetD3d11DeviceInstance()->EndScene();
-
-  return true;
 }

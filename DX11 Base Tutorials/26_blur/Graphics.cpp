@@ -295,59 +295,30 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
-  bool result;
   static float rotation_ = 0.0f;
 
-  rotation_ += (float)XM_PI * 0.005f;
+  rotation_ += (float)XM_PI * 0.05f;
   if (rotation_ > 360.0f) {
     rotation_ -= 360.0f;
   }
-
-  result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
-  bool result;
+  RenderSceneToTexture(rotation_);
 
-  result = RenderSceneToTexture(rotation_);
-  if (!result) {
-    return false;
-  }
+  DownSampleTexture();
 
-  result = DownSampleTexture();
-  if (!result) {
-    return false;
-  }
+  RenderHorizontalBlurToTexture();
 
-  result = RenderHorizontalBlurToTexture();
-  if (!result) {
-    return false;
-  }
+  RenderVerticalBlurToTexture();
 
-  result = RenderVerticalBlurToTexture();
-  if (!result) {
-    return false;
-  }
+  UpSampleTexture();
 
-  result = UpSampleTexture();
-  if (!result) {
-    return false;
-  }
-
-  result = Render2DTextureScene();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render2DTextureScene();
 }
 
 bool GraphicsClass::RenderSceneToTexture(float rotation_) {

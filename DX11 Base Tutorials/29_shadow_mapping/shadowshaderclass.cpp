@@ -109,7 +109,6 @@ bool ShadowShaderClass::InitializeShader(HWND hwnd, WCHAR *vsFilename,
   }
 
   auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
-  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
 
   result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
                                       vertexShaderBuffer->GetBufferSize(), NULL,
@@ -337,7 +336,7 @@ bool ShadowShaderClass::SetShaderParameters(
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
+  auto result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);
   if (FAILED(result)) {
     return false;
@@ -361,9 +360,6 @@ bool ShadowShaderClass::SetShaderParameters(
   device_context->PSSetShaderResources(0, 1, &texture);
   device_context->PSSetShaderResources(1, 1, &depthMapTexture);
 
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
   result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);
   if (FAILED(result)) {
@@ -384,9 +380,6 @@ bool ShadowShaderClass::SetShaderParameters(
   device_context->PSSetConstantBuffers(buffer_number, 1, &light_buffer_);
 
   // Lock the second light constant buffer so it can be written to.
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
   result = device_context->Map(m_lightBuffer2, 0, D3D11_MAP_WRITE_DISCARD, 0,
                                &mappedResource);
   if (FAILED(result)) {

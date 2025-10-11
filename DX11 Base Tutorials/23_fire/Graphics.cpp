@@ -93,19 +93,14 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
   camera_->SetPosition(0.0f, 0.0f, -10.0f);
 
-  auto result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   static float frameTime = 0.0f;
 
@@ -146,13 +141,8 @@ bool GraphicsClass::Render() {
       model_->GetTexture1(), model_->GetTexture2(), model_->GetTexture3(),
       frameTime, scrollSpeeds, scales, distortion1, distortion2, distortion3,
       distortionScale, distortionBias);
-  if (!result) {
-    return false;
-  }
 
   directx_device_->TurnOffAlphaBlending();
 
   directx_device_->EndScene();
-
-  return true;
 }

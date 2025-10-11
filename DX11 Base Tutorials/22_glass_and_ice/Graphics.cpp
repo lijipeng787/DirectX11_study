@@ -153,7 +153,7 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
   static float rotation_ = 0.0f;
 
@@ -167,18 +167,10 @@ bool GraphicsClass::Frame() {
   camera_->SetPosition(0.0f, 0.0f, -10.0f);
 
   // Render the scene to texture first.
-  auto result = RenderToTexture(rotation_);
-  if (!result) {
-    return false;
-  }
+  RenderToTexture(rotation_);
 
   // Render the scene.
-  result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
 bool GraphicsClass::RenderToTexture(float rotation_) {
@@ -214,7 +206,7 @@ bool GraphicsClass::RenderToTexture(float rotation_) {
   return true;
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   float refractionScale = 0.01f;
 
@@ -237,9 +229,6 @@ bool GraphicsClass::Render() {
   auto result =
       texture_shader_->Render(model_->GetIndexCount(), worldMatrix, viewMatrix,
                               projectionMatrix, model_->GetTexture());
-  if (!result) {
-    return false;
-  }
 
   directx_device_->GetWorldMatrix(worldMatrix);
 
@@ -251,11 +240,6 @@ bool GraphicsClass::Render() {
       window_model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
       window_model_->GetTexture(), window_model_->GetNormalMap(),
       render_texture_->GetShaderResourceView(), refractionScale);
-  if (!result) {
-    return false;
-  }
 
   directx_device_->EndScene();
-
-  return true;
 }

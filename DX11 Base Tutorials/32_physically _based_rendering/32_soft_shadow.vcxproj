@@ -46,7 +46,7 @@
     <None Include="pbr.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F5174FF9-C4D1-41F5-B0D4-4E3EE38F9197}</ProjectGuid>
+    <ProjectGuid>{53E435F0-2CD5-486F-9261-DBA46B8481DC}</ProjectGuid>
     <RootNamespace>tut42</RootNamespace>
     <ProjectName>32_physically_based_rendering</ProjectName>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
@@ -61,7 +61,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">

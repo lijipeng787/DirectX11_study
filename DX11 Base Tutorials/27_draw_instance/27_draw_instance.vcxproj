@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B81BEF9A-CA93-465A-B479-5CDBA3C3B166}</ProjectGuid>
     <RootNamespace>tut37</RootNamespace>
-    <ProjectName>21_draw_instance</ProjectName>
+    <ProjectName>27_draw_instance</ProjectName>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

@@ -332,9 +332,6 @@ bool LightShaderClass::SetShaderParameters(const XMMATRIX &worldMatrix,
   device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 
   // Lock the light position constant buffer so it can be written to.
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
   result = device_context->Map(m_lightPositionBuffer, 0,
                                D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
   if (FAILED(result)) {
@@ -363,9 +360,6 @@ bool LightShaderClass::SetShaderParameters(const XMMATRIX &worldMatrix,
   device_context->PSSetShaderResources(0, 1, &texture);
 
   // Lock the light color constant buffer so it can be written to.
-  auto device_context =
-      DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
-
   result = device_context->Map(m_lightColorBuffer, 0, D3D11_MAP_WRITE_DISCARD,
                                0, &mappedResource);
   if (FAILED(result)) {

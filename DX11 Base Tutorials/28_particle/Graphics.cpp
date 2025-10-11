@@ -90,19 +90,14 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
   particle_system_->Frame(frame_time_);
 
-  auto result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   auto directx_device = DirectX11Device::GetD3d11DeviceInstance();
 
@@ -123,13 +118,8 @@ bool GraphicsClass::Render() {
   auto result = particle_shader_->Render(
       particle_system_->GetIndexCount(), worldMatrix, viewMatrix,
       projectionMatrix, particle_system_->GetTexture());
-  if (!result) {
-    return false;
-  }
 
   directx_device->TurnOffAlphaBlending();
 
   directx_device->EndScene();
-
-  return true;
 }

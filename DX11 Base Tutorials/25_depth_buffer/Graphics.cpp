@@ -82,19 +82,12 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
-  bool result;
-
-  result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 
@@ -112,11 +105,6 @@ bool GraphicsClass::Render() {
 
   auto result = depth_shader_->Render(model_->GetIndexCount(), worldMatrix,
                                       viewMatrix, projectionMatrix);
-  if (!result) {
-    return false;
-  }
 
   directx_device->EndScene();
-
-  return true;
 }

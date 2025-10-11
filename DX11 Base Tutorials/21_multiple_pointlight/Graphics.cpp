@@ -150,24 +150,16 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
-
-  bool result;
+void GraphicsClass::Frame(float deltaTime) {
 
   camera_->SetPosition(0.0f, 2.0f, -12.0f);
 
-  // Render the scene.
-  result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
 void GraphicsClass::SetFameTime(float frame_time) { frame_time_ = frame_time; }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
   XMFLOAT4 diffuseColor[4];
@@ -198,11 +190,6 @@ bool GraphicsClass::Render() {
   result = light_shader_->Render(
       model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
       model_->GetTexture(), diffuseColor, lightPosition);
-  if (!result) {
-    return false;
-  }
 
   DirectX11Device::GetD3d11DeviceInstance()->EndScene();
-
-  return true;
 }

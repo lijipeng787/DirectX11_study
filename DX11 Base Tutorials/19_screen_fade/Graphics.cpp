@@ -164,7 +164,7 @@ void GraphicsClass::Shutdown() {
 
 void GraphicsClass::SetFameTime(float frame_time) { frame_time_ = frame_time; }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
   if (!is_fade_done_) {
     // Update the accumulated time with the extra frame time addition.
@@ -187,11 +187,10 @@ bool GraphicsClass::Frame() {
   }
 
   camera_->SetPosition(0.0f, 0.0f, -10.0f);
-
-  return true;
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   static float rotation_ = 0.0f;
 
@@ -205,18 +204,9 @@ bool GraphicsClass::Render() {
     RenderNormalScene(rotation_);
   } else {
 
-    auto result = RenderToTexture(rotation_);
-    if (!result) {
-      return false;
-    }
-
-    result = RenderFadingScene();
-    if (!result) {
-      return false;
-    }
+    RenderToTexture(rotation_);
+    RenderFadingScene();
   }
-
-  return true;
 }
 
 bool GraphicsClass::RenderToTexture(float rotation_) {

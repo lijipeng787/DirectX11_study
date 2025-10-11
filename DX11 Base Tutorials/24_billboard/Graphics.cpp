@@ -113,23 +113,16 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
-
-  bool result;
+void GraphicsClass::Frame(float deltaTime) {
 
   // Update the position of the camera.
   camera_->SetPosition(x_, y_, z_);
 
   // Render the graphics scene.
-  result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   auto directx_device = DirectX11Device::GetD3d11DeviceInstance();
 
@@ -148,9 +141,6 @@ bool GraphicsClass::Render() {
   auto result = texture_shader_->Render(
       floor_model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
       floor_model_->GetTexture());
-  if (!result) {
-    return false;
-  }
 
   XMFLOAT3 cameraPosition = camera_->GetPosition();
 
@@ -177,13 +167,8 @@ bool GraphicsClass::Render() {
   result = texture_shader_->Render(billboard_model_->GetIndexCount(),
                                    worldMatrix, viewMatrix, projectionMatrix,
                                    billboard_model_->GetTexture());
-  if (!result) {
-    return false;
-  }
 
   directx_device->EndScene();
-
-  return true;
 }
 
 void GraphicsClass::SetPosition(float x, float y, float z) {

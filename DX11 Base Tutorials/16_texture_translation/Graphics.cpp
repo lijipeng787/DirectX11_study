@@ -99,19 +99,12 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
-  bool result;
-
-  result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
-bool GraphicsClass::Render() {
+void GraphicsClass::Render() {
 
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 
@@ -138,11 +131,6 @@ bool GraphicsClass::Render() {
   auto result = translation_shader_->Render(
       model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
       model_->GetTexture(), textureTranslation);
-  if (!result) {
-    return false;
-  }
 
   directx_device_->EndScene();
-
-  return true;
 }

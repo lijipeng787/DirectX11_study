@@ -34,22 +34,12 @@ bool System::Frame() {
 
   SystemBase::Frame();
 
-  bool result;
-
-  result = graphics_->Frame();
-  if (!result) {
-    return false;
-  }
-
   auto delta_time = GetTimerComponent().GetTime();
 
   graphics_->SetFrameTime(delta_time);
 
-  result = graphics_->Render();
-  if (!result) {
-    return false;
-  }
-
+  graphics_->Frame(0.0f);
+  
   return true;
 }
 

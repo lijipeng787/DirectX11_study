@@ -159,32 +159,15 @@ void GraphicsClass::Shutdown() {
   }
 }
 
-bool GraphicsClass::Frame() {
+void GraphicsClass::Frame(float deltaTime) {
 
-  bool result;
-
-  result = Render();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  Render();
 }
 
-bool GraphicsClass::Render() {
-  bool result;
+void GraphicsClass::Render() {
 
-  result = RenderToTexture();
-  if (!result) {
-    return false;
-  }
-
-  result = RenderScene();
-  if (!result) {
-    return false;
-  }
-
-  return true;
+  RenderToTexture();
+  RenderScene();
 }
 
 bool GraphicsClass::RenderToTexture() {
@@ -268,6 +251,4 @@ bool GraphicsClass::RenderScene() {
       reflectionMatrix);
 
   directx_device_->EndScene();
-
-  return true;
 }
