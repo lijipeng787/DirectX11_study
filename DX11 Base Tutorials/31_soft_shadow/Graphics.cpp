@@ -614,6 +614,10 @@ void GraphicsClass::SetupRenderGraph() {
   // Tags
   constexpr auto write_depth_tag = "write_depth";
   constexpr auto write_shadow_tag = "write_shadow";
+  constexpr auto down_sample_tag = "down_sample";
+  constexpr auto horizontal_blur_tag = "horizontal_blur";
+  constexpr auto vertical_blur_tag = "vertical_blur";
+  constexpr auto up_sample_tag = "up_sample";
   constexpr auto pbr_tag = "pbr_tag";
   constexpr auto final_tag = "final";
 
@@ -639,19 +643,10 @@ void GraphicsClass::SetupRenderGraph() {
       .SetShader(texture_shader)
       .Read("ShadowMap")
       .Write("DownsampledShadow")
+      .AddRenderTag(down_sample_tag)
       .DisableZBuffer(true)
       .SetParameter("orthoMatrix", orthoMatrix)
-      .Execute(
-          [small_window, texture_shader, shadow_tex](RenderPassContext &ctx) {
-            ctx.pass_params->SetTexture("texture",
-                                        shadow_tex->GetShaderResourceView());
-
-            ShaderParameterContainer params = *ctx.pass_params;
-            params.Merge(*ctx.global_params);
-            params.Set("worldMatrix", small_window->GetWorldMatrix());
-
-            small_window->Render(*texture_shader, params, ctx.device_context);
-          });
+      .SetTexture("texture", shadow_tex->GetShaderResourceView());
 
   // Pass 4: Horizontal Blur
   h_blur_tex->GetOrthoMatrix(orthoMatrix);
@@ -660,21 +655,11 @@ void GraphicsClass::SetupRenderGraph() {
       .SetShader(horizontal_blur_shader)
       .Read("DownsampledShadow")
       .Write("HorizontalBlur")
+      .AddRenderTag(horizontal_blur_tag)
       .DisableZBuffer(true)
       .SetParameter("orthoMatrix", orthoMatrix)
       .SetParameter("screenWidth", (float)(SHADOW_MAP_WIDTH / 2))
-      .Execute([small_window, horizontal_blur_shader,
-                downsample_tex](RenderPassContext &ctx) {
-        ctx.pass_params->SetTexture("texture",
-                                    downsample_tex->GetShaderResourceView());
-
-        ShaderParameterContainer params = *ctx.pass_params;
-        params.Merge(*ctx.global_params);
-        params.Set("worldMatrix", small_window->GetWorldMatrix());
-
-        small_window->Render(*horizontal_blur_shader, params,
-                             ctx.device_context);
-      });
+      .SetTexture("texture", downsample_tex->GetShaderResourceView());
 
   // Pass 5: Vertical Blur
   v_blur_tex->GetOrthoMatrix(orthoMatrix);
@@ -683,20 +668,11 @@ void GraphicsClass::SetupRenderGraph() {
       .SetShader(vertical_blur_shader)
       .Read("HorizontalBlur")
       .Write("VerticalBlur")
+      .AddRenderTag(vertical_blur_tag)
       .DisableZBuffer(true)
       .SetParameter("orthoMatrix", orthoMatrix)
       .SetParameter("screenHeight", (float)(SHADOW_MAP_HEIGHT / 2))
-      .Execute([small_window, vertical_blur_shader,
-                h_blur_tex](RenderPassContext &ctx) {
-        ctx.pass_params->SetTexture("texture",
-                                    h_blur_tex->GetShaderResourceView());
-
-        ShaderParameterContainer params = *ctx.pass_params;
-        params.Merge(*ctx.global_params);
-        params.Set("worldMatrix", small_window->GetWorldMatrix());
-
-        small_window->Render(*vertical_blur_shader, params, ctx.device_context);
-      });
+      .SetTexture("texture", h_blur_tex->GetShaderResourceView());
 
   // Pass 6: Upsample
   upsample_tex->GetOrthoMatrix(orthoMatrix);
@@ -705,19 +681,10 @@ void GraphicsClass::SetupRenderGraph() {
       .SetShader(texture_shader)
       .Read("VerticalBlur")
       .Write("UpsampledShadow")
+      .AddRenderTag(up_sample_tag)
       .DisableZBuffer(true)
       .SetParameter("orthoMatrix", orthoMatrix)
-      .Execute([fullscreen_window, texture_shader,
-                v_blur_tex](RenderPassContext &ctx) {
-        ctx.pass_params->SetTexture("texture",
-                                    v_blur_tex->GetShaderResourceView());
-
-        ShaderParameterContainer params = *ctx.pass_params;
-        params.Merge(*ctx.global_params);
-        params.Set("worldMatrix", fullscreen_window->GetWorldMatrix());
-
-        fullscreen_window->Render(*texture_shader, params, ctx.device_context);
-      });
+      .SetTexture("texture", v_blur_tex->GetShaderResourceView());
 
   // Pass 7: Final Pass (soft shadow)
   // Pass 7: Final Pass (standard execution)
@@ -762,13 +729,33 @@ void GraphicsClass::SetupRenderGraph() {
       });
   renderable_objects_.push_back(sphere_object);
 
-  auto pbr_sphere_object =
-      std::make_shared<RenderableObject>(sphere_pbr_model, pbr_shader);
+  auto pbr_sphere_object = std::make_shared<RenderableObject>(sphere_pbr_model, pbr_shader);
   pbr_sphere_object->SetWorldMatrix(XMMatrixTranslation(0.0f, 2.0f, -2.0f));
   pbr_sphere_object->AddTag(write_depth_tag);
   pbr_sphere_object->AddTag(write_shadow_tag);
   pbr_sphere_object->AddTag(pbr_tag);
   renderable_objects_.push_back(pbr_sphere_object);
+
+  // Fullscreen quad / small quad renderables for post-process passes (rendered via standard tag filtering)
+  auto down_sample_object = std::make_shared<RenderableObject>(small_window, texture_shader);
+  down_sample_object->AddTag(down_sample_tag);
+  down_sample_object->SetParameterCallback([shadow_tex](ShaderParameterContainer &p){ p.SetTexture("texture", shadow_tex->GetShaderResourceView()); });
+  renderable_objects_.push_back(down_sample_object);
+
+  auto horizontal_blur_object = std::make_shared<RenderableObject>(small_window, horizontal_blur_shader);
+  horizontal_blur_object->AddTag(horizontal_blur_tag);
+  horizontal_blur_object->SetParameterCallback([downsample_tex](ShaderParameterContainer &p){ p.SetTexture("texture", downsample_tex->GetShaderResourceView()); });
+  renderable_objects_.push_back(horizontal_blur_object);
+
+  auto vertical_blur_object = std::make_shared<RenderableObject>(small_window, vertical_blur_shader);
+  vertical_blur_object->AddTag(vertical_blur_tag);
+  vertical_blur_object->SetParameterCallback([h_blur_tex](ShaderParameterContainer &p){ p.SetTexture("texture", h_blur_tex->GetShaderResourceView()); });
+  renderable_objects_.push_back(vertical_blur_object);
+
+  auto up_sample_object = std::make_shared<RenderableObject>(fullscreen_window, texture_shader);
+  up_sample_object->AddTag(up_sample_tag);
+  up_sample_object->SetParameterCallback([v_blur_tex](ShaderParameterContainer &p){ p.SetTexture("texture", v_blur_tex->GetShaderResourceView()); });
+  renderable_objects_.push_back(up_sample_object);
 
   auto ground_object =
       std::make_shared<RenderableObject>(ground_model, soft_shadow_shader);
