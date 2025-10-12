@@ -797,6 +797,8 @@ void GraphicsClass::SetupRenderGraph() {
   }
 
   cout << "=== RenderGraph Setup Complete ===\n" << endl;
+
+  render_graph_.PrintGraph();
 }
 
 void GraphicsClass::Render() {

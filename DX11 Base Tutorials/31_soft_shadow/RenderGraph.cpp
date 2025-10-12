@@ -256,7 +256,72 @@ void RenderGraph::Clear() {
 }
 
 void RenderGraph::PrintGraph() const {
-  std::cout << "RenderGraph passes: " << sorted_passes_.size() << std::endl;
+  std::cout << "\n=== RenderGraph Debug ===" << std::endl;
+  // Resources summary.
+  std::cout << "Resources:" << std::endl;
+  std::vector<std::string> unusedResources;
+  for (auto &kv : resources_) {
+    const std::string &rname = kv.first; const auto &res = kv.second;
+    const char *producer = "(imported)";
+    for (auto &p : passes_) { if (p->output_resource_ == rname) { producer = p->GetName().c_str(); break; } }
+    std::vector<std::string> consumers; consumers.reserve(passes_.size());
+    for (auto &p : passes_) { for (auto &in : p->input_resources_) if (in == rname) { consumers.push_back(p->GetName()); break; } }
+    if (producer == "(imported)" && consumers.empty()) unusedResources.push_back(rname);
+    std::cout << "  - " << rname << (res.texture?" [OK]":" [MISSING]")
+              << (res.is_external?" (external)":"")
+              << " | producer: " << producer << " | consumers: ";
+    if (consumers.empty()) std::cout << "none"; else { for (size_t i=0;i<consumers.size();++i){ if(i) std::cout<<","; std::cout<<consumers[i]; } }
+    std::cout << std::endl;
+  }
+  if (!unusedResources.empty()) {
+    std::cout << "Unused resources:" << std::endl;
+    for (auto &r : unusedResources) std::cout << "  * " << r << std::endl;
+  }
+  // Passes detailed.
+  std::cout << "\nPasses (execution order):" << std::endl;
+  std::vector<std::string> isolatedPasses;
+  std::vector<std::string> unusedOutputs;
+  // Precompute future input usage.
+  std::unordered_map<std::string,int> firstConsumerIndex;
+  for (size_t i=0;i<sorted_passes_.size();++i) {
+    for (auto &in : sorted_passes_[i]->input_resources_) {
+      if (!firstConsumerIndex.count(in)) firstConsumerIndex[in] = (int)i;
+    }
+  }
+  for (size_t i=0;i<sorted_passes_.size();++i) {
+    auto &p = sorted_passes_[i];
+    bool hasResolvedInput=false; for(auto &in: p->input_resources_) if(p->input_textures_.count(in)) {hasResolvedInput=true; break;}
+    bool hasOutput = !p->output_resource_.empty();
+    bool outputUsedLater = false;
+    if (hasOutput) {
+      for (size_t j=i+1;j<sorted_passes_.size();++j) {
+        for (auto &inLater : sorted_passes_[j]->input_resources_) {
+          if (inLater == p->output_resource_) { outputUsedLater = true; break; }
+        }
+        if (outputUsedLater) break;
+      }
+      if (!outputUsedLater) unusedOutputs.push_back(p->GetName()+" -> "+p->output_resource_);
+    }
+    if (!hasResolvedInput && !hasOutput) isolatedPasses.push_back(p->GetName());
+    std::cout << "  ["<<i<<"] "<< p->GetName();
+    if (!p->input_resources_.empty()) {
+      std::cout << " inputs={"; for (size_t j=0;j<p->input_resources_.size();++j){ if(j) std::cout<<","; auto &in=p->input_resources_[j]; bool resolved = p->input_textures_.count(in)>0; std::cout<<in<<(resolved?"":"(UNRESOLVED)"); } std::cout << "}"; }
+    if (!p->output_resource_.empty()) {
+      std::cout << " output="<< p->output_resource_ << (p->output_texture_?"":"(UNRESOLVED)"); if (!outputUsedLater) std::cout << " (UNUSED)"; }
+    if (!p->render_tags_.empty()) { std::cout << " tags={"; for(size_t j=0;j<p->render_tags_.size();++j){ if(j) std::cout<<","; std::cout<<p->render_tags_[j]; } std::cout << "}"; }
+    if (p->disable_z_buffer_) std::cout << " ZDisabled";
+    if (!hasResolvedInput && hasOutput) std::cout << " [WARNING: writes without inputs]";
+    std::cout << std::endl;
+  }
+  if (!isolatedPasses.empty()) {
+    std::cout << "Isolated passes (no inputs & no outputs):" << std::endl;
+    for (auto &n : isolatedPasses) std::cout << "  * " << n << std::endl;
+  }
+  if (!unusedOutputs.empty()) {
+    std::cout << "Unused pass outputs (never read by later passes):" << std::endl;
+    for (auto &u : unusedOutputs) std::cout << "  * " << u << std::endl;
+  }
+  std::cout << "==========================\n" << std::endl;
 }
 
 void RenderGraph::AllocateResources() { /* simplified - allocation handled

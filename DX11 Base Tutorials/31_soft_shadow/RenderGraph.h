@@ -113,7 +113,7 @@ public:
                const ShaderParameterContainer &global_params);
   std::shared_ptr<RenderTexture> GetTexture(const std::string &name) const;
   void Clear();
-  void PrintGraph() const; // Optional minimal debug.
+  void PrintGraph() const; // Detailed debug: resources, passes, bindings.
 private:
   void AllocateResources();
   ID3D11Device *device_ = nullptr;
