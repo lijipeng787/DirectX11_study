@@ -19,6 +19,7 @@ bool VerticalBlurShader::Render(int indexCount,
   auto worldMatrix = parameters.GetMatrix("worldMatrix");
   auto viewMatrix = parameters.GetMatrix("baseViewMatrix");
   auto projectionMatrix = parameters.GetMatrix("orthoMatrix");
+
   auto screenHeight = parameters.GetFloat("screenHeight");
   auto texture = parameters.GetTexture("texture");
 

@@ -2,22 +2,12 @@
 
 #include "../CommonFramework2/Camera.h"
 #include "../CommonFramework2/GraphicsBase.h"
+#include "RenderGraph.h"
 #include "RenderPipeline.h"
 #include "light.h"
 
 class Camera;
 class DirectX11Device;
-class Model;
-class DepthShader;
-class ShadowShader;
-class RenderTexture;
-class OrthoWindow;
-class VerticalBlurShader;
-class HorizontalBlurShader;
-class SoftShadowShader;
-class TextureShader;
-class PBRModel;
-class PbrShader;
 class StandardRenderGroup;
 
 class GraphicsClass : public GraphicsBase {
@@ -54,6 +44,7 @@ public:
 
 private:
   void SetupRenderPipeline();
+  void SetupRenderGraph();
 
 private:
   float pos_x_ = 0.0f, pos_y_ = 0.0f, pos_z_ = 0.0f;
@@ -62,35 +53,17 @@ private:
 
   std::unique_ptr<Camera> camera_;
 
-  std::shared_ptr<Model> cube_model_, ground_model_, sphere_model_;
-
-  std::shared_ptr<PBRModel> sphere_pbr_model_;
-
   std::unique_ptr<Light> light_;
-
-  std::shared_ptr<RenderTexture> render_texture_, blackwhiter_render_texture_,
-      downsample_texure_;
-
-  std::shared_ptr<RenderTexture> horizontal_blur_texture_,
-      vertical_blur_texture_, upsample_texure_;
-
-  std::shared_ptr<DepthShader> depth_shader_;
-
-  std::shared_ptr<ShadowShader> shadow_shader_;
-
-  std::shared_ptr<OrthoWindow> small_window_, fullscreen_window_;
-
-  std::shared_ptr<TextureShader> texture_shader_;
-
-  std::shared_ptr<HorizontalBlurShader> horizontal_blur_shader_;
-
-  std::shared_ptr<VerticalBlurShader> vertical_blur_shader_;
-
-  std::shared_ptr<SoftShadowShader> soft_shadow_shader_;
-
-  std::shared_ptr<PbrShader> pbr_shader_;
 
   std::shared_ptr<StandardRenderGroup> cube_group_;
 
+  // Keep both for comparison/compatibility
   RenderPipeline render_pipeline_;
+  RenderGraph render_graph_;
+
+  // Flag to choose which rendering path to use
+  bool use_render_graph_ = true; // Set to true to use RenderGraph
+
+  // Renderable objects storage (shared between pipeline and graph)
+  std::vector<std::shared_ptr<IRenderable>> renderable_objects_;
 };

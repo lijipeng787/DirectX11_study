@@ -45,7 +45,9 @@ bool TextureShader::Render(int indexCount,
 
   auto worldMatrix = parameters.GetMatrix("deviceWorldMatrix");
   auto viewMatrix = parameters.GetMatrix("baseViewMatrix");
+
   auto orthoMatrix = parameters.GetMatrix("orthoMatrix");
+
   auto texture = parameters.GetTexture("texture");
 
   if (!SetShaderParameters(worldMatrix, viewMatrix, orthoMatrix, texture,

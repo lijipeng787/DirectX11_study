@@ -60,9 +60,11 @@ bool PbrShader::Render(int indexCount,
   auto worldMatrix = parameters.GetMatrix("worldMatrix");
   auto viewMatrix = parameters.GetMatrix("viewMatrix");
   auto projectionMatrix = parameters.GetMatrix("projectionMatrix");
+
   auto diffuseTexture = parameters.GetTexture("diffuseTexture");
   auto normalMap = parameters.GetTexture("normalMap");
   auto rmTexture = parameters.GetTexture("rmTexture");
+
   auto lightDirection = parameters.GetVector3("lightDirection");
   auto cameraPosition = parameters.GetVector3("cameraPosition");
 

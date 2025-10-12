@@ -53,10 +53,12 @@ bool ShadowShader::Render(int indexCount,
   auto worldMatrix = parameters.GetMatrix("worldMatrix");
   auto viewMatrix = parameters.GetMatrix("viewMatrix");
   auto projectionMatrix = parameters.GetMatrix("projectionMatrix");
+
   auto lightViewMatrix = parameters.GetMatrix("lightViewMatrix");
   auto lightProjectionMatrix = parameters.GetMatrix("lightProjectionMatrix");
-  auto depthMapTexture = parameters.GetTexture("depthMapTexture");
   auto lightPosition = parameters.GetVector3("lightPosition");
+
+  auto depthMapTexture = parameters.GetTexture("depthMapTexture");
 
   if (!SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix,
                            lightViewMatrix, lightProjectionMatrix,

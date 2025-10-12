@@ -63,11 +63,14 @@ bool SoftShadowShader::Render(int indexCount,
   auto worldMatrix = parameters.GetMatrix("worldMatrix");
   auto viewMatrix = parameters.GetMatrix("viewMatrix");
   auto projectionMatrix = parameters.GetMatrix("projectionMatrix");
+
   auto texture = parameters.GetTexture("texture");
+
   auto shadowTexture = parameters.GetTexture("shadowTexture");
-  auto lightPosition = parameters.GetVector3("lightPosition");
   auto ambientColor = parameters.GetVector4("ambientColor");
   auto diffuseColor = parameters.GetVector4("diffuseColor");
+
+  auto lightPosition = parameters.GetVector3("lightPosition");
 
   if (!SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture,
                            shadowTexture, lightPosition, ambientColor,
