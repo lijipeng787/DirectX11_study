@@ -104,7 +104,7 @@ void Model::RenderBuffers(ID3D11DeviceContext *deviceContext) const {
 }
 
 bool Model::LoadTexture(const std::wstring &filename, ID3D11Device *device) {
-  texture_ = std::make_unique<Texture>();
+  texture_ = std::make_unique<DDSTexture>();
   return texture_->Initialize(filename.c_str(), device);
 }
 

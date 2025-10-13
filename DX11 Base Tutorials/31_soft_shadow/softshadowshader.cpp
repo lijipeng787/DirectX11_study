@@ -65,8 +65,8 @@ bool SoftShadowShader::Render(int indexCount,
   auto projectionMatrix = parameters.GetMatrix("projectionMatrix");
 
   auto texture = parameters.GetTexture("texture");
-
   auto shadowTexture = parameters.GetTexture("shadowTexture");
+
   auto ambientColor = parameters.GetVector4("ambientColor");
   auto diffuseColor = parameters.GetVector4("diffuseColor");
 

@@ -10,7 +10,7 @@
 // Forward declarations
 class Model;
 class PBRModel;
-class Texture;
+class DDSTexture;
 class TGATexture;
 class RenderTexture;
 class OrthoWindow;
@@ -49,7 +49,7 @@ public:
   template <typename T> std::shared_ptr<T> GetShader(const std::string &name);
 
   // Texture management
-  std::shared_ptr<Texture> GetTexture(const std::wstring &path);
+  std::shared_ptr<DDSTexture> GetTexture(const std::wstring &path);
 
   std::shared_ptr<TGATexture> GetTGATexture(const std::string &path);
 
@@ -137,7 +137,7 @@ private:
   // Resource caches
   std::unordered_map<std::string, std::shared_ptr<Model>> model_cache_;
   std::unordered_map<std::string, std::shared_ptr<PBRModel>> pbr_model_cache_;
-  std::unordered_map<std::wstring, std::shared_ptr<Texture>> texture_cache_;
+  std::unordered_map<std::wstring, std::shared_ptr<DDSTexture>> texture_cache_;
   std::unordered_map<std::string, std::shared_ptr<TGATexture>>
       tga_texture_cache_;
   std::unordered_map<std::string, std::shared_ptr<IShader>> shader_cache_;

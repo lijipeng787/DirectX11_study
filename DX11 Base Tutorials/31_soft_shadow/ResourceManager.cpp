@@ -125,7 +125,8 @@ std::shared_ptr<PBRModel> ResourceManager::GetPBRModel(
   });
 }
 
-std::shared_ptr<Texture> ResourceManager::GetTexture(const std::wstring &path) {
+std::shared_ptr<DDSTexture>
+ResourceManager::GetTexture(const std::wstring &path) {
   if (!initialized_) {
     cerr << "ResourceManager::GetTexture - Not initialized" << endl;
     return nullptr;
@@ -138,7 +139,7 @@ std::shared_ptr<Texture> ResourceManager::GetTexture(const std::wstring &path) {
     return it->second;
   }
 
-  auto texture = make_shared<Texture>();
+  auto texture = make_shared<DDSTexture>();
   if (!texture->Initialize(path.c_str(), device_)) {
     wcerr << L"Failed to load texture: " << path << endl;
     return nullptr;

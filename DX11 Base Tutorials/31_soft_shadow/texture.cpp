@@ -10,7 +10,7 @@
 using namespace DirectX;
 using namespace std;
 
-bool Texture::Initialize(const WCHAR *filename, ID3D11Device *device) {
+bool DDSTexture::Initialize(const WCHAR *filename, ID3D11Device *device) {
   auto result = CreateDDSTextureFromFile(device, filename, nullptr,
                                          texture_.GetAddressOf());
   if (FAILED(result)) {

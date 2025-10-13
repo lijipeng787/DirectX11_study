@@ -61,7 +61,6 @@ private:
   RenderPipeline render_pipeline_;
   RenderGraph render_graph_;
 
-  // Flag to choose which rendering path to use
   bool use_render_graph_ = true; // Set to true to use RenderGraph
 
   // Renderable objects storage (shared between pipeline and graph)

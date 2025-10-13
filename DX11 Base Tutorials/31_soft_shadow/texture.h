@@ -3,19 +3,19 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
-class Texture {
+class DDSTexture {
 public:
-  explicit Texture() = default;
+  explicit DDSTexture() = default;
 
-  Texture(const Texture &) = delete;
+  DDSTexture(const DDSTexture &) = delete;
 
-  Texture &operator=(const Texture &) = delete;
+  DDSTexture &operator=(const DDSTexture &) = delete;
 
-  Texture(Texture &&) noexcept = default;
+  DDSTexture(DDSTexture &&) noexcept = default;
 
-  Texture &operator=(Texture &&) noexcept = default;
+  DDSTexture &operator=(DDSTexture &&) noexcept = default;
 
-  virtual ~Texture() = default;
+  virtual ~DDSTexture() = default;
 
 public:
   bool Initialize(const WCHAR *filename, ID3D11Device *device);
@@ -39,7 +39,7 @@ private:
 public:
   explicit TGATexture() = default;
 
-  TGATexture(const Texture &) = delete;
+  TGATexture(const TGATexture &) = delete;
 
   ~TGATexture() = default;
 

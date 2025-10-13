@@ -77,7 +77,7 @@ private:
   int vertex_count_ = 0;
   int index_count_ = 0;
 
-  std::unique_ptr<Texture> texture_;
+  std::unique_ptr<DDSTexture> texture_;
 
   std::vector<ModelType> model_;
 

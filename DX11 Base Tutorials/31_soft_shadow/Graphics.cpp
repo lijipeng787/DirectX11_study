@@ -729,32 +729,50 @@ void GraphicsClass::SetupRenderGraph() {
       });
   renderable_objects_.push_back(sphere_object);
 
-  auto pbr_sphere_object = std::make_shared<RenderableObject>(sphere_pbr_model, pbr_shader);
+  auto pbr_sphere_object =
+      std::make_shared<RenderableObject>(sphere_pbr_model, pbr_shader);
   pbr_sphere_object->SetWorldMatrix(XMMatrixTranslation(0.0f, 2.0f, -2.0f));
   pbr_sphere_object->AddTag(write_depth_tag);
   pbr_sphere_object->AddTag(write_shadow_tag);
   pbr_sphere_object->AddTag(pbr_tag);
   renderable_objects_.push_back(pbr_sphere_object);
 
-  // Fullscreen quad / small quad renderables for post-process passes (rendered via standard tag filtering)
-  auto down_sample_object = std::make_shared<RenderableObject>(small_window, texture_shader);
+  // Fullscreen quad / small quad renderables for post-process passes (rendered
+  // via standard tag filtering)
+  auto down_sample_object =
+      std::make_shared<RenderableObject>(small_window, texture_shader);
   down_sample_object->AddTag(down_sample_tag);
-  down_sample_object->SetParameterCallback([shadow_tex](ShaderParameterContainer &p){ p.SetTexture("texture", shadow_tex->GetShaderResourceView()); });
+  down_sample_object->SetParameterCallback(
+      [shadow_tex](ShaderParameterContainer &p) {
+        p.SetTexture("texture", shadow_tex->GetShaderResourceView());
+      });
   renderable_objects_.push_back(down_sample_object);
 
-  auto horizontal_blur_object = std::make_shared<RenderableObject>(small_window, horizontal_blur_shader);
+  auto horizontal_blur_object =
+      std::make_shared<RenderableObject>(small_window, horizontal_blur_shader);
   horizontal_blur_object->AddTag(horizontal_blur_tag);
-  horizontal_blur_object->SetParameterCallback([downsample_tex](ShaderParameterContainer &p){ p.SetTexture("texture", downsample_tex->GetShaderResourceView()); });
+  horizontal_blur_object->SetParameterCallback(
+      [downsample_tex](ShaderParameterContainer &p) {
+        p.SetTexture("texture", downsample_tex->GetShaderResourceView());
+      });
   renderable_objects_.push_back(horizontal_blur_object);
 
-  auto vertical_blur_object = std::make_shared<RenderableObject>(small_window, vertical_blur_shader);
+  auto vertical_blur_object =
+      std::make_shared<RenderableObject>(small_window, vertical_blur_shader);
   vertical_blur_object->AddTag(vertical_blur_tag);
-  vertical_blur_object->SetParameterCallback([h_blur_tex](ShaderParameterContainer &p){ p.SetTexture("texture", h_blur_tex->GetShaderResourceView()); });
+  vertical_blur_object->SetParameterCallback(
+      [h_blur_tex](ShaderParameterContainer &p) {
+        p.SetTexture("texture", h_blur_tex->GetShaderResourceView());
+      });
   renderable_objects_.push_back(vertical_blur_object);
 
-  auto up_sample_object = std::make_shared<RenderableObject>(fullscreen_window, texture_shader);
+  auto up_sample_object =
+      std::make_shared<RenderableObject>(fullscreen_window, texture_shader);
   up_sample_object->AddTag(up_sample_tag);
-  up_sample_object->SetParameterCallback([v_blur_tex](ShaderParameterContainer &p){ p.SetTexture("texture", v_blur_tex->GetShaderResourceView()); });
+  up_sample_object->SetParameterCallback(
+      [v_blur_tex](ShaderParameterContainer &p) {
+        p.SetTexture("texture", v_blur_tex->GetShaderResourceView());
+      });
   renderable_objects_.push_back(up_sample_object);
 
   auto ground_object =
