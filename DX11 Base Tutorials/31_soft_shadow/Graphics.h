@@ -66,9 +66,14 @@ private:
 
   bool InitializeRenderingSystem();
 
+private:
   void SetupRenderPipeline();
 
-  void SetupRenderGraph();
+  bool SetupRenderGraph();
+
+  void SetupRenderPasses();
+
+  void SetupRenderableObjects();
 
 private:
   struct SceneAssets {
@@ -112,7 +117,7 @@ private:
 
   std::shared_ptr<StandardRenderGroup> cube_group_;
 
-  static constexpr bool use_render_graph_ = true;
+  static constexpr bool use_render_graph_ = false;
 
   RenderPipeline render_pipeline_;
   RenderGraph render_graph_;

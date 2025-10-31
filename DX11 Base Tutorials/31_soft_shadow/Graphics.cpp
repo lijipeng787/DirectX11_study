@@ -217,7 +217,10 @@ bool GraphicsClass::InitializeResources(HWND hwnd) {
 bool GraphicsClass::InitializeRenderingSystem() {
   // Setup rendering system based on compile-time constant
   if constexpr (use_render_graph_) {
-    SetupRenderGraph();
+    if (!SetupRenderGraph()) {
+      LogError(L"Failed to setup RenderGraph.");
+      return false;
+    }
   } else {
     SetupRenderPipeline();
   }
@@ -589,7 +592,7 @@ void GraphicsClass::SetupRenderPipeline() {
   render_pipeline_.SetGlobalParameters(globalParams);
 }
 
-void GraphicsClass::SetupRenderGraph() {
+bool GraphicsClass::SetupRenderGraph() {
   cout << "\n=== Setting up RenderGraph ===" << endl;
 
   if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground ||
@@ -597,7 +600,7 @@ void GraphicsClass::SetupRenderGraph() {
       !shader_assets_.depth || !ortho_windows_.small_window ||
       !ortho_windows_.fullscreen_window) {
     cerr << "SetupRenderGraph: resources not initialized." << endl;
-    return;
+    return false;
   }
 
   auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
@@ -606,9 +609,24 @@ void GraphicsClass::SetupRenderGraph() {
   // Initialize RenderGraph
   render_graph_.Initialize(device, context);
 
-  const auto &cube_model = scene_assets_.cube;
-  const auto &sphere_model = scene_assets_.sphere;
-  const auto &ground_model = scene_assets_.ground;
+  // Setup render passes
+  SetupRenderPasses();
+
+  // Setup renderable objects
+  SetupRenderableObjects();
+
+  if (!render_graph_.Compile()) {
+    cerr << "Failed to compile RenderGraph!" << endl;
+    return false;
+  }
+
+  cout << "=== RenderGraph Setup Complete ===\n" << endl;
+
+  render_graph_.PrintGraph();
+  return true;
+}
+
+void GraphicsClass::SetupRenderPasses() {
   const auto &sphere_pbr_model = scene_assets_.pbr_sphere;
 
   const auto &depth_shader = shader_assets_.depth;
@@ -618,9 +636,6 @@ void GraphicsClass::SetupRenderGraph() {
   const auto &vertical_blur_shader = shader_assets_.vertical_blur;
   const auto &soft_shadow_shader = shader_assets_.soft_shadow;
   const auto &pbr_shader = shader_assets_.pbr;
-
-  const auto &small_window = ortho_windows_.small_window;
-  const auto &fullscreen_window = ortho_windows_.fullscreen_window;
 
   const auto &depth_tex = render_targets_.shadow_depth;
   const auto &shadow_tex = render_targets_.shadow_map;
@@ -636,15 +651,6 @@ void GraphicsClass::SetupRenderGraph() {
   render_graph_.ImportTexture("HorizontalBlur", h_blur_tex);
   render_graph_.ImportTexture("VerticalBlur", v_blur_tex);
   render_graph_.ImportTexture("UpsampledShadow", upsample_tex);
-
-  constexpr auto write_depth_tag = "write_depth";
-  constexpr auto write_shadow_tag = "write_shadow";
-  constexpr auto down_sample_tag = "down_sample";
-  constexpr auto horizontal_blur_tag = "horizontal_blur";
-  constexpr auto vertical_blur_tag = "vertical_blur";
-  constexpr auto up_sample_tag = "up_sample";
-  constexpr auto pbr_tag = "pbr_tag";
-  constexpr auto final_tag = "final";
 
   // Pass 1: Depth Pass
   render_graph_.AddPass("DepthPass")
@@ -683,7 +689,7 @@ void GraphicsClass::SetupRenderGraph() {
       .AddRenderTag(horizontal_blur_tag)
       .DisableZBuffer(true)
       .SetParameter("orthoMatrix", orthoMatrix)
-      .SetParameter("screenWidth", static_cast<float>(SHADOW_MAP_WIDTH / 2))
+      .SetParameter("screenWidth", static_cast<float>(downSampleWidth))
       .SetTexture("texture", downsample_tex->GetShaderResourceView());
 
   // Pass 5: Vertical Blur
@@ -696,7 +702,7 @@ void GraphicsClass::SetupRenderGraph() {
       .AddRenderTag(vertical_blur_tag)
       .DisableZBuffer(true)
       .SetParameter("orthoMatrix", orthoMatrix)
-      .SetParameter("screenHeight", static_cast<float>(SHADOW_MAP_HEIGHT / 2))
+      .SetParameter("screenHeight", static_cast<float>(downSampleHeight))
       .SetTexture("texture", h_blur_tex->GetShaderResourceView());
 
   // Pass 6: Upsample
@@ -727,86 +733,105 @@ void GraphicsClass::SetupRenderGraph() {
       .SetTexture("diffuseTexture", sphere_pbr_model->GetTexture(0))
       .SetTexture("normalMap", sphere_pbr_model->GetTexture(1))
       .SetTexture("rmTexture", sphere_pbr_model->GetTexture(2));
+}
+
+std::shared_ptr<RenderableObject>
+CreateTexturedModelObject(std::shared_ptr<Model> model,
+                                          std::shared_ptr<IShader> shader,
+                                          const XMMATRIX &worldMatrix) {
+  auto obj = std::make_shared<RenderableObject>(model, shader);
+  obj->SetWorldMatrix(worldMatrix);
+  obj->AddTag(write_depth_tag);
+  obj->AddTag(write_shadow_tag);
+  obj->AddTag(final_tag);
+  obj->SetParameterCallback([model](ShaderParameterContainer &params) {
+    params.SetTexture("texture", model->GetTexture());
+  });
+  return obj;
+}
+
+std::shared_ptr<RenderableObject>
+CreatePostProcessObject(std::shared_ptr<OrthoWindow> window,
+                                        std::shared_ptr<IShader> shader,
+                                        const std::string &tag,
+                                        std::shared_ptr<RenderTexture> texture) {
+  auto obj = std::make_shared<RenderableObject>(window, shader);
+  obj->AddTag(tag);
+  obj->SetParameterCallback([texture](ShaderParameterContainer &p) {
+    p.SetTexture("texture", texture->GetShaderResourceView());
+  });
+  return obj;
+}
+
+std::shared_ptr<RenderableObject>
+CreatePBRModelObject(std::shared_ptr<PBRModel> model,
+                                    std::shared_ptr<IShader> shader,
+                                    const XMMATRIX &worldMatrix) {
+  auto obj = std::make_shared<RenderableObject>(model, shader);
+  obj->SetWorldMatrix(worldMatrix);
+  obj->AddTag(write_depth_tag);
+  obj->AddTag(write_shadow_tag);
+  obj->AddTag(pbr_tag);
+  return obj;
+}
+
+void GraphicsClass::SetupRenderableObjects() {
+  const auto &cube_model = scene_assets_.cube;
+  const auto &sphere_model = scene_assets_.sphere;
+  const auto &ground_model = scene_assets_.ground;
+  const auto &sphere_pbr_model = scene_assets_.pbr_sphere;
+
+  const auto &texture_shader = shader_assets_.texture;
+  const auto &horizontal_blur_shader = shader_assets_.horizontal_blur;
+  const auto &vertical_blur_shader = shader_assets_.vertical_blur;
+  const auto &soft_shadow_shader = shader_assets_.soft_shadow;
+  const auto &pbr_shader = shader_assets_.pbr;
+
+  const auto &small_window = ortho_windows_.small_window;
+  const auto &fullscreen_window = ortho_windows_.fullscreen_window;
+
+  const auto &shadow_tex = render_targets_.shadow_map;
+  const auto &downsample_tex = render_targets_.downsampled_shadow;
+  const auto &h_blur_tex = render_targets_.horizontal_blur;
+  const auto &v_blur_tex = render_targets_.vertical_blur;
 
   // Add renderable objects
-  auto cube_object =
-      std::make_shared<RenderableObject>(cube_model, soft_shadow_shader);
-  cube_object->SetWorldMatrix(XMMatrixTranslation(-2.5f, 2.0f, 0.0f));
-  cube_object->AddTag(write_depth_tag);
-  cube_object->AddTag(write_shadow_tag);
-  cube_object->AddTag(final_tag);
-  cube_object->SetParameterCallback(
-      [cube_model](ShaderParameterContainer &params) {
-        params.SetTexture("texture", cube_model->GetTexture());
-      });
+  auto cube_object = CreateTexturedModelObject(
+      cube_model, soft_shadow_shader,
+      XMMatrixTranslation(-2.5f, 2.0f, 0.0f));
   renderable_objects_.push_back(cube_object);
 
-  auto sphere_object =
-      std::make_shared<RenderableObject>(sphere_model, soft_shadow_shader);
-  sphere_object->SetWorldMatrix(XMMatrixTranslation(2.5f, 2.0f, 0.0f));
-  sphere_object->AddTag(write_depth_tag);
-  sphere_object->AddTag(write_shadow_tag);
-  sphere_object->AddTag(final_tag);
-  sphere_object->SetParameterCallback(
-      [sphere_model](ShaderParameterContainer &params) {
-        params.SetTexture("texture", sphere_model->GetTexture());
-      });
+  auto sphere_object = CreateTexturedModelObject(
+      sphere_model, soft_shadow_shader,
+      XMMatrixTranslation(2.5f, 2.0f, 0.0f));
   renderable_objects_.push_back(sphere_object);
 
-  auto pbr_sphere_object =
-      std::make_shared<RenderableObject>(sphere_pbr_model, pbr_shader);
-  pbr_sphere_object->SetWorldMatrix(XMMatrixTranslation(0.0f, 2.0f, -2.0f));
-  pbr_sphere_object->AddTag(write_depth_tag);
-  pbr_sphere_object->AddTag(write_shadow_tag);
-  pbr_sphere_object->AddTag(pbr_tag);
+  auto pbr_sphere_object = CreatePBRModelObject(
+      sphere_pbr_model, pbr_shader,
+      XMMatrixTranslation(0.0f, 2.0f, -2.0f));
   renderable_objects_.push_back(pbr_sphere_object);
 
   auto down_sample_object =
-      std::make_shared<RenderableObject>(small_window, texture_shader);
-  down_sample_object->AddTag(down_sample_tag);
-  down_sample_object->SetParameterCallback(
-      [shadow_tex](ShaderParameterContainer &p) {
-        p.SetTexture("texture", shadow_tex->GetShaderResourceView());
-      });
+      CreatePostProcessObject(small_window, texture_shader, down_sample_tag,
+                              shadow_tex);
   renderable_objects_.push_back(down_sample_object);
 
-  auto horizontal_blur_object = std::make_shared<RenderableObject>(
-      small_window, horizontal_blur_shader);
-  horizontal_blur_object->AddTag(horizontal_blur_tag);
-  horizontal_blur_object->SetParameterCallback(
-      [downsample_tex](ShaderParameterContainer &p) {
-        p.SetTexture("texture", downsample_tex->GetShaderResourceView());
-      });
+  auto horizontal_blur_object = CreatePostProcessObject(
+      small_window, horizontal_blur_shader, horizontal_blur_tag,
+      downsample_tex);
   renderable_objects_.push_back(horizontal_blur_object);
 
-  auto vertical_blur_object = std::make_shared<RenderableObject>(
-      small_window, vertical_blur_shader);
-  vertical_blur_object->AddTag(vertical_blur_tag);
-  vertical_blur_object->SetParameterCallback(
-      [h_blur_tex](ShaderParameterContainer &p) {
-        p.SetTexture("texture", h_blur_tex->GetShaderResourceView());
-      });
+  auto vertical_blur_object = CreatePostProcessObject(
+      small_window, vertical_blur_shader, vertical_blur_tag, h_blur_tex);
   renderable_objects_.push_back(vertical_blur_object);
 
-  auto up_sample_object = std::make_shared<RenderableObject>(
-      fullscreen_window, texture_shader);
-  up_sample_object->AddTag(up_sample_tag);
-  up_sample_object->SetParameterCallback(
-      [v_blur_tex](ShaderParameterContainer &p) {
-        p.SetTexture("texture", v_blur_tex->GetShaderResourceView());
-      });
+  auto up_sample_object = CreatePostProcessObject(
+      fullscreen_window, texture_shader, up_sample_tag, v_blur_tex);
   renderable_objects_.push_back(up_sample_object);
 
-  auto ground_object =
-      std::make_shared<RenderableObject>(ground_model, soft_shadow_shader);
-  ground_object->SetWorldMatrix(XMMatrixTranslation(0.0f, 1.0f, 0.0f));
-  ground_object->AddTag(write_depth_tag);
-  ground_object->AddTag(write_shadow_tag);
-  ground_object->AddTag(final_tag);
-  ground_object->SetParameterCallback(
-      [ground_model](ShaderParameterContainer &params) {
-        params.SetTexture("texture", ground_model->GetTexture());
-      });
+  auto ground_object = CreateTexturedModelObject(
+      ground_model, soft_shadow_shader,
+      XMMatrixTranslation(0.0f, 1.0f, 0.0f));
   renderable_objects_.push_back(ground_object);
 
   for (int i = 0; i < 5; i++) {
@@ -814,29 +839,14 @@ void GraphicsClass::SetupRenderGraph() {
     float yPos = 5.5f + i * 1;
     float zPos = -12.0f;
 
-    auto cube_obj =
-        std::make_shared<RenderableObject>(cube_model, soft_shadow_shader);
-    cube_obj->SetWorldMatrix(XMMatrixTranslation(xPos, yPos, zPos) *
-                             XMMatrixScaling(0.3f, 0.3f, 0.3f));
-    cube_obj->AddTag(write_depth_tag);
-    cube_obj->AddTag(write_shadow_tag);
-    cube_obj->AddTag(final_tag);
-    cube_obj->SetParameterCallback(
-        [cube_model](ShaderParameterContainer &params) {
-          params.SetTexture("texture", cube_model->GetTexture());
-        });
+    auto cube_obj = CreateTexturedModelObject(
+        cube_model, soft_shadow_shader,
+        XMMatrixTranslation(xPos, yPos, zPos) *
+            XMMatrixScaling(0.3f, 0.3f, 0.3f));
 
     cube_group_->AddRenderable(cube_obj);
     renderable_objects_.push_back(cube_obj);
   }
-
-  if (!render_graph_.Compile()) {
-    cerr << "Failed to compile RenderGraph!" << endl;
-  }
-
-  cout << "=== RenderGraph Setup Complete ===\n" << endl;
-
-  render_graph_.PrintGraph();
 }
 
 void GraphicsClass::Render() {
