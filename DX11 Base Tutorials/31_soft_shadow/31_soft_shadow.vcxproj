@@ -164,6 +164,7 @@
     <ClInclude Include="pbrshader.h" />
     <ClInclude Include="position.h" />
     <ClInclude Include="RenderableObject.h" />
+    <ClInclude Include="RenderConfig.h" />
     <ClInclude Include="RenderGraph.h" />
     <ClInclude Include="RenderPass.h" />
     <ClInclude Include="RenderPipeline.h" />
@@ -214,6 +215,7 @@
     <None Include="horizontalblur.vs" />
     <None Include="pbr.ps" />
     <None Include="pbr.vs" />
+    <None Include="RENDERING_SYSTEM_SWITCH_GUIDE.md" />
     <None Include="shadow.ps" />
     <None Include="shadow.vs" />
     <None Include="softshadow.ps" />

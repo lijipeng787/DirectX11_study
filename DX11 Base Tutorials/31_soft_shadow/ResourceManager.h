@@ -141,7 +141,8 @@ private:
   std::unordered_map<std::string, std::shared_ptr<TGATexture>>
       tga_texture_cache_;
   std::unordered_map<std::string, std::shared_ptr<IShader>> shader_cache_;
-  std::unordered_map<std::string, std::shared_ptr<RenderTexture>> rtt_cache_;
+  std::unordered_map<std::string, std::shared_ptr<RenderTexture>>
+      render_texture_cache_;
   std::unordered_map<std::string, std::shared_ptr<OrthoWindow>>
       ortho_window_cache_;
 

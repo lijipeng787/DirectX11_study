@@ -22,6 +22,8 @@
     <ClCompile Include="RenderableObject.cpp" />
     <ClCompile Include="pbrshader.cpp" />
     <ClCompile Include="ShaderBase.cpp" />
+    <ClCompile Include="RenderGraph.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="depthshader.h" />
@@ -51,6 +53,9 @@
     <ClInclude Include="ShaderParameterCallback.h" />
     <ClInclude Include="pbrshader.h" />
     <ClInclude Include="ShaderBase.h" />
+    <ClInclude Include="RenderGraph.h" />
+    <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="RenderConfig.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.ps" />
@@ -67,5 +72,6 @@
     <None Include="verticalblur.vs" />
     <None Include="pbr.ps" />
     <None Include="pbr.vs" />
+    <None Include="RENDERING_SYSTEM_SWITCH_GUIDE.md" />
   </ItemGroup>
 </Project>

@@ -30,6 +30,35 @@ static constexpr auto downSampleHeight = SHADOW_MAP_HEIGHT / 2;
 
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
+  if (!InitializeDevice(screenWidth, screenHeight, hwnd)) {
+    return false;
+  }
+
+  if (!InitializeCamera()) {
+    return false;
+  }
+
+  if (!InitializeLight()) {
+    return false;
+  }
+
+  if (!InitializeResources(hwnd)) {
+    return false;
+  }
+
+  if (!InitializeRenderingSystem()) {
+    return false;
+  }
+
+  // Log resource statistics
+  auto &resource_manager = ResourceManager::GetInstance();
+  resource_manager.LogResourceStats();
+
+  return true;
+}
+
+bool GraphicsClass::InitializeDevice(int screenWidth, int screenHeight,
+                                     HWND hwnd) {
   auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
   if (!(directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED,
@@ -40,177 +69,185 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   }
 
   // Initialize ResourceManager
-  auto &rm = ResourceManager::GetInstance();
+  auto &resource_manager = ResourceManager::GetInstance();
   auto device = directx11_device_->GetDevice();
   auto device_context = directx11_device_->GetDeviceContext();
 
-  if (!rm.Initialize(device, device_context, hwnd)) {
-    MessageBox(hwnd, L"Could not initialize ResourceManager.", L"Error", MB_OK);
+  if (!resource_manager.Initialize(device, device_context, hwnd)) {
+    MessageBox(hwnd, L"Could not initialize ResourceManager.", L"Error",
+               MB_OK);
     return false;
   }
 
-  // Initialize camera
-  {
-    camera_ = make_unique<Camera>();
-    if (nullptr == camera_) {
-      return false;
-    }
-    camera_->SetPosition(0.0f, -1.0f, -10.0f);
-    camera_->Render();
-    camera_->RenderBaseViewMatrix();
-  }
-
+  // Initialize render pipeline
   render_pipeline_.Initialize(device, device_context);
-
-  // Load models through ResourceManager
-  auto cube_model =
-      rm.GetModel("cube", "./data/cube.txt", L"./data/wall01.dds");
-  auto sphere_model =
-      rm.GetModel("sphere", "./data/sphere.txt", L"./data/ice.dds");
-  auto ground_model =
-      rm.GetModel("ground", "./data/plane01.txt", L"./data/metal001.dds");
-
-  if (!cube_model || !sphere_model || !ground_model) {
-    std::wstring error_msg = L"Could not load models.\n";
-    error_msg +=
-        std::wstring(rm.GetLastError().begin(), rm.GetLastError().end());
-    MessageBox(hwnd, error_msg.c_str(), L"Resource Error", MB_OK);
-    return false;
-  }
-
-  // Load PBR model
-  auto sphere_pbr_model =
-      rm.GetPBRModel("sphere_pbr", "./data/sphere.txt", "./data/pbr_albedo.tga",
-                     "./data/pbr_normal.tga", "./data/pbr_roughmetal.tga");
-
-  if (!sphere_pbr_model) {
-    std::wstring error_msg = L"Could not load PBR model.\n";
-    error_msg +=
-        std::wstring(rm.GetLastError().begin(), rm.GetLastError().end());
-    MessageBox(hwnd, error_msg.c_str(), L"Resource Error", MB_OK);
-    return false;
-  }
-
-  // Initialize light
-  {
-    light_ = make_unique<Light>();
-    if (nullptr == light_) {
-      return false;
-    }
-
-    light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
-    light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    light_->SetLookAt(0.0f, 0.0f, 0.0f);
-    light_->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
-  }
-
-  // Create RenderTextures through ResourceManager
-  auto render_texture =
-      rm.CreateRenderTexture("shadow_depth", SHADOW_MAP_WIDTH,
-                             SHADOW_MAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
-
-  auto blackwhiter_render_texture =
-      rm.CreateRenderTexture("shadow_map", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT,
-                             SCREEN_DEPTH, SCREEN_NEAR);
-
-  auto downsample_texture = rm.CreateRenderTexture(
-      "downsample", downSampleWidth, downSampleHeight, 100.0f, 1.0f);
-
-  auto horizontal_blur_texture = rm.CreateRenderTexture(
-      "horizontal_blur", downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
-
-  auto vertical_blur_texture = rm.CreateRenderTexture(
-      "vertical_blur", downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
-
-  auto upsample_texture = rm.CreateRenderTexture(
-      "upsample", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH, 0.1f);
-
-  if (!render_texture || !blackwhiter_render_texture || !downsample_texture ||
-      !horizontal_blur_texture || !vertical_blur_texture || !upsample_texture) {
-    MessageBox(hwnd, L"Could not create render textures.", L"Error", MB_OK);
-    return false;
-  }
-
-  // Load shaders through ResourceManager
-  auto depth_shader = rm.GetShader<DepthShader>("depth");
-  auto shadow_shader = rm.GetShader<ShadowShader>("shadow");
-  auto texture_shader = rm.GetShader<TextureShader>("texture");
-  auto horizontal_blur_shader =
-      rm.GetShader<HorizontalBlurShader>("horizontal_blur");
-  auto vertical_blur_shader = rm.GetShader<VerticalBlurShader>("vertical_blur");
-  auto soft_shadow_shader = rm.GetShader<SoftShadowShader>("soft_shadow");
-  auto pbr_shader = rm.GetShader<PbrShader>("pbr");
-
-  if (!depth_shader || !shadow_shader || !texture_shader ||
-      !horizontal_blur_shader || !vertical_blur_shader || !soft_shadow_shader ||
-      !pbr_shader) {
-    MessageBox(hwnd, L"Could not load shaders.", L"Error", MB_OK);
-    return false;
-  }
-
-  // Create ortho windows
-  auto small_window =
-      rm.GetOrthoWindow("small_window", downSampleWidth, downSampleHeight);
-  auto fullscreen_window = rm.GetOrthoWindow(
-      "fullscreen_window", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
-
-  if (!small_window || !fullscreen_window) {
-    MessageBox(hwnd, L"Could not create ortho windows.", L"Error", MB_OK);
-    return false;
-  }
-
-  cube_group_ = make_shared<StandardRenderGroup>();
-
-  // Setup rendering system
-  if (use_render_graph_) {
-    SetupRenderGraph();
-  } else {
-    SetupRenderPipeline();
-  }
-
-  // Log resource statistics
-  rm.LogResourceStats();
 
   return true;
 }
 
+bool GraphicsClass::InitializeCamera() {
+  camera_ = make_unique<Camera>();
+  if (nullptr == camera_) {
+    return false;
+  }
+  camera_->SetPosition(0.0f, -1.0f, -10.0f);
+  camera_->Render();
+  camera_->RenderBaseViewMatrix();
+  return true;
+}
+
+bool GraphicsClass::InitializeLight() {
+  light_ = make_unique<Light>();
+  if (nullptr == light_) {
+    return false;
+  }
+
+  light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+  light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+  light_->SetLookAt(0.0f, 0.0f, 0.0f);
+  light_->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
+  return true;
+}
+
+bool GraphicsClass::InitializeResources(HWND hwnd) {
+  auto &resource_manager = ResourceManager::GetInstance();
+
+  // 1. 模型与几何体资源
+  scene_assets_.cube =
+      resource_manager.GetModel("cube", "./data/cube.txt", L"./data/wall01.dds");
+  scene_assets_.sphere =
+      resource_manager.GetModel("sphere", "./data/sphere.txt", L"./data/ice.dds");
+  scene_assets_.ground = resource_manager.GetModel("ground", "./data/plane01.txt",
+                                                   L"./data/metal001.dds");
+
+  if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground) {
+    std::wstring error_msg = L"Could not load models.\n";
+    error_msg += std::wstring(resource_manager.GetLastError().begin(),
+                              resource_manager.GetLastError().end());
+    MessageBox(hwnd, error_msg.c_str(), L"Resource Error", MB_OK);
+    return false;
+  }
+
+  scene_assets_.pbr_sphere = resource_manager.GetPBRModel(
+      "sphere_pbr", "./data/sphere.txt", "./data/pbr_albedo.tga",
+      "./data/pbr_normal.tga", "./data/pbr_roughmetal.tga");
+
+  if (!scene_assets_.pbr_sphere) {
+    std::wstring error_msg = L"Could not load PBR model.\n";
+    error_msg += std::wstring(resource_manager.GetLastError().begin(),
+                              resource_manager.GetLastError().end());
+    MessageBox(hwnd, error_msg.c_str(), L"Resource Error", MB_OK);
+    return false;
+  }
+
+  // 2. 渲染目标
+  render_targets_.shadow_depth = resource_manager.CreateRenderTexture(
+      "shadow_depth", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH,
+      SCREEN_NEAR);
+  render_targets_.shadow_map = resource_manager.CreateRenderTexture(
+      "shadow_map", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH,
+      SCREEN_NEAR);
+  render_targets_.downsampled_shadow = resource_manager.CreateRenderTexture(
+      "downsample", downSampleWidth, downSampleHeight, 100.0f, 1.0f);
+  render_targets_.horizontal_blur = resource_manager.CreateRenderTexture(
+      "horizontal_blur", downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
+  render_targets_.vertical_blur = resource_manager.CreateRenderTexture(
+      "vertical_blur", downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
+  render_targets_.upsampled_shadow = resource_manager.CreateRenderTexture(
+      "upsample", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH, 0.1f);
+
+  if (!render_targets_.shadow_depth || !render_targets_.shadow_map ||
+      !render_targets_.downsampled_shadow || !render_targets_.horizontal_blur ||
+      !render_targets_.vertical_blur || !render_targets_.upsampled_shadow) {
+    MessageBox(hwnd, L"Could not create render textures.", L"Error", MB_OK);
+    return false;
+  }
+
+  // 3. 着色器
+  shader_assets_.depth = resource_manager.GetShader<DepthShader>("depth");
+  shader_assets_.shadow = resource_manager.GetShader<ShadowShader>("shadow");
+  shader_assets_.texture = resource_manager.GetShader<TextureShader>("texture");
+  shader_assets_.horizontal_blur =
+      resource_manager.GetShader<HorizontalBlurShader>("horizontal_blur");
+  shader_assets_.vertical_blur =
+      resource_manager.GetShader<VerticalBlurShader>("vertical_blur");
+  shader_assets_.soft_shadow =
+      resource_manager.GetShader<SoftShadowShader>("soft_shadow");
+  shader_assets_.pbr = resource_manager.GetShader<PbrShader>("pbr");
+
+  if (!shader_assets_.depth || !shader_assets_.shadow ||
+      !shader_assets_.texture || !shader_assets_.horizontal_blur ||
+      !shader_assets_.vertical_blur || !shader_assets_.soft_shadow ||
+      !shader_assets_.pbr) {
+    MessageBox(hwnd, L"Could not load shaders.", L"Error", MB_OK);
+    return false;
+  }
+
+  // 4. 正交屏幕窗口
+  ortho_windows_.small_window =
+      resource_manager.GetOrthoWindow("small_window", downSampleWidth,
+                                      downSampleHeight);
+  ortho_windows_.fullscreen_window = resource_manager.GetOrthoWindow(
+      "fullscreen_window", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
+
+  if (!ortho_windows_.small_window || !ortho_windows_.fullscreen_window) {
+    MessageBox(hwnd, L"Could not create ortho windows.", L"Error", MB_OK);
+    return false;
+  }
+
+  // 5. 预先创建渲染组
+  cube_group_ = make_shared<StandardRenderGroup>();
+
+  return true;
+}
+
+bool GraphicsClass::InitializeRenderingSystem() {
+  // Setup rendering system based on compile-time constant
+  if constexpr (use_render_graph_) {
+    SetupRenderGraph();
+  } else {
+    SetupRenderPipeline();
+  }
+  return true;
+}
+
 void GraphicsClass::Shutdown() {
-  auto &rm = ResourceManager::GetInstance();
+  auto &resource_manager = ResourceManager::GetInstance();
 
   // Display resource usage before shutdown
   cout << "\n=== Resource Usage Before Shutdown ===" << endl;
-  cout << "Total cached resources: " << rm.GetTotalCachedResources() << endl;
+  cout << "Total cached resources: " << resource_manager.GetTotalCachedResources() << endl;
 
   // Check for unused resources
-  auto unusedModels = rm.GetUnusedModels();
-  auto unusedShaders = rm.GetUnusedShaders();
-  auto unusedRTTs = rm.GetUnusedRenderTextures();
+  auto unusedModels = resource_manager.GetUnusedModels();
+  auto unusedShaders = resource_manager.GetUnusedShaders();
+  auto unusedRTTs = resource_manager.GetUnusedRenderTextures();
 
   cout << "Unused models: " << unusedModels.size() << endl;
   for (const auto &name : unusedModels) {
-    cout << "  - " << name << " (ref count: " << rm.GetModelRefCount(name)
+    cout << "  - " << name << " (ref count: " << resource_manager.GetModelRefCount(name)
          << ")" << endl;
   }
 
   cout << "Unused shaders: " << unusedShaders.size() << endl;
   for (const auto &name : unusedShaders) {
-    cout << "  - " << name << " (ref count: " << rm.GetShaderRefCount(name)
+    cout << "  - " << name << " (ref count: " << resource_manager.GetShaderRefCount(name)
          << ")" << endl;
   }
 
   cout << "Unused render textures: " << unusedRTTs.size() << endl;
   for (const auto &name : unusedRTTs) {
     cout << "  - " << name
-         << " (ref count: " << rm.GetRenderTextureRefCount(name) << ")" << endl;
+         << " (ref count: " << resource_manager.GetRenderTextureRefCount(name) << ")" << endl;
   }
 
   // Optionally prune unused resources
-  // size_t pruned = rm.PruneAllUnusedResources();
+  // size_t pruned = resourceManager.PruneAllUnusedResources();
 
   cout << "========================================\n" << endl;
 
   // Shutdown ResourceManager
-  rm.Shutdown();
+  resource_manager.Shutdown();
 }
 
 void GraphicsClass::Frame(float deltaTime) {
@@ -247,14 +284,14 @@ void GraphicsClass::Frame(float deltaTime) {
   debugTimer += deltaTime / 1000.0f;
   if (debugTimer > 5.0f) {
     debugTimer = 0.0f;
-    auto &rm = ResourceManager::GetInstance();
+    auto &resource_manager = ResourceManager::GetInstance();
     cout << "\n[DEBUG] Resource Usage:" << endl;
-    cout << "  Cube model ref count: " << rm.GetModelRefCount("cube") << endl;
-    cout << "  Sphere model ref count: " << rm.GetModelRefCount("sphere")
+    cout << "  Cube model ref count: " << resource_manager.GetModelRefCount("cube") << endl;
+    cout << "  Sphere model ref count: " << resource_manager.GetModelRefCount("sphere")
          << endl;
-    cout << "  Ground model ref count: " << rm.GetModelRefCount("ground")
+    cout << "  Ground model ref count: " << resource_manager.GetModelRefCount("ground")
          << endl;
-    cout << "  Total cached: " << rm.GetTotalCachedResources() << endl;
+    cout << "  Total cached: " << resource_manager.GetTotalCachedResources() << endl;
   }
 #endif
 
@@ -273,44 +310,41 @@ static constexpr auto final_tag = "final";
 
 void GraphicsClass::SetupRenderPipeline() {
 
-  auto &rm = ResourceManager::GetInstance();
+  if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground ||
+      !scene_assets_.pbr_sphere || !render_targets_.shadow_depth ||
+      !shader_assets_.depth || !ortho_windows_.small_window ||
+      !ortho_windows_.fullscreen_window) {
+    cerr << "SetupRenderPipeline: resources not initialized." << endl;
+    return;
+  }
 
-  // Get resources from ResourceManager
-  auto cube_model =
-      rm.GetModel("cube", "./data/cube.txt", L"./data/wall01.dds");
-  auto sphere_model =
-      rm.GetModel("sphere", "./data/sphere.txt", L"./data/ice.dds");
-  auto ground_model =
-      rm.GetModel("ground", "./data/plane01.txt", L"./data/metal001.dds");
-  auto sphere_pbr_model =
-      rm.GetPBRModel("sphere_pbr", "./data/sphere.txt", "./data/pbr_albedo.tga",
-                     "./data/pbr_normal.tga", "./data/pbr_roughmetal.tga");
+  const auto &cube_model = scene_assets_.cube;
+  const auto &sphere_model = scene_assets_.sphere;
+  const auto &ground_model = scene_assets_.ground;
+  const auto &sphere_pbr_model = scene_assets_.pbr_sphere;
 
-  auto render_texture = rm.GetRenderTexture("shadow_depth");
-  auto blackwhiter_render_texture = rm.GetRenderTexture("shadow_map");
-  auto downsample_texture = rm.GetRenderTexture("downsample");
-  auto horizontal_blur_texture = rm.GetRenderTexture("horizontal_blur");
-  auto vertical_blur_texture = rm.GetRenderTexture("vertical_blur");
-  auto upsample_texture = rm.GetRenderTexture("upsample");
+  const auto &shadow_depth_target = render_targets_.shadow_depth;
+  const auto &shadow_map_target = render_targets_.shadow_map;
+  const auto &downsample_target = render_targets_.downsampled_shadow;
+  const auto &horizontal_blur_target = render_targets_.horizontal_blur;
+  const auto &vertical_blur_target = render_targets_.vertical_blur;
+  const auto &upsample_target = render_targets_.upsampled_shadow;
 
-  auto depth_shader = rm.GetShader<DepthShader>("depth");
-  auto shadow_shader = rm.GetShader<ShadowShader>("shadow");
-  auto texture_shader = rm.GetShader<TextureShader>("texture");
-  auto horizontal_blur_shader =
-      rm.GetShader<HorizontalBlurShader>("horizontal_blur");
-  auto vertical_blur_shader = rm.GetShader<VerticalBlurShader>("vertical_blur");
-  auto soft_shadow_shader = rm.GetShader<SoftShadowShader>("soft_shadow");
-  auto pbr_shader = rm.GetShader<PbrShader>("pbr");
+  const auto &depth_shader = shader_assets_.depth;
+  const auto &shadow_shader = shader_assets_.shadow;
+  const auto &texture_shader = shader_assets_.texture;
+  const auto &horizontal_blur_shader = shader_assets_.horizontal_blur;
+  const auto &vertical_blur_shader = shader_assets_.vertical_blur;
+  const auto &soft_shadow_shader = shader_assets_.soft_shadow;
+  const auto &pbr_shader = shader_assets_.pbr;
 
-  auto small_window =
-      rm.GetOrthoWindow("small_window", downSampleWidth, downSampleHeight);
-  auto fullscreen_window = rm.GetOrthoWindow(
-      "fullscreen_window", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
+  const auto &small_window = ortho_windows_.small_window;
+  const auto &fullscreen_window = ortho_windows_.fullscreen_window;
 
   auto depth_pass = std::make_shared<RenderPass>("DepthPass", depth_shader);
   {
     depth_pass->AddRenderTag(write_depth_tag);
-    depth_pass->SetOutputTexture(render_texture);
+    depth_pass->SetOutputTexture(shadow_depth_target);
 
     render_pipeline_.AddRenderPass(depth_pass);
   }
@@ -319,12 +353,11 @@ void GraphicsClass::SetupRenderPipeline() {
   {
     shadow_pass->AddRenderTag(write_shadow_tag);
     shadow_pass->AddInputTexture("depthMap", depth_pass->GetOutputTexture());
-    shadow_pass->SetOutputTexture(blackwhiter_render_texture);
+    shadow_pass->SetOutputTexture(shadow_map_target);
 
-    // required parameter by shadow shader
     ShaderParameterContainer shadowPassParams;
     shadowPassParams.SetTexture("depthMapTexture",
-                                render_texture->GetShaderResourceView());
+                                shadow_depth_target->GetShaderResourceView());
     shadow_pass->SetPassParameters(shadowPassParams);
 
     render_pipeline_.AddRenderPass(shadow_pass);
@@ -338,15 +371,15 @@ void GraphicsClass::SetupRenderPipeline() {
     down_sample_texture_pass->AddRenderTag(down_sample_tag);
     down_sample_texture_pass->AddInputTexture("shadowMap",
                                               shadow_pass->GetOutputTexture());
-    down_sample_texture_pass->SetOutputTexture(downsample_texture);
+    down_sample_texture_pass->SetOutputTexture(downsample_target);
     down_sample_texture_pass->NeedTurnOffZBuffer();
 
-    ShaderParameterContainer DownSampleTexturePassParams;
-    downsample_texture->GetOrthoMatrix(orthoMatrix);
-    DownSampleTexturePassParams.SetMatrix("orthoMatrix", orthoMatrix);
-    DownSampleTexturePassParams.SetTexture(
-        "texture", blackwhiter_render_texture->GetShaderResourceView());
-    down_sample_texture_pass->SetPassParameters(DownSampleTexturePassParams);
+    ShaderParameterContainer downsampleParams;
+    downsample_target->GetOrthoMatrix(orthoMatrix);
+    downsampleParams.SetMatrix("orthoMatrix", orthoMatrix);
+    downsampleParams.SetTexture(
+        "texture", shadow_map_target->GetShaderResourceView());
+    down_sample_texture_pass->SetPassParameters(downsampleParams);
 
     render_pipeline_.AddRenderPass(down_sample_texture_pass);
   }
@@ -357,44 +390,41 @@ void GraphicsClass::SetupRenderPipeline() {
     horizontal_blur_to_texture_pass->AddRenderTag(horizontal_blur_tag);
     horizontal_blur_to_texture_pass->AddInputTexture(
         "DownSampleTexture", down_sample_texture_pass->GetOutputTexture());
-    horizontal_blur_to_texture_pass->SetOutputTexture(horizontal_blur_texture);
+    horizontal_blur_to_texture_pass->SetOutputTexture(horizontal_blur_target);
     horizontal_blur_to_texture_pass->NeedTurnOffZBuffer();
 
-    ShaderParameterContainer RenderHorizontalBlurToTexturePassParams;
-    horizontal_blur_texture->GetOrthoMatrix(orthoMatrix);
-    RenderHorizontalBlurToTexturePassParams.SetMatrix("orthoMatrix",
-                                                      orthoMatrix);
-    RenderHorizontalBlurToTexturePassParams.SetFloat(
-        "screenWidth", (float)(SHADOW_MAP_WIDTH / 2));
-    RenderHorizontalBlurToTexturePassParams.SetTexture(
-        "texture", downsample_texture->GetShaderResourceView());
-    horizontal_blur_to_texture_pass->SetPassParameters(
-        RenderHorizontalBlurToTexturePassParams);
+    ShaderParameterContainer horizontalBlurParams;
+    horizontal_blur_target->GetOrthoMatrix(orthoMatrix);
+    horizontalBlurParams.SetMatrix("orthoMatrix", orthoMatrix);
+    horizontalBlurParams.SetFloat("screenWidth",
+                                  static_cast<float>(SHADOW_MAP_WIDTH / 2));
+    horizontalBlurParams.SetTexture(
+        "texture", downsample_target->GetShaderResourceView());
+    horizontal_blur_to_texture_pass->SetPassParameters(horizontalBlurParams);
 
     render_pipeline_.AddRenderPass(horizontal_blur_to_texture_pass);
   }
 
-  auto Vertical_blur_to_texture_pass = std::make_shared<RenderPass>(
-      "RenderHorizontalBlurToTexture", vertical_blur_shader);
+  auto vertical_blur_to_texture_pass = std::make_shared<RenderPass>(
+      "RenderVerticalBlurToTexture", vertical_blur_shader);
   {
-    Vertical_blur_to_texture_pass->AddRenderTag(vertical_blur_tag);
-    Vertical_blur_to_texture_pass->AddInputTexture(
+    vertical_blur_to_texture_pass->AddRenderTag(vertical_blur_tag);
+    vertical_blur_to_texture_pass->AddInputTexture(
         "DownSampleTexture",
         horizontal_blur_to_texture_pass->GetOutputTexture());
-    Vertical_blur_to_texture_pass->SetOutputTexture(vertical_blur_texture);
-    Vertical_blur_to_texture_pass->NeedTurnOffZBuffer();
+    vertical_blur_to_texture_pass->SetOutputTexture(vertical_blur_target);
+    vertical_blur_to_texture_pass->NeedTurnOffZBuffer();
 
-    ShaderParameterContainer RenderVerticalBlurToTexturePassParams;
-    vertical_blur_texture->GetOrthoMatrix(orthoMatrix);
-    RenderVerticalBlurToTexturePassParams.SetMatrix("orthoMatrix", orthoMatrix);
-    RenderVerticalBlurToTexturePassParams.SetFloat(
-        "screenHeight", (float)(SHADOW_MAP_HEIGHT / 2));
-    RenderVerticalBlurToTexturePassParams.SetTexture(
-        "texture", horizontal_blur_texture->GetShaderResourceView());
-    Vertical_blur_to_texture_pass->SetPassParameters(
-        RenderVerticalBlurToTexturePassParams);
+    ShaderParameterContainer verticalBlurParams;
+    vertical_blur_target->GetOrthoMatrix(orthoMatrix);
+    verticalBlurParams.SetMatrix("orthoMatrix", orthoMatrix);
+    verticalBlurParams.SetFloat("screenHeight",
+                                static_cast<float>(SHADOW_MAP_HEIGHT / 2));
+    verticalBlurParams.SetTexture(
+        "texture", horizontal_blur_target->GetShaderResourceView());
+    vertical_blur_to_texture_pass->SetPassParameters(verticalBlurParams);
 
-    render_pipeline_.AddRenderPass(Vertical_blur_to_texture_pass);
+    render_pipeline_.AddRenderPass(vertical_blur_to_texture_pass);
   }
 
   auto up_sample_texture_pass =
@@ -402,16 +432,16 @@ void GraphicsClass::SetupRenderPipeline() {
   {
     up_sample_texture_pass->AddRenderTag(up_sample_tag);
     up_sample_texture_pass->AddInputTexture(
-        "texture", Vertical_blur_to_texture_pass->GetOutputTexture());
-    up_sample_texture_pass->SetOutputTexture(upsample_texture);
+        "texture", vertical_blur_to_texture_pass->GetOutputTexture());
+    up_sample_texture_pass->SetOutputTexture(upsample_target);
     up_sample_texture_pass->NeedTurnOffZBuffer();
 
-    ShaderParameterContainer UpSampleTexturePassParams;
-    upsample_texture->GetOrthoMatrix(orthoMatrix);
-    UpSampleTexturePassParams.SetMatrix("orthoMatrix", orthoMatrix);
-    UpSampleTexturePassParams.SetTexture(
-        "texture", vertical_blur_texture->GetShaderResourceView());
-    up_sample_texture_pass->SetPassParameters(UpSampleTexturePassParams);
+    ShaderParameterContainer upsampleParams;
+    upsample_target->GetOrthoMatrix(orthoMatrix);
+    upsampleParams.SetMatrix("orthoMatrix", orthoMatrix);
+    upsampleParams.SetTexture("texture",
+                              vertical_blur_target->GetShaderResourceView());
+    up_sample_texture_pass->SetPassParameters(upsampleParams);
 
     render_pipeline_.AddRenderPass(up_sample_texture_pass);
   }
@@ -423,14 +453,14 @@ void GraphicsClass::SetupRenderPipeline() {
     final_pass->AddInputTexture("shadowMap",
                                 up_sample_texture_pass->GetOutputTexture());
 
-    ShaderParameterContainer FinalPassParams;
-    FinalPassParams.SetTexture("shadowTexture",
-                               upsample_texture->GetShaderResourceView());
-    FinalPassParams.SetTexture("texture",
-                               upsample_texture->GetShaderResourceView());
-    FinalPassParams.SetVector4("diffuseColor", light_->GetDiffuseColor());
-    FinalPassParams.SetVector4("ambientColor", light_->GetAmbientColor());
-    final_pass->SetPassParameters(FinalPassParams);
+    ShaderParameterContainer finalParams;
+    finalParams.SetTexture("shadowTexture",
+                           upsample_target->GetShaderResourceView());
+    finalParams.SetTexture("texture",
+                           upsample_target->GetShaderResourceView());
+    finalParams.SetVector4("diffuseColor", light_->GetDiffuseColor());
+    finalParams.SetVector4("ambientColor", light_->GetAmbientColor());
+    final_pass->SetPassParameters(finalParams);
 
     render_pipeline_.AddRenderPass(final_pass);
   }
@@ -439,11 +469,11 @@ void GraphicsClass::SetupRenderPipeline() {
   {
     pbr_pass->AddRenderTag(pbr_tag);
 
-    ShaderParameterContainer PBRPassParams;
-    PBRPassParams.SetTexture("diffuseTexture", sphere_pbr_model->GetTexture(0));
-    PBRPassParams.SetTexture("normalMap", sphere_pbr_model->GetTexture(1));
-    PBRPassParams.SetTexture("rmTexture", sphere_pbr_model->GetTexture(2));
-    pbr_pass->SetPassParameters(PBRPassParams);
+    ShaderParameterContainer pbrParams;
+    pbrParams.SetTexture("diffuseTexture", sphere_pbr_model->GetTexture(0));
+    pbrParams.SetTexture("normalMap", sphere_pbr_model->GetTexture(1));
+    pbrParams.SetTexture("rmTexture", sphere_pbr_model->GetTexture(2));
+    pbr_pass->SetPassParameters(pbrParams);
 
     render_pipeline_.AddRenderPass(pbr_pass);
   }
@@ -498,8 +528,8 @@ void GraphicsClass::SetupRenderPipeline() {
   down_sample_object->AddTag(down_sample_tag);
   render_pipeline_.AddRenderableObject(down_sample_object);
 
-  auto horizontal_blur_object =
-      std::make_shared<RenderableObject>(small_window, horizontal_blur_shader);
+  auto horizontal_blur_object = std::make_shared<RenderableObject>(
+      small_window, horizontal_blur_shader);
   horizontal_blur_object->AddTag(horizontal_blur_tag);
   render_pipeline_.AddRenderableObject(horizontal_blur_object);
 
@@ -508,41 +538,37 @@ void GraphicsClass::SetupRenderPipeline() {
   vertical_blur_object->AddTag(vertical_blur_tag);
   render_pipeline_.AddRenderableObject(vertical_blur_object);
 
-  auto up_sample_object =
-      std::make_shared<RenderableObject>(fullscreen_window, texture_shader);
+  auto up_sample_object = std::make_shared<RenderableObject>(
+      fullscreen_window, texture_shader);
   up_sample_object->AddTag(up_sample_tag);
   render_pipeline_.AddRenderableObject(up_sample_object);
 
-  cube_group_ = make_shared<StandardRenderGroup>();
-
   for (int i = 0; i < 5; i++) {
-
     float xPos = -6.5f + i * 3;
     float yPos = 5.5f + i * 1;
     float zPos = -12.0f;
 
-    auto cube_object =
+    auto dynamic_cube =
         std::make_shared<RenderableObject>(cube_model, soft_shadow_shader);
-    cube_object->SetWorldMatrix(XMMatrixTranslation(xPos, yPos, zPos) *
-                                XMMatrixScaling(0.3f, 0.3f, 0.3f));
+    dynamic_cube->SetWorldMatrix(XMMatrixTranslation(xPos, yPos, zPos) *
+                                 XMMatrixScaling(0.3f, 0.3f, 0.3f));
 
-    cube_object->AddTag(write_depth_tag);
-    cube_object->AddTag(write_shadow_tag);
-    cube_object->AddTag(final_tag);
+    dynamic_cube->AddTag(write_depth_tag);
+    dynamic_cube->AddTag(write_shadow_tag);
+    dynamic_cube->AddTag(final_tag);
 
-    cube_object->SetParameterCallback(
+    dynamic_cube->SetParameterCallback(
         [cube_model](ShaderParameterContainer &params) {
           params.SetTexture("texture", cube_model->GetTexture());
         });
 
-    cube_group_->AddRenderable(cube_object);
+    cube_group_->AddRenderable(dynamic_cube);
   }
 
   for (const auto &renderable : cube_group_->GetRenderables()) {
     render_pipeline_.AddRenderableObject(renderable);
   }
 
-  // Set global static parameters
   ShaderParameterContainer globalParams;
   XMMATRIX deviceWorldMatrix, projectionMatrix;
   DirectX11Device::GetD3d11DeviceInstance()->GetWorldMatrix(deviceWorldMatrix);
@@ -556,52 +582,42 @@ void GraphicsClass::SetupRenderPipeline() {
 void GraphicsClass::SetupRenderGraph() {
   cout << "\n=== Setting up RenderGraph ===" << endl;
 
-  auto &rm = ResourceManager::GetInstance();
+  if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground ||
+      !scene_assets_.pbr_sphere || !render_targets_.shadow_depth ||
+      !shader_assets_.depth || !ortho_windows_.small_window ||
+      !ortho_windows_.fullscreen_window) {
+    cerr << "SetupRenderGraph: resources not initialized." << endl;
+    return;
+  }
+
   auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
   auto context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   // Initialize RenderGraph
   render_graph_.Initialize(device, context);
 
-  // Get resources from ResourceManager
-  auto cube_model =
-      rm.GetModel("cube", "./data/cube.txt", L"./data/wall01.dds");
-  auto sphere_model =
-      rm.GetModel("sphere", "./data/sphere.txt", L"./data/ice.dds");
-  auto ground_model =
-      rm.GetModel("ground", "./data/plane01.txt", L"./data/metal001.dds");
-  auto sphere_pbr_model =
-      rm.GetPBRModel("sphere_pbr", "./data/sphere.txt", "./data/pbr_albedo.tga",
-                     "./data/pbr_normal.tga", "./data/pbr_roughmetal.tga");
+  const auto &cube_model = scene_assets_.cube;
+  const auto &sphere_model = scene_assets_.sphere;
+  const auto &ground_model = scene_assets_.ground;
+  const auto &sphere_pbr_model = scene_assets_.pbr_sphere;
 
-  auto depth_shader = rm.GetShader<DepthShader>("depth");
-  auto shadow_shader = rm.GetShader<ShadowShader>("shadow");
-  auto texture_shader = rm.GetShader<TextureShader>("texture");
-  auto horizontal_blur_shader =
-      rm.GetShader<HorizontalBlurShader>("horizontal_blur");
-  auto vertical_blur_shader = rm.GetShader<VerticalBlurShader>("vertical_blur");
-  auto soft_shadow_shader = rm.GetShader<SoftShadowShader>("soft_shadow");
-  auto pbr_shader = rm.GetShader<PbrShader>("pbr");
+  const auto &depth_shader = shader_assets_.depth;
+  const auto &shadow_shader = shader_assets_.shadow;
+  const auto &texture_shader = shader_assets_.texture;
+  const auto &horizontal_blur_shader = shader_assets_.horizontal_blur;
+  const auto &vertical_blur_shader = shader_assets_.vertical_blur;
+  const auto &soft_shadow_shader = shader_assets_.soft_shadow;
+  const auto &pbr_shader = shader_assets_.pbr;
 
-  auto small_window =
-      rm.GetOrthoWindow("small_window", downSampleWidth, downSampleHeight);
-  auto fullscreen_window = rm.GetOrthoWindow(
-      "fullscreen_window", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
+  const auto &small_window = ortho_windows_.small_window;
+  const auto &fullscreen_window = ortho_windows_.fullscreen_window;
 
-  // Get or create RenderTextures from ResourceManager
-  // These are the actual textures that will be used
-  auto depth_tex = rm.GetRenderTexture("shadow_depth");
-  auto shadow_tex = rm.GetRenderTexture("shadow_map");
-  auto downsample_tex = rm.GetRenderTexture("downsample");
-  auto h_blur_tex = rm.GetRenderTexture("horizontal_blur");
-  auto v_blur_tex = rm.GetRenderTexture("vertical_blur");
-  auto upsample_tex = rm.GetRenderTexture("upsample");
-
-  if (!depth_tex || !shadow_tex || !downsample_tex || !h_blur_tex ||
-      !v_blur_tex || !upsample_tex) {
-    cerr << "Error: Failed to get render textures from ResourceManager" << endl;
-    return;
-  }
+  const auto &depth_tex = render_targets_.shadow_depth;
+  const auto &shadow_tex = render_targets_.shadow_map;
+  const auto &downsample_tex = render_targets_.downsampled_shadow;
+  const auto &h_blur_tex = render_targets_.horizontal_blur;
+  const auto &v_blur_tex = render_targets_.vertical_blur;
+  const auto &upsample_tex = render_targets_.upsampled_shadow;
 
   // Import existing textures into RenderGraph
   render_graph_.ImportTexture("DepthMap", depth_tex);
@@ -611,7 +627,6 @@ void GraphicsClass::SetupRenderGraph() {
   render_graph_.ImportTexture("VerticalBlur", v_blur_tex);
   render_graph_.ImportTexture("UpsampledShadow", upsample_tex);
 
-  // Tags
   constexpr auto write_depth_tag = "write_depth";
   constexpr auto write_shadow_tag = "write_shadow";
   constexpr auto down_sample_tag = "down_sample";
@@ -658,7 +673,7 @@ void GraphicsClass::SetupRenderGraph() {
       .AddRenderTag(horizontal_blur_tag)
       .DisableZBuffer(true)
       .SetParameter("orthoMatrix", orthoMatrix)
-      .SetParameter("screenWidth", (float)(SHADOW_MAP_WIDTH / 2))
+      .SetParameter("screenWidth", static_cast<float>(SHADOW_MAP_WIDTH / 2))
       .SetTexture("texture", downsample_tex->GetShaderResourceView());
 
   // Pass 5: Vertical Blur
@@ -671,7 +686,7 @@ void GraphicsClass::SetupRenderGraph() {
       .AddRenderTag(vertical_blur_tag)
       .DisableZBuffer(true)
       .SetParameter("orthoMatrix", orthoMatrix)
-      .SetParameter("screenHeight", (float)(SHADOW_MAP_HEIGHT / 2))
+      .SetParameter("screenHeight", static_cast<float>(SHADOW_MAP_HEIGHT / 2))
       .SetTexture("texture", h_blur_tex->GetShaderResourceView());
 
   // Pass 6: Upsample
@@ -687,7 +702,6 @@ void GraphicsClass::SetupRenderGraph() {
       .SetTexture("texture", v_blur_tex->GetShaderResourceView());
 
   // Pass 7: Final Pass (soft shadow)
-  // Pass 7: Final Pass (standard execution)
   render_graph_.AddPass("FinalPass")
       .SetShader(soft_shadow_shader)
       .Read("UpsampledShadow")
@@ -737,8 +751,6 @@ void GraphicsClass::SetupRenderGraph() {
   pbr_sphere_object->AddTag(pbr_tag);
   renderable_objects_.push_back(pbr_sphere_object);
 
-  // Fullscreen quad / small quad renderables for post-process passes (rendered
-  // via standard tag filtering)
   auto down_sample_object =
       std::make_shared<RenderableObject>(small_window, texture_shader);
   down_sample_object->AddTag(down_sample_tag);
@@ -748,8 +760,8 @@ void GraphicsClass::SetupRenderGraph() {
       });
   renderable_objects_.push_back(down_sample_object);
 
-  auto horizontal_blur_object =
-      std::make_shared<RenderableObject>(small_window, horizontal_blur_shader);
+  auto horizontal_blur_object = std::make_shared<RenderableObject>(
+      small_window, horizontal_blur_shader);
   horizontal_blur_object->AddTag(horizontal_blur_tag);
   horizontal_blur_object->SetParameterCallback(
       [downsample_tex](ShaderParameterContainer &p) {
@@ -757,8 +769,8 @@ void GraphicsClass::SetupRenderGraph() {
       });
   renderable_objects_.push_back(horizontal_blur_object);
 
-  auto vertical_blur_object =
-      std::make_shared<RenderableObject>(small_window, vertical_blur_shader);
+  auto vertical_blur_object = std::make_shared<RenderableObject>(
+      small_window, vertical_blur_shader);
   vertical_blur_object->AddTag(vertical_blur_tag);
   vertical_blur_object->SetParameterCallback(
       [h_blur_tex](ShaderParameterContainer &p) {
@@ -766,8 +778,8 @@ void GraphicsClass::SetupRenderGraph() {
       });
   renderable_objects_.push_back(vertical_blur_object);
 
-  auto up_sample_object =
-      std::make_shared<RenderableObject>(fullscreen_window, texture_shader);
+  auto up_sample_object = std::make_shared<RenderableObject>(
+      fullscreen_window, texture_shader);
   up_sample_object->AddTag(up_sample_tag);
   up_sample_object->SetParameterCallback(
       [v_blur_tex](ShaderParameterContainer &p) {
@@ -787,7 +799,6 @@ void GraphicsClass::SetupRenderGraph() {
       });
   renderable_objects_.push_back(ground_object);
 
-  // Add dynamic cubes
   for (int i = 0; i < 5; i++) {
     float xPos = -6.5f + i * 3;
     float yPos = 5.5f + i * 1;
@@ -809,7 +820,6 @@ void GraphicsClass::SetupRenderGraph() {
     renderable_objects_.push_back(cube_obj);
   }
 
-  // Compile the graph
   if (!render_graph_.Compile()) {
     cerr << "Failed to compile RenderGraph!" << endl;
   }

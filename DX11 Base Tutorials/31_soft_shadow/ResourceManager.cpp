@@ -51,7 +51,7 @@ void ResourceManager::Shutdown() {
   texture_cache_.clear();
   tga_texture_cache_.clear();
   shader_cache_.clear();
-  rtt_cache_.clear();
+  render_texture_cache_.clear();
   ortho_window_cache_.clear();
 
   device_ = nullptr;
@@ -229,7 +229,7 @@ ResourceManager::CreateRenderTexture(const std::string &name, int width,
   }
 
   // Cache it for later retrieval
-  rtt_cache_[name] = renderTexture;
+  render_texture_cache_[name] = renderTexture;
 
   cout << "Created RenderTexture: " << name << " (" << width << "x" << height
        << ")" << endl;
@@ -240,8 +240,8 @@ std::shared_ptr<RenderTexture>
 ResourceManager::GetRenderTexture(const std::string &name) const {
   lock_guard<mutex> lock(cache_mutex_);
 
-  auto it = rtt_cache_.find(name);
-  if (it != rtt_cache_.end()) {
+  auto it = render_texture_cache_.find(name);
+  if (it != render_texture_cache_.end()) {
     return it->second;
   }
 
@@ -277,7 +277,7 @@ void ResourceManager::LogResourceStats() const {
   cout << "Textures cached: " << texture_cache_.size() << endl;
   cout << "TGA Textures cached: " << tga_texture_cache_.size() << endl;
   cout << "Shaders cached: " << shader_cache_.size() << endl;
-  cout << "RenderTextures cached: " << rtt_cache_.size() << endl;
+  cout << "RenderTextures cached: " << render_texture_cache_.size() << endl;
   cout << "OrthoWindows cached: " << ortho_window_cache_.size() << endl;
   cout << "==================================\n" << endl;
 }
@@ -309,7 +309,7 @@ void ResourceManager::ClearAllCaches() {
   texture_cache_.clear();
   tga_texture_cache_.clear();
   shader_cache_.clear();
-  rtt_cache_.clear();
+  render_texture_cache_.clear();
   ortho_window_cache_.clear();
   cout << "All caches cleared" << endl;
 }
@@ -360,8 +360,8 @@ int ResourceManager::GetTextureRefCount(const std::wstring &path) const {
 
 int ResourceManager::GetRenderTextureRefCount(const std::string &name) const {
   lock_guard<mutex> lock(cache_mutex_);
-  auto it = rtt_cache_.find(name);
-  if (it != rtt_cache_.end()) {
+  auto it = render_texture_cache_.find(name);
+  if (it != render_texture_cache_.end()) {
     return static_cast<int>(it->second.use_count());
   }
   return 0;
@@ -393,7 +393,7 @@ std::vector<std::string> ResourceManager::GetUnusedShaders() const {
 std::vector<std::string> ResourceManager::GetUnusedRenderTextures() const {
   lock_guard<mutex> lock(cache_mutex_);
   std::vector<std::string> unused;
-  for (const auto &[name, rtt] : rtt_cache_) {
+  for (const auto &[name, rtt] : render_texture_cache_) {
     if (rtt.use_count() == 1) {
       unused.push_back(name);
     }
@@ -445,10 +445,10 @@ size_t ResourceManager::PruneUnusedShaders() {
 size_t ResourceManager::PruneUnusedRenderTextures() {
   lock_guard<mutex> lock(cache_mutex_);
   size_t count = 0;
-  for (auto it = rtt_cache_.begin(); it != rtt_cache_.end();) {
+  for (auto it = render_texture_cache_.begin(); it != render_texture_cache_.end();) {
     if (it->second.use_count() == 1) {
       cout << "Pruning unused RenderTexture: " << it->first << endl;
-      it = rtt_cache_.erase(it);
+      it = render_texture_cache_.erase(it);
       count++;
     } else {
       ++it;
@@ -471,7 +471,7 @@ size_t ResourceManager::PruneAllUnusedResources() {
 size_t ResourceManager::GetTotalCachedResources() const {
   lock_guard<mutex> lock(cache_mutex_);
   return model_cache_.size() + pbr_model_cache_.size() + texture_cache_.size() +
-         tga_texture_cache_.size() + shader_cache_.size() + rtt_cache_.size() +
+         tga_texture_cache_.size() + shader_cache_.size() + render_texture_cache_.size() +
          ortho_window_cache_.size();
 }
 

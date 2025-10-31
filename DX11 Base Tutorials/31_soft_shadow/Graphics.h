@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "../CommonFramework2/Camera.h"
 #include "../CommonFramework2/GraphicsBase.h"
 #include "RenderGraph.h"
@@ -9,6 +11,17 @@
 class Camera;
 class DirectX11Device;
 class StandardRenderGroup;
+class Model;
+class PBRModel;
+class RenderTexture;
+class OrthoWindow;
+class DepthShader;
+class ShadowShader;
+class SoftShadowShader;
+class TextureShader;
+class HorizontalBlurShader;
+class VerticalBlurShader;
+class PbrShader;
 
 class GraphicsClass : public GraphicsBase {
 public:
@@ -43,10 +56,52 @@ public:
   }
 
 private:
+  bool InitializeDevice(int screenWidth, int screenHeight, HWND hwnd);
+
+  bool InitializeCamera();
+
+  bool InitializeLight();
+
+  bool InitializeResources(HWND hwnd);
+
+  bool InitializeRenderingSystem();
+
   void SetupRenderPipeline();
+
   void SetupRenderGraph();
 
 private:
+  struct SceneAssets {
+    std::shared_ptr<Model> cube;
+    std::shared_ptr<Model> sphere;
+    std::shared_ptr<Model> ground;
+    std::shared_ptr<PBRModel> pbr_sphere;
+  };
+
+  struct RenderTargetAssets {
+    std::shared_ptr<RenderTexture> shadow_depth;
+    std::shared_ptr<RenderTexture> shadow_map;
+    std::shared_ptr<RenderTexture> downsampled_shadow;
+    std::shared_ptr<RenderTexture> horizontal_blur;
+    std::shared_ptr<RenderTexture> vertical_blur;
+    std::shared_ptr<RenderTexture> upsampled_shadow;
+  };
+
+  struct ShaderAssets {
+    std::shared_ptr<DepthShader> depth;
+    std::shared_ptr<ShadowShader> shadow;
+    std::shared_ptr<TextureShader> texture;
+    std::shared_ptr<HorizontalBlurShader> horizontal_blur;
+    std::shared_ptr<VerticalBlurShader> vertical_blur;
+    std::shared_ptr<SoftShadowShader> soft_shadow;
+    std::shared_ptr<PbrShader> pbr;
+  };
+
+  struct OrthoWindowAssets {
+    std::shared_ptr<OrthoWindow> small_window;
+    std::shared_ptr<OrthoWindow> fullscreen_window;
+  };
+
   float pos_x_ = 0.0f, pos_y_ = 0.0f, pos_z_ = 0.0f;
 
   float rot_x_ = 0.0f, rot_y_ = 0.0f, rot_z_ = 0.0f;
@@ -57,12 +112,16 @@ private:
 
   std::shared_ptr<StandardRenderGroup> cube_group_;
 
-  // Keep both for comparison/compatibility
+  static constexpr bool use_render_graph_ = true;
+
   RenderPipeline render_pipeline_;
   RenderGraph render_graph_;
 
-  bool use_render_graph_ = true; // Set to true to use RenderGraph
-
   // Renderable objects storage (shared between pipeline and graph)
   std::vector<std::shared_ptr<IRenderable>> renderable_objects_;
+
+  SceneAssets scene_assets_;
+  RenderTargetAssets render_targets_;
+  ShaderAssets shader_assets_;
+  OrthoWindowAssets ortho_windows_;
 };
