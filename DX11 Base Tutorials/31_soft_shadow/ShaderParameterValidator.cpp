@@ -11,8 +11,19 @@ void ShaderParameterValidator::RegisterShader(
   shader_parameters_[shader_name] = parameters;
 }
 
+void ShaderParameterValidator::RegisterGlobalParameter(
+    const std::string &param_name) {
+  global_parameters_.insert(param_name);
+}
+
+bool ShaderParameterValidator::IsGlobalParameter(
+    const std::string &param_name) const {
+  return global_parameters_.find(param_name) != global_parameters_.end();
+}
+
 bool ShaderParameterValidator::ValidateParameter(
-    const std::string &parameter_name, ShaderParameterType expected_type) const {
+    const std::string &parameter_name,
+    ShaderParameterType expected_type) const {
   // 基础验证：检查参数名格式
   if (!RenderGraphNaming::IsValidParameterName(parameter_name)) {
     return false;
@@ -43,9 +54,14 @@ bool ShaderParameterValidator::ValidatePassParameters(
   std::vector<std::string> missing_params;
   std::vector<std::string> invalid_params;
 
-  // 检查必需参数
+  // 检查必需参数（排除全局参数，因为它们会在运行时提供）
   for (const auto &param_info : required_params) {
     if (param_info.required) {
+      // 如果是全局参数，跳过验证（运行时提供）
+      if (IsGlobalParameter(param_info.name)) {
+        continue;
+      }
+      // 检查是否在Pass级别提供了
       if (provided_parameters.find(param_info.name) ==
           provided_parameters.end()) {
         missing_params.push_back(param_info.name);
@@ -54,7 +70,17 @@ bool ShaderParameterValidator::ValidatePassParameters(
   }
 
   // 检查未知参数（不在注册列表中的参数）
+  // 注意：排除全局参数和资源名（资源名不符合camelCase命名约定）
   for (const auto &provided : provided_parameters) {
+    // 跳过全局参数
+    if (IsGlobalParameter(provided)) {
+      continue;
+    }
+    // 跳过资源名（不符合camelCase命名约定，如"DepthMap"）
+    if (!RenderGraphNaming::IsValidParameterName(provided)) {
+      continue; // 这是资源名，不是参数名
+    }
+
     bool found = false;
     for (const auto &param_info : required_params) {
       if (param_info.name == provided) {
@@ -73,8 +99,8 @@ bool ShaderParameterValidator::ValidatePassParameters(
 
   if (has_errors || has_warnings) {
     std::ostringstream oss;
-    oss << "[ShaderParameterValidator] Pass \"" << pass_name
-        << "\" (Shader: \"" << shader_name << "\"):\n";
+    oss << "[ShaderParameterValidator] Pass \"" << pass_name << "\" (Shader: \""
+        << shader_name << "\"):\n";
 
     if (has_errors) {
       oss << "  Missing required parameters: ";
@@ -120,10 +146,15 @@ std::vector<std::string> ShaderParameterValidator::GetMissingParameters(
   }
 
   for (const auto &param_info : it->second) {
-    if (param_info.required &&
-        provided_parameters.find(param_info.name) ==
-            provided_parameters.end()) {
-      missing.push_back(param_info.name);
+    if (param_info.required) {
+      // 跳过全局参数（运行时提供）
+      if (IsGlobalParameter(param_info.name)) {
+        continue;
+      }
+      if (provided_parameters.find(param_info.name) ==
+          provided_parameters.end()) {
+        missing.push_back(param_info.name);
+      }
     }
   }
 
@@ -160,8 +191,7 @@ bool ShaderParameterValidator::IsShaderRegistered(
   return shader_parameters_.find(shader_name) != shader_parameters_.end();
 }
 
-std::vector<ShaderParameterInfo>
-ShaderParameterValidator::GetShaderParameters(
+std::vector<ShaderParameterInfo> ShaderParameterValidator::GetShaderParameters(
     const std::string &shader_name) const {
   auto it = shader_parameters_.find(shader_name);
   if (it != shader_parameters_.end()) {
@@ -170,7 +200,10 @@ ShaderParameterValidator::GetShaderParameters(
   return {};
 }
 
-void ShaderParameterValidator::Clear() { shader_parameters_.clear(); }
+void ShaderParameterValidator::Clear() {
+  shader_parameters_.clear();
+  global_parameters_.clear();
+}
 
 // 命名约定辅助函数实现
 namespace RenderGraphNaming {
@@ -191,8 +224,7 @@ std::string
 ResourceNameToTextureParameterName(const std::string &resource_name) {
   std::string base = ResourceNameToParameterName(resource_name);
   // 如果已经有Texture后缀，不重复添加
-  if (base.size() >= 7 &&
-      base.substr(base.size() - 7) == "Texture") {
+  if (base.size() >= 7 && base.substr(base.size() - 7) == "Texture") {
     return base;
   }
   return base + "Texture";
@@ -235,4 +267,3 @@ bool IsValidResourceName(const std::string &name) {
 }
 
 } // namespace RenderGraphNaming
-

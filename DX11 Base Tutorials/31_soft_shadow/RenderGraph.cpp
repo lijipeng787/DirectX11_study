@@ -19,6 +19,7 @@
 // !do not remove these includes
 
 #include <algorithm>
+#include <cctype>
 #include <iostream>
 #include <typeinfo>
 
@@ -162,7 +163,7 @@ void RenderGraphPass::Execute(
       }
       if (!draw)
         continue;
-      
+
       // Build object-specific parameters:
       // 1. Copy merged pass/global parameters
       // 2. Add world matrix (per-object)
@@ -424,23 +425,41 @@ bool RenderGraph::ValidatePassParameters(
   }
 
   // Collect all parameter names from pass
+  // Note: Only parameters explicitly set via SetParameter/SetTexture are
+  // validated Input textures (from Read()) are resources, not parameters by
+  // themselves
   std::unordered_set<std::string> provided_params;
 
-  // Add pass parameters
+  // Add pass parameters (set via SetParameter/SetTexture in builder)
   auto pass_param_names = pass->pass_parameters_->GetAllParameterNames();
   for (const auto &name : pass_param_names) {
     provided_params.insert(name);
   }
 
-  // Add input texture parameters
-  for (const auto &[name, texture] : pass->input_textures_) {
-    provided_params.insert(name);
+  // Note: input_textures_ contains resource names as keys, not parameter names
+  // They are only used for binding textures in MergeParameters()
+  // Actual parameter names come from pass_parameters_ (set via SetTexture)
+
+  // Get shader name from type
+  // Extract clean class name from typeid (handles MSVC/GCC name mangling)
+  std::string shader_name = typeid(*pass->shader_).name();
+
+  // MSVC: Remove "class " prefix if present
+  if (shader_name.find("class ") == 0) {
+    shader_name = shader_name.substr(6);
+  }
+  // GCC/Clang: Handle name mangling (starts with length prefix)
+  else if (shader_name.length() > 0 && std::isdigit(shader_name[0])) {
+    // Skip length prefix in mangled name (e.g., "13DepthShader" ->
+    // "DepthShader")
+    size_t i = 0;
+    while (i < shader_name.length() && std::isdigit(shader_name[i])) {
+      i++;
+    }
+    shader_name = shader_name.substr(i);
   }
 
-  // Get shader name from type (simplified approach)
-  // In a more sophisticated system, shaders would have GetName() method
-  std::string shader_name = typeid(*pass->shader_).name();
-  // Remove class prefix if present (e.g., "class " or "struct ")
+  // Remove any remaining prefixes/suffixes that might exist
   size_t pos = shader_name.find_last_of(" ");
   if (pos != std::string::npos) {
     shader_name = shader_name.substr(pos + 1);

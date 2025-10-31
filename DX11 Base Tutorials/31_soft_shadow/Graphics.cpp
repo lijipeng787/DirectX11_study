@@ -5,6 +5,7 @@
 
 #include "RenderableObject.h"
 #include "ResourceManager.h"
+#include "ShaderParameterValidator.h"
 #include "StandardRenderGroup.h"
 #include "depthshader.h"
 #include "horizontalblurshader.h"
@@ -613,6 +614,11 @@ bool GraphicsClass::SetupRenderGraph() {
   // Initialize RenderGraph
   render_graph_.Initialize(device, context);
 
+  // Setup parameter validation system
+  RegisterShaderParameters();
+  render_graph_.SetParameterValidator(&parameter_validator_);
+  render_graph_.EnableParameterValidation(true);
+
   // Setup render passes
   SetupRenderPasses();
 
@@ -863,6 +869,103 @@ void GraphicsClass::SetupRenderableObjects() {
     cube_group_->AddRenderable(cube_obj);
     renderable_objects_.push_back(cube_obj);
   }
+}
+
+void GraphicsClass::RegisterShaderParameters() {
+  // Set validation mode to Warning (report issues but don't block execution)
+  parameter_validator_.SetValidationMode(ValidationMode::Warning);
+
+  // Register global parameters (provided at runtime by Render() or per-object)
+  // These parameters are automatically available to all shaders and don't need
+  // to be set at Pass level
+  parameter_validator_.RegisterGlobalParameter("worldMatrix"); // Set per-object
+  parameter_validator_.RegisterGlobalParameter("viewMatrix");  // From Render()
+  parameter_validator_.RegisterGlobalParameter(
+      "projectionMatrix"); // From Render()
+  parameter_validator_.RegisterGlobalParameter(
+      "baseViewMatrix"); // From Render()
+  parameter_validator_.RegisterGlobalParameter(
+      "deviceWorldMatrix"); // From Render()
+  parameter_validator_.RegisterGlobalParameter(
+      "lightViewMatrix"); // From Render()
+  parameter_validator_.RegisterGlobalParameter(
+      "lightProjectionMatrix"); // From Render()
+  parameter_validator_.RegisterGlobalParameter(
+      "lightPosition"); // From Render()
+  parameter_validator_.RegisterGlobalParameter(
+      "lightDirection"); // From Render()
+  parameter_validator_.RegisterGlobalParameter(
+      "cameraPosition"); // From Render()
+
+  // Register DepthShader parameters
+  parameter_validator_.RegisterShader(
+      "DepthShader",
+      {{"worldMatrix", ShaderParameterType::Matrix, true},
+       {"lightViewMatrix", ShaderParameterType::Matrix, true},
+       {"lightProjectionMatrix", ShaderParameterType::Matrix, true}});
+
+  // Register ShadowShader parameters
+  parameter_validator_.RegisterShader(
+      "ShadowShader",
+      {{"worldMatrix", ShaderParameterType::Matrix, true},
+       {"viewMatrix", ShaderParameterType::Matrix, true},
+       {"projectionMatrix", ShaderParameterType::Matrix, true},
+       {"lightViewMatrix", ShaderParameterType::Matrix, true},
+       {"lightProjectionMatrix", ShaderParameterType::Matrix, true},
+       {"lightPosition", ShaderParameterType::Vector3, true},
+       {"depthMapTexture", ShaderParameterType::Texture, true}});
+
+  // Register SoftShadowShader parameters
+  // Note: "texture" is set via object callbacks, not at Pass level
+  parameter_validator_.RegisterShader(
+      "SoftShadowShader",
+      {{"worldMatrix", ShaderParameterType::Matrix, true},
+       {"viewMatrix", ShaderParameterType::Matrix, true},
+       {"projectionMatrix", ShaderParameterType::Matrix, true},
+       {"texture", ShaderParameterType::Texture, false}, // Set via callback
+       {"shadowTexture", ShaderParameterType::Texture, true},
+       {"ambientColor", ShaderParameterType::Vector4, true},
+       {"diffuseColor", ShaderParameterType::Vector4, true},
+       {"lightPosition", ShaderParameterType::Vector3, true}});
+
+  // Register PbrShader parameters
+  parameter_validator_.RegisterShader(
+      "PbrShader", {{"worldMatrix", ShaderParameterType::Matrix, true},
+                    {"viewMatrix", ShaderParameterType::Matrix, true},
+                    {"projectionMatrix", ShaderParameterType::Matrix, true},
+                    {"diffuseTexture", ShaderParameterType::Texture, true},
+                    {"normalMap", ShaderParameterType::Texture, true},
+                    {"rmTexture", ShaderParameterType::Texture, true},
+                    {"lightDirection", ShaderParameterType::Vector3, true},
+                    {"cameraPosition", ShaderParameterType::Vector3, true}});
+
+  // Register TextureShader parameters
+  parameter_validator_.RegisterShader(
+      "TextureShader",
+      {{"deviceWorldMatrix", ShaderParameterType::Matrix, true},
+       {"baseViewMatrix", ShaderParameterType::Matrix, true},
+       {"orthoMatrix", ShaderParameterType::Matrix, true},
+       {"texture", ShaderParameterType::Texture, true}});
+
+  // Register HorizontalBlurShader parameters
+  parameter_validator_.RegisterShader(
+      "HorizontalBlurShader",
+      {{"worldMatrix", ShaderParameterType::Matrix, true},
+       {"baseViewMatrix", ShaderParameterType::Matrix, true},
+       {"orthoMatrix", ShaderParameterType::Matrix, true},
+       {"screenWidth", ShaderParameterType::Float, true},
+       {"texture", ShaderParameterType::Texture, true}});
+
+  // Register VerticalBlurShader parameters
+  parameter_validator_.RegisterShader(
+      "VerticalBlurShader",
+      {{"worldMatrix", ShaderParameterType::Matrix, true},
+       {"baseViewMatrix", ShaderParameterType::Matrix, true},
+       {"orthoMatrix", ShaderParameterType::Matrix, true},
+       {"screenHeight", ShaderParameterType::Float, true},
+       {"texture", ShaderParameterType::Texture, true}});
+
+  cout << "[Graphics] Registered shader parameters for validation" << endl;
 }
 
 void GraphicsClass::Render() {

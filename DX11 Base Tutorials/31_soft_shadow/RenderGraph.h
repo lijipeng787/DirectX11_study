@@ -63,8 +63,8 @@ private:
 
   // Merge parameters in priority order: pass -> global -> input textures
   // Returns merged parameter container ready for object-level customization
-  ShaderParameterContainer MergeParameters(
-      const ShaderParameterContainer &global_params) const;
+  ShaderParameterContainer
+  MergeParameters(const ShaderParameterContainer &global_params) const;
 
   std::string name_;
   std::shared_ptr<IShader> shader_;

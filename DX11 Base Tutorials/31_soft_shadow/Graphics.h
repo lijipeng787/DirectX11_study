@@ -6,6 +6,7 @@
 #include "../CommonFramework2/GraphicsBase.h"
 #include "RenderGraph.h"
 #include "RenderPipeline.h"
+#include "ShaderParameterValidator.h"
 #include "light.h"
 
 class Camera;
@@ -75,6 +76,8 @@ private:
 
   void SetupRenderableObjects();
 
+  void RegisterShaderParameters();
+
 private:
   struct SceneAssets {
     std::shared_ptr<Model> cube;
@@ -121,6 +124,9 @@ private:
 
   RenderPipeline render_pipeline_;
   RenderGraph render_graph_;
+
+  // Parameter validation system
+  ShaderParameterValidator parameter_validator_;
 
   // Renderable objects storage (shared between pipeline and graph)
   std::vector<std::shared_ptr<IRenderable>> renderable_objects_;
