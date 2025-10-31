@@ -88,6 +88,16 @@ public:
     return parameters_.find(name) != parameters_.end();
   }
 
+  // Get all parameter names (for validation)
+  std::vector<std::string> GetAllParameterNames() const {
+    std::vector<std::string> names;
+    names.reserve(parameters_.size());
+    for (const auto &kv : parameters_) {
+      names.push_back(kv.first);
+    }
+    return names;
+  }
+
 private:
   std::unordered_map<std::string, std::any> parameters_;
 };

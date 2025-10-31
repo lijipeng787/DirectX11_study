@@ -55,7 +55,7 @@ bool System::Frame() {
 
   auto result = SystemBase::Frame();
   if (result == false) {
-      return false;
+    return false;
   }
 
   result = GetInputComponent().Frame();
@@ -124,15 +124,15 @@ bool System::HandleInput(float frameTime) {
 
 void System::Shutdown() {
   if (graphics_) {
-    graphics_->Shutdown();  
+    graphics_->Shutdown();
     graphics_.reset();
   }
 
   if (position_) {
     position_.reset();
   }
-  
-  SystemBase::Shutdown(); 
+
+  SystemBase::Shutdown();
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam,

@@ -6,6 +6,7 @@
 #include "RenderTexture.h"
 #include "ResourceManager.h"
 #include "ShaderParameterContainer.h"
+#include "ShaderParameterValidator.h"
 
 // do not remove these includes
 #include "depthshader.h"
@@ -19,6 +20,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <typeinfo>
 
 using namespace std;
 
@@ -101,6 +103,20 @@ RenderGraphPassBuilder RenderGraphPass::GetBuilder() {
   return RenderGraphPassBuilder(this);
 }
 
+ShaderParameterContainer RenderGraphPass::MergeParameters(
+    const ShaderParameterContainer &global_params) const {
+  // Merge parameters in priority order (later merges override earlier ones):
+  // 1. Start with pass-specific parameters (lowest priority)
+  // 2. Merge global parameters (override pass parameters)
+  // 3. Bind input textures (override any conflicting parameters)
+  ShaderParameterContainer merged = *pass_parameters_;
+  merged.Merge(global_params);
+  for (const auto &[param_name, texture] : input_textures_) {
+    merged.SetTexture(param_name, texture->GetShaderResourceView());
+  }
+  return merged;
+}
+
 void RenderGraphPass::Execute(
     std::vector<std::shared_ptr<IRenderable>> &renderables,
     const ShaderParameterContainer &global_params,
@@ -116,11 +132,8 @@ void RenderGraphPass::Execute(
       back_buffer_depth_cleared = true; // depth cleared by BeginScene.
   }
 
-  ShaderParameterContainer merged =
-      *pass_parameters_; // pass first, then global override.
-  merged.Merge(global_params);
-  for (auto &kv : input_textures_)
-    merged.SetTexture(kv.first, kv.second->GetShaderResourceView());
+  // Merge pass, global, and input texture parameters
+  ShaderParameterContainer merged = MergeParameters(global_params);
 
   if (disable_z_buffer_)
     DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOff();
@@ -149,10 +162,16 @@ void RenderGraphPass::Execute(
       }
       if (!draw)
         continue;
+      
+      // Build object-specific parameters:
+      // 1. Copy merged pass/global parameters
+      // 2. Add world matrix (per-object)
+      // 3. Apply object callback (highest priority, can override anything)
       ShaderParameterContainer objParams = merged;
       objParams.Set("worldMatrix", r->GetWorldMatrix());
-      if (auto cb = r->GetParameterCallback())
+      if (auto cb = r->GetParameterCallback()) {
         cb(objParams);
+      }
       r->Render(*shader_, objParams, device_context);
     }
   }
@@ -224,6 +243,19 @@ bool RenderGraph::Compile() {
       pass->output_texture_ = it->second.texture;
     }
   }
+
+  // Validate parameters if enabled
+  if (enable_parameter_validation_ && parameter_validator_) {
+    for (auto &pass : sorted_passes_) {
+      if (!ValidatePassParameters(pass)) {
+        std::cerr << "RenderGraph Compile Error: parameter validation failed "
+                     "for pass "
+                  << pass->GetName() << std::endl;
+        return false;
+      }
+    }
+  }
+
   compiled_ = true;
   return true;
 }
@@ -383,6 +415,41 @@ void RenderGraph::PrintGraph() const {
       std::cout << "  * " << u << std::endl;
   }
   std::cout << "==========================\n" << std::endl;
+}
+
+bool RenderGraph::ValidatePassParameters(
+    std::shared_ptr<RenderGraphPass> &pass) const {
+  if (!parameter_validator_ || !pass->shader_) {
+    return true; // Skip validation if no validator or no shader
+  }
+
+  // Collect all parameter names from pass
+  std::unordered_set<std::string> provided_params;
+
+  // Add pass parameters
+  auto pass_param_names = pass->pass_parameters_->GetAllParameterNames();
+  for (const auto &name : pass_param_names) {
+    provided_params.insert(name);
+  }
+
+  // Add input texture parameters
+  for (const auto &[name, texture] : pass->input_textures_) {
+    provided_params.insert(name);
+  }
+
+  // Get shader name from type (simplified approach)
+  // In a more sophisticated system, shaders would have GetName() method
+  std::string shader_name = typeid(*pass->shader_).name();
+  // Remove class prefix if present (e.g., "class " or "struct ")
+  size_t pos = shader_name.find_last_of(" ");
+  if (pos != std::string::npos) {
+    shader_name = shader_name.substr(pos + 1);
+  }
+
+  // Validate parameters
+  return parameter_validator_->ValidatePassParameters(
+      pass->GetName(), shader_name, provided_params,
+      parameter_validator_->GetValidationMode());
 }
 
 void RenderGraph::AllocateResources() { /* simplified - allocation handled

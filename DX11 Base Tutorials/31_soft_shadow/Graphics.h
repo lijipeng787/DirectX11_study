@@ -117,7 +117,7 @@ private:
 
   std::shared_ptr<StandardRenderGroup> cube_group_;
 
-  static constexpr bool use_render_graph_ = false;
+  static constexpr bool use_render_graph_ = true;
 
   RenderPipeline render_pipeline_;
   RenderGraph render_graph_;

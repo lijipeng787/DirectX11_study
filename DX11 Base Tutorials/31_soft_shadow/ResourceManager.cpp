@@ -445,7 +445,8 @@ size_t ResourceManager::PruneUnusedShaders() {
 size_t ResourceManager::PruneUnusedRenderTextures() {
   lock_guard<mutex> lock(cache_mutex_);
   size_t count = 0;
-  for (auto it = render_texture_cache_.begin(); it != render_texture_cache_.end();) {
+  for (auto it = render_texture_cache_.begin();
+       it != render_texture_cache_.end();) {
     if (it->second.use_count() == 1) {
       cout << "Pruning unused RenderTexture: " << it->first << endl;
       it = render_texture_cache_.erase(it);
@@ -471,8 +472,8 @@ size_t ResourceManager::PruneAllUnusedResources() {
 size_t ResourceManager::GetTotalCachedResources() const {
   lock_guard<mutex> lock(cache_mutex_);
   return model_cache_.size() + pbr_model_cache_.size() + texture_cache_.size() +
-         tga_texture_cache_.size() + shader_cache_.size() + render_texture_cache_.size() +
-         ortho_window_cache_.size();
+         tga_texture_cache_.size() + shader_cache_.size() +
+         render_texture_cache_.size() + ortho_window_cache_.size();
 }
 
 // Explicit template instantiations

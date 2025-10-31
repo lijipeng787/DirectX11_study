@@ -24,6 +24,7 @@
     <ClCompile Include="ShaderBase.cpp" />
     <ClCompile Include="RenderGraph.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="ShaderParameterValidator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="depthshader.h" />
@@ -56,6 +57,7 @@
     <ClInclude Include="RenderGraph.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="RenderConfig.h" />
+    <ClInclude Include="ShaderParameterValidator.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.ps" />

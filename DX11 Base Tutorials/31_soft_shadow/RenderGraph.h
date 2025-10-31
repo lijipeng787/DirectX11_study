@@ -6,12 +6,14 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 class RenderTexture;
 class IShader;
 class IRenderable;
 class ShaderParameterContainer;
+class ShaderParameterValidator;
 
 // Minimal resource record used by current implementation.
 struct GraphResource {
@@ -58,6 +60,11 @@ public:
 private:
   friend class RenderGraphPassBuilder;
   friend class RenderGraph;
+
+  // Merge parameters in priority order: pass -> global -> input textures
+  // Returns merged parameter container ready for object-level customization
+  ShaderParameterContainer MergeParameters(
+      const ShaderParameterContainer &global_params) const;
 
   std::string name_;
   std::shared_ptr<IShader> shader_;
@@ -114,12 +121,26 @@ public:
   std::shared_ptr<RenderTexture> GetTexture(const std::string &name) const;
   void Clear();
   void PrintGraph() const; // Detailed debug: resources, passes, bindings.
+
+  // Parameter validation
+  void SetParameterValidator(ShaderParameterValidator *validator) {
+    parameter_validator_ = validator;
+  }
+  void EnableParameterValidation(bool enable) {
+    enable_parameter_validation_ = enable;
+  }
+
 private:
   void AllocateResources();
+  bool ValidatePassParameters(std::shared_ptr<RenderGraphPass> &pass) const;
   ID3D11Device *device_ = nullptr;
   ID3D11DeviceContext *context_ = nullptr;
   std::unordered_map<std::string, GraphResource> resources_;
   std::vector<std::shared_ptr<RenderGraphPass>> passes_;
   std::vector<std::shared_ptr<RenderGraphPass>> sorted_passes_;
   bool compiled_ = false;
+
+  // Parameter validation
+  ShaderParameterValidator *parameter_validator_ = nullptr;
+  bool enable_parameter_validation_ = true;
 };

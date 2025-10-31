@@ -13,7 +13,7 @@ void LogShaderError(const std::wstring &message) {
 void LogShaderError(const std::string &message) {
   std::cerr << "[ShaderBase] " << message << std::endl;
 }
-}
+} // namespace
 
 bool ShaderBase::Initialize(HWND hwnd, ID3D11Device *device) {
   // To be implemented by derived classes
