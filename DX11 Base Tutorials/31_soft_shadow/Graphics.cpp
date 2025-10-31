@@ -664,14 +664,14 @@ void GraphicsClass::SetupRenderPasses() {
       .Write("DepthMap")
       .AddRenderTag(write_depth_tag);
 
-  // Pass 2: Shadow Pass (standard execution, bind depth map as parameter)
+  // Pass 2: Shadow Pass (standard execution, auto-bind depth map as parameter)
   const auto &shadow_shader = shader_assets_.shadow;
   render_graph_.AddPass("ShadowPass")
       .SetShader(shadow_shader)
-      .Read("DepthMap")
+      .ReadAsParameter("DepthMap",
+                       "depthMapTexture") // Auto-bind resource to parameter
       .Write("ShadowMap")
-      .AddRenderTag(write_shadow_tag)
-      .SetTexture("depthMapTexture", depth_tex->GetShaderResourceView());
+      .AddRenderTag(write_shadow_tag);
 
   // Pass 3: Downsample
   XMMATRIX orthoMatrix;
@@ -680,12 +680,12 @@ void GraphicsClass::SetupRenderPasses() {
   const auto &texture_shader = shader_assets_.texture;
   render_graph_.AddPass("DownsamplePass")
       .SetShader(texture_shader)
-      .Read("ShadowMap")
+      .ReadAsParameter("ShadowMap",
+                       "texture") // Auto-bind: ShadowMap -> texture
       .Write("DownsampledShadow")
       .AddRenderTag(down_sample_tag)
       .DisableZBuffer(true)
-      .SetParameter("orthoMatrix", orthoMatrix)
-      .SetTexture("texture", shadow_tex->GetShaderResourceView());
+      .SetParameter("orthoMatrix", orthoMatrix);
 
   // Pass 4: Horizontal Blur
   h_blur_tex->GetOrthoMatrix(orthoMatrix);
@@ -693,13 +693,12 @@ void GraphicsClass::SetupRenderPasses() {
   const auto &horizontal_blur_shader = shader_assets_.horizontal_blur;
   render_graph_.AddPass("HorizontalBlurPass")
       .SetShader(horizontal_blur_shader)
-      .Read("DownsampledShadow")
+      .ReadAsParameter("DownsampledShadow", "texture") // Auto-bind resource
       .Write("HorizontalBlur")
       .AddRenderTag(horizontal_blur_tag)
       .DisableZBuffer(true)
       .SetParameter("orthoMatrix", orthoMatrix)
-      .SetParameter("screenWidth", static_cast<float>(downSampleWidth))
-      .SetTexture("texture", downsample_tex->GetShaderResourceView());
+      .SetParameter("screenWidth", static_cast<float>(downSampleWidth));
 
   // Pass 5: Vertical Blur
   v_blur_tex->GetOrthoMatrix(orthoMatrix);
@@ -707,33 +706,30 @@ void GraphicsClass::SetupRenderPasses() {
   const auto &vertical_blur_shader = shader_assets_.vertical_blur;
   render_graph_.AddPass("VerticalBlurPass")
       .SetShader(vertical_blur_shader)
-      .Read("HorizontalBlur")
+      .ReadAsParameter("HorizontalBlur", "texture") // Auto-bind resource
       .Write("VerticalBlur")
       .AddRenderTag(vertical_blur_tag)
       .DisableZBuffer(true)
       .SetParameter("orthoMatrix", orthoMatrix)
-      .SetParameter("screenHeight", static_cast<float>(downSampleHeight))
-      .SetTexture("texture", h_blur_tex->GetShaderResourceView());
+      .SetParameter("screenHeight", static_cast<float>(downSampleHeight));
 
   // Pass 6: Upsample
   upsample_tex->GetOrthoMatrix(orthoMatrix);
 
   render_graph_.AddPass("UpsamplePass")
       .SetShader(texture_shader)
-      .Read("VerticalBlur")
+      .ReadAsParameter("VerticalBlur", "texture") // Auto-bind resource
       .Write("UpsampledShadow")
       .AddRenderTag(up_sample_tag)
       .DisableZBuffer(true)
-      .SetParameter("orthoMatrix", orthoMatrix)
-      .SetTexture("texture", v_blur_tex->GetShaderResourceView());
+      .SetParameter("orthoMatrix", orthoMatrix);
 
   // Pass 7: Final Pass (soft shadow)
   const auto &soft_shadow_shader = shader_assets_.soft_shadow;
   render_graph_.AddPass("FinalPass")
       .SetShader(soft_shadow_shader)
-      .Read("UpsampledShadow")
+      .ReadAsParameter("UpsampledShadow", "shadowTexture") // Auto-bind resource
       .AddRenderTag(final_tag)
-      .SetTexture("shadowTexture", upsample_tex->GetShaderResourceView())
       .SetParameter("diffuseColor", light_->GetDiffuseColor())
       .SetParameter("ambientColor", light_->GetAmbientColor());
 

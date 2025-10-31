@@ -177,7 +177,18 @@ std::vector<std::string> ShaderParameterValidator::GetInvalidParameters(
     registered_names.insert(param_info.name);
   }
 
+  // Check for unknown parameters (consistent with ValidatePassParameters logic)
+  // Exclude global parameters and resource names (not valid parameter names)
   for (const auto &provided : provided_parameters) {
+    // Skip global parameters
+    if (IsGlobalParameter(provided)) {
+      continue;
+    }
+    // Skip resource names (don't match camelCase naming convention)
+    if (!RenderGraphNaming::IsValidParameterName(provided)) {
+      continue; // This is a resource name, not a parameter name
+    }
+
     if (registered_names.find(provided) == registered_names.end()) {
       invalid.push_back(provided);
     }

@@ -72,7 +72,7 @@ private:
   // 全局参数集合（运行时由Render()提供，不需要在Pass中设置）
   std::unordered_set<std::string> global_parameters_;
 
-  ValidationMode validation_mode_ = ValidationMode::Strict;
+  ValidationMode validation_mode_ = ValidationMode::Warning;
 };
 
 // 资源名到参数名的转换辅助函数

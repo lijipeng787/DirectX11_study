@@ -91,6 +91,39 @@ RenderGraphPassBuilder::SetTexture(const std::string &name,
   pass_->pass_parameters_->SetTexture(name, srv);
   return *this;
 }
+RenderGraphPassBuilder &
+RenderGraphPassBuilder::ReadAsParameter(const std::string &resource_name,
+                                        const std::string &param_name) {
+  // Add resource dependency
+  pass_->input_resources_.push_back(resource_name);
+
+  // Determine parameter name
+  std::string final_param_name;
+  if (!param_name.empty()) {
+    // Use explicitly provided parameter name
+    final_param_name = param_name;
+  } else {
+    // Use default conversion: ResourceName -> resourceNameTexture
+    // Convert PascalCase resource name to camelCase parameter name with Texture
+    // suffix
+    final_param_name = resource_name;
+    if (!final_param_name.empty()) {
+      // Convert first letter to lowercase
+      final_param_name[0] =
+          static_cast<char>(std::tolower(final_param_name[0]));
+      // Add Texture suffix if not already present
+      if (final_param_name.size() < 7 ||
+          final_param_name.substr(final_param_name.size() - 7) != "Texture") {
+        final_param_name += "Texture";
+      }
+    }
+  }
+
+  // Store mapping for automatic binding during Compile()
+  pass_->resource_to_param_mapping_[resource_name] = final_param_name;
+
+  return *this;
+}
 RenderGraphPassBuilder &RenderGraphPassBuilder::Execute(ExecuteFunc func) {
   pass_->custom_execute_ = func;
   return *this;
@@ -108,13 +141,16 @@ ShaderParameterContainer RenderGraphPass::MergeParameters(
     const ShaderParameterContainer &global_params) const {
   // Merge parameters in priority order (later merges override earlier ones):
   // 1. Start with pass-specific parameters (lowest priority)
+  //    - Includes manually set parameters via SetParameter/SetTexture
+  //    - Includes auto-bound parameters from ReadAsParameter()
   // 2. Merge global parameters (override pass parameters)
-  // 3. Bind input textures (override any conflicting parameters)
+  // 3. Note: input_textures_ is now only used for resource dependency tracking
+  //    Actual parameter binding happens via pass_parameters_ (set during
+  //    Compile)
   ShaderParameterContainer merged = *pass_parameters_;
   merged.Merge(global_params);
-  for (const auto &[param_name, texture] : input_textures_) {
-    merged.SetTexture(param_name, texture->GetShaderResourceView());
-  }
+  // Note: input_textures_ binding is now handled via pass_parameters_ during
+  // Compile() so we don't need to bind them here again
   return merged;
 }
 
@@ -222,7 +258,7 @@ RenderGraphPassBuilder RenderGraph::AddPass(const std::string &name) {
 bool RenderGraph::Compile() {
   // Simple: execution order == declaration order.
   sorted_passes_ = passes_;
-  // Resolve resources.
+  // Resolve resources and automatically bind to parameters if mapped.
   for (auto &pass : sorted_passes_) {
     for (auto &in : pass->input_resources_) {
       auto it = resources_.find(in);
@@ -232,6 +268,14 @@ bool RenderGraph::Compile() {
         return false;
       }
       pass->input_textures_[in] = it->second.texture;
+
+      // Automatically bind resource to parameter if mapping exists
+      auto mapping_it = pass->resource_to_param_mapping_.find(in);
+      if (mapping_it != pass->resource_to_param_mapping_.end()) {
+        const std::string &param_name = mapping_it->second;
+        pass->pass_parameters_->SetTexture(
+            param_name, it->second.texture->GetShaderResourceView());
+      }
     }
     if (!pass->output_resource_.empty()) {
       auto it = resources_.find(pass->output_resource_);

@@ -80,6 +80,11 @@ private:
   std::unordered_map<std::string, std::shared_ptr<RenderTexture>>
       input_textures_;
   std::shared_ptr<RenderTexture> output_texture_;
+
+  // Resource name to parameter name mapping for automatic binding
+  // Maps resource names (e.g., "DepthMap") to parameter names (e.g.,
+  // "depthMapTexture")
+  std::unordered_map<std::string, std::string> resource_to_param_mapping_;
 };
 
 class RenderGraphPassBuilder {
@@ -99,6 +104,11 @@ public:
                                        const DirectX::XMFLOAT4 &value);
   RenderGraphPassBuilder &SetTexture(const std::string &name,
                                      ID3D11ShaderResourceView *srv);
+  // Read resource and automatically bind it to a shader parameter
+  // If param_name is empty, uses default conversion: ResourceName ->
+  // resourceNameTexture
+  RenderGraphPassBuilder &ReadAsParameter(const std::string &resource_name,
+                                          const std::string &param_name = "");
   using ExecuteFunc = std::function<void(RenderPassContext &)>;
   RenderGraphPassBuilder &Execute(ExecuteFunc func);
 
