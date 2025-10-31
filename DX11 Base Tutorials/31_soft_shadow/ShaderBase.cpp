@@ -3,6 +3,17 @@
 #include "../CommonFramework2/DirectX11Device.h"
 #include <d3dcompiler.h>
 #include <fstream>
+#include <iostream>
+
+namespace {
+void LogShaderError(const std::wstring &message) {
+  std::wcerr << L"[ShaderBase] " << message << std::endl;
+}
+
+void LogShaderError(const std::string &message) {
+  std::cerr << "[ShaderBase] " << message << std::endl;
+}
+}
 
 bool ShaderBase::Initialize(HWND hwnd, ID3D11Device *device) {
   // To be implemented by derived classes
@@ -36,7 +47,7 @@ bool ShaderBase::InitializeShaderFromFile(
     if (errorMessage) {
       OutputShaderErrorMessage(errorMessage.Get(), hwnd, vsFilename);
     } else {
-      MessageBox(hwnd, vsFilename.c_str(), L"Missing Shader File", MB_OK);
+      LogShaderError(std::wstring(L"Missing shader file: ") + vsFilename);
     }
     return false;
   }
@@ -50,7 +61,7 @@ bool ShaderBase::InitializeShaderFromFile(
     if (errorMessage) {
       OutputShaderErrorMessage(errorMessage.Get(), hwnd, psFilename);
     } else {
-      MessageBox(hwnd, psFilename.c_str(), L"Missing Shader File", MB_OK);
+      LogShaderError(std::wstring(L"Missing shader file: ") + psFilename);
     }
     return false;
   }
@@ -115,6 +126,7 @@ bool ShaderBase::CreateSamplerState(ID3D11SamplerState **samplerState,
 
 void ShaderBase::OutputShaderErrorMessage(ID3D10Blob *errorMessage, HWND hwnd,
                                           const std::wstring &shaderFilename) {
+  (void)hwnd;
   char *compileErrors = static_cast<char *>(errorMessage->GetBufferPointer());
   SIZE_T bufferSize = errorMessage->GetBufferSize();
 
@@ -124,9 +136,8 @@ void ShaderBase::OutputShaderErrorMessage(ID3D10Blob *errorMessage, HWND hwnd,
   }
   fout.close();
 
-  MessageBox(hwnd,
-             L"Error compiling shader. Check shader-error.txt for message.",
-             shaderFilename.c_str(), MB_OK);
+  LogShaderError("Error compiling shader. Check shader-error.txt for message.");
+  LogShaderError(std::string(shaderFilename.begin(), shaderFilename.end()));
 }
 
 bool BlurShaderBase::InitializeBlurShader(HWND hwnd,

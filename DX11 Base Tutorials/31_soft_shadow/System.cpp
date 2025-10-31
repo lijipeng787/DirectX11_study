@@ -12,7 +12,10 @@ bool System::Initialize() {
 
   SetWindProc(WndProc);
 
-  SystemBase::Initialize();
+  auto result = SystemBase::Initialize();
+  if (!result) {
+    return false;
+  }
 
   // 将System实例指针存储到窗口的用户数据中
   // 这样WndProc可以通过窗口句柄获取System实例，而不需要全局变量
@@ -50,9 +53,12 @@ bool System::Initialize() {
 
 bool System::Frame() {
 
-  SystemBase::Frame();
+  auto result = SystemBase::Frame();
+  if (result == false) {
+      return false;
+  }
 
-  auto result = GetInputComponent().Frame();
+  result = GetInputComponent().Frame();
   if (result == false) {
     return false;
   }
@@ -79,9 +85,6 @@ bool System::Frame() {
   graphics_->Frame(delta_time);
 
   graphics_->Render();
-  if (!result) {
-    return false;
-  }
 
   return true;
 }
@@ -119,7 +122,18 @@ bool System::HandleInput(float frameTime) {
   return true;
 }
 
-void System::Shutdown() { SystemBase::Shutdown(); }
+void System::Shutdown() {
+  if (graphics_) {
+    graphics_->Shutdown();  
+    graphics_.reset();
+  }
+
+  if (position_) {
+    position_.reset();
+  }
+  
+  SystemBase::Shutdown(); 
+}
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam,
                          LPARAM lparam) {

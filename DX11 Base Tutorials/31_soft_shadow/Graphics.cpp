@@ -22,6 +22,16 @@
 using namespace std;
 using namespace DirectX;
 
+namespace {
+void LogError(const std::wstring &message) {
+  std::wcerr << L"[Graphics] " << message << std::endl;
+}
+
+void LogError(const std::string &message) {
+  std::cerr << "[Graphics] " << message << std::endl;
+}
+}
+
 static constexpr auto SHADOW_MAP_WIDTH = 1024;
 static constexpr auto SHADOW_MAP_HEIGHT = 1024;
 // Set the size to sample down to.
@@ -64,7 +74,7 @@ bool GraphicsClass::InitializeDevice(int screenWidth, int screenHeight,
   if (!(directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED,
                                       hwnd, FULL_SCREEN, SCREEN_DEPTH,
                                       SCREEN_NEAR))) {
-    MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
+    LogError(L"Could not initialize Direct3D.");
     return false;
   }
 
@@ -74,8 +84,7 @@ bool GraphicsClass::InitializeDevice(int screenWidth, int screenHeight,
   auto device_context = directx11_device_->GetDeviceContext();
 
   if (!resource_manager.Initialize(device, device_context, hwnd)) {
-    MessageBox(hwnd, L"Could not initialize ResourceManager.", L"Error",
-               MB_OK);
+    LogError("Could not initialize ResourceManager.");
     return false;
   }
 
@@ -121,10 +130,12 @@ bool GraphicsClass::InitializeResources(HWND hwnd) {
                                                    L"./data/metal001.dds");
 
   if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground) {
-    std::wstring error_msg = L"Could not load models.\n";
-    error_msg += std::wstring(resource_manager.GetLastError().begin(),
-                              resource_manager.GetLastError().end());
-    MessageBox(hwnd, error_msg.c_str(), L"Resource Error", MB_OK);
+    std::wstring error_msg = L"Could not load models.";
+    const auto &last_error = resource_manager.GetLastError();
+    if (!last_error.empty()) {
+      error_msg += L"\n" + std::wstring(last_error.begin(), last_error.end());
+    }
+    LogError(error_msg);
     return false;
   }
 
@@ -133,10 +144,12 @@ bool GraphicsClass::InitializeResources(HWND hwnd) {
       "./data/pbr_normal.tga", "./data/pbr_roughmetal.tga");
 
   if (!scene_assets_.pbr_sphere) {
-    std::wstring error_msg = L"Could not load PBR model.\n";
-    error_msg += std::wstring(resource_manager.GetLastError().begin(),
-                              resource_manager.GetLastError().end());
-    MessageBox(hwnd, error_msg.c_str(), L"Resource Error", MB_OK);
+    std::wstring error_msg = L"Could not load PBR model.";
+    const auto &last_error = resource_manager.GetLastError();
+    if (!last_error.empty()) {
+      error_msg += L"\n" + std::wstring(last_error.begin(), last_error.end());
+    }
+    LogError(error_msg);
     return false;
   }
 
@@ -159,7 +172,7 @@ bool GraphicsClass::InitializeResources(HWND hwnd) {
   if (!render_targets_.shadow_depth || !render_targets_.shadow_map ||
       !render_targets_.downsampled_shadow || !render_targets_.horizontal_blur ||
       !render_targets_.vertical_blur || !render_targets_.upsampled_shadow) {
-    MessageBox(hwnd, L"Could not create render textures.", L"Error", MB_OK);
+    LogError(L"Could not create render textures.");
     return false;
   }
 
@@ -179,7 +192,7 @@ bool GraphicsClass::InitializeResources(HWND hwnd) {
       !shader_assets_.texture || !shader_assets_.horizontal_blur ||
       !shader_assets_.vertical_blur || !shader_assets_.soft_shadow ||
       !shader_assets_.pbr) {
-    MessageBox(hwnd, L"Could not load shaders.", L"Error", MB_OK);
+    LogError(L"Could not load shaders.");
     return false;
   }
 
@@ -191,7 +204,7 @@ bool GraphicsClass::InitializeResources(HWND hwnd) {
       "fullscreen_window", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
 
   if (!ortho_windows_.small_window || !ortho_windows_.fullscreen_window) {
-    MessageBox(hwnd, L"Could not create ortho windows.", L"Error", MB_OK);
+    LogError(L"Could not create ortho windows.");
     return false;
   }
 
@@ -294,9 +307,6 @@ void GraphicsClass::Frame(float deltaTime) {
     cout << "  Total cached: " << resource_manager.GetTotalCachedResources() << endl;
   }
 #endif
-
-  // Render the graphics scene.
-  Render();
 }
 
 static constexpr auto write_depth_tag = "write_depth";

@@ -78,10 +78,6 @@ void SystemBase::Run() {
 
 bool SystemBase::Frame() {
 
-  if (input_->IsKeyDown(VK_ESCAPE)) {
-    return true;
-  }
-
   timer_->Update();
 
   return true;
