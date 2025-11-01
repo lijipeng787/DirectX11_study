@@ -25,6 +25,11 @@ protected:
     float padding;
   };
 
+  struct ShadowControlBufferType {
+    float shadowStrength;
+    DirectX::XMFLOAT3 padding;
+  };
+
   struct ReflectionBufferType {
     DirectX::XMMATRIX reflectionMatrix;
     float reflectionBlend;
@@ -50,7 +55,7 @@ protected:
                            ID3D11ShaderResourceView *shadowTexture,
                            ID3D11ShaderResourceView *reflectionTexture,
                            const DirectX::XMMATRIX &reflectionMatrix,
-                           float reflectionBlend,
+                           float reflectionBlend, float shadowStrength,
                            const DirectX::XMFLOAT3 &lightPosition,
                            const DirectX::XMFLOAT4 &ambientColor,
                            const DirectX::XMFLOAT4 &diffuseColor,
@@ -64,6 +69,8 @@ private:
   Microsoft::WRL::ComPtr<ID3D11Buffer> light_position_buffer_;
 
   Microsoft::WRL::ComPtr<ID3D11Buffer> reflection_buffer_;
+
+  Microsoft::WRL::ComPtr<ID3D11Buffer> shadow_control_buffer_;
 
   Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_state_wrap_;
 

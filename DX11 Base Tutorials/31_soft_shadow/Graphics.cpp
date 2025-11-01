@@ -142,8 +142,8 @@ bool Graphics::InitializeResources(HWND hwnd) {
   scene_assets_.sphere = resource_manager.GetModel(
       "sphere", "./data/sphere.txt", L"./data/ice.dds");
 
-  //scene_assets_.ground = resource_manager.GetModel(
-  //    "ground", "./data/plane01.txt", L"./data/metal001.dds");
+  // scene_assets_.ground = resource_manager.GetModel(
+  //     "ground", "./data/plane01.txt", L"./data/metal001.dds");
 
   scene_assets_.ground = resource_manager.GetModel(
       "ground", "./data/plane01.txt", L"./data/blue01.dds");
@@ -180,19 +180,19 @@ bool Graphics::InitializeResources(HWND hwnd) {
   render_targets_.shadow_map = resource_manager.CreateRenderTexture(
       "shadow_map", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH,
       SCREEN_NEAR);
-  
+
   render_targets_.downsampled_shadow = resource_manager.CreateRenderTexture(
       "downsample", downSampleWidth, downSampleHeight, 100.0f, 1.0f);
-  
+
   render_targets_.horizontal_blur = resource_manager.CreateRenderTexture(
       "horizontal_blur", downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
-  
+
   render_targets_.vertical_blur = resource_manager.CreateRenderTexture(
       "vertical_blur", downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
-  
+
   render_targets_.upsampled_shadow = resource_manager.CreateRenderTexture(
       "upsample", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH, 0.1f);
-  
+
   render_targets_.reflection_map = resource_manager.CreateRenderTexture(
       "reflection_map", screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
 
@@ -798,6 +798,7 @@ void Graphics::SetupRenderPasses() {
       .SetParameter("ambientColor", light_->GetAmbientColor())
       .SetParameter("diffuseColor", light_->GetDiffuseColor())
       .SetParameter("reflectionBlend", 0.0f)
+      .SetParameter("shadowStrength", 0.0f)
       .Execute([this](RenderPassContext &ctx) {
         if (!ctx.shader)
           return;
@@ -824,6 +825,9 @@ void Graphics::SetupRenderPasses() {
           if (auto cb = renderable->GetParameterCallback()) {
             cb(objParams);
           }
+          // Disable shadowing and recursive reflection for reflection pass.
+          objParams.SetFloat("shadowStrength", 0.0f);
+          objParams.SetFloat("reflectionBlend", 0.0f);
           renderable->Render(*ctx.shader, objParams, ctx.device_context);
         }
       });
@@ -836,7 +840,8 @@ void Graphics::SetupRenderPasses() {
       .AddRenderTag(final_tag)
       .SetParameter("diffuseColor", light_->GetDiffuseColor())
       .SetParameter("ambientColor", light_->GetAmbientColor())
-      .SetParameter("reflectionBlend", 0.0f);
+      .SetParameter("reflectionBlend", 0.0f)
+      .SetParameter("shadowStrength", 1.0f);
 
   // Pass 9: PBR Pass (standard execution)
   const auto &sphere_pbr_model = scene_assets_.pbr_sphere;
@@ -871,11 +876,9 @@ void Graphics::SetupRenderPasses() {
       });
 }
 
-std::shared_ptr<RenderableObject>
-CreateTexturedModelObject(std::shared_ptr<Model> model,
-                          std::shared_ptr<IShader> shader,
-                          const XMMATRIX &worldMatrix,
-                          bool enable_reflection = true) {
+std::shared_ptr<RenderableObject> CreateTexturedModelObject(
+    std::shared_ptr<Model> model, std::shared_ptr<IShader> shader,
+    const XMMATRIX &worldMatrix, bool enable_reflection = true) {
   auto obj = std::make_shared<RenderableObject>(model, shader);
   obj->SetWorldMatrix(worldMatrix);
   obj->AddTag(write_depth_tag);
@@ -987,8 +990,7 @@ void Graphics::SetupRenderableObjects() {
     const auto &ground_model = scene_assets_.ground;
     auto ground_object =
         CreateTexturedModelObject(ground_model, soft_shadow_shader,
-                                  XMMatrixTranslation(0.0f, 1.0f, 0.0f),
-                                  false);
+                                  XMMatrixTranslation(0.0f, 1.0f, 0.0f), false);
     ground_object->SetParameterCallback(
         [ground_model](ShaderParameterContainer &params) {
           params.SetTexture("texture", ground_model->GetTexture());
@@ -1006,7 +1008,7 @@ void Graphics::SetupRenderableObjects() {
         CreateTexturedModelObject(cube_model, soft_shadow_shader,
                                   XMMatrixTranslation(xPos, yPos, zPos) *
                                       XMMatrixScaling(0.3f, 0.3f, 0.3f),
-                                  false);
+                                  true);
 
     cube_group_->AddRenderable(cube_obj);
     renderable_objects_.push_back(cube_obj);
@@ -1073,7 +1075,8 @@ void Graphics::RegisterShaderParameters() {
        {"lightPosition", ShaderParameterType::Vector3, true},
        {"reflectionMatrix", ShaderParameterType::Matrix, true},
        {"reflectionTexture", ShaderParameterType::Texture, false},
-       {"reflectionBlend", ShaderParameterType::Float, false}});
+       {"reflectionBlend", ShaderParameterType::Float, false},
+       {"shadowStrength", ShaderParameterType::Float, false}});
 
   // Register PbrShader parameters
   parameter_validator_.RegisterShader(

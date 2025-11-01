@@ -128,8 +128,8 @@ void RenderTexture::ClearRenderTarget(float red, float green, float blue,
   auto device_context =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
-  device_context->ClearRenderTargetView(render_target_view_.Get(), color);  
-  
+  device_context->ClearRenderTargetView(render_target_view_.Get(), color);
+
   device_context->ClearDepthStencilView(depth_stencil_view_.Get(),
                                         D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

@@ -11,6 +11,12 @@ cbuffer LightBuffer
 	float4 diffuseColor;
 };
 
+cbuffer ShadowControlBuffer
+{
+	float shadowStrength;
+	float3 shadowPadding;
+};
+
 struct PixelInputType
 {
     float4 position : SV_POSITION;
@@ -58,8 +64,8 @@ float4 SoftShadowPixelShader(PixelInputType input) : SV_TARGET
 	// Sample the shadow value from the shadow texture using the sampler at the projected texture coordinate location.
 	shadowValue = shadowTexture.Sample(SampleTypeClamp, projectTexCoord).r;
 
-	// Combine the shadows with the final color.
-	color = color * shadowValue;
+	// Combine the shadows with the final color (allow blending for reflection pass).
+	color = lerp(color, color * shadowValue, shadowStrength);
 
     reflectionBlend = saturate(input.reflectionFactor);
     if (reflectionBlend > 0.001f)

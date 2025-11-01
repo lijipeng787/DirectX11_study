@@ -46,6 +46,11 @@ bool SoftShadowShader::Initialize(HWND hwnd, ID3D11Device *device) {
     return false;
   }
 
+  if (!CreateConstantBuffer(sizeof(ShadowControlBufferType),
+                            shadow_control_buffer_.GetAddressOf(), device)) {
+    return false;
+  }
+
   // Create wrap sampler state for regular textures
   if (!CreateSamplerState(sampler_state_wrap_.GetAddressOf(), device,
                           D3D11_TEXTURE_ADDRESS_WRAP)) {
@@ -86,11 +91,15 @@ bool SoftShadowShader::Render(int indexCount,
   if (parameters.HasParameter("reflectionBlend")) {
     reflectionBlend = parameters.GetFloat("reflectionBlend");
   }
+  float shadowStrength = 1.0f;
+  if (parameters.HasParameter("shadowStrength")) {
+    shadowStrength = parameters.GetFloat("shadowStrength");
+  }
 
   if (!SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture,
                            shadowTexture, reflectionTexture, reflectionMatrix,
-                           reflectionBlend, lightPosition, ambientColor,
-                           diffuseColor, deviceContext)) {
+                           reflectionBlend, shadowStrength, lightPosition,
+                           ambientColor, diffuseColor, deviceContext)) {
     return false;
   }
 
@@ -117,7 +126,7 @@ bool SoftShadowShader::SetShaderParameters(
     ID3D11ShaderResourceView *texture, ID3D11ShaderResourceView *shadowTexture,
     ID3D11ShaderResourceView *reflectionTexture,
     const DirectX::XMMATRIX &reflectionMatrix, float reflectionBlend,
-    const DirectX::XMFLOAT3 &lightPosition,
+    float shadowStrength, const DirectX::XMFLOAT3 &lightPosition,
     const DirectX::XMFLOAT4 &ambientColor,
     const DirectX::XMFLOAT4 &diffuseColor,
     ID3D11DeviceContext *deviceContext) const {
@@ -187,10 +196,23 @@ bool SoftShadowShader::SetShaderParameters(
   reflectionDataPtr->padding = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
   deviceContext->Unmap(reflection_buffer_.Get(), 0);
-  deviceContext->VSSetConstantBuffers(2, 1,
-                                      reflection_buffer_.GetAddressOf());
+  deviceContext->VSSetConstantBuffers(2, 1, reflection_buffer_.GetAddressOf());
+
+  // Update shadow control buffer
+  result = deviceContext->Map(shadow_control_buffer_.Get(), 0,
+                              D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+  if (FAILED(result)) {
+    return false;
+  }
+
+  auto shadowControlPtr =
+      static_cast<ShadowControlBufferType *>(mappedResource.pData);
+  shadowControlPtr->shadowStrength = shadowStrength;
+  shadowControlPtr->padding = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+  deviceContext->Unmap(shadow_control_buffer_.Get(), 0);
   deviceContext->PSSetConstantBuffers(1, 1,
-                                      reflection_buffer_.GetAddressOf());
+                                      shadow_control_buffer_.GetAddressOf());
 
   // Set shader textures and samplers
   deviceContext->PSSetShaderResources(0, 1, &texture);
