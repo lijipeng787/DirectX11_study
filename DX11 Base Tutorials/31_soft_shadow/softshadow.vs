@@ -11,6 +11,13 @@ cbuffer LightBuffer2
 	float padding;
 };
 
+cbuffer ReflectionBuffer
+{
+	matrix reflectionMatrix;
+	float reflectionBlend;
+	float3 reflectionPadding;
+};
+
 struct VertexInputType
 {
     float4 position : POSITION;
@@ -25,6 +32,8 @@ struct PixelInputType
 	float3 normal : NORMAL;
     float4 viewPosition : TEXCOORD1;
 	float3 lightPos : TEXCOORD2;
+    float4 reflectionPosition : TEXCOORD3;
+    float reflectionFactor : TEXCOORD4;
 };
 
 PixelInputType SoftShadowVertexShader(VertexInputType input)
@@ -55,6 +64,12 @@ PixelInputType SoftShadowVertexShader(VertexInputType input)
 
     // Normalize the light position vector.
     output.lightPos = normalize(output.lightPos);
+
+	// Calculate reflection projection coordinates
+	matrix reflectProjectWorld = mul(reflectionMatrix, projectionMatrix);
+	reflectProjectWorld = mul(worldMatrix, reflectProjectWorld);
+	output.reflectionPosition = mul(input.position, reflectProjectWorld);
+	output.reflectionFactor = reflectionBlend;
 
 	return output;
 }

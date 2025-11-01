@@ -102,6 +102,7 @@ private:
     std::shared_ptr<RenderTexture> horizontal_blur;
     std::shared_ptr<RenderTexture> vertical_blur;
     std::shared_ptr<RenderTexture> upsampled_shadow;
+    std::shared_ptr<RenderTexture> reflection_map;
   };
 
   struct ShaderAssets {

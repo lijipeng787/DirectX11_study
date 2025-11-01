@@ -1,5 +1,6 @@
 Texture2D shaderTexture : register(t0);
 Texture2D shadowTexture : register(t1);
+Texture2D reflectionTexture : register(t2);
 
 SamplerState SampleTypeClamp : register(s0);
 SamplerState SampleTypeWrap  : register(s1);
@@ -17,6 +18,8 @@ struct PixelInputType
 	float3 normal : NORMAL;
     float4 viewPosition : TEXCOORD1;
 	float3 lightPos : TEXCOORD2;
+    float4 reflectionPosition : TEXCOORD3;
+    float reflectionFactor : TEXCOORD4;
 };
 
 float4 SoftShadowPixelShader(PixelInputType input) : SV_TARGET
@@ -26,6 +29,9 @@ float4 SoftShadowPixelShader(PixelInputType input) : SV_TARGET
 	float4 textureColor;
 	float2 projectTexCoord;
 	float shadowValue;
+    float2 reflectTexCoord;
+    float4 reflectionColor;
+    float reflectionBlend;
 
     color = ambientColor;
 
@@ -54,6 +60,17 @@ float4 SoftShadowPixelShader(PixelInputType input) : SV_TARGET
 
 	// Combine the shadows with the final color.
 	color = color * shadowValue;
+
+    reflectionBlend = saturate(input.reflectionFactor);
+    if (reflectionBlend > 0.001f)
+    {
+        reflectTexCoord.x =  input.reflectionPosition.x / input.reflectionPosition.w / 2.0f + 0.5f;
+        reflectTexCoord.y = -input.reflectionPosition.y / input.reflectionPosition.w / 2.0f + 0.5f;
+
+        reflectionColor = reflectionTexture.Sample(SampleTypeClamp, reflectTexCoord);
+
+        color = lerp(color, reflectionColor, reflectionBlend);
+    }
 
     return color;
 }

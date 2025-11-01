@@ -138,10 +138,15 @@ bool Graphics::InitializeResources(HWND hwnd) {
   // 1. 模型与几何体资源
   scene_assets_.cube = resource_manager.GetModel("cube", "./data/cube.txt",
                                                  L"./data/wall01.dds");
+
   scene_assets_.sphere = resource_manager.GetModel(
       "sphere", "./data/sphere.txt", L"./data/ice.dds");
+
+  //scene_assets_.ground = resource_manager.GetModel(
+  //    "ground", "./data/plane01.txt", L"./data/metal001.dds");
+
   scene_assets_.ground = resource_manager.GetModel(
-      "ground", "./data/plane01.txt", L"./data/metal001.dds");
+      "ground", "./data/plane01.txt", L"./data/blue01.dds");
 
   if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground) {
     std::wstring error_msg = L"Could not load models.";
@@ -171,21 +176,30 @@ bool Graphics::InitializeResources(HWND hwnd) {
   render_targets_.shadow_depth = resource_manager.CreateRenderTexture(
       "shadow_depth", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH,
       SCREEN_NEAR);
+
   render_targets_.shadow_map = resource_manager.CreateRenderTexture(
       "shadow_map", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH,
       SCREEN_NEAR);
+  
   render_targets_.downsampled_shadow = resource_manager.CreateRenderTexture(
       "downsample", downSampleWidth, downSampleHeight, 100.0f, 1.0f);
+  
   render_targets_.horizontal_blur = resource_manager.CreateRenderTexture(
       "horizontal_blur", downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
+  
   render_targets_.vertical_blur = resource_manager.CreateRenderTexture(
       "vertical_blur", downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
+  
   render_targets_.upsampled_shadow = resource_manager.CreateRenderTexture(
       "upsample", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH, 0.1f);
+  
+  render_targets_.reflection_map = resource_manager.CreateRenderTexture(
+      "reflection_map", screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
 
   if (!render_targets_.shadow_depth || !render_targets_.shadow_map ||
       !render_targets_.downsampled_shadow || !render_targets_.horizontal_blur ||
-      !render_targets_.vertical_blur || !render_targets_.upsampled_shadow) {
+      !render_targets_.vertical_blur || !render_targets_.upsampled_shadow ||
+      !render_targets_.reflection_map) {
     LogError(L"Could not create render textures.");
     return false;
   }
@@ -370,6 +384,8 @@ static constexpr auto vertical_blur_tag = "vertical_blur";
 static constexpr auto up_sample_tag = "up_sample";
 static constexpr auto pbr_tag = "pbr_tag";
 static constexpr auto final_tag = "final";
+static constexpr auto reflection_tag = "reflection";
+static constexpr float reflection_plane_height = 1.0f;
 
 void Graphics::SetupRenderPipeline() {
 
@@ -624,6 +640,7 @@ void Graphics::SetupRenderPipeline() {
           params.SetTexture("texture", cube_model->GetTexture());
         });
 
+    dynamic_cube->RemoveTag(reflection_tag);
     cube_group_->AddRenderable(dynamic_cube);
   }
 
@@ -701,6 +718,9 @@ void Graphics::SetupRenderPasses() {
   const auto &upsample_tex = render_targets_.upsampled_shadow;
   render_graph_.ImportTexture("UpsampledShadow", upsample_tex);
 
+  const auto &reflection_tex = render_targets_.reflection_map;
+  render_graph_.ImportTexture("ReflectionMap", reflection_tex);
+
   // Pass 1: Depth Pass
   const auto &depth_shader = shader_assets_.depth;
   render_graph_.AddPass("DepthPass")
@@ -768,16 +788,57 @@ void Graphics::SetupRenderPasses() {
       .DisableZBuffer(true)
       .SetParameter("orthoMatrix", orthoMatrix);
 
-  // Pass 7: Final Pass (soft shadow)
+  // Pass 7: Reflection scene pass (render reflected objects)
   const auto &soft_shadow_shader = shader_assets_.soft_shadow;
+  render_graph_.AddPass("ReflectionScenePass")
+      .SetShader(soft_shadow_shader)
+      .ReadAsParameter("UpsampledShadow", "shadowTexture")
+      .Write("ReflectionMap")
+      .AddRenderTag(reflection_tag)
+      .SetParameter("ambientColor", light_->GetAmbientColor())
+      .SetParameter("diffuseColor", light_->GetDiffuseColor())
+      .SetParameter("reflectionBlend", 0.0f)
+      .Execute([this](RenderPassContext &ctx) {
+        if (!ctx.shader)
+          return;
+
+        ShaderParameterContainer merged = *ctx.pass_params;
+        merged.Merge(*ctx.global_params);
+
+        if (ctx.global_params->HasParameter("reflectionMatrix")) {
+          merged.SetMatrix("viewMatrix",
+                           ctx.global_params->GetMatrix("reflectionMatrix"));
+        }
+
+        if (ctx.global_params->HasParameter("projectionMatrix")) {
+          merged.SetMatrix("projectionMatrix",
+                           ctx.global_params->GetMatrix("projectionMatrix"));
+        }
+
+        for (const auto &renderable : *ctx.renderables) {
+          if (!renderable->HasTag(reflection_tag))
+            continue;
+
+          ShaderParameterContainer objParams = merged;
+          objParams.Set("worldMatrix", renderable->GetWorldMatrix());
+          if (auto cb = renderable->GetParameterCallback()) {
+            cb(objParams);
+          }
+          renderable->Render(*ctx.shader, objParams, ctx.device_context);
+        }
+      });
+
+  // Pass 8: Final Pass (soft shadow)
   render_graph_.AddPass("FinalPass")
       .SetShader(soft_shadow_shader)
       .ReadAsParameter("UpsampledShadow", "shadowTexture") // Auto-bind resource
+      .ReadAsParameter("ReflectionMap", "reflectionTexture")
       .AddRenderTag(final_tag)
       .SetParameter("diffuseColor", light_->GetDiffuseColor())
-      .SetParameter("ambientColor", light_->GetAmbientColor());
+      .SetParameter("ambientColor", light_->GetAmbientColor())
+      .SetParameter("reflectionBlend", 0.0f);
 
-  // Pass 8: PBR Pass (standard execution)
+  // Pass 9: PBR Pass (standard execution)
   const auto &sphere_pbr_model = scene_assets_.pbr_sphere;
   const auto &pbr_shader = shader_assets_.pbr;
   render_graph_.AddPass("PBRPass")
@@ -787,7 +848,7 @@ void Graphics::SetupRenderPasses() {
       .SetTexture("normalMap", sphere_pbr_model->GetTexture(1))
       .SetTexture("rmTexture", sphere_pbr_model->GetTexture(2));
 
-  // Pass 9: Text overlay (executed via custom lambda)
+  // Pass 10: Text overlay (executed via custom lambda)
   render_graph_.AddPass("TextOverlayPass")
       .DisableZBuffer(true)
       .Execute([this](RenderPassContext &ctx) {
@@ -813,12 +874,16 @@ void Graphics::SetupRenderPasses() {
 std::shared_ptr<RenderableObject>
 CreateTexturedModelObject(std::shared_ptr<Model> model,
                           std::shared_ptr<IShader> shader,
-                          const XMMATRIX &worldMatrix) {
+                          const XMMATRIX &worldMatrix,
+                          bool enable_reflection = true) {
   auto obj = std::make_shared<RenderableObject>(model, shader);
   obj->SetWorldMatrix(worldMatrix);
   obj->AddTag(write_depth_tag);
   obj->AddTag(write_shadow_tag);
   obj->AddTag(final_tag);
+  if (enable_reflection) {
+    obj->AddTag(reflection_tag);
+  }
   obj->SetParameterCallback([model](ShaderParameterContainer &params) {
     params.SetTexture("texture", model->GetTexture());
   });
@@ -922,7 +987,13 @@ void Graphics::SetupRenderableObjects() {
     const auto &ground_model = scene_assets_.ground;
     auto ground_object =
         CreateTexturedModelObject(ground_model, soft_shadow_shader,
-                                  XMMatrixTranslation(0.0f, 1.0f, 0.0f));
+                                  XMMatrixTranslation(0.0f, 1.0f, 0.0f),
+                                  false);
+    ground_object->SetParameterCallback(
+        [ground_model](ShaderParameterContainer &params) {
+          params.SetTexture("texture", ground_model->GetTexture());
+          params.SetFloat("reflectionBlend", 0.5f);
+        });
     renderable_objects_.push_back(ground_object);
   }
 
@@ -934,7 +1005,8 @@ void Graphics::SetupRenderableObjects() {
     auto cube_obj =
         CreateTexturedModelObject(cube_model, soft_shadow_shader,
                                   XMMatrixTranslation(xPos, yPos, zPos) *
-                                      XMMatrixScaling(0.3f, 0.3f, 0.3f));
+                                      XMMatrixScaling(0.3f, 0.3f, 0.3f),
+                                  false);
 
     cube_group_->AddRenderable(cube_obj);
     renderable_objects_.push_back(cube_obj);
@@ -966,6 +1038,8 @@ void Graphics::RegisterShaderParameters() {
       "lightDirection"); // From Render()
   parameter_validator_.RegisterGlobalParameter(
       "cameraPosition"); // From Render()
+  parameter_validator_.RegisterGlobalParameter(
+      "reflectionMatrix"); // From Render()
 
   // Register DepthShader parameters
   parameter_validator_.RegisterShader(
@@ -996,7 +1070,10 @@ void Graphics::RegisterShaderParameters() {
        {"shadowTexture", ShaderParameterType::Texture, true},
        {"ambientColor", ShaderParameterType::Vector4, true},
        {"diffuseColor", ShaderParameterType::Vector4, true},
-       {"lightPosition", ShaderParameterType::Vector3, true}});
+       {"lightPosition", ShaderParameterType::Vector3, true},
+       {"reflectionMatrix", ShaderParameterType::Matrix, true},
+       {"reflectionTexture", ShaderParameterType::Texture, false},
+       {"reflectionBlend", ShaderParameterType::Float, false}});
 
   // Register PbrShader parameters
   parameter_validator_.RegisterShader(
@@ -1086,9 +1163,11 @@ void Graphics::Render() {
 
   // Update the view matrix based on the camera's position.
   camera_->Render();
+  camera_->RenderReflection(reflection_plane_height);
   XMMATRIX viewMatrix, baseViewMatrix;
   camera_->GetViewMatrix(viewMatrix);
   camera_->GetBaseViewMatrix(baseViewMatrix);
+  auto reflectionMatrix = camera_->GetReflectionViewMatrix();
 
   // Update the light
   light_->GenerateViewMatrix();
@@ -1107,6 +1186,7 @@ void Graphics::Render() {
   Params.SetGlobalDynamicVector3("lightPosition", light_->GetPosition());
   Params.SetGlobalDynamicVector3("lightDirection", light_->GetDirection());
   Params.SetGlobalDynamicVector3("cameraPosition", camera_->GetPosition());
+  Params.SetMatrix("reflectionMatrix", reflectionMatrix);
 
   // Add device matrices
   XMMATRIX deviceWorldMatrix, projectionMatrix;
