@@ -27,7 +27,7 @@ bool System::Initialize() {
   GetScreenWidthAndHeight(screenWidth, screenHeight);
 
   {
-    graphics_ = make_unique<GraphicsClass>();
+    graphics_ = make_unique<Graphics>();
     if (!graphics_) {
       return false;
     }

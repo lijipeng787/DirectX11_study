@@ -5,7 +5,7 @@
 #include <d3d11.h>
 #include <wrl\client.h>
 
-#include "IRenderable.h"
+#include "Interfaces.h"
 
 class OrthoWindow : public IRenderable {
 private:

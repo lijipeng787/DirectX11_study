@@ -24,15 +24,15 @@ class HorizontalBlurShader;
 class VerticalBlurShader;
 class PbrShader;
 
-class GraphicsClass : public GraphicsBase {
+class Graphics : public GraphicsBase {
 public:
-  GraphicsClass() = default;
+  Graphics() = default;
 
-  GraphicsClass(const GraphicsClass &rhs) = delete;
+  Graphics(const Graphics &rhs) = delete;
 
-  GraphicsClass &operator=(const GraphicsClass &rhs) = delete;
+  Graphics &operator=(const Graphics &rhs) = delete;
 
-  virtual ~GraphicsClass() = default;
+  virtual ~Graphics() = default;
 
 public:
   virtual bool Initialize(int, int, HWND) override;

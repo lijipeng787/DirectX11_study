@@ -1,5 +1,5 @@
 #include "RenderableObject.h"
-#include "IShader.h"
+#include "Interfaces.h"
 #include "Model.h"
 #include "orthowindow.h"
 

@@ -25,7 +25,7 @@ private:
   bool HandleInput(float frame_time);
 
 private:
-  std::unique_ptr<GraphicsClass> graphics_;
+  std::unique_ptr<Graphics> graphics_;
 
   std::unique_ptr<Position> position_;
 };

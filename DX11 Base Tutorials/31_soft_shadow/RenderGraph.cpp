@@ -1,8 +1,7 @@
 #include "RenderGraph.h"
 
 #include "../CommonFramework2/DirectX11Device.h"
-#include "IRenderable.h"
-#include "IShader.h"
+#include "Interfaces.h"
 #include "RenderTexture.h"
 #include "ResourceManager.h"
 #include "ShaderParameterContainer.h"

@@ -5,8 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "IRenderable.h"
-#include "IShader.h"
+#include "Interfaces.h"
 #include "RenderTexture.h"
 
 class RenderPass {

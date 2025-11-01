@@ -41,22 +41,6 @@ struct ShaderParameterInfo {
       : name(std::move(name)), type(type), required(required) {}
 };
 
-// Layout class for organizing shader parameters
-// Now uses unified ShaderParameterInfo structure
-class ShaderParameterLayout {
-public:
-  void AddParameter(const std::string &name, ShaderParameterType type) {
-    parameters_.push_back(ShaderParameterInfo(name, type));
-  }
-
-  const std::vector<ShaderParameterInfo> &GetParameters() const {
-    return parameters_;
-  }
-
-private:
-  std::vector<ShaderParameterInfo> parameters_;
-};
-
 // ============================================================================
 // Shader Parameter Container
 // ============================================================================

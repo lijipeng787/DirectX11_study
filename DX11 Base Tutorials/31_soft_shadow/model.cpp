@@ -1,7 +1,7 @@
 #include "model.h"
 
 #include "../CommonFramework2/DirectX11Device.h"
-#include "IShader.h"
+#include "Interfaces.h"
 #include "ShaderParameterContainer.h"
 
 #include <DirectXMath.h>

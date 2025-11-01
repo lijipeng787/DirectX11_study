@@ -7,9 +7,6 @@
 #include <unordered_set>
 #include <vector>
 
-// ShaderParameterType and ShaderParameterInfo are now defined in
-// ShaderParameterContainer.h This file uses those unified definitions
-
 enum class ValidationMode {
   Strict,  // 严格模式：所有必需参数必须存在
   Warning, // 警告模式：报告缺失参数但不阻止执行

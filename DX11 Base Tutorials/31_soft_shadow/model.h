@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IRenderable.h"
+#include "Interfaces.h"
 #include "ShaderParameterContainer.h"
 #include "texture.h"
 

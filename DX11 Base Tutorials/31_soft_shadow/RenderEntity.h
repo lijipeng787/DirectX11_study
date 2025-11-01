@@ -9,26 +9,26 @@ class PBRModel;
 class IShader;
 class OrthoWindow;
 
-class RenderableObject : public IRenderable {
+class RenderEntity : public IRenderable {
 public:
-  explicit RenderableObject(std::shared_ptr<Model> model,
-                            std::shared_ptr<IShader> shader);
+  explicit RenderEntity(std::shared_ptr<Model> model,
+                        std::shared_ptr<IShader> shader);
 
-  explicit RenderableObject(std::shared_ptr<PBRModel> model,
-                            std::shared_ptr<IShader> shader);
+  explicit RenderEntity(std::shared_ptr<PBRModel> model,
+                        std::shared_ptr<IShader> shader);
 
-  explicit RenderableObject(std::shared_ptr<OrthoWindow> window_model,
-                            std::shared_ptr<IShader> shader);
+  explicit RenderEntity(std::shared_ptr<OrthoWindow> window_model,
+                        std::shared_ptr<IShader> shader);
 
-  RenderableObject(RenderableObject &) noexcept = default;
+  RenderEntity(RenderEntity &) noexcept = default;
 
-  RenderableObject &operator=(RenderableObject &) noexcept = default;
+  RenderEntity &operator=(RenderEntity &) noexcept = default;
 
-  RenderableObject(RenderableObject &&) noexcept = default;
+  RenderEntity(RenderEntity &&) noexcept = default;
 
-  RenderableObject &operator=(RenderableObject &&) noexcept = default;
+  RenderEntity &operator=(RenderEntity &&) noexcept = default;
 
-  virtual ~RenderableObject() = default;
+  virtual ~RenderEntity() = default;
 
 public:
   void Render(const IShader &shader, const ShaderParameterContainer &parameters,

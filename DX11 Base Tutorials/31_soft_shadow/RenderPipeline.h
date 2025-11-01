@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "IRenderable.h"
+#include "Interfaces.h"
 #include "RenderPass.h"
 #include "ShaderParameterContainer.h"
 

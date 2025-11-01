@@ -3,10 +3,10 @@
 #include "../CommonFramework2/DirectX11Device.h"
 #include "../CommonFramework2/TypeDefine.h"
 
+#include "Interfaces.h"
 #include "RenderableObject.h"
 #include "ResourceManager.h"
 #include "ShaderParameterValidator.h"
-#include "StandardRenderGroup.h"
 #include "depthshader.h"
 #include "horizontalblurshader.h"
 #include "model.h"
@@ -39,7 +39,7 @@ static constexpr auto SHADOW_MAP_HEIGHT = 1024;
 static constexpr auto downSampleWidth = SHADOW_MAP_WIDTH / 2;
 static constexpr auto downSampleHeight = SHADOW_MAP_HEIGHT / 2;
 
-bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
+bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 
   if (!InitializeDevice(screenWidth, screenHeight, hwnd)) {
     return false;
@@ -68,8 +68,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   return true;
 }
 
-bool GraphicsClass::InitializeDevice(int screenWidth, int screenHeight,
-                                     HWND hwnd) {
+bool Graphics::InitializeDevice(int screenWidth, int screenHeight, HWND hwnd) {
   auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
   if (!(directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED,
@@ -95,7 +94,7 @@ bool GraphicsClass::InitializeDevice(int screenWidth, int screenHeight,
   return true;
 }
 
-bool GraphicsClass::InitializeCamera() {
+bool Graphics::InitializeCamera() {
   camera_ = make_unique<Camera>();
   if (nullptr == camera_) {
     return false;
@@ -106,7 +105,7 @@ bool GraphicsClass::InitializeCamera() {
   return true;
 }
 
-bool GraphicsClass::InitializeLight() {
+bool Graphics::InitializeLight() {
   light_ = make_unique<Light>();
   if (nullptr == light_) {
     return false;
@@ -119,7 +118,7 @@ bool GraphicsClass::InitializeLight() {
   return true;
 }
 
-bool GraphicsClass::InitializeResources(HWND hwnd) {
+bool Graphics::InitializeResources(HWND hwnd) {
   auto &resource_manager = ResourceManager::GetInstance();
 
   // 1. 模型与几何体资源
@@ -214,7 +213,7 @@ bool GraphicsClass::InitializeResources(HWND hwnd) {
   return true;
 }
 
-bool GraphicsClass::InitializeRenderingSystem() {
+bool Graphics::InitializeRenderingSystem() {
   // Setup rendering system based on compile-time constant
   if constexpr (use_render_graph_) {
     if (!SetupRenderGraph()) {
@@ -227,7 +226,7 @@ bool GraphicsClass::InitializeRenderingSystem() {
   return true;
 }
 
-void GraphicsClass::Shutdown() {
+void Graphics::Shutdown() {
   auto &resource_manager = ResourceManager::GetInstance();
 
   // Display resource usage before shutdown
@@ -270,7 +269,7 @@ void GraphicsClass::Shutdown() {
   resource_manager.Shutdown();
 }
 
-void GraphicsClass::Frame(float deltaTime) {
+void Graphics::Frame(float deltaTime) {
 
   static float lightPositionX = -5.0f;
 
@@ -327,7 +326,7 @@ static constexpr auto up_sample_tag = "up_sample";
 static constexpr auto pbr_tag = "pbr_tag";
 static constexpr auto final_tag = "final";
 
-void GraphicsClass::SetupRenderPipeline() {
+void Graphics::SetupRenderPipeline() {
 
   if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground ||
       !scene_assets_.pbr_sphere || !render_targets_.shadow_depth ||
@@ -597,7 +596,7 @@ void GraphicsClass::SetupRenderPipeline() {
   render_pipeline_.SetGlobalParameters(globalParams);
 }
 
-bool GraphicsClass::SetupRenderGraph() {
+bool Graphics::SetupRenderGraph() {
   cout << "\n=== Setting up RenderGraph ===" << endl;
 
   if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground ||
@@ -636,7 +635,7 @@ bool GraphicsClass::SetupRenderGraph() {
   return true;
 }
 
-void GraphicsClass::SetupRenderPasses() {
+void Graphics::SetupRenderPasses() {
 
   // Import existing textures into RenderGraph
   const auto &depth_tex = render_targets_.shadow_depth;
@@ -783,7 +782,7 @@ CreatePBRModelObject(std::shared_ptr<PBRModel> model,
   return obj;
 }
 
-void GraphicsClass::SetupRenderableObjects() {
+void Graphics::SetupRenderableObjects() {
 
   // Add renderable objects
   const auto &cube_model = scene_assets_.cube;
@@ -867,7 +866,7 @@ void GraphicsClass::SetupRenderableObjects() {
   }
 }
 
-void GraphicsClass::RegisterShaderParameters() {
+void Graphics::RegisterShaderParameters() {
   // Set validation mode to Warning (report issues but don't block execution)
   parameter_validator_.SetValidationMode(ValidationMode::Warning);
 
@@ -964,7 +963,7 @@ void GraphicsClass::RegisterShaderParameters() {
   cout << "[Graphics] Registered shader parameters for validation" << endl;
 }
 
-void GraphicsClass::Render() {
+void Graphics::Render() {
 
   auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IShader.h"
+#include "Interfaces.h"
 
 #include <DirectXMath.h>
 #include <d3d11.h>

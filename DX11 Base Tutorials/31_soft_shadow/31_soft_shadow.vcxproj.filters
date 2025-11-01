@@ -25,25 +25,22 @@
     <ClCompile Include="RenderGraph.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="ShaderParameterValidator.cpp" />
+    <ClCompile Include="RenderEntity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="depthshader.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="horizontalblurshader.h" />
-    <ClInclude Include="IRenderable.h" />
-    <ClInclude Include="IRenderGroup.h" />
-    <ClInclude Include="IShader.h" />
+    <ClInclude Include="Interfaces.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="orthowindow.h" />
     <ClInclude Include="position.h" />
     <ClInclude Include="RenderPipeline.h" />
     <ClInclude Include="rendertexture.h" />
-    <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderParameterContainer.h" />
     <ClInclude Include="shadowshader.h" />
     <ClInclude Include="softshadowshader.h" />
-    <ClInclude Include="StandardRenderGroup.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="textureshader.h" />
@@ -54,8 +51,8 @@
     <ClInclude Include="ShaderBase.h" />
     <ClInclude Include="RenderGraph.h" />
     <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="RenderConfig.h" />
     <ClInclude Include="ShaderParameterValidator.h" />
+    <ClInclude Include="RenderEntity.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.ps" />
