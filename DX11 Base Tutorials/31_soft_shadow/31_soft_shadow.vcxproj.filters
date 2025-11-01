@@ -48,10 +48,8 @@
     <ClInclude Include="texture.h" />
     <ClInclude Include="textureshader.h" />
     <ClInclude Include="verticalblurshader.h" />
-    <ClInclude Include="ShaderParameterLayout.h" />
     <ClInclude Include="RenderPass.h" />
     <ClInclude Include="RenderableObject.h" />
-    <ClInclude Include="ShaderParameterCallback.h" />
     <ClInclude Include="pbrshader.h" />
     <ClInclude Include="ShaderBase.h" />
     <ClInclude Include="RenderGraph.h" />

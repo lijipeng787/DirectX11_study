@@ -172,9 +172,7 @@
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderBase.h" />
-    <ClInclude Include="ShaderParameterCallback.h" />
     <ClInclude Include="ShaderParameterContainer.h" />
-    <ClInclude Include="ShaderParameterLayout.h" />
     <ClInclude Include="ShaderParameterValidator.h" />
     <ClInclude Include="shadowshader.h" />
     <ClInclude Include="softshadowshader.h" />

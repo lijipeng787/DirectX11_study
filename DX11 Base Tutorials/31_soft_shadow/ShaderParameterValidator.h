@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ShaderParameterLayout.h" // Use unified type definitions
+#include "ShaderParameterContainer.h" // Use unified type definitions
 
 #include <string>
 #include <unordered_map>
@@ -8,7 +8,7 @@
 #include <vector>
 
 // ShaderParameterType and ShaderParameterInfo are now defined in
-// ShaderParameterLayout.h This file uses those unified definitions
+// ShaderParameterContainer.h This file uses those unified definitions
 
 enum class ValidationMode {
   Strict,  // 严格模式：所有必需参数必须存在
@@ -73,6 +73,14 @@ private:
   std::unordered_set<std::string> global_parameters_;
 
   ValidationMode validation_mode_ = ValidationMode::Warning;
+
+  // Helper methods for enhanced reporting
+  std::string GetTypeName(ShaderParameterType type) const;
+  std::string
+  FindSimilarParameter(const std::string &param_name,
+                       const std::vector<ShaderParameterInfo> &params) const;
+  int CalculateLevenshteinDistance(const std::string &s1,
+                                   const std::string &s2) const;
 };
 
 // 资源名到参数名的转换辅助函数

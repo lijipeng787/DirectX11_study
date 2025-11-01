@@ -4,7 +4,7 @@
 
 #include <DirectXMath.h>
 
-#include "ShaderParameterCallback.h"
+#include "ShaderParameterContainer.h"
 
 class IShader;
 

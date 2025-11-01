@@ -4,9 +4,62 @@
 #include <d3d11.h>
 
 #include <any>
+#include <functional>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <vector>
+
+// ============================================================================
+// Shader Parameter Type Definitions
+// ============================================================================
+
+// Unified parameter type definitions used by Layout and Validator
+enum class ShaderParameterType {
+  Matrix,
+  Vector3,
+  Vector4,
+  Texture,
+  Float,
+  Unknown // Used by Validator for unknown types
+};
+
+// Unified parameter info structure
+// Supports both simple layout (name + type) and validation (name + type +
+// required)
+struct ShaderParameterInfo {
+  std::string name;
+  ShaderParameterType type;
+  bool required; // Whether this parameter is required (default: true)
+
+  // Constructor for simple usage (layout)
+  explicit ShaderParameterInfo(std::string name, ShaderParameterType type)
+      : name(std::move(name)), type(type), required(true) {}
+
+  // Constructor for validation usage (with required flag)
+  ShaderParameterInfo(std::string name, ShaderParameterType type, bool required)
+      : name(std::move(name)), type(type), required(required) {}
+};
+
+// Layout class for organizing shader parameters
+// Now uses unified ShaderParameterInfo structure
+class ShaderParameterLayout {
+public:
+  void AddParameter(const std::string &name, ShaderParameterType type) {
+    parameters_.push_back(ShaderParameterInfo(name, type));
+  }
+
+  const std::vector<ShaderParameterInfo> &GetParameters() const {
+    return parameters_;
+  }
+
+private:
+  std::vector<ShaderParameterInfo> parameters_;
+};
+
+// ============================================================================
+// Shader Parameter Container
+// ============================================================================
 
 class ShaderParameterContainer {
 public:
@@ -101,3 +154,10 @@ public:
 private:
   std::unordered_map<std::string, std::any> parameters_;
 };
+
+// ============================================================================
+// Shader Parameter Callback
+// ============================================================================
+
+// Callback function type for customizing shader parameters per object
+using ShaderParameterCallback = std::function<void(ShaderParameterContainer &)>;

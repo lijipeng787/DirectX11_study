@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IRenderable.h"
-#include "ShaderParameterLayout.h"
+#include "ShaderParameterContainer.h"
 #include "texture.h"
 
 #include <d3d11.h>

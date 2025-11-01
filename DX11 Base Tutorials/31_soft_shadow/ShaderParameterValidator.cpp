@@ -3,7 +3,17 @@
 #include <algorithm>
 #include <cctype>
 #include <iostream>
+#include <limits>
 #include <sstream>
+#include <vector>
+
+// Undefine Windows macros that conflict with std::min/max
+#ifdef max
+#undef max
+#endif
+#ifdef min
+#undef min
+#endif
 
 void ShaderParameterValidator::RegisterShader(
     const std::string &shader_name,
@@ -103,23 +113,38 @@ bool ShaderParameterValidator::ValidatePassParameters(
         << shader_name << "\"):\n";
 
     if (has_errors) {
-      oss << "  Missing required parameters: ";
-      for (size_t i = 0; i < missing_params.size(); ++i) {
-        if (i > 0)
-          oss << ", ";
-        oss << missing_params[i];
+      oss << "  Missing required parameters:\n";
+      for (const auto &missing : missing_params) {
+        // Find parameter info to get type
+        ShaderParameterType param_type = ShaderParameterType::Unknown;
+        for (const auto &param_info : required_params) {
+          if (param_info.name == missing) {
+            param_type = param_info.type;
+            break;
+          }
+        }
+        oss << "    - " << missing << " (" << GetTypeName(param_type) << ")";
+        // Add helpful hints based on parameter name patterns
+        if (missing.find("Texture") != std::string::npos) {
+          oss << " - Consider using ReadAsParameter() or SetTexture()";
+        } else if (IsGlobalParameter(missing)) {
+          oss << " - This is a global parameter, should be set in Render()";
+        }
+        oss << "\n";
       }
-      oss << "\n";
     }
 
     if (has_warnings) {
-      oss << "  Unknown parameters (not registered): ";
-      for (size_t i = 0; i < invalid_params.size(); ++i) {
-        if (i > 0)
-          oss << ", ";
-        oss << invalid_params[i];
+      oss << "  Unknown parameters (not registered):\n";
+      for (const auto &invalid : invalid_params) {
+        oss << "    - " << invalid;
+        // Try to find similar parameter name
+        std::string suggestion = FindSimilarParameter(invalid, required_params);
+        if (!suggestion.empty()) {
+          oss << " - Did you mean: " << suggestion << "?";
+        }
+        oss << "\n";
       }
-      oss << "\n";
     }
 
     if (mode == ValidationMode::Strict) {
@@ -214,6 +239,80 @@ std::vector<ShaderParameterInfo> ShaderParameterValidator::GetShaderParameters(
 void ShaderParameterValidator::Clear() {
   shader_parameters_.clear();
   global_parameters_.clear();
+}
+
+// Helper methods for enhanced reporting
+std::string
+ShaderParameterValidator::GetTypeName(ShaderParameterType type) const {
+  switch (type) {
+  case ShaderParameterType::Matrix:
+    return "Matrix";
+  case ShaderParameterType::Vector3:
+    return "Vector3";
+  case ShaderParameterType::Vector4:
+    return "Vector4";
+  case ShaderParameterType::Texture:
+    return "Texture";
+  case ShaderParameterType::Float:
+    return "Float";
+  default:
+    return "Unknown";
+  }
+}
+
+std::string ShaderParameterValidator::FindSimilarParameter(
+    const std::string &param_name,
+    const std::vector<ShaderParameterInfo> &params) const {
+  if (params.empty())
+    return "";
+
+  std::string best_match;
+  int best_distance = (std::numeric_limits<int>::max)();
+  const int max_distance = 3; // Maximum edit distance to consider
+
+  for (const auto &param_info : params) {
+    int distance = CalculateLevenshteinDistance(param_name, param_info.name);
+    if (distance < best_distance && distance <= max_distance) {
+      best_distance = distance;
+      best_match = param_info.name;
+    }
+  }
+
+  return best_match;
+}
+
+int ShaderParameterValidator::CalculateLevenshteinDistance(
+    const std::string &s1, const std::string &s2) const {
+  const size_t len1 = s1.size();
+  const size_t len2 = s2.size();
+
+  // Simple optimization: if lengths differ significantly, skip
+  if (std::abs(static_cast<int>(len1) - static_cast<int>(len2)) > 5) {
+    return 100; // Large distance to skip
+  }
+
+  // Create DP table
+  std::vector<std::vector<int>> dp(len1 + 1, std::vector<int>(len2 + 1));
+
+  // Initialize base cases
+  for (size_t i = 0; i <= len1; ++i)
+    dp[i][0] = static_cast<int>(i);
+  for (size_t j = 0; j <= len2; ++j)
+    dp[0][j] = static_cast<int>(j);
+
+  // Fill DP table
+  for (size_t i = 1; i <= len1; ++i) {
+    for (size_t j = 1; j <= len2; ++j) {
+      if (s1[i - 1] == s2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1];
+      } else {
+        dp[i][j] = 1 + (std::min)((std::min)(dp[i - 1][j], dp[i][j - 1]),
+                                  dp[i - 1][j - 1]);
+      }
+    }
+  }
+
+  return dp[len1][len2];
 }
 
 // 命名约定辅助函数实现
