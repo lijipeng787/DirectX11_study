@@ -3,6 +3,7 @@
 #include "../CommonFramework2/DirectX11Device.h"
 #include "../CommonFramework2/TypeDefine.h"
 
+#include "Frustum.h"
 #include "Interfaces.h"
 #include "RenderableObject.h"
 #include "ResourceManager.h"
@@ -102,6 +103,13 @@ bool Graphics::InitializeCamera() {
   camera_->SetPosition(0.0f, -1.0f, -10.0f);
   camera_->Render();
   camera_->RenderBaseViewMatrix();
+
+  // Initialize frustum for culling
+  frustum_ = make_unique<FrustumClass>();
+  if (nullptr == frustum_) {
+    return false;
+  }
+
   return true;
 }
 
@@ -815,6 +823,8 @@ void Graphics::SetupRenderableObjects() {
     const auto &shadow_tex = render_targets_.shadow_map;
     auto down_sample_object = CreatePostProcessObject(
         small_window, texture_shader, down_sample_tag, shadow_tex);
+    down_sample_object->AddTag(
+        "skip_culling"); // Post-processing objects should not be culled
     renderable_objects_.push_back(down_sample_object);
   }
 
@@ -824,6 +834,8 @@ void Graphics::SetupRenderableObjects() {
     auto horizontal_blur_object =
         CreatePostProcessObject(small_window, horizontal_blur_shader,
                                 horizontal_blur_tag, downsample_tex);
+    horizontal_blur_object->AddTag(
+        "skip_culling"); // Post-processing objects should not be culled
     renderable_objects_.push_back(horizontal_blur_object);
   }
 
@@ -832,6 +844,8 @@ void Graphics::SetupRenderableObjects() {
     const auto &h_blur_tex = render_targets_.horizontal_blur;
     auto vertical_blur_object = CreatePostProcessObject(
         small_window, vertical_blur_shader, vertical_blur_tag, h_blur_tex);
+    vertical_blur_object->AddTag(
+        "skip_culling"); // Post-processing objects should not be culled
     renderable_objects_.push_back(vertical_blur_object);
   }
 
@@ -840,6 +854,8 @@ void Graphics::SetupRenderableObjects() {
     const auto &v_blur_tex = render_targets_.vertical_blur;
     auto up_sample_object = CreatePostProcessObject(
         fullscreen_window, texture_shader, up_sample_tag, v_blur_tex);
+    up_sample_object->AddTag(
+        "skip_culling"); // Post-processing objects should not be culled
     renderable_objects_.push_back(up_sample_object);
   }
 
@@ -963,6 +979,48 @@ void Graphics::RegisterShaderParameters() {
   cout << "[Graphics] Registered shader parameters for validation" << endl;
 }
 
+// Helper function to check if a renderable object is visible in the frustum
+bool Graphics::IsObjectVisible(std::shared_ptr<IRenderable> renderable,
+                               const FrustumClass &frustum) const {
+  if (!renderable) {
+    return true; // If object is null, skip it
+  }
+
+  // Get world matrix and extract position
+  XMMATRIX worldMatrix = renderable->GetWorldMatrix();
+  XMFLOAT3 position;
+  XMStoreFloat3(&position, worldMatrix.r[3]);
+
+  // Check if object has "skip_culling" tag (for UI elements, post-processing,
+  // etc.)
+  if (renderable->HasTag("skip_culling")) {
+    return true;
+  }
+
+  // Use a default bounding sphere radius
+  // For models, this is a reasonable default.
+  // In a production system, you'd want to store actual bounding sphere data per
+  // model.
+  float boundingRadius = 2.0f; // Default radius for most objects
+
+  // For smaller objects (like the dynamic cubes), use a smaller radius
+  if (renderable->HasTag("final")) {
+    // Check if it's a small cube (based on scale or other criteria)
+    // For now, use a smaller radius for tagged objects
+    XMVECTOR scale;
+    XMVECTOR rotation;
+    XMVECTOR translation;
+    XMMatrixDecompose(&scale, &rotation, &translation, worldMatrix);
+    float scaleX = XMVectorGetX(scale);
+    if (scaleX < 0.5f) {
+      boundingRadius = 0.5f;
+    }
+  }
+
+  return frustum.CheckSphere(position.x, position.y, position.z,
+                             boundingRadius);
+}
+
 void Graphics::Render() {
 
   auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
@@ -998,9 +1056,27 @@ void Graphics::Render() {
   Params.SetMatrix("deviceWorldMatrix", deviceWorldMatrix);
   Params.SetMatrix("projectionMatrix", projectionMatrix);
 
-  if (use_render_graph_) {
-    render_graph_.Execute(renderable_objects_, Params);
+  // Construct frustum for culling
+  if (frustum_) {
+    frustum_->ConstructFrustum(SCREEN_DEPTH, projectionMatrix, viewMatrix);
+  }
+
+  // Perform frustum culling: filter renderable objects
+  std::vector<std::shared_ptr<IRenderable>> culled_objects;
+  if (frustum_) {
+    for (const auto &renderable : renderable_objects_) {
+      if (IsObjectVisible(renderable, *frustum_)) {
+        culled_objects.push_back(renderable);
+      }
+    }
   } else {
-    render_pipeline_.Execute(Params);
+    // If frustum not initialized, render all objects
+    culled_objects = renderable_objects_;
+  }
+
+  if (use_render_graph_) {
+    render_graph_.Execute(culled_objects, Params);
+  } else {
+    render_pipeline_.Execute(culled_objects, Params);
   }
 }

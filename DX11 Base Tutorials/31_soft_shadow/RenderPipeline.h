@@ -23,6 +23,9 @@ public:
 
   void Execute(const ShaderParameterContainer &globalParams);
 
+  void Execute(const std::vector<std::shared_ptr<IRenderable>> &objects,
+               const ShaderParameterContainer &globalParams);
+
   void SetGlobalParameters(const ShaderParameterContainer &params);
 
   ID3D11Device *GetDevice() const { return device_; }

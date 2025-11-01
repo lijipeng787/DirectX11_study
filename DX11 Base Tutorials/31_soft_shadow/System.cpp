@@ -78,7 +78,14 @@ bool System::Frame() {
   position_->GetRotation(rotX, rotY, rotZ);
 
   graphics_->SetPosition(posX, posY, posZ);
-  graphics_->SetRotation(rotX, rotY, rotZ);
+  // Convert degrees to Camera's normalized rotation format
+  // Camera expects: rotation * HALF_PI = actual angle in radians
+  // Position stores: degrees (0-360)
+  // Conversion: Camera rotation = Position rotation (degrees) / 90.0f
+  const float DEGREES_TO_CAMERA_UNIT = 1.0f / 90.0f;
+  graphics_->SetRotation(rotX * DEGREES_TO_CAMERA_UNIT,
+                         rotY * DEGREES_TO_CAMERA_UNIT,
+                         rotZ * DEGREES_TO_CAMERA_UNIT);
 
   auto delta_time = GetTimerComponent().GetTime();
 

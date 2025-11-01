@@ -11,6 +11,12 @@ void RenderPipeline::AddRenderableObject(std::shared_ptr<IRenderable> object) {
 }
 
 void RenderPipeline::Execute(const ShaderParameterContainer &frameParams) {
+  Execute(renderable_objects_, frameParams);
+}
+
+void RenderPipeline::Execute(
+    const std::vector<std::shared_ptr<IRenderable>> &objects,
+    const ShaderParameterContainer &frameParams) {
 
   ShaderParameterContainer globalFrameParams = global_parameters_;
   globalFrameParams.Merge(frameParams);
@@ -18,7 +24,7 @@ void RenderPipeline::Execute(const ShaderParameterContainer &frameParams) {
   DirectX11Device::GetD3d11DeviceInstance()->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
   for (const auto &pass : render_passes_) {
-    pass->Execute(renderable_objects_, globalFrameParams, device_context_);
+    pass->Execute(objects, globalFrameParams, device_context_);
   }
 
   DirectX11Device::GetD3d11DeviceInstance()->EndScene();

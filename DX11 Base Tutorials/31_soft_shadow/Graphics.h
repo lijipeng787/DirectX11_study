@@ -4,6 +4,7 @@
 
 #include "../CommonFramework2/Camera.h"
 #include "../CommonFramework2/GraphicsBase.h"
+#include "Frustum.h"
 #include "RenderGraph.h"
 #include "RenderPipeline.h"
 #include "ShaderParameterValidator.h"
@@ -78,6 +79,10 @@ private:
 
   void RegisterShaderParameters();
 
+  // Frustum culling helper
+  bool IsObjectVisible(std::shared_ptr<IRenderable> renderable,
+                       const FrustumClass &frustum) const;
+
 private:
   struct SceneAssets {
     std::shared_ptr<Model> cube;
@@ -117,6 +122,8 @@ private:
   std::unique_ptr<Camera> camera_;
 
   std::unique_ptr<Light> light_;
+
+  std::unique_ptr<FrustumClass> frustum_;
 
   std::shared_ptr<StandardRenderGroup> cube_group_;
 

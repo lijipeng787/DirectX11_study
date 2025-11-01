@@ -123,52 +123,40 @@ void Position::MoveDownward(bool keydown) {
 }
 
 void Position::TurnLeft(bool keydown) {
-  // Update the left turn speed movement based on the frame time and whether the
-  // user is holding the key down or not.
+  // Fixed rotation speed in degrees per second
+  const float rotation_speed_per_second = 45.0f; // degrees per second
+  const float frame_time_seconds =
+      frame_time_ / 1000.0f; // Convert ms to seconds
+
+  // Calculate rotation angle for this frame (in degrees)
+  float rotation_delta = rotation_speed_per_second * frame_time_seconds;
+
   if (keydown) {
-    left_turning_speed_ += frame_time_ * 0.01f;
-
-    if (left_turning_speed_ > (frame_time_ * 0.15f)) {
-      left_turning_speed_ = frame_time_ * 0.15f;
-    }
-  } else {
-    left_turning_speed_ -= frame_time_ * 0.005f;
-
-    if (left_turning_speed_ < 0.0f) {
-      left_turning_speed_ = 0.0f;
-    }
+    // Apply rotation directly - smooth and frame-rate independent
+    rotation_y_ -= rotation_delta;
   }
 
-  // Update the rotation_.
-  rotation_y_ -= left_turning_speed_;
-
-  // Keep the rotation_ in the 0 to 360 range.
+  // Keep the rotation in the 0 to 360 range.
   if (rotation_y_ < 0.0f) {
     rotation_y_ += 360.0f;
   }
 }
 
 void Position::TurnRight(bool keydown) {
-  // Update the right turn speed movement based on the frame time and whether
-  // the user is holding the key down or not.
+  // Fixed rotation speed in degrees per second
+  const float rotation_speed_per_second = 45.0f; // degrees per second
+  const float frame_time_seconds =
+      frame_time_ / 1000.0f; // Convert ms to seconds
+
+  // Calculate rotation angle for this frame (in degrees)
+  float rotation_delta = rotation_speed_per_second * frame_time_seconds;
+
   if (keydown) {
-    right_turning_speed_ += frame_time_ * 0.01f;
-
-    if (right_turning_speed_ > (frame_time_ * 0.15f)) {
-      right_turning_speed_ = frame_time_ * 0.15f;
-    }
-  } else {
-    right_turning_speed_ -= frame_time_ * 0.005f;
-
-    if (right_turning_speed_ < 0.0f) {
-      right_turning_speed_ = 0.0f;
-    }
+    // Apply rotation directly - smooth and frame-rate independent
+    rotation_y_ += rotation_delta;
   }
 
-  // Update the rotation_.
-  rotation_y_ += right_turning_speed_;
-
-  // Keep the rotation_ in the 0 to 360 range.
+  // Keep the rotation in the 0 to 360 range.
   if (rotation_y_ > 360.0f) {
     rotation_y_ -= 360.0f;
   }
