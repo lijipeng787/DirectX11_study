@@ -23,11 +23,21 @@ void RenderPipeline::Execute(
 
   DirectX11Device::GetD3d11DeviceInstance()->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
+  ExecutePasses(objects, globalFrameParams);
+
+  DirectX11Device::GetD3d11DeviceInstance()->EndScene();
+}
+
+void RenderPipeline::ExecutePasses(
+    const std::vector<std::shared_ptr<IRenderable>> &objects,
+    const ShaderParameterContainer &globalParams) {
+
+  ShaderParameterContainer globalFrameParams = global_parameters_;
+  globalFrameParams.Merge(globalParams);
+
   for (const auto &pass : render_passes_) {
     pass->Execute(objects, globalFrameParams, device_context_);
   }
-
-  DirectX11Device::GetD3d11DeviceInstance()->EndScene();
 }
 
 void RenderPipeline::SetGlobalParameters(

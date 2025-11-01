@@ -18,6 +18,7 @@ class IShader;
 class DepthShader;
 class ShadowShader;
 class SoftShadowShader;
+class FontShader;
 class TextureShader;
 class HorizontalBlurShader;
 class VerticalBlurShader;
@@ -210,4 +211,11 @@ inline std::shared_ptr<PbrShader>
 ResourceManager::GetShader<PbrShader>(const std::string &name) {
   return std::dynamic_pointer_cast<PbrShader>(GetCachedResource<IShader>(
       name, shader_cache_, [this]() { return CreateShader("PbrShader"); }));
+}
+
+template <>
+inline std::shared_ptr<FontShader>
+ResourceManager::GetShader<FontShader>(const std::string &name) {
+  return std::dynamic_pointer_cast<FontShader>(GetCachedResource<IShader>(
+      name, shader_cache_, [this]() { return CreateShader("FontShader"); }));
 }

@@ -26,6 +26,10 @@ public:
   void Execute(const std::vector<std::shared_ptr<IRenderable>> &objects,
                const ShaderParameterContainer &globalParams);
 
+  // Execute passes without BeginScene/EndScene (for external control)
+  void ExecutePasses(const std::vector<std::shared_ptr<IRenderable>> &objects,
+                     const ShaderParameterContainer &globalParams);
+
   void SetGlobalParameters(const ShaderParameterContainer &params);
 
   ID3D11Device *GetDevice() const { return device_; }

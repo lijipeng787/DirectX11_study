@@ -9,6 +9,8 @@
 #include "ResourceManager.h"
 #include "ShaderParameterValidator.h"
 #include "depthshader.h"
+#include "font.h"
+#include "fontshader.h"
 #include "horizontalblurshader.h"
 #include "model.h"
 #include "orthowindow.h"
@@ -16,6 +18,7 @@
 #include "rendertexture.h"
 #include "shadowshader.h"
 #include "softshadowshader.h"
+#include "text.h"
 #include "textureshader.h"
 #include "verticalblurshader.h"
 
@@ -78,6 +81,9 @@ bool Graphics::InitializeDevice(int screenWidth, int screenHeight, HWND hwnd) {
     LogError(L"Could not initialize Direct3D.");
     return false;
   }
+
+  this->screenWidth = screenWidth;
+  this->screenHeight = screenHeight;
 
   // Initialize ResourceManager
   auto &resource_manager = ResourceManager::GetInstance();
@@ -202,6 +208,37 @@ bool Graphics::InitializeResources(HWND hwnd) {
       !shader_assets_.pbr) {
     LogError(L"Could not load shaders.");
     return false;
+  }
+
+  // Initialize font resources for text rendering
+  auto font_shader = resource_manager.GetShader<FontShader>("font");
+  if (!font_shader) {
+    LogError(L"Could not load font shader.");
+    return false;
+  }
+
+  auto font = std::make_shared<Font>();
+  if (!font->Initialize("./data/fontdata.txt", L"./data/font.dds",
+                        resource_manager.GetDevice())) {
+    LogError(L"Could not initialize font.");
+    return false;
+  }
+
+  // Store font and shader for text rendering
+  font_shader_ = font_shader;
+  font_ = font;
+
+  // Initialize text rendering now that font resources are ready
+  if (font_ && font_shader_) {
+    XMMATRIX baseViewMatrix;
+    camera_->GetBaseViewMatrix(baseViewMatrix);
+
+    text_ = make_unique<Text>();
+    if (!text_->Initialize(screenWidth, screenHeight, baseViewMatrix, font_,
+                           font_shader_, resource_manager.GetDevice())) {
+      LogError(L"Could not initialize text.");
+      return false;
+    }
   }
 
   // 4. 正交屏幕窗口
@@ -749,6 +786,32 @@ void Graphics::SetupRenderPasses() {
       .SetTexture("diffuseTexture", sphere_pbr_model->GetTexture(0))
       .SetTexture("normalMap", sphere_pbr_model->GetTexture(1))
       .SetTexture("rmTexture", sphere_pbr_model->GetTexture(2));
+
+  // Pass 9: Text overlay (executed via custom lambda)
+  render_graph_.AddPass("TextOverlayPass")
+      .DisableZBuffer(true)
+      .Execute([this](RenderPassContext &ctx) {
+        if (!text_) {
+          return;
+        }
+
+        auto dx = DirectX11Device::GetD3d11DeviceInstance();
+        dx->SetBackBufferRenderTarget();
+        dx->ResetViewport();
+        dx->TurnZBufferOff();
+        // TODO: need fix
+        // enable alpha blending will cause issues with others shaders
+        // dx->TurnOnAlphaBlending();
+
+        XMMATRIX worldMatrix, orthoMatrix;
+        dx->GetWorldMatrix(worldMatrix);
+        dx->GetOrthoMatrix(orthoMatrix);
+
+        text_->Render(worldMatrix, orthoMatrix, ctx.device_context);
+
+        // dx->TurnOffAlphaBlending();
+        dx->TurnZBufferOn();
+      });
 }
 
 std::shared_ptr<RenderableObject>
@@ -1072,6 +1135,12 @@ void Graphics::Render() {
   } else {
     // If frustum not initialized, render all objects
     culled_objects = renderable_objects_;
+  }
+
+  // Update render count before rendering
+  int renderCount = static_cast<int>(culled_objects.size());
+  if (text_) {
+    text_->SetRenderCount(renderCount);
   }
 
   if (use_render_graph_) {

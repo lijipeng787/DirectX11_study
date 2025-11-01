@@ -1,6 +1,7 @@
 #include "ResourceManager.h"
 
 #include "depthshader.h"
+#include "fontshader.h"
 #include "horizontalblurshader.h"
 #include "model.h"
 #include "orthowindow.h"
@@ -198,6 +199,8 @@ ResourceManager::CreateShader(const std::string &shaderType) {
     shader = make_shared<VerticalBlurShader>();
   } else if (shaderType == "PbrShader") {
     shader = make_shared<PbrShader>();
+  } else if (shaderType == "FontShader") {
+    shader = make_shared<FontShader>();
   } else {
     cerr << "Unknown shader type: " << shaderType << endl;
     return nullptr;

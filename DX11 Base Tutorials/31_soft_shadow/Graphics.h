@@ -9,6 +9,7 @@
 #include "RenderPipeline.h"
 #include "ShaderParameterValidator.h"
 #include "light.h"
+#include "text.h"
 
 class Camera;
 class DirectX11Device;
@@ -24,6 +25,9 @@ class TextureShader;
 class HorizontalBlurShader;
 class VerticalBlurShader;
 class PbrShader;
+class FontShader;
+class Font;
+class Text;
 
 class Graphics : public GraphicsBase {
 public:
@@ -119,11 +123,17 @@ private:
 
   float rot_x_ = 0.0f, rot_y_ = 0.0f, rot_z_ = 0.0f;
 
+  unsigned int screenWidth = 0, screenHeight = 0;
+
   std::unique_ptr<Camera> camera_;
 
   std::unique_ptr<Light> light_;
 
   std::unique_ptr<FrustumClass> frustum_;
+
+  std::unique_ptr<Text> text_;
+  std::shared_ptr<Font> font_;
+  std::shared_ptr<FontShader> font_shader_;
 
   std::shared_ptr<StandardRenderGroup> cube_group_;
 

@@ -128,6 +128,12 @@ public:
   bool Compile();
   void Execute(std::vector<std::shared_ptr<IRenderable>> &renderables,
                const ShaderParameterContainer &global_params);
+
+  // Execute passes without BeginScene/EndScene (for external control)
+  void ExecutePasses(std::vector<std::shared_ptr<IRenderable>> &renderables,
+                     const ShaderParameterContainer &global_params,
+                     bool &back_buffer_depth_cleared);
+
   std::shared_ptr<RenderTexture> GetTexture(const std::string &name) const;
   void Clear();
   void PrintGraph() const; // Detailed debug: resources, passes, bindings.

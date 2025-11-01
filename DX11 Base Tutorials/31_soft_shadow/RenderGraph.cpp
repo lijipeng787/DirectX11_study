@@ -9,6 +9,7 @@
 
 // do not remove these includes
 #include "depthshader.h"
+#include "fontshader.h"
 #include "horizontalblurshader.h"
 #include "pbrshader.h"
 #include "shadowshader.h"
@@ -214,10 +215,15 @@ void RenderGraphPass::Execute(
 
   if (disable_z_buffer_)
     DirectX11Device::GetD3d11DeviceInstance()->TurnZBufferOn();
+
+  // Always restore back buffer render target after rendering to texture
+  // This ensures consistent state for subsequent passes or text rendering
   if (output_texture_) {
     auto dx = DirectX11Device::GetD3d11DeviceInstance();
     dx->SetBackBufferRenderTarget();
     dx->ResetViewport();
+    // Ensure Z buffer is on after restoring back buffer (for 3D rendering)
+    dx->TurnZBufferOn();
   }
 }
 
@@ -313,9 +319,20 @@ void RenderGraph::Execute(
   }
   DirectX11Device::GetD3d11DeviceInstance()->BeginScene(0, 0, 0, 1);
   bool backDepthCleared = false;
-  for (auto &p : sorted_passes_)
-    p->Execute(renderables, global_params, context_, backDepthCleared);
+  ExecutePasses(renderables, global_params, backDepthCleared);
   DirectX11Device::GetD3d11DeviceInstance()->EndScene();
+}
+
+void RenderGraph::ExecutePasses(
+    std::vector<std::shared_ptr<IRenderable>> &renderables,
+    const ShaderParameterContainer &global_params,
+    bool &back_buffer_depth_cleared) {
+  if (!compiled_) {
+    std::cerr << "RenderGraph ExecutePasses Error: not compiled" << std::endl;
+    return;
+  }
+  for (auto &p : sorted_passes_)
+    p->Execute(renderables, global_params, context_, back_buffer_depth_cleared);
 }
 
 std::shared_ptr<RenderTexture>
