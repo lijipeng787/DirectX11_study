@@ -183,7 +183,7 @@ void PBRModel::Render(const IShader &shader,
 }
 
 ID3D11ShaderResourceView *PBRModel::GetTexture(int index) {
-  return m_Textures[index].GetTexture();
+  return textures_[index].GetTexture();
 }
 
 bool PBRModel::InitializeBuffers(ID3D11Device *device) {
@@ -191,23 +191,22 @@ bool PBRModel::InitializeBuffers(ID3D11Device *device) {
   D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
   D3D11_SUBRESOURCE_DATA vertexData, indexData;
 
-  auto vertices = new VertexType[m_vertexCount];
+  auto vertices = new VertexType[vertex_count_];
 
-  auto indices = new unsigned long[m_indexCount];
+  auto indices = new unsigned long[index_count_];
 
-  for (int i = 0; i < m_vertexCount; i++) {
-    vertices[i].position = XMFLOAT3(m_model[i].x, m_model[i].y, m_model[i].z);
-    vertices[i].texture = XMFLOAT2(m_model[i].tu, m_model[i].tv);
-    vertices[i].normal = XMFLOAT3(m_model[i].nx, m_model[i].ny, m_model[i].nz);
-    vertices[i].tangent = XMFLOAT3(m_model[i].tx, m_model[i].ty, m_model[i].tz);
-    vertices[i].binormal =
-        XMFLOAT3(m_model[i].bx, m_model[i].by, m_model[i].bz);
+  for (int i = 0; i < vertex_count_; i++) {
+    vertices[i].position = XMFLOAT3(model_[i].x, model_[i].y, model_[i].z);
+    vertices[i].texture = XMFLOAT2(model_[i].tu, model_[i].tv);
+    vertices[i].normal = XMFLOAT3(model_[i].nx, model_[i].ny, model_[i].nz);
+    vertices[i].tangent = XMFLOAT3(model_[i].tx, model_[i].ty, model_[i].tz);
+    vertices[i].binormal = XMFLOAT3(model_[i].bx, model_[i].by, model_[i].bz);
 
     indices[i] = i;
   }
 
   vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-  vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
+  vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertex_count_;
   vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
   vertexBufferDesc.CPUAccessFlags = 0;
   vertexBufferDesc.MiscFlags = 0;
@@ -218,13 +217,13 @@ bool PBRModel::InitializeBuffers(ID3D11Device *device) {
   vertexData.SysMemSlicePitch = 0;
 
   auto result =
-      device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer);
+      device->CreateBuffer(&vertexBufferDesc, &vertexData, &vertex_buffer_);
   if (FAILED(result)) {
     return false;
   }
 
   indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-  indexBufferDesc.ByteWidth = sizeof(unsigned long) * m_indexCount;
+  indexBufferDesc.ByteWidth = sizeof(unsigned long) * index_count_;
   indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
   indexBufferDesc.CPUAccessFlags = 0;
   indexBufferDesc.MiscFlags = 0;
@@ -234,7 +233,7 @@ bool PBRModel::InitializeBuffers(ID3D11Device *device) {
   indexData.SysMemPitch = 0;
   indexData.SysMemSlicePitch = 0;
 
-  result = device->CreateBuffer(&indexBufferDesc, &indexData, &m_indexBuffer);
+  result = device->CreateBuffer(&indexBufferDesc, &indexData, &index_buffer_);
   if (FAILED(result)) {
     return false;
   }
@@ -259,10 +258,10 @@ void PBRModel::RenderBuffers(ID3D11DeviceContext *deviceContext) const {
   unsigned int stride = sizeof(VertexType);
   unsigned int offset = 0;
 
-  deviceContext->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(),
+  deviceContext->IASetVertexBuffers(0, 1, vertex_buffer_.GetAddressOf(),
                                     &stride, &offset);
 
-  deviceContext->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+  deviceContext->IASetIndexBuffer(index_buffer_.Get(), DXGI_FORMAT_R32_UINT, 0);
 
   deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
@@ -270,19 +269,19 @@ void PBRModel::RenderBuffers(ID3D11DeviceContext *deviceContext) const {
 bool PBRModel::LoadTextures(const string &filename1, const string &filename2,
                             const string &filename3, ID3D11Device *device) {
 
-  m_Textures = new TGATexture[3];
+  textures_ = std::make_unique<TGATexture[]>(3);
 
-  auto result = m_Textures[0].Initialize(filename1.c_str(), device);
+  auto result = textures_[0].Initialize(filename1.c_str(), device);
   if (!result) {
     return false;
   }
 
-  result = m_Textures[1].Initialize(filename2.c_str(), device);
+  result = textures_[1].Initialize(filename2.c_str(), device);
   if (!result) {
     return false;
   }
 
-  result = m_Textures[2].Initialize(filename3.c_str(), device);
+  result = textures_[2].Initialize(filename3.c_str(), device);
   if (!result) {
     return false;
   }
@@ -290,12 +289,7 @@ bool PBRModel::LoadTextures(const string &filename1, const string &filename2,
   return true;
 }
 
-void PBRModel::ReleaseTextures() {
-  if (m_Textures) {
-    delete[] m_Textures;
-    m_Textures = nullptr;
-  }
-}
+void PBRModel::ReleaseTextures() { textures_.reset(); }
 
 bool PBRModel::LoadModel(const char *filename) {
   ifstream fin;
@@ -315,13 +309,13 @@ bool PBRModel::LoadModel(const char *filename) {
   }
 
   // Read in the vertex count.
-  fin >> m_vertexCount;
+  fin >> vertex_count_;
 
   // Set the number of indices to be the same as the vertex count.
-  m_indexCount = m_vertexCount;
+  index_count_ = vertex_count_;
 
   // Create the model using the vertex count that was read in.
-  m_model.resize(m_vertexCount);
+  model_.resize(vertex_count_);
 
   // Read up to the beginning of the data.
   fin.get(input);
@@ -332,10 +326,10 @@ bool PBRModel::LoadModel(const char *filename) {
   fin.get(input);
 
   // Read in the vertex data.
-  for (int i = 0; i < m_vertexCount; i++) {
-    fin >> m_model[i].x >> m_model[i].y >> m_model[i].z;
-    fin >> m_model[i].tu >> m_model[i].tv;
-    fin >> m_model[i].nx >> m_model[i].ny >> m_model[i].nz;
+  for (int i = 0; i < vertex_count_; i++) {
+    fin >> model_[i].x >> model_[i].y >> model_[i].z;
+    fin >> model_[i].tu >> model_[i].tv;
+    fin >> model_[i].nx >> model_[i].ny >> model_[i].nz;
   }
 
   // Close the model file.
@@ -350,7 +344,7 @@ void PBRModel::CalculateModelVectors() {
   VectorType tangent, binormal;
 
   // Calculate the number of faces in the model.
-  auto faceCount = m_vertexCount / 3;
+  auto faceCount = vertex_count_ / 3;
 
   // Initialize the index to the model data.
   auto index = 0;
@@ -359,51 +353,51 @@ void PBRModel::CalculateModelVectors() {
   // vectors.
   for (int i = 0; i < faceCount; i++) {
     // Get the three vertices for this face from the model.
-    vertex1.x = m_model[index].x;
-    vertex1.y = m_model[index].y;
-    vertex1.z = m_model[index].z;
-    vertex1.tu = m_model[index].tu;
-    vertex1.tv = m_model[index].tv;
+    vertex1.x = model_[index].x;
+    vertex1.y = model_[index].y;
+    vertex1.z = model_[index].z;
+    vertex1.tu = model_[index].tu;
+    vertex1.tv = model_[index].tv;
     index++;
 
-    vertex2.x = m_model[index].x;
-    vertex2.y = m_model[index].y;
-    vertex2.z = m_model[index].z;
-    vertex2.tu = m_model[index].tu;
-    vertex2.tv = m_model[index].tv;
+    vertex2.x = model_[index].x;
+    vertex2.y = model_[index].y;
+    vertex2.z = model_[index].z;
+    vertex2.tu = model_[index].tu;
+    vertex2.tv = model_[index].tv;
     index++;
 
-    vertex3.x = m_model[index].x;
-    vertex3.y = m_model[index].y;
-    vertex3.z = m_model[index].z;
-    vertex3.tu = m_model[index].tu;
-    vertex3.tv = m_model[index].tv;
+    vertex3.x = model_[index].x;
+    vertex3.y = model_[index].y;
+    vertex3.z = model_[index].z;
+    vertex3.tu = model_[index].tu;
+    vertex3.tv = model_[index].tv;
     index++;
 
     // Calculate the tangent and binormal of that face.
     CalculateTangentBinormal(vertex1, vertex2, vertex3, tangent, binormal);
 
     // Store the tangent and binormal for this face back in the model structure.
-    m_model[index - 1].tx = tangent.x;
-    m_model[index - 1].ty = tangent.y;
-    m_model[index - 1].tz = tangent.z;
-    m_model[index - 1].bx = binormal.x;
-    m_model[index - 1].by = binormal.y;
-    m_model[index - 1].bz = binormal.z;
+    model_[index - 1].tx = tangent.x;
+    model_[index - 1].ty = tangent.y;
+    model_[index - 1].tz = tangent.z;
+    model_[index - 1].bx = binormal.x;
+    model_[index - 1].by = binormal.y;
+    model_[index - 1].bz = binormal.z;
 
-    m_model[index - 2].tx = tangent.x;
-    m_model[index - 2].ty = tangent.y;
-    m_model[index - 2].tz = tangent.z;
-    m_model[index - 2].bx = binormal.x;
-    m_model[index - 2].by = binormal.y;
-    m_model[index - 2].bz = binormal.z;
+    model_[index - 2].tx = tangent.x;
+    model_[index - 2].ty = tangent.y;
+    model_[index - 2].tz = tangent.z;
+    model_[index - 2].bx = binormal.x;
+    model_[index - 2].by = binormal.y;
+    model_[index - 2].bz = binormal.z;
 
-    m_model[index - 3].tx = tangent.x;
-    m_model[index - 3].ty = tangent.y;
-    m_model[index - 3].tz = tangent.z;
-    m_model[index - 3].bx = binormal.x;
-    m_model[index - 3].by = binormal.y;
-    m_model[index - 3].bz = binormal.z;
+    model_[index - 3].tx = tangent.x;
+    model_[index - 3].ty = tangent.y;
+    model_[index - 3].tz = tangent.z;
+    model_[index - 3].bx = binormal.x;
+    model_[index - 3].by = binormal.y;
+    model_[index - 3].bz = binormal.z;
   }
 }
 

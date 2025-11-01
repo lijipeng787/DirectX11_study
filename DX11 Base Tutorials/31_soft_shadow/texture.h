@@ -46,21 +46,22 @@ public:
 public:
   bool Initialize(const char *, ID3D11Device *device);
 
-  ID3D11ShaderResourceView *GetTexture() const { return m_textureView.Get(); }
+  ID3D11ShaderResourceView *GetTexture() const { return texture_view_.Get(); }
 
-  int GetWidth() const { return m_width; }
+  int GetWidth() const { return width_; }
 
-  int GetHeight() const { return m_height; }
+  int GetHeight() const { return height_; }
 
 private:
   bool LoadTarga32Bit(const char *);
 
 private:
-  unsigned char *m_targaData;
+  unsigned char *targa_data_ = nullptr;
 
-  Microsoft::WRL::ComPtr<ID3D11Texture2D> m_texture;
+  Microsoft::WRL::ComPtr<ID3D11Texture2D> texture_;
 
-  Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textureView;
+  Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture_view_;
 
-  int m_width, m_height;
+  int width_ = 0;
+  int height_ = 0;
 };

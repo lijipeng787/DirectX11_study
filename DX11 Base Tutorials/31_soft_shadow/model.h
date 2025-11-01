@@ -133,9 +133,9 @@ public:
 
   ShaderParameterCallback GetParameterCallback() const override;
 
-  int GetIndexCount() const { return m_indexCount; }
+  int GetIndexCount() const { return index_count_; }
 
-  ID3D11ShaderResourceView *GetTexture(int);
+  ID3D11ShaderResourceView *GetTexture(int index);
 
   void SetWorldMatrix(const DirectX::XMMATRIX &worldMatrix) {
     world_matrix_ = worldMatrix;
@@ -161,13 +161,15 @@ private:
                                 VectorType &, VectorType &);
 
 private:
-  Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer, m_indexBuffer;
+  Microsoft::WRL::ComPtr<ID3D11Buffer> vertex_buffer_;
+  Microsoft::WRL::ComPtr<ID3D11Buffer> index_buffer_;
 
-  int m_vertexCount, m_indexCount;
+  int vertex_count_ = 0;
+  int index_count_ = 0;
 
-  TGATexture *m_Textures;
+  std::unique_ptr<TGATexture[]> textures_;
 
-  std::vector<ModelType> m_model;
+  std::vector<ModelType> model_;
 
   DirectX::XMMATRIX world_matrix_ = DirectX::XMMatrixIdentity();
 };

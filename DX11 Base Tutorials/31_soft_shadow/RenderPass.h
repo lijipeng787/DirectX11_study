@@ -26,9 +26,11 @@ public:
                const ShaderParameterContainer &globalFrameParams,
                ID3D11DeviceContext *deviceContext);
 
-  void NeedTurnOffZBuffer() { need_turn_z_buffer_off_ = true; }
+  void DisableZBuffer(bool disable = true) {
+    need_turn_z_buffer_off_ = disable;
+  }
 
-  const std::string &GetPassName() const { return pass_name_; }
+  const std::string &GetName() const { return pass_name_; }
 
   void AddRenderTag(const std::string &tag) { render_tags_.insert(tag); }
 

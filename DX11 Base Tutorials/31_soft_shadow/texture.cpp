@@ -31,8 +31,8 @@ bool TGATexture::Initialize(const char *filename, ID3D11Device *device) {
   }
 
   // Setup the description of the texture.
-  textureDesc.Height = m_height;
-  textureDesc.Width = m_width;
+  textureDesc.Height = height_;
+  textureDesc.Width = width_;
   textureDesc.MipLevels = 0;
   textureDesc.ArraySize = 1;
   textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -45,19 +45,19 @@ bool TGATexture::Initialize(const char *filename, ID3D11Device *device) {
 
   // Create the empty texture.
   auto hResult =
-      device->CreateTexture2D(&textureDesc, NULL, m_texture.GetAddressOf());
+      device->CreateTexture2D(&textureDesc, NULL, texture_.GetAddressOf());
   if (FAILED(hResult)) {
     return false;
   }
 
   // Set the row pitch of the targa image data.
-  unsigned int rowPitch = (m_width * 4) * sizeof(unsigned char);
+  unsigned int rowPitch = (width_ * 4) * sizeof(unsigned char);
 
   auto deviceContext =
       DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   // Copy the targa image data into the texture.
-  deviceContext->UpdateSubresource(m_texture.Get(), 0, NULL, m_targaData,
+  deviceContext->UpdateSubresource(texture_.Get(), 0, NULL, targa_data_,
                                    rowPitch, 0);
 
   // Setup the shader resource view description.
@@ -67,19 +67,19 @@ bool TGATexture::Initialize(const char *filename, ID3D11Device *device) {
   srvDesc.Texture2D.MipLevels = -1;
 
   // Create the shader resource view for the texture.
-  hResult = device->CreateShaderResourceView(m_texture.Get(), &srvDesc,
-                                             m_textureView.GetAddressOf());
+  hResult = device->CreateShaderResourceView(texture_.Get(), &srvDesc,
+                                             texture_view_.GetAddressOf());
   if (FAILED(hResult)) {
     return false;
   }
 
   // Generate mipmaps for this texture.
-  deviceContext->GenerateMips(m_textureView.Get());
+  deviceContext->GenerateMips(texture_view_.Get());
 
   // Release the targa image data now that the image data has been loaded into
   // the texture.
-  delete[] m_targaData;
-  m_targaData = 0;
+  delete[] targa_data_;
+  targa_data_ = nullptr;
 
   return true;
 }
@@ -104,8 +104,8 @@ bool TGATexture::LoadTarga32Bit(const char *filename) {
   }
 
   // Get the important information from the header.
-  m_height = (int)targaFileHeader.height;
-  m_width = (int)targaFileHeader.width;
+  height_ = (int)targaFileHeader.height;
+  width_ = (int)targaFileHeader.width;
   bpp = (int)targaFileHeader.bpp;
 
   // Check that it is 32 bit and not 24 bit.
@@ -114,7 +114,7 @@ bool TGATexture::LoadTarga32Bit(const char *filename) {
   }
 
   // Calculate the size of the 32 bit image data.
-  imageSize = m_width * m_height * 4;
+  imageSize = width_ * height_ * 4;
 
   std::vector<unsigned char> targaImage(imageSize);
 
@@ -131,23 +131,23 @@ bool TGATexture::LoadTarga32Bit(const char *filename) {
   }
 
   // Allocate memory for the targa destination data.
-  m_targaData = new unsigned char[imageSize];
+  targa_data_ = new unsigned char[imageSize];
 
   // Initialize the index into the targa destination data array.
   index = 0;
 
   // Initialize the index into the targa image data.
-  k = (m_width * m_height * 4) - (m_width * 4);
+  k = (width_ * height_ * 4) - (width_ * 4);
 
   // Now copy the targa image data into the targa destination array in the
   // correct order since the targa format is stored upside down and also is not
   // in RGBA order.
-  for (j = 0; j < m_height; j++) {
-    for (i = 0; i < m_width; i++) {
-      m_targaData[index + 0] = targaImage[k + 2]; // Red.
-      m_targaData[index + 1] = targaImage[k + 1]; // Green.
-      m_targaData[index + 2] = targaImage[k + 0]; // Blue
-      m_targaData[index + 3] = targaImage[k + 3]; // Alpha
+  for (j = 0; j < height_; j++) {
+    for (i = 0; i < width_; i++) {
+      targa_data_[index + 0] = targaImage[k + 2]; // Red.
+      targa_data_[index + 1] = targaImage[k + 1]; // Green.
+      targa_data_[index + 2] = targaImage[k + 0]; // Blue
+      targa_data_[index + 3] = targaImage[k + 3]; // Alpha
 
       // Increment the indexes into the targa data.
       k += 4;
@@ -156,7 +156,7 @@ bool TGATexture::LoadTarga32Bit(const char *filename) {
 
     // Set the targa image data index back to the preceding row at the beginning
     // of the column since its reading it in upside down.
-    k -= (m_width * 8);
+    k -= (width_ * 8);
   }
 
   return true;

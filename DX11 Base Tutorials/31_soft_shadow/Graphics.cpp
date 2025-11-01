@@ -57,7 +57,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
     return false;
   }
 
-  if (!InitializeRenderingSystem()) {
+  if (!InitializeRenderingPipeline()) {
     return false;
   }
 
@@ -213,7 +213,7 @@ bool Graphics::InitializeResources(HWND hwnd) {
   return true;
 }
 
-bool Graphics::InitializeRenderingSystem() {
+bool Graphics::InitializeRenderingPipeline() {
   // Setup rendering system based on compile-time constant
   if constexpr (use_render_graph_) {
     if (!SetupRenderGraph()) {
@@ -390,7 +390,7 @@ void Graphics::SetupRenderPipeline() {
     down_sample_texture_pass->AddInputTexture("shadowMap",
                                               shadow_pass->GetOutputTexture());
     down_sample_texture_pass->SetOutputTexture(downsample_target);
-    down_sample_texture_pass->NeedTurnOffZBuffer();
+    down_sample_texture_pass->DisableZBuffer();
 
     ShaderParameterContainer downsampleParams;
     downsample_target->GetOrthoMatrix(orthoMatrix);
@@ -409,7 +409,7 @@ void Graphics::SetupRenderPipeline() {
     horizontal_blur_to_texture_pass->AddInputTexture(
         "DownSampleTexture", down_sample_texture_pass->GetOutputTexture());
     horizontal_blur_to_texture_pass->SetOutputTexture(horizontal_blur_target);
-    horizontal_blur_to_texture_pass->NeedTurnOffZBuffer();
+    horizontal_blur_to_texture_pass->DisableZBuffer();
 
     ShaderParameterContainer horizontalBlurParams;
     horizontal_blur_target->GetOrthoMatrix(orthoMatrix);
@@ -431,7 +431,7 @@ void Graphics::SetupRenderPipeline() {
         "DownSampleTexture",
         horizontal_blur_to_texture_pass->GetOutputTexture());
     vertical_blur_to_texture_pass->SetOutputTexture(vertical_blur_target);
-    vertical_blur_to_texture_pass->NeedTurnOffZBuffer();
+    vertical_blur_to_texture_pass->DisableZBuffer();
 
     ShaderParameterContainer verticalBlurParams;
     vertical_blur_target->GetOrthoMatrix(orthoMatrix);
@@ -452,7 +452,7 @@ void Graphics::SetupRenderPipeline() {
     up_sample_texture_pass->AddInputTexture(
         "texture", vertical_blur_to_texture_pass->GetOutputTexture());
     up_sample_texture_pass->SetOutputTexture(upsample_target);
-    up_sample_texture_pass->NeedTurnOffZBuffer();
+    up_sample_texture_pass->DisableZBuffer();
 
     ShaderParameterContainer upsampleParams;
     upsample_target->GetOrthoMatrix(orthoMatrix);

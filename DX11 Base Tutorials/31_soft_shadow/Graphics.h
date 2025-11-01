@@ -65,7 +65,7 @@ private:
 
   bool InitializeResources(HWND hwnd);
 
-  bool InitializeRenderingSystem();
+  bool InitializeRenderingPipeline();
 
 private:
   void SetupRenderPipeline();
