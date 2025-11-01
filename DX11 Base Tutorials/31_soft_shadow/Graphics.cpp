@@ -798,10 +798,7 @@ void Graphics::SetupRenderPasses() {
         auto dx = DirectX11Device::GetD3d11DeviceInstance();
         dx->SetBackBufferRenderTarget();
         dx->ResetViewport();
-        dx->TurnZBufferOff();
-        // TODO: need fix
-        // enable alpha blending will cause issues with others shaders
-        // dx->TurnOnAlphaBlending();
+        dx->TurnOnAlphaBlending();
 
         XMMATRIX worldMatrix, orthoMatrix;
         dx->GetWorldMatrix(worldMatrix);
@@ -809,8 +806,7 @@ void Graphics::SetupRenderPasses() {
 
         text_->Render(worldMatrix, orthoMatrix, ctx.device_context);
 
-        // dx->TurnOffAlphaBlending();
-        dx->TurnZBufferOn();
+        dx->TurnOffAlphaBlending();
       });
 }
 

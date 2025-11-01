@@ -305,8 +305,8 @@ bool DirectX11Device::Initialize(unsigned int screenWidth,
   }
 
   D3D11_BLEND_DESC blendStateDescription = {};
-  ZeroMemory(&blendStateDescription, sizeof(D3D11_BLEND_DESC));
-  // Normal
+  blendStateDescription.AlphaToCoverageEnable = FALSE;
+  blendStateDescription.IndependentBlendEnable = FALSE;
   blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
   blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
   blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
@@ -314,18 +314,8 @@ bool DirectX11Device::Initialize(unsigned int screenWidth,
   blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
   blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
   blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-  blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
-
-  // For particle effect
-  blendStateDescription.AlphaToCoverageEnable = TRUE;
-  blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
-  blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-  blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
-  blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-  blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-  blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-  blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-  blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+  blendStateDescription.RenderTarget[0].RenderTargetWriteMask =
+      D3D11_COLOR_WRITE_ENABLE_ALL;
 
   result = device_->CreateBlendState(&blendStateDescription,
                                      &alpha_enable_blending_state_);
@@ -333,20 +323,36 @@ bool DirectX11Device::Initialize(unsigned int screenWidth,
     return false;
   }
 
-  // For transparency
-  blendStateDescription.AlphaToCoverageEnable = TRUE;
-  blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
-  blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-  blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-  blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-  blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-  blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-  blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-  blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+  // Disabled blending state (no alpha-to-coverage, blending off)
+  D3D11_BLEND_DESC blendDisableDesc = {};
+  blendDisableDesc.AlphaToCoverageEnable = FALSE;
+  blendDisableDesc.IndependentBlendEnable = FALSE;
+  blendDisableDesc.RenderTarget[0].BlendEnable = FALSE;
+  blendDisableDesc.RenderTarget[0].RenderTargetWriteMask =
+      D3D11_COLOR_WRITE_ENABLE_ALL;
 
-  blendStateDescription.RenderTarget[0].BlendEnable = FALSE;
-  result = device_->CreateBlendState(&blendStateDescription,
+  result = device_->CreateBlendState(&blendDisableDesc,
                                      &alpha_disable_blending_state_);
+  if (FAILED(result)) {
+    return false;
+  }
+
+  // Preserve particle alpha-to-coverage configuration for future use
+  D3D11_BLEND_DESC particleBlendDesc = {};
+  particleBlendDesc.AlphaToCoverageEnable = TRUE;
+  particleBlendDesc.IndependentBlendEnable = FALSE;
+  particleBlendDesc.RenderTarget[0].BlendEnable = TRUE;
+  particleBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+  particleBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+  particleBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+  particleBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+  particleBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+  particleBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+  particleBlendDesc.RenderTarget[0].RenderTargetWriteMask =
+      D3D11_COLOR_WRITE_ENABLE_ALL;
+
+  result = device_->CreateBlendState(&particleBlendDesc,
+                                     &alpha_particle_blending_state_);
   if (FAILED(result)) {
     return false;
   }

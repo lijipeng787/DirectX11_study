@@ -111,6 +111,8 @@ private:
 
   Microsoft::WRL::ComPtr<ID3D11BlendState> alpha_disable_blending_state_;
 
+  Microsoft::WRL::ComPtr<ID3D11BlendState> alpha_particle_blending_state_;
+
   D3D11_VIEWPORT viewport_ = {};
 
   unsigned int screen_width_ = 0, screen_height_ = 0;
