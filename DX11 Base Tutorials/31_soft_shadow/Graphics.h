@@ -28,6 +28,9 @@ class PbrShader;
 class FontShader;
 class Font;
 class Text;
+class SceneLightShader;
+class RefractionShader;
+class WaterShader;
 
 class Graphics : public GraphicsBase {
 public:
@@ -93,6 +96,13 @@ private:
     std::shared_ptr<Model> sphere;
     std::shared_ptr<Model> ground;
     std::shared_ptr<PBRModel> pbr_sphere;
+
+    struct RefractionAssets {
+      std::shared_ptr<Model> ground;
+      std::shared_ptr<Model> wall;
+      std::shared_ptr<Model> bath;
+      std::shared_ptr<Model> water;
+    } refraction;
   };
 
   struct RenderTargetAssets {
@@ -103,6 +113,11 @@ private:
     std::shared_ptr<RenderTexture> vertical_blur;
     std::shared_ptr<RenderTexture> upsampled_shadow;
     std::shared_ptr<RenderTexture> reflection_map;
+
+    struct RefractionTargets {
+      std::shared_ptr<RenderTexture> refraction_map;
+      std::shared_ptr<RenderTexture> water_reflection_map;
+    } refraction;
   };
 
   struct ShaderAssets {
@@ -113,6 +128,12 @@ private:
     std::shared_ptr<VerticalBlurShader> vertical_blur;
     std::shared_ptr<SoftShadowShader> soft_shadow;
     std::shared_ptr<PbrShader> pbr;
+
+    struct RefractionShaders {
+      std::shared_ptr<SceneLightShader> scene_light;
+      std::shared_ptr<RefractionShader> refraction;
+      std::shared_ptr<WaterShader> water;
+    } refraction;
   };
 
   struct OrthoWindowAssets {
@@ -123,6 +144,8 @@ private:
   float pos_x_ = 0.0f, pos_y_ = 0.0f, pos_z_ = 0.0f;
 
   float rot_x_ = 0.0f, rot_y_ = 0.0f, rot_z_ = 0.0f;
+
+  float water_translation_ = 0.0f;
 
   unsigned int screenWidth = 0, screenHeight = 0;
 

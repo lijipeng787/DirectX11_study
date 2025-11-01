@@ -23,6 +23,9 @@ class TextureShader;
 class HorizontalBlurShader;
 class VerticalBlurShader;
 class PbrShader;
+class SceneLightShader;
+class RefractionShader;
+class WaterShader;
 
 class ResourceManager {
 public:
@@ -218,4 +221,31 @@ inline std::shared_ptr<FontShader>
 ResourceManager::GetShader<FontShader>(const std::string &name) {
   return std::dynamic_pointer_cast<FontShader>(GetCachedResource<IShader>(
       name, shader_cache_, [this]() { return CreateShader("FontShader"); }));
+}
+
+template <>
+inline std::shared_ptr<SceneLightShader>
+ResourceManager::GetShader<SceneLightShader>(const std::string &name) {
+  return std::dynamic_pointer_cast<SceneLightShader>(
+      GetCachedResource<IShader>(name, shader_cache_, [this]() {
+        return CreateShader("SceneLightShader");
+      }));
+}
+
+template <>
+inline std::shared_ptr<RefractionShader>
+ResourceManager::GetShader<RefractionShader>(const std::string &name) {
+  return std::dynamic_pointer_cast<RefractionShader>(
+      GetCachedResource<IShader>(name, shader_cache_, [this]() {
+        return CreateShader("RefractionShader");
+      }));
+}
+
+template <>
+inline std::shared_ptr<WaterShader>
+ResourceManager::GetShader<WaterShader>(const std::string &name) {
+  return std::dynamic_pointer_cast<WaterShader>(
+      GetCachedResource<IShader>(name, shader_cache_, [this]() {
+        return CreateShader("WaterShader");
+      }));
 }

@@ -1,0 +1,47 @@
+Texture2D reflectionTexture : register(t0);
+Texture2D refractionTexture : register(t1);
+Texture2D normalTexture : register(t2);
+SamplerState SampleType : register(s0);
+
+cbuffer WaterBuffer
+{
+    float waterTranslation;
+    float reflectRefractScale;
+    float2 padding;
+};
+
+struct PixelInputType
+{
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
+    float4 reflectionPosition : TEXCOORD1;
+    float4 refractionPosition : TEXCOORD2;
+};
+
+float4 WaterPixelShader(PixelInputType input) : SV_TARGET
+{
+    float2 reflectTexCoord;
+    float2 refractTexCoord;
+    float4 normalMap;
+    float3 normal;
+
+    input.tex.y += waterTranslation;
+
+    reflectTexCoord.x = input.reflectionPosition.x / input.reflectionPosition.w / 2.0f + 0.5f;
+    reflectTexCoord.y = -input.reflectionPosition.y / input.reflectionPosition.w / 2.0f + 0.5f;
+
+    refractTexCoord.x = input.refractionPosition.x / input.refractionPosition.w / 2.0f + 0.5f;
+    refractTexCoord.y = -input.refractionPosition.y / input.refractionPosition.w / 2.0f + 0.5f;
+
+    normalMap = normalTexture.Sample(SampleType, input.tex);
+    normal = (normalMap.xyz * 2.0f) - 1.0f;
+
+    reflectTexCoord += (normal.xy * reflectRefractScale);
+    refractTexCoord += (normal.xy * reflectRefractScale);
+
+    float4 reflectionColor = reflectionTexture.Sample(SampleType, reflectTexCoord);
+    float4 refractionColor = refractionTexture.Sample(SampleType, refractTexCoord);
+
+    return lerp(reflectionColor, refractionColor, 0.6f);
+}
+

@@ -16,6 +16,9 @@
 #include "softshadowshader.h"
 #include "textureshader.h"
 #include "verticalblurshader.h"
+#include "scenelightshader.h"
+#include "refractionshader.h"
+#include "watershader.h"
 // !do not remove these includes
 
 #include <algorithm>

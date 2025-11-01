@@ -169,7 +169,9 @@
     <ClInclude Include="RenderPass.h" />
     <ClInclude Include="RenderPipeline.h" />
     <ClInclude Include="rendertexture.h" />
+    <ClInclude Include="refractionshader.h" />
     <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="scenelightshader.h" />
     <ClInclude Include="ShaderBase.h" />
     <ClInclude Include="ShaderParameterContainer.h" />
     <ClInclude Include="ShaderParameterValidator.h" />
@@ -180,6 +182,7 @@
     <ClInclude Include="texture.h" />
     <ClInclude Include="textureshader.h" />
     <ClInclude Include="verticalblurshader.h" />
+    <ClInclude Include="watershader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="depthshader.cpp" />
@@ -199,7 +202,9 @@
     <ClCompile Include="RenderPass.cpp" />
     <ClCompile Include="RenderPipeline.cpp" />
     <ClCompile Include="rendertexture.cpp" />
+    <ClCompile Include="refractionshader.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="scenelightshader.cpp" />
     <ClCompile Include="ShaderBase.cpp" />
     <ClCompile Include="ShaderParameterContainer.cpp" />
     <ClCompile Include="ShaderParameterValidator.cpp" />
@@ -210,6 +215,7 @@
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="textureshader.cpp" />
     <ClCompile Include="verticalblurshader.cpp" />
+    <ClCompile Include="watershader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="font.hlsl" />
@@ -220,12 +226,18 @@
     <None Include="pbr.ps" />
     <None Include="pbr.vs" />
     <None Include="RENDERING_SYSTEM_SWITCH_GUIDE.md" />
+    <None Include="light.ps" />
+    <None Include="light.vs" />
+    <None Include="refraction.ps" />
+    <None Include="refraction.vs" />
     <None Include="shadow.ps" />
     <None Include="shadow.vs" />
     <None Include="softshadow.ps" />
     <None Include="softshadow.vs" />
     <None Include="texture.ps" />
     <None Include="texture.vs" />
+    <None Include="water.ps" />
+    <None Include="water.vs" />
     <None Include="verticalblur.ps" />
     <None Include="verticalblur.vs" />
   </ItemGroup>

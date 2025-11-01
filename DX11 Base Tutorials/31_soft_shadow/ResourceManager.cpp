@@ -4,14 +4,17 @@
 #include "fontshader.h"
 #include "horizontalblurshader.h"
 #include "model.h"
+#include "refractionshader.h"
 #include "orthowindow.h"
 #include "pbrshader.h"
 #include "rendertexture.h"
+#include "scenelightshader.h"
 #include "shadowshader.h"
 #include "softshadowshader.h"
 #include "texture.h"
 #include "textureshader.h"
 #include "verticalblurshader.h"
+#include "watershader.h"
 
 #include <iostream>
 #include <sstream>
@@ -201,6 +204,12 @@ ResourceManager::CreateShader(const std::string &shaderType) {
     shader = make_shared<PbrShader>();
   } else if (shaderType == "FontShader") {
     shader = make_shared<FontShader>();
+  } else if (shaderType == "SceneLightShader") {
+    shader = make_shared<SceneLightShader>();
+  } else if (shaderType == "RefractionShader") {
+    shader = make_shared<RefractionShader>();
+  } else if (shaderType == "WaterShader") {
+    shader = make_shared<WaterShader>();
   } else {
     cerr << "Unknown shader type: " << shaderType << endl;
     return nullptr;

@@ -15,12 +15,15 @@
 #include "model.h"
 #include "orthowindow.h"
 #include "pbrshader.h"
+#include "refractionshader.h"
 #include "rendertexture.h"
+#include "scenelightshader.h"
 #include "shadowshader.h"
 #include "softshadowshader.h"
 #include "text.h"
 #include "textureshader.h"
 #include "verticalblurshader.h"
+#include "watershader.h"
 
 #include <iostream>
 
@@ -172,6 +175,30 @@ bool Graphics::InitializeResources(HWND hwnd) {
     return false;
   }
 
+  scene_assets_.refraction.ground = resource_manager.GetModel(
+      "refraction_ground", "./data/ground_refraction.txt",
+      L"./data/ground01.dds");
+
+  scene_assets_.refraction.wall = resource_manager.GetModel(
+      "refraction_wall", "./data/wall.txt", L"./data/wall01.dds");
+
+  scene_assets_.refraction.bath = resource_manager.GetModel(
+      "refraction_bath", "./data/bath.txt", L"./data/marble01.dds");
+
+  scene_assets_.refraction.water = resource_manager.GetModel(
+      "refraction_water", "./data/water.txt", L"./data/water01.dds");
+
+  if (!scene_assets_.refraction.ground || !scene_assets_.refraction.wall ||
+      !scene_assets_.refraction.bath || !scene_assets_.refraction.water) {
+    std::wstring error_msg = L"Could not load refraction scene models.";
+    const auto &last_error = resource_manager.GetLastError();
+    if (!last_error.empty()) {
+      error_msg += L"\n" + std::wstring(last_error.begin(), last_error.end());
+    }
+    LogError(error_msg);
+    return false;
+  }
+
   // 2. 渲染目标
   render_targets_.shadow_depth = resource_manager.CreateRenderTexture(
       "shadow_depth", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH,
@@ -196,10 +223,22 @@ bool Graphics::InitializeResources(HWND hwnd) {
   render_targets_.reflection_map = resource_manager.CreateRenderTexture(
       "reflection_map", screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
 
+  render_targets_.refraction.refraction_map =
+      resource_manager.CreateRenderTexture("water_refraction", screenWidth,
+                                          screenHeight, SCREEN_DEPTH,
+                                          SCREEN_NEAR);
+
+  render_targets_.refraction.water_reflection_map =
+      resource_manager.CreateRenderTexture("water_reflection", screenWidth,
+                                          screenHeight, SCREEN_DEPTH,
+                                          SCREEN_NEAR);
+
   if (!render_targets_.shadow_depth || !render_targets_.shadow_map ||
       !render_targets_.downsampled_shadow || !render_targets_.horizontal_blur ||
       !render_targets_.vertical_blur || !render_targets_.upsampled_shadow ||
-      !render_targets_.reflection_map) {
+      !render_targets_.reflection_map ||
+      !render_targets_.refraction.refraction_map ||
+      !render_targets_.refraction.water_reflection_map) {
     LogError(L"Could not create render textures.");
     return false;
   }
@@ -216,10 +255,19 @@ bool Graphics::InitializeResources(HWND hwnd) {
       resource_manager.GetShader<SoftShadowShader>("soft_shadow");
   shader_assets_.pbr = resource_manager.GetShader<PbrShader>("pbr");
 
+  shader_assets_.refraction.scene_light =
+      resource_manager.GetShader<SceneLightShader>("scene_light");
+  shader_assets_.refraction.refraction =
+      resource_manager.GetShader<RefractionShader>("refraction");
+  shader_assets_.refraction.water =
+      resource_manager.GetShader<WaterShader>("water");
+
   if (!shader_assets_.depth || !shader_assets_.shadow ||
       !shader_assets_.texture || !shader_assets_.horizontal_blur ||
       !shader_assets_.vertical_blur || !shader_assets_.soft_shadow ||
-      !shader_assets_.pbr) {
+      !shader_assets_.pbr || !shader_assets_.refraction.scene_light ||
+      !shader_assets_.refraction.refraction ||
+      !shader_assets_.refraction.water) {
     LogError(L"Could not load shaders.");
     return false;
   }
@@ -328,12 +376,19 @@ void Graphics::Shutdown() {
   resource_manager.Shutdown();
 }
 
+static constexpr float water_translation_speed = 0.001f;
+
 void Graphics::Frame(float deltaTime) {
 
   static float lightPositionX = -5.0f;
 
   camera_->SetPosition(pos_x_, pos_y_, pos_z_);
   camera_->SetRotation(rot_x_, rot_y_, rot_z_);
+
+  water_translation_ += water_translation_speed;
+  if (water_translation_ > 1.0f) {
+    water_translation_ -= 1.0f;
+  }
 
   // Update the position of the light each frame.
   lightPositionX += 0.001f * deltaTime;
@@ -385,7 +440,17 @@ static constexpr auto up_sample_tag = "up_sample";
 static constexpr auto pbr_tag = "pbr_tag";
 static constexpr auto final_tag = "final";
 static constexpr auto reflection_tag = "reflection";
+static constexpr auto scene_light_tag = "scene_light";
+static constexpr auto refraction_pass_tag = "refraction_pass";
+static constexpr auto water_reflection_tag = "water_reflection";
+static constexpr auto water_surface_tag = "water_surface";
+static constexpr float water_plane_height = 2.75f;
+static constexpr float water_reflect_refract_scale = 0.01f;
 static constexpr float reflection_plane_height = 1.0f;
+static constexpr float refraction_scene_offset_x = 15.0f;
+static constexpr float refraction_scene_offset_y = 0.0f;
+static constexpr float refraction_scene_offset_z = 0.0f;
+static constexpr float refraction_ground_scale = 0.5f;
 
 void Graphics::SetupRenderPipeline() {
 
@@ -721,6 +786,14 @@ void Graphics::SetupRenderPasses() {
   const auto &reflection_tex = render_targets_.reflection_map;
   render_graph_.ImportTexture("ReflectionMap", reflection_tex);
 
+  const auto &water_refraction_tex =
+      render_targets_.refraction.refraction_map;
+  render_graph_.ImportTexture("WaterRefraction", water_refraction_tex);
+
+  const auto &water_reflection_tex =
+      render_targets_.refraction.water_reflection_map;
+  render_graph_.ImportTexture("WaterReflection", water_reflection_tex);
+
   // Pass 1: Depth Pass
   const auto &depth_shader = shader_assets_.depth;
   render_graph_.AddPass("DepthPass")
@@ -852,6 +925,63 @@ void Graphics::SetupRenderPasses() {
       .SetTexture("diffuseTexture", sphere_pbr_model->GetTexture(0))
       .SetTexture("normalMap", sphere_pbr_model->GetTexture(1))
       .SetTexture("rmTexture", sphere_pbr_model->GetTexture(2));
+
+  const auto &refraction_shader = shader_assets_.refraction.refraction;
+  render_graph_.AddPass("WaterRefractionPass")
+      .SetShader(refraction_shader)
+      .Write("WaterRefraction")
+      .AddRenderTag(refraction_pass_tag)
+      .SetParameter("clipPlane", DirectX::XMFLOAT4(0.0f, -1.0f, 0.0f,
+                                                   water_plane_height + 0.1f));
+
+  const auto &scene_light_shader = shader_assets_.refraction.scene_light;
+  render_graph_.AddPass("WaterReflectionPass")
+      .SetShader(scene_light_shader)
+      .Write("WaterReflection")
+      .AddRenderTag(water_reflection_tag)
+      .Execute([this](RenderPassContext &ctx) {
+        if (!ctx.shader)
+          return;
+
+        ShaderParameterContainer merged = *ctx.pass_params;
+        merged.Merge(*ctx.global_params);
+
+        if (ctx.global_params->HasParameter("waterReflectionMatrix")) {
+          merged.SetMatrix("viewMatrix", ctx.global_params->GetMatrix(
+                                            "waterReflectionMatrix"));
+        }
+
+        if (ctx.global_params->HasParameter("projectionMatrix")) {
+          merged.SetMatrix("projectionMatrix",
+                           ctx.global_params->GetMatrix("projectionMatrix"));
+        }
+
+        for (const auto &renderable : *ctx.renderables) {
+          if (!renderable->HasTag(water_reflection_tag))
+            continue;
+
+          ShaderParameterContainer objParams = merged;
+          objParams.Set("worldMatrix", renderable->GetWorldMatrix());
+          if (auto cb = renderable->GetParameterCallback()) {
+            cb(objParams);
+          }
+          renderable->Render(*ctx.shader, objParams, ctx.device_context);
+        }
+      });
+
+  render_graph_.AddPass("SceneLightPass")
+      .SetShader(scene_light_shader)
+      .AddRenderTag(scene_light_tag);
+
+  const auto &water_shader = shader_assets_.refraction.water;
+  const auto &water_model = scene_assets_.refraction.water;
+  render_graph_.AddPass("WaterSurfacePass")
+      .SetShader(water_shader)
+      .ReadAsParameter("WaterReflection", "reflectionTexture")
+      .ReadAsParameter("WaterRefraction", "refractionTexture")
+      .AddRenderTag(water_surface_tag)
+      .SetTexture("normalTexture", water_model->GetTexture())
+      .SetParameter("reflectRefractScale", water_reflect_refract_scale);
 
   // Pass 10: Text overlay (executed via custom lambda)
   render_graph_.AddPass("TextOverlayPass")
@@ -1013,6 +1143,64 @@ void Graphics::SetupRenderableObjects() {
     cube_group_->AddRenderable(cube_obj);
     renderable_objects_.push_back(cube_obj);
   }
+
+  const auto &refraction_assets = scene_assets_.refraction;
+  const auto scene_offset =
+      XMMatrixTranslation(refraction_scene_offset_x, refraction_scene_offset_y,
+                          refraction_scene_offset_z);
+
+  if (refraction_assets.ground && shader_assets_.refraction.scene_light) {
+    auto ground_object = std::make_shared<RenderableObject>(
+        refraction_assets.ground, shader_assets_.refraction.scene_light);
+    auto ground_world = XMMatrixScaling(refraction_ground_scale, 1.0f,
+                                        refraction_ground_scale) *
+                        XMMatrixTranslation(0.0f, 1.0f, 0.0f) * scene_offset;
+    ground_object->SetWorldMatrix(ground_world);
+    ground_object->AddTag(scene_light_tag);
+    ground_object->SetParameterCallback(
+        [ground_model = refraction_assets.ground](
+            ShaderParameterContainer &params) {
+          params.SetTexture("texture", ground_model->GetTexture());
+        });
+    renderable_objects_.push_back(ground_object);
+  }
+
+  if (refraction_assets.wall && shader_assets_.refraction.scene_light) {
+    auto wall_object = std::make_shared<RenderableObject>(
+        refraction_assets.wall, shader_assets_.refraction.scene_light);
+    wall_object->SetWorldMatrix(XMMatrixTranslation(0.0f, 6.0f, 8.0f) *
+                                scene_offset);
+    wall_object->AddTag(scene_light_tag);
+    wall_object->AddTag(water_reflection_tag);
+    wall_object->SetParameterCallback(
+        [wall_model = refraction_assets.wall](ShaderParameterContainer &params) {
+          params.SetTexture("texture", wall_model->GetTexture());
+        });
+    renderable_objects_.push_back(wall_object);
+  }
+
+  if (refraction_assets.bath && shader_assets_.refraction.scene_light) {
+    auto bath_object = std::make_shared<RenderableObject>(
+        refraction_assets.bath, shader_assets_.refraction.scene_light);
+    bath_object->SetWorldMatrix(XMMatrixTranslation(0.0f, 2.0f, 0.0f) *
+                                scene_offset);
+    bath_object->AddTag(scene_light_tag);
+    bath_object->AddTag(refraction_pass_tag);
+    bath_object->SetParameterCallback(
+        [bath_model = refraction_assets.bath](ShaderParameterContainer &params) {
+          params.SetTexture("texture", bath_model->GetTexture());
+        });
+    renderable_objects_.push_back(bath_object);
+  }
+
+  if (refraction_assets.water && shader_assets_.refraction.water) {
+    auto water_object = std::make_shared<RenderableObject>(
+        refraction_assets.water, shader_assets_.refraction.water);
+    water_object->SetWorldMatrix(
+        XMMatrixTranslation(0.0f, water_plane_height, 0.0f) * scene_offset);
+    water_object->AddTag(water_surface_tag);
+    renderable_objects_.push_back(water_object);
+  }
 }
 
 void Graphics::RegisterShaderParameters() {
@@ -1042,6 +1230,16 @@ void Graphics::RegisterShaderParameters() {
       "cameraPosition"); // From Render()
   parameter_validator_.RegisterGlobalParameter(
       "reflectionMatrix"); // From Render()
+  parameter_validator_.RegisterGlobalParameter(
+      "waterReflectionMatrix"); // From Render()
+  parameter_validator_.RegisterGlobalParameter(
+      "ambientColor"); // From Render()
+  parameter_validator_.RegisterGlobalParameter(
+      "diffuseColor"); // From Render()
+  parameter_validator_.RegisterGlobalParameter(
+      "waterTranslation"); // From Render()
+  parameter_validator_.RegisterGlobalParameter(
+      "reflectRefractScale"); // From Render()
 
   // Register DepthShader parameters
   parameter_validator_.RegisterShader(
@@ -1115,6 +1313,39 @@ void Graphics::RegisterShaderParameters() {
        {"screenHeight", ShaderParameterType::Float, true},
        {"texture", ShaderParameterType::Texture, true}});
 
+  parameter_validator_.RegisterShader(
+      "SceneLightShader",
+      {{"worldMatrix", ShaderParameterType::Matrix, true},
+       {"viewMatrix", ShaderParameterType::Matrix, true},
+       {"projectionMatrix", ShaderParameterType::Matrix, true},
+       {"texture", ShaderParameterType::Texture, true},
+       {"ambientColor", ShaderParameterType::Vector4, true},
+       {"diffuseColor", ShaderParameterType::Vector4, true},
+       {"lightDirection", ShaderParameterType::Vector3, true}});
+
+  parameter_validator_.RegisterShader(
+      "RefractionShader",
+      {{"worldMatrix", ShaderParameterType::Matrix, true},
+       {"viewMatrix", ShaderParameterType::Matrix, true},
+       {"projectionMatrix", ShaderParameterType::Matrix, true},
+       {"texture", ShaderParameterType::Texture, true},
+       {"ambientColor", ShaderParameterType::Vector4, true},
+       {"diffuseColor", ShaderParameterType::Vector4, true},
+       {"lightDirection", ShaderParameterType::Vector3, true},
+       {"clipPlane", ShaderParameterType::Vector4, true}});
+
+  parameter_validator_.RegisterShader(
+      "WaterShader",
+      {{"worldMatrix", ShaderParameterType::Matrix, true},
+       {"viewMatrix", ShaderParameterType::Matrix, true},
+       {"projectionMatrix", ShaderParameterType::Matrix, true},
+       {"waterReflectionMatrix", ShaderParameterType::Matrix, true},
+       {"reflectionTexture", ShaderParameterType::Texture, true},
+       {"refractionTexture", ShaderParameterType::Texture, true},
+       {"normalTexture", ShaderParameterType::Texture, true},
+       {"waterTranslation", ShaderParameterType::Float, true},
+       {"reflectRefractScale", ShaderParameterType::Float, true}});
+
   cout << "[Graphics] Registered shader parameters for validation" << endl;
 }
 
@@ -1172,6 +1403,12 @@ void Graphics::Render() {
   camera_->GetBaseViewMatrix(baseViewMatrix);
   auto reflectionMatrix = camera_->GetReflectionViewMatrix();
 
+  camera_->RenderReflection(water_plane_height);
+  auto waterReflectionMatrix = camera_->GetReflectionViewMatrix();
+
+  // Restore the original reflection matrix for soft shadow pipeline.
+  camera_->RenderReflection(reflection_plane_height);
+
   // Update the light
   light_->GenerateViewMatrix();
   XMMATRIX lightViewMatrix, lightProjectionMatrix;
@@ -1190,6 +1427,11 @@ void Graphics::Render() {
   Params.SetGlobalDynamicVector3("lightDirection", light_->GetDirection());
   Params.SetGlobalDynamicVector3("cameraPosition", camera_->GetPosition());
   Params.SetMatrix("reflectionMatrix", reflectionMatrix);
+  Params.SetMatrix("waterReflectionMatrix", waterReflectionMatrix);
+  Params.SetVector4("ambientColor", light_->GetAmbientColor());
+  Params.SetVector4("diffuseColor", light_->GetDiffuseColor());
+  Params.SetFloat("waterTranslation", water_translation_);
+  Params.SetFloat("reflectRefractScale", water_reflect_refract_scale);
 
   // Add device matrices
   XMMATRIX deviceWorldMatrix, projectionMatrix;
