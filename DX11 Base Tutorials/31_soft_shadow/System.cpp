@@ -17,8 +17,8 @@ bool System::Initialize() {
     return false;
   }
 
-  // 将System实例指针存储到窗口的用户数据中
-  // 这样WndProc可以通过窗口句柄获取System实例，而不需要全局变量
+  // Store System instance pointer in window's user data
+  // This allows WndProc to get System instance via window handle, avoiding global variables
   SetWindowLongPtr(GetApplicationHandle(), GWLP_USERDATA,
                    reinterpret_cast<LONG_PTR>(this));
 
@@ -159,7 +159,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam,
   }
 
   default: {
-    // 从窗口用户数据中获取System实例指针，避免全局变量
+    // Get System instance pointer from window user data, avoiding global variables
     System *system =
         reinterpret_cast<System *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
     if (system) {

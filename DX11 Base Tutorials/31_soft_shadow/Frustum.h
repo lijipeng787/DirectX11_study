@@ -26,10 +26,10 @@ public:
 
   bool CheckRectangle(float, float, float, float, float, float) const;
 
-  // 优化的AABB检测（使用8个顶点快速检测）
+  // Optimized AABB test (using 8 vertices for fast detection)
   bool CheckAABB(const DirectX::XMFLOAT3 &min, const DirectX::XMFLOAT3 &max) const;
 
-  // 使用包围体检测（优先使用AABB，更精确）
+  // Test using bounding volume (prefer AABB for more precision)
   bool CheckBoundingVolume(const BoundingVolume &bounds) const;
 
 private:

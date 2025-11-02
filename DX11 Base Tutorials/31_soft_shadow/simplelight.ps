@@ -22,31 +22,31 @@ float4 SimpleLightPixelShader(PixelInputType input) : SV_TARGET{
 	float lightIntensity;
 	float4 color;
 
-	// 采样纹理颜色
+	// Sample texture color
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 	
-	// 重新归一化法线（光栅化插值后可能不再是单位向量）
-	// 这对于准确的点积计算很重要，确保光照计算的正确性
+	// Renormalize normal (may not be unit vector after rasterization interpolation)
+	// This is important for accurate dot product calculation, ensuring correct lighting
 	normal = normalize(input.normal);
 	
-	// 初始化颜色为环境光
+	// Initialize color with ambient light
 	color = ambientColor;
 	
-	// 计算光照方向（取反，因为方向光方向指向光源）
-	// 归一化光照方向以确保正确性（即使输入可能已经是单位向量）
+	// Calculate light direction (negated, because directional light points towards source)
+	// Normalize light direction to ensure correctness (even if input may already be unit vector)
 	lightDir = normalize(-lightDirection);
 	
-	// 计算漫反射光照强度，使用 saturate 限制在 [0, 1] 范围内
-	// saturate 会自动处理负值（背光面），无需 if 分支，提升性能
+	// Calculate diffuse lighting intensity, use saturate to clamp to [0, 1] range
+	// saturate automatically handles negative values (backlit faces), no if branch needed, improves performance
 	lightIntensity = saturate(dot(normal, lightDir));
 	
-	// 添加漫反射光照贡献
+	// Add diffuse lighting contribution
 	color += (diffuseColor * lightIntensity);
 	
-	// 限制最终颜色在有效范围内
+	// Clamp final color to valid range
 	color = saturate(color);
 	
-	// 将光照结果与纹理颜色相乘
+	// Multiply lighting result with texture color
 	color = color * textureColor;
 	
 	return color;

@@ -36,11 +36,11 @@ bool ShaderParameterValidator::IsGlobalParameter(
 bool ShaderParameterValidator::ValidateParameter(
     const std::string &parameter_name,
     ShaderParameterType expected_type) const {
-  // 基础验证：检查参数名格式
+  // Basic validation: check parameter name format
   if (!RenderGraphNaming::IsValidParameterName(parameter_name)) {
     return false;
   }
-  // 类型验证需要在实际使用中通过ShaderParameterContainer进行
+  // Type validation needs to be done through ShaderParameterContainer in actual use
   return true;
 }
 
@@ -49,7 +49,7 @@ bool ShaderParameterValidator::ValidatePassParameters(
     const std::unordered_set<std::string> &provided_parameters,
     ValidationMode mode) const {
 
-  // 检查着色器是否已注册
+  // Check if shader is registered
   auto it = shader_parameters_.find(shader_name);
   if (it == shader_parameters_.end()) {
     if (mode == ValidationMode::Strict) {
@@ -58,21 +58,21 @@ bool ShaderParameterValidator::ValidatePassParameters(
                        pass_name + "\" is not registered. Cannot validate parameters.");
       return false;
     }
-    return true; // 警告模式：未注册的着色器跳过验证
+    return true; // Warning mode: unregistered shaders skip validation
   }
 
   const auto &required_params = it->second;
   std::vector<std::string> missing_params;
   std::vector<std::string> invalid_params;
 
-  // 检查必需参数（排除全局参数，因为它们会在运行时提供）
+  // Check required parameters (excluding global parameters, as they are provided at runtime)
   for (const auto &param_info : required_params) {
     if (param_info.required) {
-      // 如果是全局参数，跳过验证（运行时提供）
+      // If it's a global parameter, skip validation (provided at runtime)
       if (IsGlobalParameter(param_info.name)) {
         continue;
       }
-      // 检查是否在Pass级别提供了
+      // Check if provided at Pass level
       if (provided_parameters.find(param_info.name) ==
           provided_parameters.end()) {
         missing_params.push_back(param_info.name);
@@ -80,16 +80,16 @@ bool ShaderParameterValidator::ValidatePassParameters(
     }
   }
 
-  // 检查未知参数（不在注册列表中的参数）
-  // 注意：排除全局参数和资源名（资源名不符合camelCase命名约定）
+  // Check unknown parameters (not in registered list)
+  // Note: exclude global parameters and resource names (resource names don't follow camelCase convention)
   for (const auto &provided : provided_parameters) {
-    // 跳过全局参数
+    // Skip global parameters
     if (IsGlobalParameter(provided)) {
       continue;
     }
-    // 跳过资源名（不符合camelCase命名约定，如"DepthMap"）
+    // Skip resource names (don't follow camelCase convention, e.g. "DepthMap")
     if (!RenderGraphNaming::IsValidParameterName(provided)) {
-      continue; // 这是资源名，不是参数名
+      continue; // This is a resource name, not a parameter name
     }
 
     bool found = false;
@@ -104,7 +104,7 @@ bool ShaderParameterValidator::ValidatePassParameters(
     }
   }
 
-  // 根据模式处理结果
+  // Process results based on mode
   bool has_errors = !missing_params.empty();
   bool has_warnings = !invalid_params.empty();
 
@@ -154,7 +154,7 @@ bool ShaderParameterValidator::ValidatePassParameters(
       return false;
     } else if (mode == ValidationMode::Warning) {
       Logger::LogWarning(oss.str());
-      return true; // 警告模式不阻止执行
+      return true; // Warning mode doesn't block execution
     }
   }
 
@@ -174,7 +174,7 @@ std::vector<std::string> ShaderParameterValidator::GetMissingParameters(
 
   for (const auto &param_info : it->second) {
     if (param_info.required) {
-      // 跳过全局参数（运行时提供）
+      // Skip global parameters (provided at runtime)
       if (IsGlobalParameter(param_info.name)) {
         continue;
       }
@@ -317,7 +317,7 @@ int ShaderParameterValidator::CalculateLevenshteinDistance(
   return dp[len1][len2];
 }
 
-// 命名约定辅助函数实现
+// Naming convention helper function implementations
 namespace RenderGraphNaming {
 
 std::string ResourceNameToParameterName(const std::string &resource_name) {
@@ -325,7 +325,7 @@ std::string ResourceNameToParameterName(const std::string &resource_name) {
     return resource_name;
 
   std::string result = resource_name;
-  // 首字母小写
+  // Lowercase first letter
   if (!result.empty()) {
     result[0] = static_cast<char>(std::tolower(result[0]));
   }
@@ -335,7 +335,7 @@ std::string ResourceNameToParameterName(const std::string &resource_name) {
 std::string
 ResourceNameToTextureParameterName(const std::string &resource_name) {
   std::string base = ResourceNameToParameterName(resource_name);
-  // 如果已经有Texture后缀，不重复添加
+  // If Texture suffix already exists, don't add again
   if (base.size() >= 7 && base.substr(base.size() - 7) == "Texture") {
     return base;
   }
@@ -346,11 +346,11 @@ bool IsValidParameterName(const std::string &name) {
   if (name.empty())
     return false;
 
-  // 必须是小写字母开头（camelCase）
+  // Must start with lowercase letter (camelCase)
   if (!std::islower(name[0]))
     return false;
 
-  // 只能包含字母、数字和下划线
+  // Can only contain letters, numbers, and underscores
   for (char c : name) {
     if (!std::isalnum(c) && c != '_') {
       return false;
@@ -364,11 +364,11 @@ bool IsValidResourceName(const std::string &name) {
   if (name.empty())
     return false;
 
-  // 必须是大写字母开头（PascalCase）
+  // Must start with uppercase letter (PascalCase)
   if (!std::isupper(name[0]))
     return false;
 
-  // 只能包含字母、数字和下划线
+  // Can only contain letters, numbers, and underscores
   for (char c : name) {
     if (!std::isalnum(c) && c != '_') {
       return false;

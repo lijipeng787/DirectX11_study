@@ -276,9 +276,9 @@ bool FrustumClass::CheckRectangle(float xCenter, float yCenter, float zCenter,
 
 bool FrustumClass::CheckAABB(const XMFLOAT3 &min,
                              const XMFLOAT3 &max) const {
-  // 优化的AABB检测：检查AABB的8个顶点
-  // 如果所有顶点都在视锥体外，则对象不可见
-  // 如果至少有一个顶点在视锥体内，或AABB与视锥体相交，则可见
+  // Optimized AABB test: check AABB's 8 vertices
+  // If all vertices are outside the frustum, the object is not visible
+  // If at least one vertex is inside the frustum, or AABB intersects the frustum, it's visible
 
   XMFLOAT3 corners[8];
   corners[0] = XMFLOAT3(min.x, min.y, min.z);
@@ -290,22 +290,22 @@ bool FrustumClass::CheckAABB(const XMFLOAT3 &min,
   corners[6] = XMFLOAT3(min.x, max.y, max.z);
   corners[7] = XMFLOAT3(max.x, max.y, max.z);
 
-  // 对每个视锥体平面进行检查
+  // Check each frustum plane
   for (int i = 0; i < 6; ++i) {
     bool hasInside = false;
     
-    // 检查8个顶点，看是否有任何一个在平面内侧
+    // Check 8 vertices to see if any is inside the plane
     for (int j = 0; j < 8; ++j) {
       XMVECTOR corner = XMLoadFloat3(&corners[j]);
       XMVECTOR planeDot = XMPlaneDotCoord(planes_[i], corner);
       
       if (planeDot.m128_f32[0] >= 0.0f) {
         hasInside = true;
-        break; // 至少有一个顶点在平面内侧
+        break; // At least one vertex is inside the plane
       }
     }
     
-    // 如果所有顶点都在平面外侧，则AABB完全在视锥体外
+    // If all vertices are outside the plane, AABB is completely outside the frustum
     if (!hasInside) {
       return false;
     }
@@ -315,13 +315,13 @@ bool FrustumClass::CheckAABB(const XMFLOAT3 &min,
 }
 
 bool FrustumClass::CheckBoundingVolume(const BoundingVolume &bounds) const {
-  // 优先使用AABB检测（更精确），回退到包围球检测
-  // 先快速检查包围球，如果包围球不可见，则AABB也不可见
+  // Prefer AABB test (more precise), fallback to bounding sphere test
+  // First quick check: if bounding sphere is not visible, AABB is also not visible
   if (!CheckSphere(bounds.sphere_center.x, bounds.sphere_center.y,
                    bounds.sphere_center.z, bounds.sphere_radius)) {
     return false;
   }
 
-  // 包围球可见，使用AABB进行精确检测
+  // Bounding sphere is visible, use AABB for precise test
   return CheckAABB(bounds.aabb_min, bounds.aabb_max);
 }

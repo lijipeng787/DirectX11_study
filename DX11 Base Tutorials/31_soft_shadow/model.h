@@ -63,7 +63,7 @@ private:
 
   void ReleaseModel();
 
-  void CalculateBoundingVolume();  // 计算包围体
+  void CalculateBoundingVolume();  // Calculate bounding volume
 
 private:
   struct Vertex {
@@ -90,7 +90,7 @@ private:
 
   DirectX::XMMATRIX world_matrix_ = DirectX::XMMatrixIdentity();
 
-  BoundingVolume bounding_volume_;  // 本地空间的包围体
+  BoundingVolume bounding_volume_;  // Bounding volume in local space
 };
 
 class PBRModel : IRenderable {

@@ -37,7 +37,7 @@ std::wstring GetLevelStringW(Level level) {
   }
 }
 
-// 从文件路径提取文件名
+// Extract filename from file path
 std::string ExtractFileName(const std::string &filepath) {
   size_t pos = filepath.find_last_of("/\\");
   if (pos != std::string::npos) {
@@ -49,7 +49,7 @@ std::string ExtractFileName(const std::string &filepath) {
 } // namespace
 
 void SetModule(const std::string &module_name) {
-  // 如果传入的是文件路径，提取文件名
+  // If file path is passed, extract filename
   current_module_ = "[" + ExtractFileName(module_name) + "]";
 }
 

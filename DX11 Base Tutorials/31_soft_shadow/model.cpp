@@ -141,7 +141,7 @@ bool Model::LoadModel(const std::string &filename) {
 
   fin.close();
 
-  // 计算包围体
+  // Calculate bounding volume
   CalculateBoundingVolume();
 
   return true;

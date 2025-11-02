@@ -6,7 +6,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
                    int iCmdshow) {
 
 #ifdef _DEBUG
-  // 在Debug模式下分配控制台窗口
+  // Allocate console window in Debug mode
   AllocConsole();
   FILE *pCout = nullptr;
   freopen_s(&pCout, "CONOUT$", "w", stdout);
@@ -16,7 +16,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
   std::cout << "=== Debug Console Initialized ===" << std::endl;
 #endif
 
-  // 使用智能指针管理System生命周期，避免手动new/delete
+  // Use smart pointer to manage System lifetime, avoid manual new/delete
   auto system = std::make_unique<System>();
   if (!system) {
     return 0;
@@ -28,10 +28,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
   }
 
   system->Shutdown();
-  // system会自动析构，无需手动delete
+  // system will automatically destruct, no need to manually delete
 
 #ifdef _DEBUG
-  // 清理控制台
+  // Clean up console
   FreeConsole();
 #endif
 

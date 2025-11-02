@@ -1,4 +1,4 @@
-#include "Graphics.h"
+﻿#include "Graphics.h"
 
 #include "../CommonFramework2/DirectX11Device.h"
 #include "../CommonFramework2/TypeDefine.h"
@@ -132,7 +132,7 @@ bool Graphics::InitializeLight() {
 bool Graphics::InitializeResources(HWND hwnd) {
   auto &resource_manager = ResourceManager::GetInstance();
 
-  // 1. 模型与几何体资源
+  // 1. Model and geometry resources
   scene_assets_.cube = resource_manager.GetModel("cube", "./data/cube.txt",
                                                  L"./data/wall01.dds");
 
@@ -196,7 +196,7 @@ bool Graphics::InitializeResources(HWND hwnd) {
     return false;
   }
 
-  // 2. 渲染目标
+  // 2. Render targets
   render_targets_.shadow_depth = resource_manager.CreateRenderTexture(
       "shadow_depth", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH,
       SCREEN_NEAR);
@@ -241,7 +241,7 @@ bool Graphics::InitializeResources(HWND hwnd) {
     return false;
   }
 
-  // 3. 着色器
+  // 3. Shaders
   shader_assets_.depth = resource_manager.GetShader<DepthShader>("depth");
   shader_assets_.shadow = resource_manager.GetShader<ShadowShader>("shadow");
   shader_assets_.texture = resource_manager.GetShader<TextureShader>("texture");
@@ -308,7 +308,7 @@ bool Graphics::InitializeResources(HWND hwnd) {
     }
   }
 
-  // 4. 正交屏幕窗口
+  // 4. Orthographic screen windows
   ortho_windows_.small_window = resource_manager.GetOrthoWindow(
       "small_window", downSampleWidth, downSampleHeight);
   ortho_windows_.fullscreen_window = resource_manager.GetOrthoWindow(
@@ -320,7 +320,7 @@ bool Graphics::InitializeResources(HWND hwnd) {
     return false;
   }
 
-  // 5. 预先创建渲染组
+  // 5. Pre-create render groups
   cube_group_ = make_shared<StandardRenderGroup>();
   pbr_group_ = make_shared<StandardRenderGroup>();
 
@@ -428,7 +428,7 @@ void Graphics::Frame(float deltaTime) {
   // Update diffuse lighting demo cube rotation
   // Rotate at 90 degrees per second (π/2 radians per second)
   if (diffuse_lighting_cube_) {
-    const float rotationSpeed = XM_PI / 2.0f; // 弧度/秒
+    const float rotationSpeed = XM_PI / 2.0f; // Radians per second
     diffuse_lighting_rotation_ += rotationSpeed * deltaTime;
 
     const float TWO_PI = 2.0f * XM_PI;
@@ -1473,39 +1473,39 @@ bool Graphics::IsObjectVisible(std::shared_ptr<IRenderable> renderable,
     return true;
   }
 
-  // 优先使用Model的包围体数据（如果可用）
-  // 首先尝试直接转换为Model
+  // Prefer Model's bounding volume data (if available)
+  // First try to cast directly to Model
   auto model = std::dynamic_pointer_cast<Model>(renderable);
   if (model) {
-    // 获取世界空间的包围体
+    // Get world-space bounding volume
     BoundingVolume worldBounds = model->GetWorldBoundingVolume();
     
-    // 使用优化的包围体检测（AABB + 包围球）
+    // Use optimized bounding volume test (AABB + bounding sphere)
     return frustum.CheckBoundingVolume(worldBounds);
   }
 
-  // 如果通过RenderableObject包装，使用RenderableObject的包围体
+  // If wrapped by RenderableObject, use RenderableObject's bounding volume
   auto renderable_obj = std::dynamic_pointer_cast<RenderableObject>(renderable);
   if (renderable_obj) {
     BoundingVolume worldBounds = renderable_obj->GetWorldBoundingVolume();
     
-    // 检查包围体是否有效（非空）
+    // Check if bounding volume is valid (non-empty)
     if (worldBounds.sphere_radius > 0.0f) {
-      // 使用优化的包围体检测
+      // Use optimized bounding volume test
       return frustum.CheckBoundingVolume(worldBounds);
     }
-    // 如果包围体无效，继续使用回退方法
+    // If bounding volume is invalid, continue with fallback method
   }
 
-  // 回退到默认方法：使用世界矩阵位置和默认半径
+  // Fallback to default method: use world matrix position and default radius
   XMMATRIX worldMatrix = renderable->GetWorldMatrix();
   XMFLOAT3 position;
   XMStoreFloat3(&position, worldMatrix.r[3]);
 
-  // 默认半径（用于OrthoWindow等没有包围体的对象）
+  // Default radius (for objects without bounding volume like OrthoWindow)
   float boundingRadius = 2.0f;
 
-  // 对于小型对象使用更小的半径
+  // Use smaller radius for small objects
   if (renderable->HasTag("final")) {
     XMVECTOR scale;
     XMVECTOR rotation;

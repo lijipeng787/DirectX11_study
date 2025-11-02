@@ -15,7 +15,7 @@ void BoundingVolume::CalculateFromVertices(const XMFLOAT3 *vertices,
     return;
   }
 
-  // 计算AABB
+  // Calculate AABB
   aabb_min = vertices[0];
   aabb_max = vertices[0];
 
@@ -29,13 +29,13 @@ void BoundingVolume::CalculateFromVertices(const XMFLOAT3 *vertices,
     aabb_max.z = std::max(aabb_max.z, vertices[i].z);
   }
 
-  // 从AABB计算包围球
-  // 球心 = AABB中心
+  // Calculate bounding sphere from AABB
+  // Sphere center = AABB center
   sphere_center.x = (aabb_min.x + aabb_max.x) * 0.5f;
   sphere_center.y = (aabb_min.y + aabb_max.y) * 0.5f;
   sphere_center.z = (aabb_min.z + aabb_max.z) * 0.5f;
 
-  // 半径 = 从中心到AABB最远顶点的距离
+  // Radius = distance from center to farthest AABB vertex
   XMVECTOR center = XMLoadFloat3(&sphere_center);
   XMVECTOR maxCorner = XMLoadFloat3(&aabb_max);
   XMVECTOR distance = XMVector3Length(XMVectorSubtract(maxCorner, center));
@@ -43,7 +43,7 @@ void BoundingVolume::CalculateFromVertices(const XMFLOAT3 *vertices,
 }
 
 void BoundingVolume::Merge(const BoundingVolume &other) {
-  // 合并AABB
+  // Merge AABB
   aabb_min.x = std::min(aabb_min.x, other.aabb_min.x);
   aabb_min.y = std::min(aabb_min.y, other.aabb_min.y);
   aabb_min.z = std::min(aabb_min.z, other.aabb_min.z);
@@ -52,7 +52,7 @@ void BoundingVolume::Merge(const BoundingVolume &other) {
   aabb_max.y = std::max(aabb_max.y, other.aabb_max.y);
   aabb_max.z = std::max(aabb_max.z, other.aabb_max.z);
 
-  // 重新计算包围球
+  // Recalculate bounding sphere
   sphere_center.x = (aabb_min.x + aabb_max.x) * 0.5f;
   sphere_center.y = (aabb_min.y + aabb_max.y) * 0.5f;
   sphere_center.z = (aabb_min.z + aabb_max.z) * 0.5f;
@@ -66,7 +66,7 @@ void BoundingVolume::Merge(const BoundingVolume &other) {
 BoundingVolume BoundingVolume::Transform(const XMMATRIX &worldMatrix) const {
   BoundingVolume transformed;
 
-  // 变换AABB的8个顶点
+  // Transform AABB's 8 vertices
   XMFLOAT3 corners[8];
   corners[0] = XMFLOAT3(aabb_min.x, aabb_min.y, aabb_min.z);
   corners[1] = XMFLOAT3(aabb_max.x, aabb_min.y, aabb_min.z);
@@ -77,7 +77,7 @@ BoundingVolume BoundingVolume::Transform(const XMMATRIX &worldMatrix) const {
   corners[6] = XMFLOAT3(aabb_min.x, aabb_max.y, aabb_max.z);
   corners[7] = XMFLOAT3(aabb_max.x, aabb_max.y, aabb_max.z);
 
-  // 变换所有顶点
+  // Transform all vertices
   XMFLOAT3 transformedCorners[8];
   for (int i = 0; i < 8; ++i) {
     XMVECTOR corner = XMLoadFloat3(&corners[i]);
@@ -85,7 +85,7 @@ BoundingVolume BoundingVolume::Transform(const XMMATRIX &worldMatrix) const {
     XMStoreFloat3(&transformedCorners[i], transformed);
   }
 
-  // 从变换后的顶点重新计算AABB
+  // Recalculate AABB from transformed vertices
   transformed.CalculateFromVertices(transformedCorners, 8);
 
   return transformed;

@@ -46,7 +46,7 @@ public:
 
   void SetWorldMatrix(const DirectX::XMMATRIX &worldMatrix);
 
-  // 获取世界空间的包围体（用于视锥体剔除）
+  // Get world-space bounding volume (for frustum culling)
   BoundingVolume GetWorldBoundingVolume() const;
 
 private:
