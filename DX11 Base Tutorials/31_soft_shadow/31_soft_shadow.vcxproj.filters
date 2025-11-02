@@ -83,7 +83,6 @@
     <None Include="verticalblur.vs" />
     <None Include="pbr.ps" />
     <None Include="pbr.vs" />
-    <None Include="RENDERING_SYSTEM_SWITCH_GUIDE.md" />
     <None Include="light.ps" />
     <None Include="light.vs" />
     <None Include="refraction.ps" />

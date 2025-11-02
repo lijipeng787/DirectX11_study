@@ -100,6 +100,9 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 
 		// Determine the amount of specular light based on the reflection vector, viewing direction, and specular power.
         specular = pow(saturate(dot(reflection, input.viewDirection)), specularPower);
+        
+        // Apply the specular color to the specular highlight.
+        specular = specular * specularColor;
     }
 
     // Multiply the texture pixel and the input color to get the textured result.

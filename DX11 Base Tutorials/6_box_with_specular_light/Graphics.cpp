@@ -77,7 +77,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
     light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
     light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
     light_->SetDirection(0.0f, 0.0f, 1.0f);
-    light_->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+    light_->SetSpecularColor(0.0f, 0.0f, 1.0f, 1.0f);
     light_->SetSpecularPower(32.0f);
   }
 
