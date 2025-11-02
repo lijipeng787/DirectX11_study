@@ -17,7 +17,6 @@
     <ClCompile Include="verticalblurshader.cpp" />
     <ClCompile Include="depthshader.cpp" />
     <ClCompile Include="Graphics.cpp" />
-    <ClCompile Include="RenderPipeline.cpp" />
     <ClCompile Include="RenderPass.cpp" />
     <ClCompile Include="RenderableObject.cpp" />
     <ClCompile Include="pbrshader.cpp" />
@@ -46,7 +45,6 @@
     <ClInclude Include="model.h" />
     <ClInclude Include="orthowindow.h" />
     <ClInclude Include="position.h" />
-    <ClInclude Include="RenderPipeline.h" />
     <ClInclude Include="rendertexture.h" />
     <ClInclude Include="ShaderParameterContainer.h" />
     <ClInclude Include="shadowshader.h" />

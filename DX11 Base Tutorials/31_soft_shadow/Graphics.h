@@ -6,7 +6,6 @@
 #include "../CommonFramework2/GraphicsBase.h"
 #include "Frustum.h"
 #include "RenderGraph.h"
-#include "RenderPipeline.h"
 #include "SceneConfig.h"
 #include "ShaderParameterValidator.h"
 #include "light.h"
@@ -79,16 +78,16 @@ private:
 
   // Split initialization methods for better organization and testability
   bool InitializeSceneModels(HWND hwnd);
+
   bool InitializeRenderTargets();
+  
   bool InitializeShaders();
+  
   bool InitializeFontSystem(HWND hwnd);
+  
   bool InitializeOrthoWindows();
 
 private:
-  [[deprecated("Use SetupRenderGraph instead. This function is kept for "
-               "backward compatibility only.")]]
-  void SetupRenderPipeline();
-
   bool SetupRenderGraph();
 
   void SetupRenderPasses();
@@ -180,9 +179,6 @@ private:
   // Diffuse lighting demo object
   std::shared_ptr<IRenderable> diffuse_lighting_cube_;
 
-  static constexpr bool use_render_graph_ = true;
-
-  RenderPipeline render_pipeline_;
   RenderGraph render_graph_;
 
   // Parameter validation system

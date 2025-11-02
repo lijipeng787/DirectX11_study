@@ -176,7 +176,6 @@
     <ClInclude Include="RenderableObject.h" />
     <ClInclude Include="RenderGraph.h" />
     <ClInclude Include="RenderPass.h" />
-    <ClInclude Include="RenderPipeline.h" />
     <ClInclude Include="rendertexture.h" />
     <ClInclude Include="refractionshader.h" />
     <ClInclude Include="ResourceManager.h" />
@@ -213,7 +212,6 @@
     <ClCompile Include="RenderableObject.cpp" />
     <ClCompile Include="RenderGraph.cpp" />
     <ClCompile Include="RenderPass.cpp" />
-    <ClCompile Include="RenderPipeline.cpp" />
     <ClCompile Include="rendertexture.cpp" />
     <ClCompile Include="refractionshader.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
