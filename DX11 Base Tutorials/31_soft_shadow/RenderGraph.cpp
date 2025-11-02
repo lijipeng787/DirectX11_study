@@ -14,14 +14,14 @@
 #include "fontshader.h"
 #include "horizontalblurshader.h"
 #include "pbrshader.h"
+#include "refractionshader.h"
+#include "scenelightshader.h"
 #include "shadowshader.h"
+#include "simplelightshader.h"
 #include "softshadowshader.h"
 #include "textureshader.h"
 #include "verticalblurshader.h"
-#include "scenelightshader.h"
-#include "refractionshader.h"
 #include "watershader.h"
-#include "simplelightshader.h"
 // !do not remove these includes
 
 #include <algorithm>
@@ -307,8 +307,9 @@ bool RenderGraph::Compile() {
     for (auto &pass : sorted_passes_) {
       if (!ValidatePassParameters(pass)) {
         Logger::SetModule("RenderGraph");
-        Logger::LogError("Compile Error: parameter validation failed for pass " +
-                         pass->GetName());
+        Logger::LogError(
+            "Compile Error: parameter validation failed for pass " +
+            pass->GetName());
         return false;
       }
     }
@@ -471,12 +472,15 @@ void RenderGraph::PrintGraph() const {
     if (p->disable_z_buffer_)
       std::cout << " ZDisabled";
     if (!hasResolvedInput && hasOutput)
-      std::cout << " [INFO: writes without inputs (first pass or scene rendering)]";
+      std::cout
+          << " [INFO: writes without inputs (first pass or scene rendering)]";
     std::cout << std::endl;
   }
   if (!isolatedPasses.empty()) {
     std::cout << "Isolated passes (no inputs & no outputs):" << std::endl;
-    std::cout << "  Note: These passes render directly to back buffer, not via intermediate textures" << std::endl;
+    std::cout << "  Note: These passes render directly to back buffer, not via "
+                 "intermediate textures"
+              << std::endl;
     for (auto &n : isolatedPasses)
       std::cout << "  * " << n << std::endl;
   }

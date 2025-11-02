@@ -7,7 +7,6 @@
 #include "Frustum.h"
 #include "Interfaces.h"
 #include "Logger.h"
-#include "model.h"
 #include "RenderableObject.h"
 #include "ResourceManager.h"
 #include "ShaderParameterValidator.h"
@@ -15,6 +14,7 @@
 #include "font.h"
 #include "fontshader.h"
 #include "horizontalblurshader.h"
+#include "model.h"
 #include "orthowindow.h"
 #include "pbrshader.h"
 #include "refractionshader.h"
@@ -92,9 +92,6 @@ bool Graphics::InitializeDevice(int screenWidth, int screenHeight, HWND hwnd) {
     return false;
   }
 
-  // Initialize render pipeline
-  render_pipeline_.Initialize(device, device_context);
-
   return true;
 }
 
@@ -129,18 +126,15 @@ bool Graphics::InitializeLight() {
   return true;
 }
 
-bool Graphics::InitializeResources(HWND hwnd) {
+bool Graphics::InitializeSceneModels(HWND hwnd) {
   auto &resource_manager = ResourceManager::GetInstance();
 
-  // 1. Model and geometry resources
+  // Load basic geometry models
   scene_assets_.cube = resource_manager.GetModel("cube", "./data/cube.txt",
                                                  L"./data/wall01.dds");
 
   scene_assets_.sphere = resource_manager.GetModel(
       "sphere", "./data/sphere.txt", L"./data/ice.dds");
-
-  // scene_assets_.ground = resource_manager.GetModel(
-  //     "ground", "./data/plane01.txt", L"./data/metal001.dds");
 
   scene_assets_.ground = resource_manager.GetModel(
       "ground", "./data/plane01.txt", L"./data/blue01.dds");
@@ -156,6 +150,7 @@ bool Graphics::InitializeResources(HWND hwnd) {
     return false;
   }
 
+  // Load PBR model
   scene_assets_.pbr_sphere = resource_manager.GetPBRModel(
       "sphere_pbr", "./data/sphere.txt", "./data/pbr_albedo.tga",
       "./data/pbr_normal.tga", "./data/pbr_roughmetal.tga");
@@ -171,6 +166,7 @@ bool Graphics::InitializeResources(HWND hwnd) {
     return false;
   }
 
+  // Load refraction scene models
   scene_assets_.refraction.ground = resource_manager.GetModel(
       "refraction_ground", "./data/ground_refraction.txt",
       L"./data/ground01.dds");
@@ -196,7 +192,13 @@ bool Graphics::InitializeResources(HWND hwnd) {
     return false;
   }
 
-  // 2. Render targets
+  return true;
+}
+
+bool Graphics::InitializeRenderTargets() {
+  auto &resource_manager = ResourceManager::GetInstance();
+
+  // Create shadow-related render targets
   render_targets_.shadow_depth = resource_manager.CreateRenderTexture(
       "shadow_depth", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH,
       SCREEN_NEAR);
@@ -217,18 +219,19 @@ bool Graphics::InitializeResources(HWND hwnd) {
   render_targets_.upsampled_shadow = resource_manager.CreateRenderTexture(
       "upsample", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH, 0.1f);
 
+  // Create reflection/refraction render targets
   render_targets_.reflection_map = resource_manager.CreateRenderTexture(
       "reflection_map", screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
 
   render_targets_.refraction.refraction_map =
       resource_manager.CreateRenderTexture("water_refraction", screenWidth,
-                                          screenHeight, SCREEN_DEPTH,
-                                          SCREEN_NEAR);
+                                           screenHeight, SCREEN_DEPTH,
+                                           SCREEN_NEAR);
 
   render_targets_.refraction.water_reflection_map =
       resource_manager.CreateRenderTexture("water_reflection", screenWidth,
-                                          screenHeight, SCREEN_DEPTH,
-                                          SCREEN_NEAR);
+                                           screenHeight, SCREEN_DEPTH,
+                                           SCREEN_NEAR);
 
   if (!render_targets_.shadow_depth || !render_targets_.shadow_map ||
       !render_targets_.downsampled_shadow || !render_targets_.horizontal_blur ||
@@ -241,7 +244,13 @@ bool Graphics::InitializeResources(HWND hwnd) {
     return false;
   }
 
-  // 3. Shaders
+  return true;
+}
+
+bool Graphics::InitializeShaders() {
+  auto &resource_manager = ResourceManager::GetInstance();
+
+  // Load core rendering shaders
   shader_assets_.depth = resource_manager.GetShader<DepthShader>("depth");
   shader_assets_.shadow = resource_manager.GetShader<ShadowShader>("shadow");
   shader_assets_.texture = resource_manager.GetShader<TextureShader>("texture");
@@ -255,6 +264,7 @@ bool Graphics::InitializeResources(HWND hwnd) {
   shader_assets_.diffuse_lighting =
       resource_manager.GetShader<SimpleLightShader>("simple_light");
 
+  // Load refraction/water shaders
   shader_assets_.refraction.scene_light =
       resource_manager.GetShader<SceneLightShader>("scene_light");
   shader_assets_.refraction.refraction =
@@ -274,7 +284,13 @@ bool Graphics::InitializeResources(HWND hwnd) {
     return false;
   }
 
-  // Initialize font resources for text rendering
+  return true;
+}
+
+bool Graphics::InitializeFontSystem(HWND hwnd) {
+  auto &resource_manager = ResourceManager::GetInstance();
+
+  // Load font shader
   auto font_shader = resource_manager.GetShader<FontShader>("font");
   if (!font_shader) {
     Logger::SetModule("Graphics");
@@ -282,6 +298,7 @@ bool Graphics::InitializeResources(HWND hwnd) {
     return false;
   }
 
+  // Load font
   auto font = std::make_shared<Font>();
   if (!font->Initialize("./data/fontdata.txt", L"./data/font.dds",
                         resource_manager.GetDevice())) {
@@ -290,11 +307,11 @@ bool Graphics::InitializeResources(HWND hwnd) {
     return false;
   }
 
-  // Store font and shader for text rendering
+  // Store font and shader
   font_shader_ = font_shader;
   font_ = font;
 
-  // Initialize text rendering now that font resources are ready
+  // Initialize text rendering
   if (font_ && font_shader_) {
     XMMATRIX baseViewMatrix;
     camera_->GetBaseViewMatrix(baseViewMatrix);
@@ -308,7 +325,12 @@ bool Graphics::InitializeResources(HWND hwnd) {
     }
   }
 
-  // 4. Orthographic screen windows
+  return true;
+}
+
+bool Graphics::InitializeOrthoWindows() {
+  auto &resource_manager = ResourceManager::GetInstance();
+
   ortho_windows_.small_window = resource_manager.GetOrthoWindow(
       "small_window", downSampleWidth, downSampleHeight);
   ortho_windows_.fullscreen_window = resource_manager.GetOrthoWindow(
@@ -320,7 +342,34 @@ bool Graphics::InitializeResources(HWND hwnd) {
     return false;
   }
 
-  // 5. Pre-create render groups
+  return true;
+}
+
+bool Graphics::InitializeResources(HWND hwnd) {
+  // Delegate to specialized initialization methods for better organization
+  // and testability
+
+  if (!InitializeSceneModels(hwnd)) {
+    return false;
+  }
+
+  if (!InitializeRenderTargets()) {
+    return false;
+  }
+
+  if (!InitializeShaders()) {
+    return false;
+  }
+
+  if (!InitializeFontSystem(hwnd)) {
+    return false;
+  }
+
+  if (!InitializeOrthoWindows()) {
+    return false;
+  }
+
+  // Pre-create render groups
   cube_group_ = make_shared<StandardRenderGroup>();
   pbr_group_ = make_shared<StandardRenderGroup>();
 
@@ -409,8 +458,9 @@ void Graphics::Frame(float deltaTime) {
 
   // Update rotation for 5 cubes group
   // Rotate at approximately PI radians per second (180 degrees per second)
-  // Previously: XM_PI * 0.001f * deltaTime_ms = XM_PI * 0.001f * (deltaTime_s * 1000) = XM_PI * deltaTime_s
-  // Now deltaTime is in seconds, so we use: XM_PI * deltaTime
+  // Previously: XM_PI * 0.001f * deltaTime_ms = XM_PI * 0.001f * (deltaTime_s *
+  // 1000) = XM_PI * deltaTime_s Now deltaTime is in seconds, so we use: XM_PI *
+  // deltaTime
   static float rotation_y = 0.0f;
   if (0.000001 < 360.0f - rotation_y)
     rotation_y = 0.0f;
@@ -436,11 +486,15 @@ void Graphics::Frame(float deltaTime) {
       diffuse_lighting_rotation_ -= TWO_PI;
     }
 
-    XMMATRIX diffuse_lighting_rotation = XMMatrixRotationY(diffuse_lighting_rotation_);
-    // Position diffuse lighting cube in a separate area to avoid overlapping with soft shadow demo
-    // Located to the right and forward: (6.0f, 2.0f, 3.0f)
-    XMMATRIX diffuse_lighting_translation = XMMatrixTranslation(6.0f, 2.0f, 3.0f);
-    diffuse_lighting_cube_->SetWorldMatrix(diffuse_lighting_rotation * diffuse_lighting_translation);
+    XMMATRIX diffuse_lighting_rotation =
+        XMMatrixRotationY(diffuse_lighting_rotation_);
+    // Position diffuse lighting cube in a separate area to avoid overlapping
+    // with soft shadow demo Located to the right and forward:
+    // (6.0f, 2.0f, 3.0f)
+    XMMATRIX diffuse_lighting_translation =
+        XMMatrixTranslation(6.0f, 2.0f, 3.0f);
+    diffuse_lighting_cube_->SetWorldMatrix(diffuse_lighting_rotation *
+                                           diffuse_lighting_translation);
   }
 
   for (const auto &renderable : pbr_group_->GetRenderables()) {
@@ -491,7 +545,8 @@ static constexpr float refraction_scene_offset_y = 0.0f;
 static constexpr float refraction_scene_offset_z = 0.0f;
 static constexpr float refraction_ground_scale = 0.5f;
 
-[[deprecated("Use SetupRenderGraph instead. This function is kept for backward compatibility only.")]]
+[[deprecated("Use SetupRenderGraph instead. This function is kept for backward "
+             "compatibility only.")]]
 void Graphics::SetupRenderPipeline() {
 
   if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground ||
@@ -502,6 +557,12 @@ void Graphics::SetupRenderPipeline() {
     Logger::LogError("SetupRenderPipeline: resources not initialized.");
     return;
   }
+
+  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
+  auto context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
+
+  // Initialize RenderPipeline
+  render_pipeline_.Initialize(device, context);
 
   const auto &cube_model = scene_assets_.cube;
   const auto &sphere_model = scene_assets_.sphere;
@@ -664,8 +725,8 @@ void Graphics::SetupRenderPipeline() {
   }
 
   // Add DiffuseLighting pass for diffuse lighting shader demo
-  auto diffuse_lighting_pass =
-      std::make_shared<RenderPass>("DiffuseLightingPass", diffuse_lighting_shader);
+  auto diffuse_lighting_pass = std::make_shared<RenderPass>(
+      "DiffuseLightingPass", diffuse_lighting_shader);
   {
     diffuse_lighting_pass->AddRenderTag(diffuse_lighting_tag);
 
@@ -748,14 +809,16 @@ void Graphics::SetupRenderPipeline() {
   // Note: For RenderGraph mode, objects are added in SetupRenderableObjects()
   // This is for legacy RenderPipeline mode
   // Position in a separate area to avoid overlapping with soft shadow demo
-  auto diffuse_lighting_cube = std::make_shared<RenderableObject>(cube_model, diffuse_lighting_shader);
+  auto diffuse_lighting_cube =
+      std::make_shared<RenderableObject>(cube_model, diffuse_lighting_shader);
   diffuse_lighting_cube->SetWorldMatrix(XMMatrixTranslation(6.0f, 2.0f, 3.0f));
   diffuse_lighting_cube->AddTag(diffuse_lighting_tag);
   diffuse_lighting_cube->SetParameterCallback(
       [cube_model](ShaderParameterContainer &params) {
         params.SetTexture("texture", cube_model->GetTexture());
       });
-  diffuse_lighting_cube_ = diffuse_lighting_cube; // Store reference for rotation updates
+  diffuse_lighting_cube_ =
+      diffuse_lighting_cube; // Store reference for rotation updates
   render_pipeline_.AddRenderableObject(diffuse_lighting_cube);
 
   for (int i = 0; i < 5; i++) {
@@ -860,8 +923,7 @@ void Graphics::SetupRenderPasses() {
   const auto &reflection_tex = render_targets_.reflection_map;
   render_graph_.ImportTexture("ReflectionMap", reflection_tex);
 
-  const auto &water_refraction_tex =
-      render_targets_.refraction.refraction_map;
+  const auto &water_refraction_tex = render_targets_.refraction.refraction_map;
   render_graph_.ImportTexture("WaterRefraction", water_refraction_tex);
 
   const auto &water_reflection_tex =
@@ -1031,7 +1093,7 @@ void Graphics::SetupRenderPasses() {
 
         if (ctx.global_params->HasParameter("waterReflectionMatrix")) {
           merged.SetMatrix("viewMatrix", ctx.global_params->GetMatrix(
-                                            "waterReflectionMatrix"));
+                                             "waterReflectionMatrix"));
         }
 
         if (ctx.global_params->HasParameter("projectionMatrix")) {
@@ -1214,12 +1276,14 @@ void Graphics::SetupRenderableObjects() {
   }
 
   // Add diffuse lighting shader demo object
-  // Position in a separate area (right and forward) to avoid overlapping with soft shadow demo
+  // Position in a separate area (right and forward) to avoid overlapping with
+  // soft shadow demo
   {
     const auto &diffuse_lighting_shader = shader_assets_.diffuse_lighting;
-    auto diffuse_lighting_cube_obj = std::make_shared<RenderableObject>(
-        cube_model, diffuse_lighting_shader);
-    diffuse_lighting_cube_obj->SetWorldMatrix(XMMatrixTranslation(6.0f, 2.0f, 3.0f));
+    auto diffuse_lighting_cube_obj =
+        std::make_shared<RenderableObject>(cube_model, diffuse_lighting_shader);
+    diffuse_lighting_cube_obj->SetWorldMatrix(
+        XMMatrixTranslation(6.0f, 2.0f, 3.0f));
     diffuse_lighting_cube_obj->AddTag(diffuse_lighting_tag);
     diffuse_lighting_cube_obj->SetParameterCallback(
         [cube_model](ShaderParameterContainer &params) {
@@ -1258,8 +1322,8 @@ void Graphics::SetupRenderableObjects() {
     ground_object->SetWorldMatrix(ground_world);
     ground_object->AddTag(scene_light_tag);
     ground_object->SetParameterCallback(
-        [ground_model = refraction_assets.ground](
-            ShaderParameterContainer &params) {
+        [ground_model =
+             refraction_assets.ground](ShaderParameterContainer &params) {
           params.SetTexture("texture", ground_model->GetTexture());
         });
     renderable_objects_.push_back(ground_object);
@@ -1272,10 +1336,10 @@ void Graphics::SetupRenderableObjects() {
                                 scene_offset);
     wall_object->AddTag(scene_light_tag);
     wall_object->AddTag(water_reflection_tag);
-    wall_object->SetParameterCallback(
-        [wall_model = refraction_assets.wall](ShaderParameterContainer &params) {
-          params.SetTexture("texture", wall_model->GetTexture());
-        });
+    wall_object->SetParameterCallback([wall_model = refraction_assets.wall](
+                                          ShaderParameterContainer &params) {
+      params.SetTexture("texture", wall_model->GetTexture());
+    });
     renderable_objects_.push_back(wall_object);
   }
 
@@ -1286,10 +1350,10 @@ void Graphics::SetupRenderableObjects() {
                                 scene_offset);
     bath_object->AddTag(scene_light_tag);
     bath_object->AddTag(refraction_pass_tag);
-    bath_object->SetParameterCallback(
-        [bath_model = refraction_assets.bath](ShaderParameterContainer &params) {
-          params.SetTexture("texture", bath_model->GetTexture());
-        });
+    bath_object->SetParameterCallback([bath_model = refraction_assets.bath](
+                                          ShaderParameterContainer &params) {
+      params.SetTexture("texture", bath_model->GetTexture());
+    });
     renderable_objects_.push_back(bath_object);
   }
 
@@ -1331,11 +1395,9 @@ void Graphics::RegisterShaderParameters() {
   parameter_validator_.RegisterGlobalParameter(
       "reflectionMatrix"); // From Render()
   parameter_validator_.RegisterGlobalParameter(
-      "waterReflectionMatrix"); // From Render()
-  parameter_validator_.RegisterGlobalParameter(
-      "ambientColor"); // From Render()
-  parameter_validator_.RegisterGlobalParameter(
-      "diffuseColor"); // From Render()
+      "waterReflectionMatrix");                                 // From Render()
+  parameter_validator_.RegisterGlobalParameter("ambientColor"); // From Render()
+  parameter_validator_.RegisterGlobalParameter("diffuseColor"); // From Render()
   parameter_validator_.RegisterGlobalParameter(
       "waterTranslation"); // From Render()
   parameter_validator_.RegisterGlobalParameter(
@@ -1479,7 +1541,7 @@ bool Graphics::IsObjectVisible(std::shared_ptr<IRenderable> renderable,
   if (model) {
     // Get world-space bounding volume
     BoundingVolume worldBounds = model->GetWorldBoundingVolume();
-    
+
     // Use optimized bounding volume test (AABB + bounding sphere)
     return frustum.CheckBoundingVolume(worldBounds);
   }
@@ -1488,7 +1550,7 @@ bool Graphics::IsObjectVisible(std::shared_ptr<IRenderable> renderable,
   auto renderable_obj = std::dynamic_pointer_cast<RenderableObject>(renderable);
   if (renderable_obj) {
     BoundingVolume worldBounds = renderable_obj->GetWorldBoundingVolume();
-    
+
     // Check if bounding volume is valid (non-empty)
     if (worldBounds.sphere_radius > 0.0f) {
       // Use optimized bounding volume test

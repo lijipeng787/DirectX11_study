@@ -19,7 +19,8 @@ public:
   void RegisterShader(const std::string &shader_name,
                       const std::vector<ShaderParameterInfo> &parameters);
 
-  // Register global parameters (provided by Render() at runtime, not needed in Pass)
+  // Register global parameters (provided by Render() at runtime, not needed in
+  // Pass)
   void RegisterGlobalParameter(const std::string &param_name);
 
   // Check if parameter is a global parameter
@@ -30,8 +31,9 @@ public:
                          ShaderParameterType expected_type) const;
 
   // Validate all Pass parameters
-  // provided_parameters: parameters set at Pass level (excluding global parameters)
-  // Note: global parameters are provided at runtime and won't be reported as missing
+  // provided_parameters: parameters set at Pass level (excluding global
+  // parameters) Note: global parameters are provided at runtime and won't be
+  // reported as missing
   bool ValidatePassParameters(
       const std::string &pass_name, const std::string &shader_name,
       const std::unordered_set<std::string> &provided_parameters,
@@ -82,7 +84,8 @@ private:
 
 // Helper functions for resource name to parameter name conversion
 namespace RenderGraphNaming {
-// Convert resource name to parameter name (default rule: lowercase first letter)
+// Convert resource name to parameter name (default rule: lowercase first
+// letter)
 std::string ResourceNameToParameterName(const std::string &resource_name);
 
 // Convert resource name to texture parameter name (add Texture suffix)

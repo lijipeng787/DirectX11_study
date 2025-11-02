@@ -130,7 +130,8 @@ void ShaderBase::OutputShaderErrorMessage(ID3D10Blob *errorMessage, HWND hwnd,
   fout.close();
 
   Logger::SetModule("ShaderBase");
-  Logger::LogError("Error compiling shader. Check shader-error.txt for message.");
+  Logger::LogError(
+      "Error compiling shader. Check shader-error.txt for message.");
   Logger::LogError(std::string(shaderFilename.begin(), shaderFilename.end()));
 }
 

@@ -9,15 +9,14 @@ bool SceneLightShader::Initialize(HWND hwnd, ID3D11Device *device) {
   D3D11_INPUT_ELEMENT_DESC polygonLayout[] = {
       {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
        D3D11_INPUT_PER_VERTEX_DATA, 0},
-      {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,
-       D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+      {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT,
+       D3D11_INPUT_PER_VERTEX_DATA, 0},
       {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
        D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}};
 
-  if (!InitializeShaderFromFile(hwnd, L"./light.vs", "LightVertexShader",
-                                L"./light.ps", "LightPixelShader",
-                                polygonLayout, _countof(polygonLayout),
-                                device)) {
+  if (!InitializeShaderFromFile(
+          hwnd, L"./light.vs", "LightVertexShader", L"./light.ps",
+          "LightPixelShader", polygonLayout, _countof(polygonLayout), device)) {
     return false;
   }
 
@@ -40,9 +39,9 @@ bool SceneLightShader::Initialize(HWND hwnd, ID3D11Device *device) {
 
 void SceneLightShader::Shutdown() { ShaderBase::Shutdown(); }
 
-bool SceneLightShader::Render(
-    int indexCount, const ShaderParameterContainer &parameters,
-    ID3D11DeviceContext *deviceContext) const {
+bool SceneLightShader::Render(int indexCount,
+                              const ShaderParameterContainer &parameters,
+                              ID3D11DeviceContext *deviceContext) const {
 
   auto worldMatrix = parameters.GetMatrix("worldMatrix");
   auto viewMatrix = parameters.GetMatrix("viewMatrix");
@@ -81,8 +80,7 @@ bool SceneLightShader::SetShaderParameters(
   auto projectionT = XMMatrixTranspose(projectionMatrix);
 
   auto result = deviceContext->Map(matrix_buffer_.Get(), 0,
-                                   D3D11_MAP_WRITE_DISCARD, 0,
-                                   &mappedResource);
+                                   D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }
@@ -114,4 +112,3 @@ bool SceneLightShader::SetShaderParameters(
 
   return true;
 }
-

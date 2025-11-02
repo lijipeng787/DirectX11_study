@@ -47,4 +47,3 @@ private:
   Microsoft::WRL::ComPtr<ID3D11Buffer> reflection_buffer_;
   Microsoft::WRL::ComPtr<ID3D11Buffer> water_buffer_;
 };
-

@@ -245,10 +245,8 @@ ResourceManager::GetShader<RefractionShader>(const std::string &name) {
 template <>
 inline std::shared_ptr<WaterShader>
 ResourceManager::GetShader<WaterShader>(const std::string &name) {
-  return std::dynamic_pointer_cast<WaterShader>(
-      GetCachedResource<IShader>(name, shader_cache_, [this]() {
-        return CreateShader("WaterShader");
-      }));
+  return std::dynamic_pointer_cast<WaterShader>(GetCachedResource<IShader>(
+      name, shader_cache_, [this]() { return CreateShader("WaterShader"); }));
 }
 
 template <>

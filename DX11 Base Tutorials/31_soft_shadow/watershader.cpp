@@ -9,13 +9,12 @@ bool WaterShader::Initialize(HWND hwnd, ID3D11Device *device) {
   D3D11_INPUT_ELEMENT_DESC polygonLayout[] = {
       {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
        D3D11_INPUT_PER_VERTEX_DATA, 0},
-      {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,
-       D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}};
+      {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT,
+       D3D11_INPUT_PER_VERTEX_DATA, 0}};
 
-  if (!InitializeShaderFromFile(hwnd, L"./water.vs", "WaterVertexShader",
-                                L"./water.ps", "WaterPixelShader",
-                                polygonLayout, _countof(polygonLayout),
-                                device)) {
+  if (!InitializeShaderFromFile(
+          hwnd, L"./water.vs", "WaterVertexShader", L"./water.ps",
+          "WaterPixelShader", polygonLayout, _countof(polygonLayout), device)) {
     return false;
   }
 
@@ -43,9 +42,9 @@ bool WaterShader::Initialize(HWND hwnd, ID3D11Device *device) {
 
 void WaterShader::Shutdown() { ShaderBase::Shutdown(); }
 
-bool WaterShader::Render(
-    int indexCount, const ShaderParameterContainer &parameters,
-    ID3D11DeviceContext *deviceContext) const {
+bool WaterShader::Render(int indexCount,
+                         const ShaderParameterContainer &parameters,
+                         ID3D11DeviceContext *deviceContext) const {
 
   auto worldMatrix = parameters.GetMatrix("worldMatrix");
   auto viewMatrix = parameters.GetMatrix("viewMatrix");
@@ -90,8 +89,7 @@ bool WaterShader::SetShaderParameters(
   auto projectionT = XMMatrixTranspose(projectionMatrix);
 
   auto result = deviceContext->Map(matrix_buffer_.Get(), 0,
-                                   D3D11_MAP_WRITE_DISCARD, 0,
-                                   &mappedResource);
+                                   D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }
@@ -117,8 +115,7 @@ bool WaterShader::SetShaderParameters(
   reflectionPtr->reflectionMatrix = reflectionT;
 
   deviceContext->Unmap(reflection_buffer_.Get(), 0);
-  deviceContext->VSSetConstantBuffers(1, 1,
-                                      reflection_buffer_.GetAddressOf());
+  deviceContext->VSSetConstantBuffers(1, 1, reflection_buffer_.GetAddressOf());
 
   result = deviceContext->Map(water_buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD,
                               0, &mappedResource);
@@ -140,4 +137,3 @@ bool WaterShader::SetShaderParameters(
 
   return true;
 }
-

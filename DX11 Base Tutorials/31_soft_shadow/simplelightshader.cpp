@@ -40,15 +40,15 @@ bool SimpleLightShader::Initialize(HWND hwnd, ID3D11Device *device) {
 }
 
 bool SimpleLightShader::Render(int indexCount,
-                                const ShaderParameterContainer &parameters,
-                                ID3D11DeviceContext *deviceContext) const {
+                               const ShaderParameterContainer &parameters,
+                               ID3D11DeviceContext *deviceContext) const {
 
   auto worldMatrix = parameters.GetMatrix("worldMatrix");
   auto viewMatrix = parameters.GetMatrix("viewMatrix");
   auto projectionMatrix = parameters.GetMatrix("projectionMatrix");
 
   auto texture = parameters.GetTexture("texture");
-  
+
   auto ambientColor = parameters.GetVector4("ambientColor");
   auto diffuseColor = parameters.GetVector4("diffuseColor");
   auto lightDirection = parameters.GetVector3("lightDirection");
@@ -77,14 +77,15 @@ bool SimpleLightShader::SetShaderParameters(
     const DirectX::XMMATRIX &worldMatrix, const DirectX::XMMATRIX &viewMatrix,
     const DirectX::XMMATRIX &projectionMatrix,
     ID3D11ShaderResourceView *texture, const DirectX::XMFLOAT3 &lightDirection,
-    const DirectX::XMFLOAT4 &ambientColor, const DirectX::XMFLOAT4 &diffuseColor,
+    const DirectX::XMFLOAT4 &ambientColor,
+    const DirectX::XMFLOAT4 &diffuseColor,
     ID3D11DeviceContext *deviceContext) const {
 
   D3D11_MAPPED_SUBRESOURCE mappedResource;
 
   // Lock the matrix constant buffer
   auto result = deviceContext->Map(matrix_buffer_.Get(), 0,
-                                    D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+                                   D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
   if (FAILED(result)) {
     return false;
   }
@@ -105,7 +106,7 @@ bool SimpleLightShader::SetShaderParameters(
   unsigned int buffer_number = 0;
 
   deviceContext->VSSetConstantBuffers(buffer_number, 1,
-                                       matrix_buffer_.GetAddressOf());
+                                      matrix_buffer_.GetAddressOf());
 
   // Lock the light constant buffer
   result = deviceContext->Map(light_buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD,
@@ -127,11 +128,10 @@ bool SimpleLightShader::SetShaderParameters(
   buffer_number = 0;
 
   deviceContext->PSSetConstantBuffers(buffer_number, 1,
-                                       light_buffer_.GetAddressOf());
+                                      light_buffer_.GetAddressOf());
 
   // Set shader texture resource
   deviceContext->PSSetShaderResources(0, 1, &texture);
 
   return true;
 }
-

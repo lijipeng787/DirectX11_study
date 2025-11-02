@@ -63,7 +63,7 @@ BoundingVolume RenderableObject::GetWorldBoundingVolume() const {
     BoundingVolume localBounds = model_->GetLocalBoundingVolume();
     return localBounds.Transform(world_matrix_);
   }
-  
+
   BoundingVolume emptyBounds;
   return emptyBounds;
 }

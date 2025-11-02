@@ -40,7 +40,8 @@ bool ShaderParameterValidator::ValidateParameter(
   if (!RenderGraphNaming::IsValidParameterName(parameter_name)) {
     return false;
   }
-  // Type validation needs to be done through ShaderParameterContainer in actual use
+  // Type validation needs to be done through ShaderParameterContainer in actual
+  // use
   return true;
 }
 
@@ -55,7 +56,8 @@ bool ShaderParameterValidator::ValidatePassParameters(
     if (mode == ValidationMode::Strict) {
       Logger::SetModule("ShaderParameterValidator");
       Logger::LogError("Shader \"" + shader_name + "\" used in pass \"" +
-                       pass_name + "\" is not registered. Cannot validate parameters.");
+                       pass_name +
+                       "\" is not registered. Cannot validate parameters.");
       return false;
     }
     return true; // Warning mode: unregistered shaders skip validation
@@ -65,7 +67,8 @@ bool ShaderParameterValidator::ValidatePassParameters(
   std::vector<std::string> missing_params;
   std::vector<std::string> invalid_params;
 
-  // Check required parameters (excluding global parameters, as they are provided at runtime)
+  // Check required parameters (excluding global parameters, as they are
+  // provided at runtime)
   for (const auto &param_info : required_params) {
     if (param_info.required) {
       // If it's a global parameter, skip validation (provided at runtime)
@@ -81,7 +84,8 @@ bool ShaderParameterValidator::ValidatePassParameters(
   }
 
   // Check unknown parameters (not in registered list)
-  // Note: exclude global parameters and resource names (resource names don't follow camelCase convention)
+  // Note: exclude global parameters and resource names (resource names don't
+  // follow camelCase convention)
   for (const auto &provided : provided_parameters) {
     // Skip global parameters
     if (IsGlobalParameter(provided)) {

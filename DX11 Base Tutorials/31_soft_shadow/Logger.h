@@ -29,10 +29,17 @@ void LogInfo(const std::wstring &message);
 void LogDebug(const std::wstring &message);
 
 // Convenience macros, automatically set module name
-#define LOG_ERROR(msg) Logger::SetModule(__FILE__); Logger::LogError(msg)
-#define LOG_WARNING(msg) Logger::SetModule(__FILE__); Logger::LogWarning(msg)
-#define LOG_INFO(msg) Logger::SetModule(__FILE__); Logger::LogInfo(msg)
-#define LOG_DEBUG(msg) Logger::SetModule(__FILE__); Logger::LogDebug(msg)
+#define LOG_ERROR(msg)                                                         \
+  Logger::SetModule(__FILE__);                                                 \
+  Logger::LogError(msg)
+#define LOG_WARNING(msg)                                                       \
+  Logger::SetModule(__FILE__);                                                 \
+  Logger::LogWarning(msg)
+#define LOG_INFO(msg)                                                          \
+  Logger::SetModule(__FILE__);                                                 \
+  Logger::LogInfo(msg)
+#define LOG_DEBUG(msg)                                                         \
+  Logger::SetModule(__FILE__);                                                 \
+  Logger::LogDebug(msg)
 
 } // namespace Logger
-

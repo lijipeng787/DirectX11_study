@@ -2,15 +2,16 @@
 
 #include <DirectXMath.h>
 
-// Bounding volume data: contains AABB (Axis-Aligned Bounding Box) and bounding sphere
+// Bounding volume data: contains AABB (Axis-Aligned Bounding Box) and bounding
+// sphere
 struct BoundingVolume {
   // AABB (Axis-Aligned Bounding Box)
-  DirectX::XMFLOAT3 aabb_min;  // Minimum point
-  DirectX::XMFLOAT3 aabb_max;  // Maximum point
+  DirectX::XMFLOAT3 aabb_min; // Minimum point
+  DirectX::XMFLOAT3 aabb_max; // Maximum point
 
   // Bounding Sphere
-  DirectX::XMFLOAT3 sphere_center;  // Sphere center
-  float sphere_radius;                // Radius
+  DirectX::XMFLOAT3 sphere_center; // Sphere center
+  float sphere_radius;             // Radius
 
   BoundingVolume()
       : aabb_min(0.0f, 0.0f, 0.0f), aabb_max(0.0f, 0.0f, 0.0f),
@@ -29,4 +30,3 @@ struct BoundingVolume {
   DirectX::XMFLOAT3 GetAABBCenter() const;
   DirectX::XMFLOAT3 GetAABBSize() const;
 };
-

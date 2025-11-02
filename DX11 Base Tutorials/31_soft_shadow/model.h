@@ -1,8 +1,8 @@
 #pragma once
 
+#include "BoundingVolume.h"
 #include "Interfaces.h"
 #include "ShaderParameterContainer.h"
-#include "BoundingVolume.h"
 #include "texture.h"
 
 #include <d3d11.h>
@@ -63,7 +63,7 @@ private:
 
   void ReleaseModel();
 
-  void CalculateBoundingVolume();  // Calculate bounding volume
+  void CalculateBoundingVolume(); // Calculate bounding volume
 
 private:
   struct Vertex {
@@ -90,7 +90,7 @@ private:
 
   DirectX::XMMATRIX world_matrix_ = DirectX::XMMatrixIdentity();
 
-  BoundingVolume bounding_volume_;  // Bounding volume in local space
+  BoundingVolume bounding_volume_; // Bounding volume in local space
 };
 
 class PBRModel : IRenderable {

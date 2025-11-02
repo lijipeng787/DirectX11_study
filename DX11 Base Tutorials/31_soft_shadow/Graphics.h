@@ -76,8 +76,16 @@ private:
 
   bool InitializeRenderingPipeline();
 
+  // Split initialization methods for better organization and testability
+  bool InitializeSceneModels(HWND hwnd);
+  bool InitializeRenderTargets();
+  bool InitializeShaders();
+  bool InitializeFontSystem(HWND hwnd);
+  bool InitializeOrthoWindows();
+
 private:
-  [[deprecated("Use SetupRenderGraph instead. This function is kept for backward compatibility only.")]]
+  [[deprecated("Use SetupRenderGraph instead. This function is kept for "
+               "backward compatibility only.")]]
   void SetupRenderPipeline();
 
   bool SetupRenderGraph();

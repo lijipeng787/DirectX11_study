@@ -274,11 +274,11 @@ bool FrustumClass::CheckRectangle(float xCenter, float yCenter, float zCenter,
   return true;
 }
 
-bool FrustumClass::CheckAABB(const XMFLOAT3 &min,
-                             const XMFLOAT3 &max) const {
+bool FrustumClass::CheckAABB(const XMFLOAT3 &min, const XMFLOAT3 &max) const {
   // Optimized AABB test: check AABB's 8 vertices
   // If all vertices are outside the frustum, the object is not visible
-  // If at least one vertex is inside the frustum, or AABB intersects the frustum, it's visible
+  // If at least one vertex is inside the frustum, or AABB intersects the
+  // frustum, it's visible
 
   XMFLOAT3 corners[8];
   corners[0] = XMFLOAT3(min.x, min.y, min.z);
@@ -293,19 +293,20 @@ bool FrustumClass::CheckAABB(const XMFLOAT3 &min,
   // Check each frustum plane
   for (int i = 0; i < 6; ++i) {
     bool hasInside = false;
-    
+
     // Check 8 vertices to see if any is inside the plane
     for (int j = 0; j < 8; ++j) {
       XMVECTOR corner = XMLoadFloat3(&corners[j]);
       XMVECTOR planeDot = XMPlaneDotCoord(planes_[i], corner);
-      
+
       if (planeDot.m128_f32[0] >= 0.0f) {
         hasInside = true;
         break; // At least one vertex is inside the plane
       }
     }
-    
-    // If all vertices are outside the plane, AABB is completely outside the frustum
+
+    // If all vertices are outside the plane, AABB is completely outside the
+    // frustum
     if (!hasInside) {
       return false;
     }
@@ -316,7 +317,8 @@ bool FrustumClass::CheckAABB(const XMFLOAT3 &min,
 
 bool FrustumClass::CheckBoundingVolume(const BoundingVolume &bounds) const {
   // Prefer AABB test (more precise), fallback to bounding sphere test
-  // First quick check: if bounding sphere is not visible, AABB is also not visible
+  // First quick check: if bounding sphere is not visible, AABB is also not
+  // visible
   if (!CheckSphere(bounds.sphere_center.x, bounds.sphere_center.y,
                    bounds.sphere_center.z, bounds.sphere_radius)) {
     return false;

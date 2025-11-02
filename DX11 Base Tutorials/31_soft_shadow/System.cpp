@@ -18,7 +18,8 @@ bool System::Initialize() {
   }
 
   // Store System instance pointer in window's user data
-  // This allows WndProc to get System instance via window handle, avoiding global variables
+  // This allows WndProc to get System instance via window handle, avoiding
+  // global variables
   SetWindowLongPtr(GetApplicationHandle(), GWLP_USERDATA,
                    reinterpret_cast<LONG_PTR>(this));
 
@@ -87,8 +88,8 @@ bool System::Frame() {
                          rotY * DEGREES_TO_CAMERA_UNIT,
                          rotZ * DEGREES_TO_CAMERA_UNIT);
 
-  // GetTime() returns milliseconds, convert to seconds for consistent time units
-  // This matches the implementation in project 5
+  // GetTime() returns milliseconds, convert to seconds for consistent time
+  // units This matches the implementation in project 5
   float delta_time = GetTimerComponent().GetTime() / 1000.0f;
 
   graphics_->Frame(delta_time);
@@ -159,7 +160,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam,
   }
 
   default: {
-    // Get System instance pointer from window user data, avoiding global variables
+    // Get System instance pointer from window user data, avoiding global
+    // variables
     System *system =
         reinterpret_cast<System *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
     if (system) {

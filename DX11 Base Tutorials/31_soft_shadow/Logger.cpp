@@ -56,8 +56,8 @@ void SetModule(const std::string &module_name) {
 const std::string &GetModule() { return current_module_; }
 
 void Log(Level level, const std::string &message) {
-  std::cerr << current_module_ << " " << GetLevelString(level) << " "
-            << message << std::endl;
+  std::cerr << current_module_ << " " << GetLevelString(level) << " " << message
+            << std::endl;
 }
 
 void LogError(const std::string &message) { Log(Level::Error, message); }
@@ -90,4 +90,3 @@ void LogDebug(const std::wstring &message) {
 }
 
 } // namespace Logger
-

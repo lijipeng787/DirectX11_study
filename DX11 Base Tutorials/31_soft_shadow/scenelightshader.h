@@ -42,4 +42,3 @@ private:
   Microsoft::WRL::ComPtr<ID3D11Buffer> matrix_buffer_;
   Microsoft::WRL::ComPtr<ID3D11Buffer> light_buffer_;
 };
-

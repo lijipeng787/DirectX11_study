@@ -6,7 +6,7 @@
 using namespace DirectX;
 
 void BoundingVolume::CalculateFromVertices(const XMFLOAT3 *vertices,
-                                            size_t count) {
+                                           size_t count) {
   if (count == 0) {
     aabb_min = XMFLOAT3(0.0f, 0.0f, 0.0f);
     aabb_max = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -101,4 +101,3 @@ XMFLOAT3 BoundingVolume::GetAABBSize() const {
   return XMFLOAT3(aabb_max.x - aabb_min.x, aabb_max.y - aabb_min.y,
                   aabb_max.z - aabb_min.z);
 }
-
