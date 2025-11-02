@@ -33,6 +33,8 @@
 using namespace std;
 using namespace DirectX;
 
+using namespace SceneConfig;
+
 static constexpr auto SHADOW_MAP_WIDTH = 1024;
 static constexpr auto SHADOW_MAP_HEIGHT = 1024;
 // Set the size to sample down to.
@@ -52,6 +54,9 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   if (!InitializeLight()) {
     return false;
   }
+
+  // Load scene configuration from JSON or use default
+  SceneConfig::LoadFromJson(scene_config_, "./data/scene_config.json");
 
   if (!InitializeResources(hwnd)) {
     return false;
@@ -129,15 +134,18 @@ bool Graphics::InitializeLight() {
 bool Graphics::InitializeSceneModels(HWND hwnd) {
   auto &resource_manager = ResourceManager::GetInstance();
 
-  // Load basic geometry models
-  scene_assets_.cube = resource_manager.GetModel("cube", "./data/cube.txt",
-                                                 L"./data/wall01.dds");
+  // Load basic geometry models from configuration
+  auto &cube_config = scene_config_.models["cube"];
+  scene_assets_.cube = resource_manager.GetModel(
+      cube_config.name, cube_config.model_path, cube_config.texture_path);
 
+  auto &sphere_config = scene_config_.models["sphere"];
   scene_assets_.sphere = resource_manager.GetModel(
-      "sphere", "./data/sphere.txt", L"./data/ice.dds");
+      sphere_config.name, sphere_config.model_path, sphere_config.texture_path);
 
+  auto &ground_config = scene_config_.models["ground"];
   scene_assets_.ground = resource_manager.GetModel(
-      "ground", "./data/plane01.txt", L"./data/blue01.dds");
+      ground_config.name, ground_config.model_path, ground_config.texture_path);
 
   if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground) {
     std::wstring error_msg = L"Could not load models.";
@@ -150,10 +158,11 @@ bool Graphics::InitializeSceneModels(HWND hwnd) {
     return false;
   }
 
-  // Load PBR model
+  // Load PBR model from configuration
+  auto &pbr_config = scene_config_.pbr_models["sphere_pbr"];
   scene_assets_.pbr_sphere = resource_manager.GetPBRModel(
-      "sphere_pbr", "./data/sphere.txt", "./data/pbr_albedo.tga",
-      "./data/pbr_normal.tga", "./data/pbr_roughmetal.tga");
+      pbr_config.name, pbr_config.model_path, pbr_config.albedo_path,
+      pbr_config.normal_path, pbr_config.roughmetal_path);
 
   if (!scene_assets_.pbr_sphere) {
     std::wstring error_msg = L"Could not load PBR model.";
@@ -166,19 +175,26 @@ bool Graphics::InitializeSceneModels(HWND hwnd) {
     return false;
   }
 
-  // Load refraction scene models
+  // Load refraction scene models from configuration
+  auto &ref_ground_config = scene_config_.refraction.ground;
   scene_assets_.refraction.ground = resource_manager.GetModel(
-      "refraction_ground", "./data/ground_refraction.txt",
-      L"./data/ground01.dds");
+      ref_ground_config.name, ref_ground_config.model_path,
+      ref_ground_config.texture_path);
 
+  auto &ref_wall_config = scene_config_.refraction.wall;
   scene_assets_.refraction.wall = resource_manager.GetModel(
-      "refraction_wall", "./data/wall.txt", L"./data/wall01.dds");
+      ref_wall_config.name, ref_wall_config.model_path,
+      ref_wall_config.texture_path);
 
+  auto &ref_bath_config = scene_config_.refraction.bath;
   scene_assets_.refraction.bath = resource_manager.GetModel(
-      "refraction_bath", "./data/bath.txt", L"./data/marble01.dds");
+      ref_bath_config.name, ref_bath_config.model_path,
+      ref_bath_config.texture_path);
 
+  auto &ref_water_config = scene_config_.refraction.water;
   scene_assets_.refraction.water = resource_manager.GetModel(
-      "refraction_water", "./data/water.txt", L"./data/water01.dds");
+      ref_water_config.name, ref_water_config.model_path,
+      ref_water_config.texture_path);
 
   if (!scene_assets_.refraction.ground || !scene_assets_.refraction.wall ||
       !scene_assets_.refraction.bath || !scene_assets_.refraction.water) {
@@ -198,40 +214,74 @@ bool Graphics::InitializeSceneModels(HWND hwnd) {
 bool Graphics::InitializeRenderTargets() {
   auto &resource_manager = ResourceManager::GetInstance();
 
-  // Create shadow-related render targets
+  // Helper lambda to get width/height with screen fallback
+  auto getWidth = [this](const RenderTargetConfig &config) {
+    return config.width == -1 ? screenWidth : config.width;
+  };
+  auto getHeight = [this](const RenderTargetConfig &config) {
+    return config.height == -1 ? screenHeight : config.height;
+  };
+
+  // Create shadow-related render targets from configuration
+  auto &shadow_depth_config = scene_config_.render_targets["shadow_depth"];
   render_targets_.shadow_depth = resource_manager.CreateRenderTexture(
-      "shadow_depth", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH,
-      SCREEN_NEAR);
+      shadow_depth_config.name, getWidth(shadow_depth_config),
+      getHeight(shadow_depth_config), shadow_depth_config.depth,
+      shadow_depth_config.near_plane);
 
+  auto &shadow_map_config = scene_config_.render_targets["shadow_map"];
   render_targets_.shadow_map = resource_manager.CreateRenderTexture(
-      "shadow_map", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH,
-      SCREEN_NEAR);
+      shadow_map_config.name, getWidth(shadow_map_config),
+      getHeight(shadow_map_config), shadow_map_config.depth,
+      shadow_map_config.near_plane);
 
+  auto &downsampled_config = scene_config_.render_targets["downsampled_shadow"];
   render_targets_.downsampled_shadow = resource_manager.CreateRenderTexture(
-      "downsample", downSampleWidth, downSampleHeight, 100.0f, 1.0f);
+      downsampled_config.name, getWidth(downsampled_config),
+      getHeight(downsampled_config), downsampled_config.depth,
+      downsampled_config.near_plane);
 
+  auto &horizontal_blur_config =
+      scene_config_.render_targets["horizontal_blur"];
   render_targets_.horizontal_blur = resource_manager.CreateRenderTexture(
-      "horizontal_blur", downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
+      horizontal_blur_config.name, getWidth(horizontal_blur_config),
+      getHeight(horizontal_blur_config), horizontal_blur_config.depth,
+      horizontal_blur_config.near_plane);
 
+  auto &vertical_blur_config = scene_config_.render_targets["vertical_blur"];
   render_targets_.vertical_blur = resource_manager.CreateRenderTexture(
-      "vertical_blur", downSampleWidth, downSampleHeight, SCREEN_DEPTH, 0.1f);
+      vertical_blur_config.name, getWidth(vertical_blur_config),
+      getHeight(vertical_blur_config), vertical_blur_config.depth,
+      vertical_blur_config.near_plane);
 
+  auto &upsampled_config = scene_config_.render_targets["upsampled_shadow"];
   render_targets_.upsampled_shadow = resource_manager.CreateRenderTexture(
-      "upsample", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SCREEN_DEPTH, 0.1f);
+      upsampled_config.name, getWidth(upsampled_config),
+      getHeight(upsampled_config), upsampled_config.depth,
+      upsampled_config.near_plane);
 
-  // Create reflection/refraction render targets
+  // Create reflection/refraction render targets from configuration
+  auto &reflection_map_config = scene_config_.render_targets["reflection_map"];
   render_targets_.reflection_map = resource_manager.CreateRenderTexture(
-      "reflection_map", screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
+      reflection_map_config.name, getWidth(reflection_map_config),
+      getHeight(reflection_map_config), reflection_map_config.depth,
+      reflection_map_config.near_plane);
 
+  auto &water_refraction_config =
+      scene_config_.render_targets["water_refraction"];
   render_targets_.refraction.refraction_map =
-      resource_manager.CreateRenderTexture("water_refraction", screenWidth,
-                                           screenHeight, SCREEN_DEPTH,
-                                           SCREEN_NEAR);
+      resource_manager.CreateRenderTexture(
+          water_refraction_config.name, getWidth(water_refraction_config),
+          getHeight(water_refraction_config), water_refraction_config.depth,
+          water_refraction_config.near_plane);
 
+  auto &water_reflection_config =
+      scene_config_.render_targets["water_reflection"];
   render_targets_.refraction.water_reflection_map =
-      resource_manager.CreateRenderTexture("water_reflection", screenWidth,
-                                           screenHeight, SCREEN_DEPTH,
-                                           SCREEN_NEAR);
+      resource_manager.CreateRenderTexture(
+          water_reflection_config.name, getWidth(water_reflection_config),
+          getHeight(water_reflection_config), water_reflection_config.depth,
+          water_reflection_config.near_plane);
 
   if (!render_targets_.shadow_depth || !render_targets_.shadow_map ||
       !render_targets_.downsampled_shadow || !render_targets_.horizontal_blur ||
@@ -331,10 +381,17 @@ bool Graphics::InitializeFontSystem(HWND hwnd) {
 bool Graphics::InitializeOrthoWindows() {
   auto &resource_manager = ResourceManager::GetInstance();
 
+  // Load ortho windows from configuration
+  auto &small_window_config = scene_config_.ortho_windows["small_window"];
   ortho_windows_.small_window = resource_manager.GetOrthoWindow(
-      "small_window", downSampleWidth, downSampleHeight);
+      small_window_config.name, small_window_config.width,
+      small_window_config.height);
+
+  auto &fullscreen_window_config =
+      scene_config_.ortho_windows["fullscreen_window"];
   ortho_windows_.fullscreen_window = resource_manager.GetOrthoWindow(
-      "fullscreen_window", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
+      fullscreen_window_config.name, fullscreen_window_config.width,
+      fullscreen_window_config.height);
 
   if (!ortho_windows_.small_window || !ortho_windows_.fullscreen_window) {
     Logger::SetModule("Graphics");
@@ -537,13 +594,15 @@ static constexpr auto refraction_pass_tag = "refraction_pass";
 static constexpr auto water_reflection_tag = "water_reflection";
 static constexpr auto water_surface_tag = "water_surface";
 static constexpr auto diffuse_lighting_tag = "diffuse_lighting";
-static constexpr float water_plane_height = 2.75f;
-static constexpr float water_reflect_refract_scale = 0.01f;
-static constexpr float reflection_plane_height = 1.0f;
-static constexpr float refraction_scene_offset_x = 15.0f;
-static constexpr float refraction_scene_offset_y = 0.0f;
-static constexpr float refraction_scene_offset_z = 0.0f;
-static constexpr float refraction_ground_scale = 0.5f;
+// Note: Scene constants are now loaded from JSON configuration
+// These default values are kept for reference only
+// static constexpr float water_plane_height = 2.75f;
+// static constexpr float water_reflect_refract_scale = 0.01f;
+// static constexpr float reflection_plane_height = 1.0f;
+// static constexpr float refraction_scene_offset_x = 15.0f;
+// static constexpr float refraction_scene_offset_y = 0.0f;
+// static constexpr float refraction_scene_offset_z = 0.0f;
+// static constexpr float refraction_ground_scale = 0.5f;
 
 [[deprecated("Use SetupRenderGraph instead. This function is kept for backward "
              "compatibility only.")]]
@@ -1076,8 +1135,10 @@ void Graphics::SetupRenderPasses() {
       .SetShader(refraction_shader)
       .Write("WaterRefraction")
       .AddRenderTag(refraction_pass_tag)
-      .SetParameter("clipPlane", DirectX::XMFLOAT4(0.0f, -1.0f, 0.0f,
-                                                   water_plane_height + 0.1f));
+      .SetParameter(
+          "clipPlane",
+          DirectX::XMFLOAT4(0.0f, -1.0f, 0.0f,
+                            scene_config_.constants.water_plane_height + 0.1f));
 
   const auto &scene_light_shader = shader_assets_.refraction.scene_light;
   render_graph_.AddPass("WaterReflectionPass")
@@ -1126,7 +1187,8 @@ void Graphics::SetupRenderPasses() {
       .ReadAsParameter("WaterRefraction", "refractionTexture")
       .AddRenderTag(water_surface_tag)
       .SetTexture("normalTexture", water_model->GetTexture())
-      .SetParameter("reflectRefractScale", water_reflect_refract_scale);
+      .SetParameter("reflectRefractScale",
+                    scene_config_.constants.water_reflect_refract_scale);
 
   // Pass 10: Text overlay (executed via custom lambda)
   render_graph_.AddPass("TextOverlayPass")
@@ -1310,15 +1372,17 @@ void Graphics::SetupRenderableObjects() {
 
   const auto &refraction_assets = scene_assets_.refraction;
   const auto scene_offset =
-      XMMatrixTranslation(refraction_scene_offset_x, refraction_scene_offset_y,
-                          refraction_scene_offset_z);
+      XMMatrixTranslation(scene_config_.constants.refraction_scene_offset_x,
+                          scene_config_.constants.refraction_scene_offset_y,
+                          scene_config_.constants.refraction_scene_offset_z);
 
   if (refraction_assets.ground && shader_assets_.refraction.scene_light) {
     auto ground_object = std::make_shared<RenderableObject>(
         refraction_assets.ground, shader_assets_.refraction.scene_light);
-    auto ground_world = XMMatrixScaling(refraction_ground_scale, 1.0f,
-                                        refraction_ground_scale) *
-                        XMMatrixTranslation(0.0f, 1.0f, 0.0f) * scene_offset;
+    auto ground_world =
+        XMMatrixScaling(scene_config_.constants.refraction_ground_scale, 1.0f,
+                        scene_config_.constants.refraction_ground_scale) *
+        XMMatrixTranslation(0.0f, 1.0f, 0.0f) * scene_offset;
     ground_object->SetWorldMatrix(ground_world);
     ground_object->AddTag(scene_light_tag);
     ground_object->SetParameterCallback(
@@ -1361,7 +1425,9 @@ void Graphics::SetupRenderableObjects() {
     auto water_object = std::make_shared<RenderableObject>(
         refraction_assets.water, shader_assets_.refraction.water);
     water_object->SetWorldMatrix(
-        XMMatrixTranslation(0.0f, water_plane_height, 0.0f) * scene_offset);
+        XMMatrixTranslation(0.0f, scene_config_.constants.water_plane_height,
+                            0.0f) *
+        scene_offset);
     water_object->AddTag(water_surface_tag);
     renderable_objects_.push_back(water_object);
   }
@@ -1589,17 +1655,17 @@ void Graphics::Render() {
 
   // Update the view matrix based on the camera's position.
   camera_->Render();
-  camera_->RenderReflection(reflection_plane_height);
+  camera_->RenderReflection(scene_config_.constants.reflection_plane_height);
   XMMATRIX viewMatrix, baseViewMatrix;
   camera_->GetViewMatrix(viewMatrix);
   camera_->GetBaseViewMatrix(baseViewMatrix);
   auto reflectionMatrix = camera_->GetReflectionViewMatrix();
 
-  camera_->RenderReflection(water_plane_height);
+  camera_->RenderReflection(scene_config_.constants.water_plane_height);
   auto waterReflectionMatrix = camera_->GetReflectionViewMatrix();
 
   // Restore the original reflection matrix for soft shadow pipeline.
-  camera_->RenderReflection(reflection_plane_height);
+  camera_->RenderReflection(scene_config_.constants.reflection_plane_height);
 
   // Update the light
   light_->GenerateViewMatrix();
@@ -1623,7 +1689,8 @@ void Graphics::Render() {
   Params.SetVector4("ambientColor", light_->GetAmbientColor());
   Params.SetVector4("diffuseColor", light_->GetDiffuseColor());
   Params.SetFloat("waterTranslation", water_translation_);
-  Params.SetFloat("reflectRefractScale", water_reflect_refract_scale);
+  Params.SetFloat("reflectRefractScale",
+                  scene_config_.constants.water_reflect_refract_scale);
 
   // Add device matrices
   XMMATRIX deviceWorldMatrix, projectionMatrix;

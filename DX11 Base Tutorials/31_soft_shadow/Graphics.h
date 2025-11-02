@@ -7,6 +7,7 @@
 #include "Frustum.h"
 #include "RenderGraph.h"
 #include "RenderPipeline.h"
+#include "SceneConfig.h"
 #include "ShaderParameterValidator.h"
 #include "light.h"
 #include "text.h"
@@ -194,4 +195,7 @@ private:
   RenderTargetAssets render_targets_;
   ShaderAssets shader_assets_;
   OrthoWindowAssets ortho_windows_;
+
+  // Scene configuration (loaded from JSON or default)
+  SceneConfig::SceneConfiguration scene_config_;
 };

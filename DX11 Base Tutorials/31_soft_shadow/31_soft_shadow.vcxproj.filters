@@ -35,6 +35,7 @@
     <ClCompile Include="simplelightshader.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="BoundingVolume.cpp" />
+    <ClCompile Include="SceneConfig.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="depthshader.h" />
@@ -71,6 +72,7 @@
     <ClInclude Include="simplelightshader.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="BoundingVolume.h" />
+    <ClInclude Include="SceneConfig.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.ps" />

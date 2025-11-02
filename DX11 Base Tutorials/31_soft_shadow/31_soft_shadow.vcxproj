@@ -107,7 +107,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\DirectXTK\Inc;..\..\thirdparty\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StructMemberAlignment>16Bytes</StructMemberAlignment>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -181,6 +181,7 @@
     <ClInclude Include="refractionshader.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="scenelightshader.h" />
+    <ClInclude Include="SceneConfig.h" />
     <ClInclude Include="ShaderBase.h" />
     <ClInclude Include="ShaderParameterContainer.h" />
     <ClInclude Include="ShaderParameterValidator.h" />
@@ -217,6 +218,7 @@
     <ClCompile Include="refractionshader.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="scenelightshader.cpp" />
+    <ClCompile Include="SceneConfig.cpp" />
     <ClCompile Include="ShaderBase.cpp" />
     <ClCompile Include="ShaderParameterContainer.cpp" />
     <ClCompile Include="ShaderParameterValidator.cpp" />

@@ -1,0 +1,115 @@
+{
+  "models": {
+    "cube": {
+      "model_path": "./data/cube.txt",
+      "texture_path": "./data/wall01.dds"
+    },
+    "sphere": {
+      "model_path": "./data/sphere.txt",
+      "texture_path": "./data/ice.dds"
+    },
+    "ground": {
+      "model_path": "./data/plane01.txt",
+      "texture_path": "./data/blue01.dds"
+    },
+    "pbr_sphere": {
+      "model_path": "./data/sphere.txt",
+      "albedo_path": "./data/pbr_albedo.tga",
+      "normal_path": "./data/pbr_normal.tga",
+      "roughmetal_path": "./data/pbr_roughmetal.tga"
+    },
+    "refraction": {
+      "ground": {
+        "model_path": "./data/ground_refraction.txt",
+        "texture_path": "./data/ground01.dds"
+      },
+      "wall": {
+        "model_path": "./data/wall.txt",
+        "texture_path": "./data/wall01.dds"
+      },
+      "bath": {
+        "model_path": "./data/bath.txt",
+        "texture_path": "./data/marble01.dds"
+      },
+      "water": {
+        "model_path": "./data/water.txt",
+        "texture_path": "./data/water01.dds"
+      }
+    }
+  },
+  "render_targets": {
+    "shadow_depth": {
+      "width": 1024,
+      "height": 1024,
+      "depth": 1000.0,
+      "near": 1.0
+    },
+    "shadow_map": {
+      "width": 1024,
+      "height": 1024,
+      "depth": 1000.0,
+      "near": 1.0
+    },
+    "downsampled_shadow": {
+      "width": 512,
+      "height": 512,
+      "depth": 100.0,
+      "near": 1.0
+    },
+    "horizontal_blur": {
+      "width": 512,
+      "height": 512,
+      "depth": 1000.0,
+      "near": 0.1
+    },
+    "vertical_blur": {
+      "width": 512,
+      "height": 512,
+      "depth": 1000.0,
+      "near": 0.1
+    },
+    "upsampled_shadow": {
+      "width": 1024,
+      "height": 1024,
+      "depth": 1000.0,
+      "near": 0.1
+    },
+    "reflection_map": {
+      "width": -1,
+      "height": -1,
+      "depth": 1000.0,
+      "near": 1.0
+    },
+    "water_refraction": {
+      "width": -1,
+      "height": -1,
+      "depth": 1000.0,
+      "near": 1.0
+    },
+    "water_reflection": {
+      "width": -1,
+      "height": -1,
+      "depth": 1000.0,
+      "near": 1.0
+    }
+  },
+  "ortho_windows": {
+    "small_window": {
+      "width": 512,
+      "height": 512
+    },
+    "fullscreen_window": {
+      "width": 1024,
+      "height": 1024
+    }
+  },
+  "constants": {
+    "water_plane_height": 2.75,
+    "water_reflect_refract_scale": 0.01,
+    "reflection_plane_height": 1.0,
+    "refraction_scene_offset_x": 15.0,
+    "refraction_scene_offset_y": 0.0,
+    "refraction_scene_offset_z": 0.0,
+    "refraction_ground_scale": 0.5
+  }
+}
