@@ -1,6 +1,7 @@
 #include "System.h"
 
 #include "../CommonFramework/Input.h"
+#include "../CommonFramework/Timer.h"
 #include "Graphics.h"
 
 System::System() {}
@@ -49,7 +50,7 @@ bool System::Frame() {
     return false;
   }
 
-  graphics_->Frame(0.0f);
+  graphics_->Frame(GetTimerComponent().GetTime() / 1000.0f);
 
   return true;
 }

@@ -103,6 +103,7 @@
       <AdditionalIncludeDirectories>..\..\DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StructMemberAlignment>16Bytes</StructMemberAlignment>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

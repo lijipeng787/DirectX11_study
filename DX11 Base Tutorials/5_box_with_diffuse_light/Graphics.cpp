@@ -111,9 +111,11 @@ void GraphicsClass::Shutdown() {
 
 void GraphicsClass::Frame(float f) {
 
-  rotation_ += (float)XM_PI * 0.01f;
-  if (rotation_ > 360.0f) {
-    rotation_ -= 360.0f;
+  rotation_ += XM_PI / 2.0f * f;
+  
+  const float TWO_PI = 2.0f * XM_PI;
+  if (rotation_ > TWO_PI) {
+    rotation_ -= TWO_PI;
   }
 
   Render();

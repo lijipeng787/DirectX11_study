@@ -10,6 +10,7 @@
 #include "rendertexture.h"
 #include "scenelightshader.h"
 #include "shadowshader.h"
+#include "simplelightshader.h"
 #include "softshadowshader.h"
 #include "texture.h"
 #include "textureshader.h"
@@ -210,6 +211,8 @@ ResourceManager::CreateShader(const std::string &shaderType) {
     shader = make_shared<RefractionShader>();
   } else if (shaderType == "WaterShader") {
     shader = make_shared<WaterShader>();
+  } else if (shaderType == "SimpleLightShader") {
+    shader = make_shared<SimpleLightShader>();
   } else {
     cerr << "Unknown shader type: " << shaderType << endl;
     return nullptr;

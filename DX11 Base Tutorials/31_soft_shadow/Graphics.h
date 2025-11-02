@@ -31,6 +31,7 @@ class Text;
 class SceneLightShader;
 class RefractionShader;
 class WaterShader;
+class SimpleLightShader;
 
 class Graphics : public GraphicsBase {
 public:
@@ -128,6 +129,7 @@ private:
     std::shared_ptr<VerticalBlurShader> vertical_blur;
     std::shared_ptr<SoftShadowShader> soft_shadow;
     std::shared_ptr<PbrShader> pbr;
+    std::shared_ptr<SimpleLightShader> diffuse_lighting;
 
     struct RefractionShaders {
       std::shared_ptr<SceneLightShader> scene_light;
@@ -147,6 +149,9 @@ private:
 
   float water_translation_ = 0.0f;
 
+  // Diffuse lighting demo rotation
+  float diffuse_lighting_rotation_ = 0.0f;
+
   unsigned int screenWidth = 0, screenHeight = 0;
 
   std::unique_ptr<Camera> camera_;
@@ -160,6 +165,10 @@ private:
   std::shared_ptr<FontShader> font_shader_;
 
   std::shared_ptr<StandardRenderGroup> cube_group_;
+  std::shared_ptr<StandardRenderGroup> pbr_group_;
+
+  // Diffuse lighting demo object
+  std::shared_ptr<IRenderable> diffuse_lighting_cube_;
 
   static constexpr bool use_render_graph_ = true;
 

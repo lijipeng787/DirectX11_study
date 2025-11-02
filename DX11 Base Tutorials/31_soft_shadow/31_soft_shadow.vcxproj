@@ -176,6 +176,7 @@
     <ClInclude Include="ShaderParameterContainer.h" />
     <ClInclude Include="ShaderParameterValidator.h" />
     <ClInclude Include="shadowshader.h" />
+    <ClInclude Include="simplelightshader.h" />
     <ClInclude Include="softshadowshader.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="text.h" />
@@ -209,6 +210,7 @@
     <ClCompile Include="ShaderParameterContainer.cpp" />
     <ClCompile Include="ShaderParameterValidator.cpp" />
     <ClCompile Include="shadowshader.cpp" />
+    <ClCompile Include="simplelightshader.cpp" />
     <ClCompile Include="softshadowshader.cpp" />
     <ClCompile Include="System.cpp" />
     <ClCompile Include="text.cpp" />
@@ -232,6 +234,8 @@
     <None Include="refraction.vs" />
     <None Include="shadow.ps" />
     <None Include="shadow.vs" />
+    <None Include="simplelight.ps" />
+    <None Include="simplelight.vs" />
     <None Include="softshadow.ps" />
     <None Include="softshadow.vs" />
     <None Include="texture.ps" />

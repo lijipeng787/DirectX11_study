@@ -26,6 +26,7 @@ class PbrShader;
 class SceneLightShader;
 class RefractionShader;
 class WaterShader;
+class SimpleLightShader;
 
 class ResourceManager {
 public:
@@ -247,5 +248,14 @@ ResourceManager::GetShader<WaterShader>(const std::string &name) {
   return std::dynamic_pointer_cast<WaterShader>(
       GetCachedResource<IShader>(name, shader_cache_, [this]() {
         return CreateShader("WaterShader");
+      }));
+}
+
+template <>
+inline std::shared_ptr<SimpleLightShader>
+ResourceManager::GetShader<SimpleLightShader>(const std::string &name) {
+  return std::dynamic_pointer_cast<SimpleLightShader>(
+      GetCachedResource<IShader>(name, shader_cache_, [this]() {
+        return CreateShader("SimpleLightShader");
       }));
 }

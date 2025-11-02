@@ -19,6 +19,7 @@
 #include "scenelightshader.h"
 #include "refractionshader.h"
 #include "watershader.h"
+#include "simplelightshader.h"
 // !do not remove these includes
 
 #include <algorithm>

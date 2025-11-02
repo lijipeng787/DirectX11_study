@@ -87,7 +87,9 @@ bool System::Frame() {
                          rotY * DEGREES_TO_CAMERA_UNIT,
                          rotZ * DEGREES_TO_CAMERA_UNIT);
 
-  auto delta_time = GetTimerComponent().GetTime();
+  // GetTime() returns milliseconds, convert to seconds for consistent time units
+  // This matches the implementation in project 5
+  float delta_time = GetTimerComponent().GetTime() / 1000.0f;
 
   graphics_->Frame(delta_time);
 

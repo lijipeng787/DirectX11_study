@@ -28,6 +28,11 @@
     <ClCompile Include="refractionshader.cpp" />
     <ClCompile Include="scenelightshader.cpp" />
     <ClCompile Include="watershader.cpp" />
+    <ClCompile Include="font.cpp" />
+    <ClCompile Include="fontshader.cpp" />
+    <ClCompile Include="Frustum.cpp" />
+    <ClCompile Include="text.cpp" />
+    <ClCompile Include="simplelightshader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="depthshader.h" />
@@ -57,6 +62,11 @@
     <ClInclude Include="refractionshader.h" />
     <ClInclude Include="scenelightshader.h" />
     <ClInclude Include="watershader.h" />
+    <ClInclude Include="font.h" />
+    <ClInclude Include="fontshader.h" />
+    <ClInclude Include="Frustum.h" />
+    <ClInclude Include="text.h" />
+    <ClInclude Include="simplelightshader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.ps" />
@@ -80,5 +90,8 @@
     <None Include="refraction.vs" />
     <None Include="water.ps" />
     <None Include="water.vs" />
+    <None Include="font.hlsl" />
+    <None Include="simplelight.ps" />
+    <None Include="simplelight.vs" />
   </ItemGroup>
 </Project>

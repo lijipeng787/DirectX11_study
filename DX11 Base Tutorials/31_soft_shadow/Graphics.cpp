@@ -19,6 +19,7 @@
 #include "rendertexture.h"
 #include "scenelightshader.h"
 #include "shadowshader.h"
+#include "simplelightshader.h"
 #include "softshadowshader.h"
 #include "text.h"
 #include "textureshader.h"
@@ -254,6 +255,8 @@ bool Graphics::InitializeResources(HWND hwnd) {
   shader_assets_.soft_shadow =
       resource_manager.GetShader<SoftShadowShader>("soft_shadow");
   shader_assets_.pbr = resource_manager.GetShader<PbrShader>("pbr");
+  shader_assets_.diffuse_lighting =
+      resource_manager.GetShader<SimpleLightShader>("simple_light");
 
   shader_assets_.refraction.scene_light =
       resource_manager.GetShader<SceneLightShader>("scene_light");
@@ -265,7 +268,8 @@ bool Graphics::InitializeResources(HWND hwnd) {
   if (!shader_assets_.depth || !shader_assets_.shadow ||
       !shader_assets_.texture || !shader_assets_.horizontal_blur ||
       !shader_assets_.vertical_blur || !shader_assets_.soft_shadow ||
-      !shader_assets_.pbr || !shader_assets_.refraction.scene_light ||
+      !shader_assets_.pbr || !shader_assets_.diffuse_lighting ||
+      !shader_assets_.refraction.scene_light ||
       !shader_assets_.refraction.refraction ||
       !shader_assets_.refraction.water) {
     LogError(L"Could not load shaders.");
@@ -316,6 +320,7 @@ bool Graphics::InitializeResources(HWND hwnd) {
 
   // 5. 预先创建渲染组
   cube_group_ = make_shared<StandardRenderGroup>();
+  pbr_group_ = make_shared<StandardRenderGroup>();
 
   return true;
 }
@@ -391,16 +396,22 @@ void Graphics::Frame(float deltaTime) {
   }
 
   // Update the position of the light each frame.
-  lightPositionX += 0.001f * deltaTime;
+  // deltaTime is now in seconds (converted from milliseconds in System.cpp)
+  // Light moves at 1 unit per second
+  lightPositionX += 1.0f * deltaTime;
   if (lightPositionX > 5.0f) {
     lightPositionX = -5.0f;
   }
   light_->SetPosition(lightPositionX, 8.0f, -5.0f);
 
+  // Update rotation for 5 cubes group
+  // Rotate at approximately PI radians per second (180 degrees per second)
+  // Previously: XM_PI * 0.001f * deltaTime_ms = XM_PI * 0.001f * (deltaTime_s * 1000) = XM_PI * deltaTime_s
+  // Now deltaTime is in seconds, so we use: XM_PI * deltaTime
   static float rotation_y = 0.0f;
   if (0.000001 < 360.0f - rotation_y)
     rotation_y = 0.0f;
-  rotation_y += DirectX::XM_PI * 0.001f * deltaTime;
+  rotation_y += DirectX::XM_PI * deltaTime;
 
   XMMATRIX rotationMatrix =
       XMMatrixRotationRollPitchYaw(0.0f, rotation_y, 0.0f);
@@ -411,10 +422,34 @@ void Graphics::Frame(float deltaTime) {
     renderable->SetWorldMatrix(rotationMatrix * translationMatrix);
   }
 
+  // Update diffuse lighting demo cube rotation
+  // Rotate at 90 degrees per second (π/2 radians per second)
+  if (diffuse_lighting_cube_) {
+    const float rotationSpeed = XM_PI / 2.0f; // 弧度/秒
+    diffuse_lighting_rotation_ += rotationSpeed * deltaTime;
+
+    const float TWO_PI = 2.0f * XM_PI;
+    if (diffuse_lighting_rotation_ > TWO_PI) {
+      diffuse_lighting_rotation_ -= TWO_PI;
+    }
+
+    XMMATRIX diffuse_lighting_rotation = XMMatrixRotationY(diffuse_lighting_rotation_);
+    // Position diffuse lighting cube in a separate area to avoid overlapping with soft shadow demo
+    // Located to the right and forward: (6.0f, 2.0f, 3.0f)
+    XMMATRIX diffuse_lighting_translation = XMMatrixTranslation(6.0f, 2.0f, 3.0f);
+    diffuse_lighting_cube_->SetWorldMatrix(diffuse_lighting_rotation * diffuse_lighting_translation);
+  }
+
+  for (const auto &renderable : pbr_group_->GetRenderables()) {
+    translationMatrix = renderable->GetWorldMatrix();
+    renderable->SetWorldMatrix(rotationMatrix * translationMatrix);
+  }
+
 #ifdef _DEBUG
   // Debug: periodically log resource usage (every 5 seconds)
   static float debugTimer = 0.0f;
-  debugTimer += deltaTime / 1000.0f;
+  // deltaTime is now in seconds, no conversion needed
+  debugTimer += deltaTime;
   if (debugTimer > 5.0f) {
     debugTimer = 0.0f;
     auto &resource_manager = ResourceManager::GetInstance();
@@ -437,13 +472,14 @@ static constexpr auto down_sample_tag = "down_sample";
 static constexpr auto horizontal_blur_tag = "horizontal_blur";
 static constexpr auto vertical_blur_tag = "vertical_blur";
 static constexpr auto up_sample_tag = "up_sample";
-static constexpr auto pbr_tag = "pbr_tag";
+static constexpr auto pbr_tag = "pbr";
 static constexpr auto final_tag = "final";
 static constexpr auto reflection_tag = "reflection";
 static constexpr auto scene_light_tag = "scene_light";
 static constexpr auto refraction_pass_tag = "refraction_pass";
 static constexpr auto water_reflection_tag = "water_reflection";
 static constexpr auto water_surface_tag = "water_surface";
+static constexpr auto diffuse_lighting_tag = "diffuse_lighting";
 static constexpr float water_plane_height = 2.75f;
 static constexpr float water_reflect_refract_scale = 0.01f;
 static constexpr float reflection_plane_height = 1.0f;
@@ -456,8 +492,8 @@ void Graphics::SetupRenderPipeline() {
 
   if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground ||
       !scene_assets_.pbr_sphere || !render_targets_.shadow_depth ||
-      !shader_assets_.depth || !ortho_windows_.small_window ||
-      !ortho_windows_.fullscreen_window) {
+      !shader_assets_.depth || !shader_assets_.diffuse_lighting ||
+      !ortho_windows_.small_window || !ortho_windows_.fullscreen_window) {
     cerr << "SetupRenderPipeline: resources not initialized." << endl;
     return;
   }
@@ -481,6 +517,7 @@ void Graphics::SetupRenderPipeline() {
   const auto &vertical_blur_shader = shader_assets_.vertical_blur;
   const auto &soft_shadow_shader = shader_assets_.soft_shadow;
   const auto &pbr_shader = shader_assets_.pbr;
+  const auto &diffuse_lighting_shader = shader_assets_.diffuse_lighting;
 
   const auto &small_window = ortho_windows_.small_window;
   const auto &fullscreen_window = ortho_windows_.fullscreen_window;
@@ -621,6 +658,21 @@ void Graphics::SetupRenderPipeline() {
     render_pipeline_.AddRenderPass(pbr_pass);
   }
 
+  // Add DiffuseLighting pass for diffuse lighting shader demo
+  auto diffuse_lighting_pass =
+      std::make_shared<RenderPass>("DiffuseLightingPass", diffuse_lighting_shader);
+  {
+    diffuse_lighting_pass->AddRenderTag(diffuse_lighting_tag);
+
+    ShaderParameterContainer diffuseLightingParams;
+    diffuseLightingParams.SetVector4("ambientColor", light_->GetAmbientColor());
+    diffuseLightingParams.SetVector4("diffuseColor", light_->GetDiffuseColor());
+    diffuseLightingParams.SetVector3("lightDirection", light_->GetDirection());
+    diffuse_lighting_pass->SetPassParameters(diffuseLightingParams);
+
+    render_pipeline_.AddRenderPass(diffuse_lighting_pass);
+  }
+
   // Add renderable objects
   auto cube_object =
       std::make_shared<RenderableObject>(cube_model, soft_shadow_shader);
@@ -686,6 +738,21 @@ void Graphics::SetupRenderPipeline() {
   up_sample_object->AddTag(up_sample_tag);
   render_pipeline_.AddRenderableObject(up_sample_object);
 
+  // Add diffuse lighting shader demo objects
+  // Create a rotating cube to demonstrate diffuse lighting model
+  // Note: For RenderGraph mode, objects are added in SetupRenderableObjects()
+  // This is for legacy RenderPipeline mode
+  // Position in a separate area to avoid overlapping with soft shadow demo
+  auto diffuse_lighting_cube = std::make_shared<RenderableObject>(cube_model, diffuse_lighting_shader);
+  diffuse_lighting_cube->SetWorldMatrix(XMMatrixTranslation(6.0f, 2.0f, 3.0f));
+  diffuse_lighting_cube->AddTag(diffuse_lighting_tag);
+  diffuse_lighting_cube->SetParameterCallback(
+      [cube_model](ShaderParameterContainer &params) {
+        params.SetTexture("texture", cube_model->GetTexture());
+      });
+  diffuse_lighting_cube_ = diffuse_lighting_cube; // Store reference for rotation updates
+  render_pipeline_.AddRenderableObject(diffuse_lighting_cube);
+
   for (int i = 0; i < 5; i++) {
     float xPos = -6.5f + i * 3;
     float yPos = 5.5f + i * 1;
@@ -728,8 +795,8 @@ bool Graphics::SetupRenderGraph() {
 
   if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground ||
       !scene_assets_.pbr_sphere || !render_targets_.shadow_depth ||
-      !shader_assets_.depth || !ortho_windows_.small_window ||
-      !ortho_windows_.fullscreen_window) {
+      !shader_assets_.depth || !shader_assets_.diffuse_lighting ||
+      !ortho_windows_.small_window || !ortho_windows_.fullscreen_window) {
     cerr << "SetupRenderGraph: resources not initialized." << endl;
     return false;
   }
@@ -926,6 +993,15 @@ void Graphics::SetupRenderPasses() {
       .SetTexture("normalMap", sphere_pbr_model->GetTexture(1))
       .SetTexture("rmTexture", sphere_pbr_model->GetTexture(2));
 
+  // Pass 10: DiffuseLighting Pass (diffuse lighting shader demo)
+  const auto &diffuse_lighting_shader = shader_assets_.diffuse_lighting;
+  render_graph_.AddPass("DiffuseLightingPass")
+      .SetShader(diffuse_lighting_shader)
+      .AddRenderTag(diffuse_lighting_tag)
+      .SetParameter("ambientColor", light_->GetAmbientColor())
+      .SetParameter("diffuseColor", light_->GetDiffuseColor())
+      .SetParameter("lightDirection", light_->GetDirection());
+
   const auto &refraction_shader = shader_assets_.refraction.refraction;
   render_graph_.AddPass("WaterRefractionPass")
       .SetShader(refraction_shader)
@@ -1071,6 +1147,7 @@ void Graphics::SetupRenderableObjects() {
     const auto &pbr_shader = shader_assets_.pbr;
     auto pbr_sphere_object = CreatePBRModelObject(
         sphere_pbr_model, pbr_shader, XMMatrixTranslation(0.0f, 2.0f, -2.0f));
+    pbr_group_->AddRenderable(pbr_sphere_object);
     renderable_objects_.push_back(pbr_sphere_object);
   }
 
@@ -1127,6 +1204,22 @@ void Graphics::SetupRenderableObjects() {
           params.SetFloat("reflectionBlend", 0.5f);
         });
     renderable_objects_.push_back(ground_object);
+  }
+
+  // Add diffuse lighting shader demo object
+  // Position in a separate area (right and forward) to avoid overlapping with soft shadow demo
+  {
+    const auto &diffuse_lighting_shader = shader_assets_.diffuse_lighting;
+    auto diffuse_lighting_cube_obj = std::make_shared<RenderableObject>(
+        cube_model, diffuse_lighting_shader);
+    diffuse_lighting_cube_obj->SetWorldMatrix(XMMatrixTranslation(6.0f, 2.0f, 3.0f));
+    diffuse_lighting_cube_obj->AddTag(diffuse_lighting_tag);
+    diffuse_lighting_cube_obj->SetParameterCallback(
+        [cube_model](ShaderParameterContainer &params) {
+          params.SetTexture("texture", cube_model->GetTexture());
+        });
+    diffuse_lighting_cube_ = diffuse_lighting_cube_obj;
+    renderable_objects_.push_back(diffuse_lighting_cube_obj);
   }
 
   for (int i = 0; i < 5; i++) {
@@ -1319,6 +1412,17 @@ void Graphics::RegisterShaderParameters() {
        {"viewMatrix", ShaderParameterType::Matrix, true},
        {"projectionMatrix", ShaderParameterType::Matrix, true},
        {"texture", ShaderParameterType::Texture, true},
+       {"ambientColor", ShaderParameterType::Vector4, true},
+       {"diffuseColor", ShaderParameterType::Vector4, true},
+       {"lightDirection", ShaderParameterType::Vector3, true}});
+
+  // Register SimpleLightShader parameters (diffuse lighting shader demo)
+  parameter_validator_.RegisterShader(
+      "SimpleLightShader",
+      {{"worldMatrix", ShaderParameterType::Matrix, true},
+       {"viewMatrix", ShaderParameterType::Matrix, true},
+       {"projectionMatrix", ShaderParameterType::Matrix, true},
+       {"texture", ShaderParameterType::Texture, false}, // Set via callback
        {"ambientColor", ShaderParameterType::Vector4, true},
        {"diffuseColor", ShaderParameterType::Vector4, true},
        {"lightDirection", ShaderParameterType::Vector3, true}});
