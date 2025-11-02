@@ -179,6 +179,7 @@
     <ClInclude Include="rendertexture.h" />
     <ClInclude Include="refractionshader.h" />
     <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="scenelightshader.h" />
     <ClInclude Include="SceneConfig.h" />
     <ClInclude Include="ShaderBase.h" />
@@ -215,6 +216,7 @@
     <ClCompile Include="rendertexture.cpp" />
     <ClCompile Include="refractionshader.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="scenelightshader.cpp" />
     <ClCompile Include="SceneConfig.cpp" />
     <ClCompile Include="ShaderBase.cpp" />

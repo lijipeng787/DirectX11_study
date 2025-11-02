@@ -6,6 +6,7 @@
 #include "../CommonFramework2/GraphicsBase.h"
 #include "Frustum.h"
 #include "RenderGraph.h"
+#include "Scene.h"
 #include "SceneConfig.h"
 #include "ShaderParameterValidator.h"
 #include "light.h"
@@ -80,19 +81,17 @@ private:
   bool InitializeSceneModels(HWND hwnd);
 
   bool InitializeRenderTargets();
-  
+
   bool InitializeShaders();
-  
+
   bool InitializeFontSystem(HWND hwnd);
-  
+
   bool InitializeOrthoWindows();
 
 private:
   bool SetupRenderGraph();
 
   void SetupRenderPasses();
-
-  void SetupRenderableObjects();
 
   void RegisterShaderParameters();
 
@@ -176,16 +175,19 @@ private:
   std::shared_ptr<StandardRenderGroup> cube_group_;
   std::shared_ptr<StandardRenderGroup> pbr_group_;
 
-  // Diffuse lighting demo object
-  std::shared_ptr<IRenderable> diffuse_lighting_cube_;
+  // Store initial transforms for rotating cubes (from scene.json)
+  std::vector<DirectX::XMMATRIX> cube_initial_transforms_;
+
+  // Store initial transforms for rotating PBR models
+  std::vector<DirectX::XMMATRIX> pbr_initial_transforms_;
 
   RenderGraph render_graph_;
 
   // Parameter validation system
   ShaderParameterValidator parameter_validator_;
 
-  // Renderable objects storage (shared between pipeline and graph)
-  std::vector<std::shared_ptr<IRenderable>> renderable_objects_;
+  // Scene management - separated from rendering pipeline
+  Scene scene_;
 
   SceneAssets scene_assets_;
   RenderTargetAssets render_targets_;

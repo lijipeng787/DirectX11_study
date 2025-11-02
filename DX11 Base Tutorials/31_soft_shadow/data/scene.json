@@ -1,0 +1,243 @@
+{
+  "objects": [
+    {
+      "name": "cube",
+      "type": "Model",
+      "model": "cube",
+      "shader": "soft_shadow",
+      "transform": {
+        "position": [-2.5, 2.0, 0.0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "tags": ["write_depth", "write_shadow", "final", "reflection"],
+      "enable_reflection": true
+    },
+    {
+      "name": "sphere",
+      "type": "Model",
+      "model": "sphere",
+      "shader": "soft_shadow",
+      "transform": {
+        "position": [2.5, 2.0, 0.0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "tags": ["write_depth", "write_shadow", "final", "reflection"],
+      "enable_reflection": true
+    },
+    {
+      "name": "pbr_sphere",
+      "type": "PBRModel",
+      "model": "pbr_sphere",
+      "shader": "pbr",
+      "transform": {
+        "position": [0.0, 2.0, -2.0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "tags": ["write_depth", "write_shadow", "pbr"],
+      "groups": ["pbr_group"]
+    },
+    {
+      "name": "down_sample",
+      "type": "PostProcess",
+      "shader": "texture",
+      "ortho_window": "small_window",
+      "render_texture": "shadow_map",
+      "tag": "down_sample",
+      "tags": ["skip_culling"]
+    },
+    {
+      "name": "horizontal_blur",
+      "type": "PostProcess",
+      "shader": "horizontal_blur",
+      "ortho_window": "small_window",
+      "render_texture": "downsampled_shadow",
+      "tag": "horizontal_blur",
+      "tags": ["skip_culling"]
+    },
+    {
+      "name": "vertical_blur",
+      "type": "PostProcess",
+      "shader": "vertical_blur",
+      "ortho_window": "small_window",
+      "render_texture": "horizontal_blur",
+      "tag": "vertical_blur",
+      "tags": ["skip_culling"]
+    },
+    {
+      "name": "up_sample",
+      "type": "PostProcess",
+      "shader": "texture",
+      "ortho_window": "fullscreen_window",
+      "render_texture": "vertical_blur",
+      "tag": "up_sample",
+      "tags": ["skip_culling"]
+    },
+    {
+      "name": "ground",
+      "type": "Model",
+      "model": "ground",
+      "shader": "soft_shadow",
+      "transform": {
+        "position": [0.0, 1.0, 0.0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "tags": ["write_depth", "write_shadow", "final"],
+      "enable_reflection": false,
+      "parameters": {
+        "texture": true,
+        "reflectionBlend": 0.5
+      }
+    },
+    {
+      "name": "diffuse_lighting_cube",
+      "type": "Model",
+      "model": "cube",
+      "shader": "diffuse_lighting",
+      "transform": {
+        "position": [6.0, 2.0, 3.0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "tags": ["diffuse_lighting"],
+      "parameters": {
+        "texture": true
+      }
+    },
+    {
+      "name": "cube_array_0",
+      "type": "Model",
+      "model": "cube",
+      "shader": "soft_shadow",
+      "transform": {
+        "position": [-4.5, 1.5, -4.0],
+        "rotation": [0, 0, 0],
+        "scale": [0.3, 0.3, 0.3]
+      },
+      "tags": ["write_depth", "write_shadow", "final", "reflection"],
+      "enable_reflection": true,
+      "groups": ["cube_group"]
+    },
+    {
+      "name": "cube_array_1",
+      "type": "Model",
+      "model": "cube",
+      "shader": "soft_shadow",
+      "transform": {
+        "position": [-3.5, 2.0, -4.0],
+        "rotation": [0, 0, 0],
+        "scale": [0.3, 0.3, 0.3]
+      },
+      "tags": ["write_depth", "write_shadow", "final", "reflection"],
+      "enable_reflection": true,
+      "groups": ["cube_group"]
+    },
+    {
+      "name": "cube_array_2",
+      "type": "Model",
+      "model": "cube",
+      "shader": "soft_shadow",
+      "transform": {
+        "position": [-2.5, 2.5, -4.0],
+        "rotation": [0, 0, 0],
+        "scale": [0.3, 0.3, 0.3]
+      },
+      "tags": ["write_depth", "write_shadow", "final", "reflection"],
+      "enable_reflection": true,
+      "groups": ["cube_group"]
+    },
+    {
+      "name": "cube_array_3",
+      "type": "Model",
+      "model": "cube",
+      "shader": "soft_shadow",
+      "transform": {
+        "position": [-1.5, 3.0, -4.0],
+        "rotation": [0, 0, 0],
+        "scale": [0.3, 0.3, 0.3]
+      },
+      "tags": ["write_depth", "write_shadow", "final", "reflection"],
+      "enable_reflection": true,
+      "groups": ["cube_group"]
+    },
+    {
+      "name": "cube_array_4",
+      "type": "Model",
+      "model": "cube",
+      "shader": "soft_shadow",
+      "transform": {
+        "position": [-0.5, 3.5, -4.0],
+        "rotation": [0, 0, 0],
+        "scale": [0.3, 0.3, 0.3]
+      },
+      "tags": ["write_depth", "write_shadow", "final", "reflection"],
+      "enable_reflection": true,
+      "groups": ["cube_group"]
+    },
+    {
+      "name": "refraction_ground",
+      "type": "Model",
+      "model": "refraction_ground",
+      "shader": "scene_light",
+      "transform": {
+        "position": [0.0, 1.0, 0.0],
+        "rotation": [0, 0, 0],
+        "scale": [0.5, 1, 0.5]
+      },
+      "tags": ["scene_light"],
+      "apply_scene_offset": true,
+      "parameters": {
+        "texture": true
+      }
+    },
+    {
+      "name": "refraction_wall",
+      "type": "Model",
+      "model": "refraction_wall",
+      "shader": "scene_light",
+      "transform": {
+        "position": [0.0, 6.0, 8.0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "tags": ["scene_light", "water_reflection"],
+      "apply_scene_offset": true,
+      "parameters": {
+        "texture": true
+      }
+    },
+    {
+      "name": "refraction_bath",
+      "type": "Model",
+      "model": "refraction_bath",
+      "shader": "scene_light",
+      "transform": {
+        "position": [0.0, 2.0, 0.0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "tags": ["scene_light", "refraction_pass"],
+      "apply_scene_offset": true,
+      "parameters": {
+        "texture": true
+      }
+    },
+    {
+      "name": "refraction_water",
+      "type": "Model",
+      "model": "refraction_water",
+      "shader": "water",
+      "transform": {
+        "position": [0.0, 2.75, 0.0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "tags": ["water_surface"],
+      "apply_scene_offset": true
+    }
+  ]
+}
+

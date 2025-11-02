@@ -514,21 +514,54 @@ void Graphics::Frame(float deltaTime) {
   // 1000) = XM_PI * deltaTime_s Now deltaTime is in seconds, so we use: XM_PI *
   // deltaTime
   static float rotation_y = 0.0f;
-  if (0.000001 < 360.0f - rotation_y)
-    rotation_y = 0.0f;
   rotation_y += DirectX::XM_PI * deltaTime;
 
-  XMMATRIX rotationMatrix =
-      XMMatrixRotationRollPitchYaw(0.0f, rotation_y, 0.0f);
+  // Wrap rotation to [0, 2π)
+  const float TWO_PI = 2.0f * DirectX::XM_PI;
+  if (rotation_y >= TWO_PI) {
+    rotation_y -= TWO_PI;
+  }
 
-  XMMATRIX translationMatrix;
-  for (const auto &renderable : cube_group_->GetRenderables()) {
-    translationMatrix = renderable->GetWorldMatrix();
-    renderable->SetWorldMatrix(rotationMatrix * translationMatrix);
+  XMMATRIX rotationMatrix = XMMatrixRotationY(rotation_y);
+
+  // Update each cube's world matrix using initial transform + rotation
+  // Each cube should rotate around its own center (position)
+  const auto &renderables = cube_group_->GetRenderables();
+  for (size_t i = 0;
+       i < renderables.size() && i < cube_initial_transforms_.size(); ++i) {
+    // Extract translation and scale from initial transform
+    // Initial transform is: Scale * Identity * Translation
+    // For rotation around cube's center: Scale * Rotation * Translation
+    const XMMATRIX &initial_transform = cube_initial_transforms_[i];
+
+    // Decompose initial transform to get translation, rotation, and scale
+    XMVECTOR scale_vec, rotation_quat, translation_vec;
+    if (XMMatrixDecompose(&scale_vec, &rotation_quat, &translation_vec,
+                          initial_transform)) {
+      // Rebuild matrix with new rotation
+      // Order: Scale * NewRotation * Translation
+      // This makes cubes rotate around their own center (position)
+      XMMATRIX scale_matrix = XMMatrixScalingFromVector(scale_vec);
+      XMMATRIX translation_matrix =
+          XMMatrixTranslationFromVector(translation_vec);
+
+      // Apply rotation: Scale * Rotation * Translation
+      // This rotates around the origin, then translates, which means
+      // the cube rotates around its center (because it's already at the
+      // translation position)
+      XMMATRIX new_world_matrix =
+          scale_matrix * rotationMatrix * translation_matrix;
+      renderables[i]->SetWorldMatrix(new_world_matrix);
+    } else {
+      // Fallback: if decomposition fails, just apply rotation to initial
+      // transform This is less accurate but better than nothing
+      renderables[i]->SetWorldMatrix(rotationMatrix * initial_transform);
+    }
   }
 
   // Update diffuse lighting demo cube rotation
   // Rotate at 90 degrees per second (π/2 radians per second)
+  auto diffuse_lighting_cube_ = scene_.GetRenderable("diffuse_lighting_cube");
   if (diffuse_lighting_cube_) {
     const float rotationSpeed = XM_PI / 2.0f; // Radians per second
     diffuse_lighting_rotation_ += rotationSpeed * deltaTime;
@@ -549,9 +582,44 @@ void Graphics::Frame(float deltaTime) {
                                            diffuse_lighting_translation);
   }
 
-  for (const auto &renderable : pbr_group_->GetRenderables()) {
-    translationMatrix = renderable->GetWorldMatrix();
-    renderable->SetWorldMatrix(rotationMatrix * translationMatrix);
+  // Update PBR model rotation (separate rotation, slower speed)
+  // Rotate at approximately π/4 radians per second (45 degrees per second)
+  static float pbr_rotation_y = 0.0f;
+  pbr_rotation_y += DirectX::XM_PI / 4.0f * deltaTime;
+
+  // Wrap rotation to [0, 2π)
+  const float TWO_PI_PBR = 2.0f * DirectX::XM_PI;
+  if (pbr_rotation_y >= TWO_PI_PBR) {
+    pbr_rotation_y -= TWO_PI_PBR;
+  }
+
+  XMMATRIX pbr_rotationMatrix = XMMatrixRotationY(pbr_rotation_y);
+
+  // Update each PBR model's world matrix using initial transform + rotation
+  const auto &pbr_renderables = pbr_group_->GetRenderables();
+  for (size_t i = 0;
+       i < pbr_renderables.size() && i < pbr_initial_transforms_.size(); ++i) {
+    const XMMATRIX &initial_transform = pbr_initial_transforms_[i];
+
+    // Decompose initial transform to get translation, rotation, and scale
+    XMVECTOR scale_vec, rotation_quat, translation_vec;
+    if (XMMatrixDecompose(&scale_vec, &rotation_quat, &translation_vec,
+                          initial_transform)) {
+      // Rebuild matrix with new rotation: Scale * Rotation * Translation
+      XMMATRIX scale_matrix = XMMatrixScalingFromVector(scale_vec);
+      XMMATRIX translation_matrix =
+          XMMatrixTranslationFromVector(translation_vec);
+
+      // Apply rotation: Scale * Rotation * Translation
+      XMMATRIX new_world_matrix =
+          scale_matrix * pbr_rotationMatrix * translation_matrix;
+      pbr_renderables[i]->SetWorldMatrix(new_world_matrix);
+    } else {
+      // Fallback: if decomposition fails, just apply rotation to initial
+      // transform
+      pbr_renderables[i]->SetWorldMatrix(pbr_rotationMatrix *
+                                         initial_transform);
+    }
   }
 
 #ifdef _DEBUG
@@ -625,8 +693,80 @@ bool Graphics::SetupRenderGraph() {
   // Setup render passes
   SetupRenderPasses();
 
-  // Setup renderable objects
-  SetupRenderableObjects();
+  // Initialize scene with resource references
+  SceneResourceRefs scene_resources;
+  scene_resources.scene_assets.cube = scene_assets_.cube;
+  scene_resources.scene_assets.sphere = scene_assets_.sphere;
+  scene_resources.scene_assets.ground = scene_assets_.ground;
+  scene_resources.scene_assets.pbr_sphere = scene_assets_.pbr_sphere;
+  scene_resources.scene_assets.refraction.ground =
+      scene_assets_.refraction.ground;
+  scene_resources.scene_assets.refraction.wall = scene_assets_.refraction.wall;
+  scene_resources.scene_assets.refraction.bath = scene_assets_.refraction.bath;
+  scene_resources.scene_assets.refraction.water =
+      scene_assets_.refraction.water;
+
+  scene_resources.shader_assets.depth = shader_assets_.depth;
+  scene_resources.shader_assets.shadow = shader_assets_.shadow;
+  scene_resources.shader_assets.texture = shader_assets_.texture;
+  scene_resources.shader_assets.horizontal_blur =
+      shader_assets_.horizontal_blur;
+  scene_resources.shader_assets.vertical_blur = shader_assets_.vertical_blur;
+  scene_resources.shader_assets.soft_shadow = shader_assets_.soft_shadow;
+  scene_resources.shader_assets.pbr = shader_assets_.pbr;
+  scene_resources.shader_assets.diffuse_lighting =
+      shader_assets_.diffuse_lighting;
+  scene_resources.shader_assets.refraction.scene_light =
+      shader_assets_.refraction.scene_light;
+  scene_resources.shader_assets.refraction.refraction =
+      shader_assets_.refraction.refraction;
+  scene_resources.shader_assets.refraction.water =
+      shader_assets_.refraction.water;
+
+  scene_resources.render_targets.shadow_map = render_targets_.shadow_map;
+  scene_resources.render_targets.downsampled_shadow =
+      render_targets_.downsampled_shadow;
+  scene_resources.render_targets.horizontal_blur =
+      render_targets_.horizontal_blur;
+  scene_resources.render_targets.vertical_blur = render_targets_.vertical_blur;
+
+  scene_resources.ortho_windows.small_window = ortho_windows_.small_window;
+  scene_resources.ortho_windows.fullscreen_window =
+      ortho_windows_.fullscreen_window;
+
+  SceneConstants scene_constants;
+  scene_constants.refraction_scene_offset_x =
+      scene_config_.constants.refraction_scene_offset_x;
+  scene_constants.refraction_scene_offset_y =
+      scene_config_.constants.refraction_scene_offset_y;
+  scene_constants.refraction_scene_offset_z =
+      scene_config_.constants.refraction_scene_offset_z;
+  scene_constants.refraction_ground_scale =
+      scene_config_.constants.refraction_ground_scale;
+  scene_constants.water_plane_height =
+      scene_config_.constants.water_plane_height;
+
+  // Try to load scene from JSON file first, fallback to hardcoded if file not
+  // found
+  if (!scene_.Initialize(scene_resources, scene_constants,
+                         "./data/scene.json", // Try loading from JSON
+                         cube_group_.get(), pbr_group_.get())) {
+    Logger::SetModule("Graphics");
+    Logger::LogError("Failed to initialize Scene!");
+    return false;
+  }
+
+  // Save initial transforms for rotating cubes
+  cube_initial_transforms_.clear();
+  for (const auto &renderable : cube_group_->GetRenderables()) {
+    cube_initial_transforms_.push_back(renderable->GetWorldMatrix());
+  }
+
+  // Save initial transforms for rotating PBR models
+  pbr_initial_transforms_.clear();
+  for (const auto &renderable : pbr_group_->GetRenderables()) {
+    pbr_initial_transforms_.push_back(renderable->GetWorldMatrix());
+  }
 
   if (!render_graph_.Compile()) {
     Logger::SetModule("Graphics");
@@ -895,225 +1035,7 @@ void Graphics::SetupRenderPasses() {
       });
 }
 
-std::shared_ptr<RenderableObject> CreateTexturedModelObject(
-    std::shared_ptr<Model> model, std::shared_ptr<IShader> shader,
-    const XMMATRIX &worldMatrix, bool enable_reflection = true) {
-  auto obj = std::make_shared<RenderableObject>(model, shader);
-  obj->SetWorldMatrix(worldMatrix);
-  obj->AddTag(write_depth_tag);
-  obj->AddTag(write_shadow_tag);
-  obj->AddTag(final_tag);
-  if (enable_reflection) {
-    obj->AddTag(reflection_tag);
-  }
-  obj->SetParameterCallback([model](ShaderParameterContainer &params) {
-    params.SetTexture("texture", model->GetTexture());
-  });
-  return obj;
-}
-
-std::shared_ptr<RenderableObject>
-CreatePostProcessObject(std::shared_ptr<OrthoWindow> window,
-                        std::shared_ptr<IShader> shader, const std::string &tag,
-                        std::shared_ptr<RenderTexture> texture) {
-  auto obj = std::make_shared<RenderableObject>(window, shader);
-  obj->AddTag(tag);
-  obj->SetParameterCallback([texture](ShaderParameterContainer &p) {
-    p.SetTexture("texture", texture->GetShaderResourceView());
-  });
-  return obj;
-}
-
-std::shared_ptr<RenderableObject>
-CreatePBRModelObject(std::shared_ptr<PBRModel> model,
-                     std::shared_ptr<IShader> shader,
-                     const XMMATRIX &worldMatrix) {
-  auto obj = std::make_shared<RenderableObject>(model, shader);
-  obj->SetWorldMatrix(worldMatrix);
-  obj->AddTag(write_depth_tag);
-  obj->AddTag(write_shadow_tag);
-  obj->AddTag(pbr_tag);
-  return obj;
-}
-
-void Graphics::SetupRenderableObjects() {
-
-  // Add renderable objects
-  const auto &cube_model = scene_assets_.cube;
-  const auto &soft_shadow_shader = shader_assets_.soft_shadow;
-  {
-    auto cube_object = CreateTexturedModelObject(
-        cube_model, soft_shadow_shader, XMMatrixTranslation(-2.5f, 2.0f, 0.0f));
-    renderable_objects_.push_back(cube_object);
-  }
-
-  {
-    const auto &sphere_model = scene_assets_.sphere;
-    auto sphere_object =
-        CreateTexturedModelObject(sphere_model, soft_shadow_shader,
-                                  XMMatrixTranslation(2.5f, 2.0f, 0.0f));
-    renderable_objects_.push_back(sphere_object);
-  }
-
-  {
-    const auto &sphere_pbr_model = scene_assets_.pbr_sphere;
-    const auto &pbr_shader = shader_assets_.pbr;
-    auto pbr_sphere_object = CreatePBRModelObject(
-        sphere_pbr_model, pbr_shader, XMMatrixTranslation(0.0f, 2.0f, -2.0f));
-    pbr_group_->AddRenderable(pbr_sphere_object);
-    renderable_objects_.push_back(pbr_sphere_object);
-  }
-
-  const auto &texture_shader = shader_assets_.texture;
-  const auto &small_window = ortho_windows_.small_window;
-  {
-    const auto &shadow_tex = render_targets_.shadow_map;
-    auto down_sample_object = CreatePostProcessObject(
-        small_window, texture_shader, down_sample_tag, shadow_tex);
-    down_sample_object->AddTag(
-        "skip_culling"); // Post-processing objects should not be culled
-    renderable_objects_.push_back(down_sample_object);
-  }
-
-  {
-    const auto &horizontal_blur_shader = shader_assets_.horizontal_blur;
-    const auto &downsample_tex = render_targets_.downsampled_shadow;
-    auto horizontal_blur_object =
-        CreatePostProcessObject(small_window, horizontal_blur_shader,
-                                horizontal_blur_tag, downsample_tex);
-    horizontal_blur_object->AddTag(
-        "skip_culling"); // Post-processing objects should not be culled
-    renderable_objects_.push_back(horizontal_blur_object);
-  }
-
-  {
-    const auto &vertical_blur_shader = shader_assets_.vertical_blur;
-    const auto &h_blur_tex = render_targets_.horizontal_blur;
-    auto vertical_blur_object = CreatePostProcessObject(
-        small_window, vertical_blur_shader, vertical_blur_tag, h_blur_tex);
-    vertical_blur_object->AddTag(
-        "skip_culling"); // Post-processing objects should not be culled
-    renderable_objects_.push_back(vertical_blur_object);
-  }
-
-  {
-    const auto &fullscreen_window = ortho_windows_.fullscreen_window;
-    const auto &v_blur_tex = render_targets_.vertical_blur;
-    auto up_sample_object = CreatePostProcessObject(
-        fullscreen_window, texture_shader, up_sample_tag, v_blur_tex);
-    up_sample_object->AddTag(
-        "skip_culling"); // Post-processing objects should not be culled
-    renderable_objects_.push_back(up_sample_object);
-  }
-
-  {
-    const auto &ground_model = scene_assets_.ground;
-    auto ground_object =
-        CreateTexturedModelObject(ground_model, soft_shadow_shader,
-                                  XMMatrixTranslation(0.0f, 1.0f, 0.0f), false);
-    ground_object->SetParameterCallback(
-        [ground_model](ShaderParameterContainer &params) {
-          params.SetTexture("texture", ground_model->GetTexture());
-          params.SetFloat("reflectionBlend", 0.5f);
-        });
-    renderable_objects_.push_back(ground_object);
-  }
-
-  // Add diffuse lighting shader demo object
-  // Position in a separate area (right and forward) to avoid overlapping with
-  // soft shadow demo
-  {
-    const auto &diffuse_lighting_shader = shader_assets_.diffuse_lighting;
-    auto diffuse_lighting_cube_obj =
-        std::make_shared<RenderableObject>(cube_model, diffuse_lighting_shader);
-    diffuse_lighting_cube_obj->SetWorldMatrix(
-        XMMatrixTranslation(6.0f, 2.0f, 3.0f));
-    diffuse_lighting_cube_obj->AddTag(diffuse_lighting_tag);
-    diffuse_lighting_cube_obj->SetParameterCallback(
-        [cube_model](ShaderParameterContainer &params) {
-          params.SetTexture("texture", cube_model->GetTexture());
-        });
-    diffuse_lighting_cube_ = diffuse_lighting_cube_obj;
-    renderable_objects_.push_back(diffuse_lighting_cube_obj);
-  }
-
-  for (int i = 0; i < 5; i++) {
-    float xPos = -6.5f + i * 3;
-    float yPos = 5.5f + i * 1;
-    float zPos = -12.0f;
-
-    auto cube_obj =
-        CreateTexturedModelObject(cube_model, soft_shadow_shader,
-                                  XMMatrixTranslation(xPos, yPos, zPos) *
-                                      XMMatrixScaling(0.3f, 0.3f, 0.3f),
-                                  true);
-
-    cube_group_->AddRenderable(cube_obj);
-    renderable_objects_.push_back(cube_obj);
-  }
-
-  const auto &refraction_assets = scene_assets_.refraction;
-  const auto scene_offset =
-      XMMatrixTranslation(scene_config_.constants.refraction_scene_offset_x,
-                          scene_config_.constants.refraction_scene_offset_y,
-                          scene_config_.constants.refraction_scene_offset_z);
-
-  if (refraction_assets.ground && shader_assets_.refraction.scene_light) {
-    auto ground_object = std::make_shared<RenderableObject>(
-        refraction_assets.ground, shader_assets_.refraction.scene_light);
-    auto ground_world =
-        XMMatrixScaling(scene_config_.constants.refraction_ground_scale, 1.0f,
-                        scene_config_.constants.refraction_ground_scale) *
-        XMMatrixTranslation(0.0f, 1.0f, 0.0f) * scene_offset;
-    ground_object->SetWorldMatrix(ground_world);
-    ground_object->AddTag(scene_light_tag);
-    ground_object->SetParameterCallback(
-        [ground_model =
-             refraction_assets.ground](ShaderParameterContainer &params) {
-          params.SetTexture("texture", ground_model->GetTexture());
-        });
-    renderable_objects_.push_back(ground_object);
-  }
-
-  if (refraction_assets.wall && shader_assets_.refraction.scene_light) {
-    auto wall_object = std::make_shared<RenderableObject>(
-        refraction_assets.wall, shader_assets_.refraction.scene_light);
-    wall_object->SetWorldMatrix(XMMatrixTranslation(0.0f, 6.0f, 8.0f) *
-                                scene_offset);
-    wall_object->AddTag(scene_light_tag);
-    wall_object->AddTag(water_reflection_tag);
-    wall_object->SetParameterCallback([wall_model = refraction_assets.wall](
-                                          ShaderParameterContainer &params) {
-      params.SetTexture("texture", wall_model->GetTexture());
-    });
-    renderable_objects_.push_back(wall_object);
-  }
-
-  if (refraction_assets.bath && shader_assets_.refraction.scene_light) {
-    auto bath_object = std::make_shared<RenderableObject>(
-        refraction_assets.bath, shader_assets_.refraction.scene_light);
-    bath_object->SetWorldMatrix(XMMatrixTranslation(0.0f, 2.0f, 0.0f) *
-                                scene_offset);
-    bath_object->AddTag(scene_light_tag);
-    bath_object->AddTag(refraction_pass_tag);
-    bath_object->SetParameterCallback([bath_model = refraction_assets.bath](
-                                          ShaderParameterContainer &params) {
-      params.SetTexture("texture", bath_model->GetTexture());
-    });
-    renderable_objects_.push_back(bath_object);
-  }
-
-  if (refraction_assets.water && shader_assets_.refraction.water) {
-    auto water_object = std::make_shared<RenderableObject>(
-        refraction_assets.water, shader_assets_.refraction.water);
-    water_object->SetWorldMatrix(
-        XMMatrixTranslation(0.0f, scene_config_.constants.water_plane_height,
-                            0.0f) *
-        scene_offset);
-    water_object->AddTag(water_surface_tag);
-    renderable_objects_.push_back(water_object);
-  }
-}
+// Scene object creation moved to Scene class
 
 void Graphics::RegisterShaderParameters() {
   // Set validation mode to Warning (report issues but don't block execution)
@@ -1386,17 +1308,18 @@ void Graphics::Render() {
     frustum_->ConstructFrustum(SCREEN_DEPTH, projectionMatrix, viewMatrix);
   }
 
-  // Perform frustum culling: filter renderable objects
+  // Perform frustum culling: filter renderable objects from scene
   std::vector<std::shared_ptr<IRenderable>> culled_objects;
+  const auto &scene_objects = scene_.GetRenderables();
   if (frustum_) {
-    for (const auto &renderable : renderable_objects_) {
+    for (const auto &renderable : scene_objects) {
       if (IsObjectVisible(renderable, *frustum_)) {
         culled_objects.push_back(renderable);
       }
     }
   } else {
     // If frustum not initialized, render all objects
-    culled_objects = renderable_objects_;
+    culled_objects = scene_objects;
   }
 
   // Update render count before rendering
