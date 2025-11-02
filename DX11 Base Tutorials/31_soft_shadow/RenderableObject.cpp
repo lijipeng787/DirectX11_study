@@ -1,4 +1,6 @@
 #include "RenderableObject.h"
+
+#include "BoundingVolume.h"
 #include "Interfaces.h"
 #include "Model.h"
 #include "orthowindow.h"
@@ -54,4 +56,14 @@ void RenderableObject::SetObjectParameters(
 
 void RenderableObject::SetWorldMatrix(const XMMATRIX &worldMatrix) {
   world_matrix_ = worldMatrix;
+}
+
+BoundingVolume RenderableObject::GetWorldBoundingVolume() const {
+  if (model_) {
+    BoundingVolume localBounds = model_->GetLocalBoundingVolume();
+    return localBounds.Transform(world_matrix_);
+  }
+  
+  BoundingVolume emptyBounds;
+  return emptyBounds;
 }

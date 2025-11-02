@@ -3,8 +3,11 @@
 #include "../CommonFramework2/DirectX11Device.h"
 #include "../CommonFramework2/TypeDefine.h"
 
+#include "BoundingVolume.h"
 #include "Frustum.h"
 #include "Interfaces.h"
+#include "Logger.h"
+#include "model.h"
 #include "RenderableObject.h"
 #include "ResourceManager.h"
 #include "ShaderParameterValidator.h"
@@ -12,7 +15,6 @@
 #include "font.h"
 #include "fontshader.h"
 #include "horizontalblurshader.h"
-#include "model.h"
 #include "orthowindow.h"
 #include "pbrshader.h"
 #include "refractionshader.h"
@@ -30,16 +32,6 @@
 
 using namespace std;
 using namespace DirectX;
-
-namespace {
-void LogError(const std::wstring &message) {
-  std::wcerr << L"[Graphics] " << message << std::endl;
-}
-
-void LogError(const std::string &message) {
-  std::cerr << "[Graphics] " << message << std::endl;
-}
-} // namespace
 
 static constexpr auto SHADOW_MAP_WIDTH = 1024;
 static constexpr auto SHADOW_MAP_HEIGHT = 1024;
@@ -77,12 +69,13 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 }
 
 bool Graphics::InitializeDevice(int screenWidth, int screenHeight, HWND hwnd) {
-  auto directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+  auto *directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
   if (!(directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED,
                                       hwnd, FULL_SCREEN, SCREEN_DEPTH,
                                       SCREEN_NEAR))) {
-    LogError(L"Could not initialize Direct3D.");
+    Logger::SetModule("Graphics");
+    Logger::LogError(L"Could not initialize Direct3D.");
     return false;
   }
 
@@ -91,11 +84,11 @@ bool Graphics::InitializeDevice(int screenWidth, int screenHeight, HWND hwnd) {
 
   // Initialize ResourceManager
   auto &resource_manager = ResourceManager::GetInstance();
-  auto device = directx11_device_->GetDevice();
-  auto device_context = directx11_device_->GetDeviceContext();
+  auto *device = directx11_device_->GetDevice();
+  auto *device_context = directx11_device_->GetDeviceContext();
 
   if (!resource_manager.Initialize(device, device_context, hwnd)) {
-    LogError("Could not initialize ResourceManager.");
+    Logger::LogError("Could not initialize ResourceManager.");
     return false;
   }
 
@@ -158,7 +151,8 @@ bool Graphics::InitializeResources(HWND hwnd) {
     if (!last_error.empty()) {
       error_msg += L"\n" + std::wstring(last_error.begin(), last_error.end());
     }
-    LogError(error_msg);
+    Logger::SetModule("Graphics");
+    Logger::LogError(error_msg);
     return false;
   }
 
@@ -172,7 +166,8 @@ bool Graphics::InitializeResources(HWND hwnd) {
     if (!last_error.empty()) {
       error_msg += L"\n" + std::wstring(last_error.begin(), last_error.end());
     }
-    LogError(error_msg);
+    Logger::SetModule("Graphics");
+    Logger::LogError(error_msg);
     return false;
   }
 
@@ -196,7 +191,8 @@ bool Graphics::InitializeResources(HWND hwnd) {
     if (!last_error.empty()) {
       error_msg += L"\n" + std::wstring(last_error.begin(), last_error.end());
     }
-    LogError(error_msg);
+    Logger::SetModule("Graphics");
+    Logger::LogError(error_msg);
     return false;
   }
 
@@ -240,7 +236,8 @@ bool Graphics::InitializeResources(HWND hwnd) {
       !render_targets_.reflection_map ||
       !render_targets_.refraction.refraction_map ||
       !render_targets_.refraction.water_reflection_map) {
-    LogError(L"Could not create render textures.");
+    Logger::SetModule("Graphics");
+    Logger::LogError(L"Could not create render textures.");
     return false;
   }
 
@@ -272,21 +269,24 @@ bool Graphics::InitializeResources(HWND hwnd) {
       !shader_assets_.refraction.scene_light ||
       !shader_assets_.refraction.refraction ||
       !shader_assets_.refraction.water) {
-    LogError(L"Could not load shaders.");
+    Logger::SetModule("Graphics");
+    Logger::LogError(L"Could not load shaders.");
     return false;
   }
 
   // Initialize font resources for text rendering
   auto font_shader = resource_manager.GetShader<FontShader>("font");
   if (!font_shader) {
-    LogError(L"Could not load font shader.");
+    Logger::SetModule("Graphics");
+    Logger::LogError(L"Could not load font shader.");
     return false;
   }
 
   auto font = std::make_shared<Font>();
   if (!font->Initialize("./data/fontdata.txt", L"./data/font.dds",
                         resource_manager.GetDevice())) {
-    LogError(L"Could not initialize font.");
+    Logger::SetModule("Graphics");
+    Logger::LogError(L"Could not initialize font.");
     return false;
   }
 
@@ -302,7 +302,8 @@ bool Graphics::InitializeResources(HWND hwnd) {
     text_ = make_unique<Text>();
     if (!text_->Initialize(screenWidth, screenHeight, baseViewMatrix, font_,
                            font_shader_, resource_manager.GetDevice())) {
-      LogError(L"Could not initialize text.");
+      Logger::SetModule("Graphics");
+      Logger::LogError(L"Could not initialize text.");
       return false;
     }
   }
@@ -314,7 +315,8 @@ bool Graphics::InitializeResources(HWND hwnd) {
       "fullscreen_window", SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
 
   if (!ortho_windows_.small_window || !ortho_windows_.fullscreen_window) {
-    LogError(L"Could not create ortho windows.");
+    Logger::SetModule("Graphics");
+    Logger::LogError(L"Could not create ortho windows.");
     return false;
   }
 
@@ -329,7 +331,8 @@ bool Graphics::InitializeRenderingPipeline() {
   // Setup rendering system based on compile-time constant
   if constexpr (use_render_graph_) {
     if (!SetupRenderGraph()) {
-      LogError(L"Failed to setup RenderGraph.");
+      Logger::SetModule("Graphics");
+      Logger::LogError(L"Failed to setup RenderGraph.");
       return false;
     }
   } else {
@@ -488,13 +491,15 @@ static constexpr float refraction_scene_offset_y = 0.0f;
 static constexpr float refraction_scene_offset_z = 0.0f;
 static constexpr float refraction_ground_scale = 0.5f;
 
+[[deprecated("Use SetupRenderGraph instead. This function is kept for backward compatibility only.")]]
 void Graphics::SetupRenderPipeline() {
 
   if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground ||
       !scene_assets_.pbr_sphere || !render_targets_.shadow_depth ||
       !shader_assets_.depth || !shader_assets_.diffuse_lighting ||
       !ortho_windows_.small_window || !ortho_windows_.fullscreen_window) {
-    cerr << "SetupRenderPipeline: resources not initialized." << endl;
+    Logger::SetModule("Graphics");
+    Logger::LogError("SetupRenderPipeline: resources not initialized.");
     return;
   }
 
@@ -797,7 +802,8 @@ bool Graphics::SetupRenderGraph() {
       !scene_assets_.pbr_sphere || !render_targets_.shadow_depth ||
       !shader_assets_.depth || !shader_assets_.diffuse_lighting ||
       !ortho_windows_.small_window || !ortho_windows_.fullscreen_window) {
-    cerr << "SetupRenderGraph: resources not initialized." << endl;
+    Logger::SetModule("Graphics");
+    Logger::LogError("SetupRenderGraph: resources not initialized.");
     return false;
   }
 
@@ -819,7 +825,8 @@ bool Graphics::SetupRenderGraph() {
   SetupRenderableObjects();
 
   if (!render_graph_.Compile()) {
-    cerr << "Failed to compile RenderGraph!" << endl;
+    Logger::SetModule("Graphics");
+    Logger::LogError("Failed to compile RenderGraph!");
     return false;
   }
 
@@ -1411,7 +1418,7 @@ void Graphics::RegisterShaderParameters() {
       {{"worldMatrix", ShaderParameterType::Matrix, true},
        {"viewMatrix", ShaderParameterType::Matrix, true},
        {"projectionMatrix", ShaderParameterType::Matrix, true},
-       {"texture", ShaderParameterType::Texture, true},
+       {"texture", ShaderParameterType::Texture, false}, // Set via callback
        {"ambientColor", ShaderParameterType::Vector4, true},
        {"diffuseColor", ShaderParameterType::Vector4, true},
        {"lightDirection", ShaderParameterType::Vector3, true}});
@@ -1432,7 +1439,7 @@ void Graphics::RegisterShaderParameters() {
       {{"worldMatrix", ShaderParameterType::Matrix, true},
        {"viewMatrix", ShaderParameterType::Matrix, true},
        {"projectionMatrix", ShaderParameterType::Matrix, true},
-       {"texture", ShaderParameterType::Texture, true},
+       {"texture", ShaderParameterType::Texture, false}, // Set via callback
        {"ambientColor", ShaderParameterType::Vector4, true},
        {"diffuseColor", ShaderParameterType::Vector4, true},
        {"lightDirection", ShaderParameterType::Vector3, true},
@@ -1460,27 +1467,46 @@ bool Graphics::IsObjectVisible(std::shared_ptr<IRenderable> renderable,
     return true; // If object is null, skip it
   }
 
-  // Get world matrix and extract position
-  XMMATRIX worldMatrix = renderable->GetWorldMatrix();
-  XMFLOAT3 position;
-  XMStoreFloat3(&position, worldMatrix.r[3]);
-
   // Check if object has "skip_culling" tag (for UI elements, post-processing,
   // etc.)
   if (renderable->HasTag("skip_culling")) {
     return true;
   }
 
-  // Use a default bounding sphere radius
-  // For models, this is a reasonable default.
-  // In a production system, you'd want to store actual bounding sphere data per
-  // model.
-  float boundingRadius = 2.0f; // Default radius for most objects
+  // 优先使用Model的包围体数据（如果可用）
+  // 首先尝试直接转换为Model
+  auto model = std::dynamic_pointer_cast<Model>(renderable);
+  if (model) {
+    // 获取世界空间的包围体
+    BoundingVolume worldBounds = model->GetWorldBoundingVolume();
+    
+    // 使用优化的包围体检测（AABB + 包围球）
+    return frustum.CheckBoundingVolume(worldBounds);
+  }
 
-  // For smaller objects (like the dynamic cubes), use a smaller radius
+  // 如果通过RenderableObject包装，使用RenderableObject的包围体
+  auto renderable_obj = std::dynamic_pointer_cast<RenderableObject>(renderable);
+  if (renderable_obj) {
+    BoundingVolume worldBounds = renderable_obj->GetWorldBoundingVolume();
+    
+    // 检查包围体是否有效（非空）
+    if (worldBounds.sphere_radius > 0.0f) {
+      // 使用优化的包围体检测
+      return frustum.CheckBoundingVolume(worldBounds);
+    }
+    // 如果包围体无效，继续使用回退方法
+  }
+
+  // 回退到默认方法：使用世界矩阵位置和默认半径
+  XMMATRIX worldMatrix = renderable->GetWorldMatrix();
+  XMFLOAT3 position;
+  XMStoreFloat3(&position, worldMatrix.r[3]);
+
+  // 默认半径（用于OrthoWindow等没有包围体的对象）
+  float boundingRadius = 2.0f;
+
+  // 对于小型对象使用更小的半径
   if (renderable->HasTag("final")) {
-    // Check if it's a small cube (based on scale or other criteria)
-    // For now, use a smaller radius for tagged objects
     XMVECTOR scale;
     XMVECTOR rotation;
     XMVECTOR translation;

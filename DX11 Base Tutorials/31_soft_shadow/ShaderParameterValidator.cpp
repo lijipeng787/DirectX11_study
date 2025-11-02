@@ -1,5 +1,7 @@
 #include "ShaderParameterValidator.h"
 
+#include "Logger.h"
+
 #include <algorithm>
 #include <cctype>
 #include <iostream>
@@ -51,10 +53,9 @@ bool ShaderParameterValidator::ValidatePassParameters(
   auto it = shader_parameters_.find(shader_name);
   if (it == shader_parameters_.end()) {
     if (mode == ValidationMode::Strict) {
-      std::cerr << "[ShaderParameterValidator] ERROR: Shader \"" << shader_name
-                << "\" used in pass \"" << pass_name
-                << "\" is not registered. Cannot validate parameters."
-                << std::endl;
+      Logger::SetModule("ShaderParameterValidator");
+      Logger::LogError("Shader \"" + shader_name + "\" used in pass \"" +
+                       pass_name + "\" is not registered. Cannot validate parameters.");
       return false;
     }
     return true; // 警告模式：未注册的着色器跳过验证
@@ -147,11 +148,12 @@ bool ShaderParameterValidator::ValidatePassParameters(
       }
     }
 
+    Logger::SetModule("ShaderParameterValidator");
     if (mode == ValidationMode::Strict) {
-      std::cerr << "ERROR: " << oss.str();
+      Logger::LogError(oss.str());
       return false;
     } else if (mode == ValidationMode::Warning) {
-      std::cerr << "WARNING: " << oss.str();
+      Logger::LogWarning(oss.str());
       return true; // 警告模式不阻止执行
     }
   }

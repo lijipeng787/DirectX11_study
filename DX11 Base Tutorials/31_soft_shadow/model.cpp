@@ -1,10 +1,12 @@
 #include "model.h"
 
 #include "../CommonFramework2/DirectX11Device.h"
+#include "BoundingVolume.h"
 #include "Interfaces.h"
 #include "ShaderParameterContainer.h"
 
 #include <DirectXMath.h>
+#include <algorithm>
 #include <fstream>
 
 using namespace std;
@@ -138,7 +140,33 @@ bool Model::LoadModel(const std::string &filename) {
   }
 
   fin.close();
+
+  // 计算包围体
+  CalculateBoundingVolume();
+
   return true;
+}
+
+void Model::CalculateBoundingVolume() {
+  if (model_.empty()) {
+    return;
+  }
+
+  std::vector<XMFLOAT3> positions;
+  positions.reserve(model_.size());
+  for (const auto &vertex : model_) {
+    positions.push_back(XMFLOAT3(vertex.x, vertex.y, vertex.z));
+  }
+
+  bounding_volume_.CalculateFromVertices(positions.data(), positions.size());
+}
+
+const BoundingVolume &Model::GetLocalBoundingVolume() const {
+  return bounding_volume_;
+}
+
+BoundingVolume Model::GetWorldBoundingVolume() const {
+  return bounding_volume_.Transform(world_matrix_);
 }
 
 void Model::ReleaseModel() { model_.clear(); }

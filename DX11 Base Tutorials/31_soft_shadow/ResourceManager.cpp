@@ -3,6 +3,7 @@
 #include "depthshader.h"
 #include "fontshader.h"
 #include "horizontalblurshader.h"
+#include "Logger.h"
 #include "model.h"
 #include "refractionshader.h"
 #include "orthowindow.h"
@@ -132,8 +133,9 @@ std::shared_ptr<PBRModel> ResourceManager::GetPBRModel(
 
 std::shared_ptr<DDSTexture>
 ResourceManager::GetTexture(const std::wstring &path) {
+  Logger::SetModule("ResourceManager");
   if (!initialized_) {
-    cerr << "ResourceManager::GetTexture - Not initialized" << endl;
+    Logger::LogError("GetTexture - Not initialized");
     return nullptr;
   }
 
@@ -146,7 +148,7 @@ ResourceManager::GetTexture(const std::wstring &path) {
 
   auto texture = make_shared<DDSTexture>();
   if (!texture->Initialize(path.c_str(), device_)) {
-    wcerr << L"Failed to load texture: " << path << endl;
+    Logger::LogError(L"Failed to load texture: " + path);
     return nullptr;
   }
 
@@ -157,8 +159,9 @@ ResourceManager::GetTexture(const std::wstring &path) {
 
 std::shared_ptr<TGATexture>
 ResourceManager::GetTGATexture(const std::string &path) {
+  Logger::SetModule("ResourceManager");
   if (!initialized_) {
-    cerr << "ResourceManager::GetTGATexture - Not initialized" << endl;
+    Logger::LogError("GetTGATexture - Not initialized");
     return nullptr;
   }
 
@@ -171,7 +174,7 @@ ResourceManager::GetTGATexture(const std::string &path) {
 
   auto texture = make_shared<TGATexture>();
   if (!texture->Initialize(path.c_str(), device_)) {
-    cerr << "Failed to load TGA texture: " << path << endl;
+    Logger::LogError("Failed to load TGA texture: " + path);
     return nullptr;
   }
 
@@ -182,8 +185,9 @@ ResourceManager::GetTGATexture(const std::string &path) {
 
 std::shared_ptr<IShader>
 ResourceManager::CreateShader(const std::string &shaderType) {
+  Logger::SetModule("ResourceManager");
   if (!initialized_) {
-    cerr << "ResourceManager::CreateShader - Not initialized" << endl;
+    Logger::LogError("CreateShader - Not initialized");
     return nullptr;
   }
 
@@ -214,12 +218,12 @@ ResourceManager::CreateShader(const std::string &shaderType) {
   } else if (shaderType == "SimpleLightShader") {
     shader = make_shared<SimpleLightShader>();
   } else {
-    cerr << "Unknown shader type: " << shaderType << endl;
+    Logger::LogError("Unknown shader type: " + shaderType);
     return nullptr;
   }
 
   if (!shader->Initialize(hwnd_, device_)) {
-    cerr << "Failed to initialize shader: " << shaderType << endl;
+    Logger::LogError("Failed to initialize shader: " + shaderType);
     return nullptr;
   }
 
@@ -230,8 +234,9 @@ ResourceManager::CreateShader(const std::string &shaderType) {
 std::shared_ptr<RenderTexture>
 ResourceManager::CreateRenderTexture(const std::string &name, int width,
                                      int height, float depth, float nearPlane) {
+  Logger::SetModule("ResourceManager");
   if (!initialized_) {
-    cerr << "ResourceManager::CreateRenderTexture - Not initialized" << endl;
+    Logger::LogError("CreateRenderTexture - Not initialized");
     return nullptr;
   }
 
@@ -239,7 +244,7 @@ ResourceManager::CreateRenderTexture(const std::string &name, int width,
 
   auto renderTexture = make_shared<RenderTexture>();
   if (!renderTexture->Initialize(width, height, depth, nearPlane)) {
-    cerr << "Failed to create RenderTexture: " << name << endl;
+    Logger::LogError("Failed to create RenderTexture: " + name);
     return nullptr;
   }
 
@@ -266,15 +271,16 @@ ResourceManager::GetRenderTexture(const std::string &name) const {
 std::shared_ptr<OrthoWindow>
 ResourceManager::GetOrthoWindow(const std::string &name, int width,
                                 int height) {
+  Logger::SetModule("ResourceManager");
   if (!initialized_) {
-    cerr << "ResourceManager::GetOrthoWindow - Not initialized" << endl;
+    Logger::LogError("GetOrthoWindow - Not initialized");
     return nullptr;
   }
 
   return GetCachedResource<OrthoWindow>(name, ortho_window_cache_, [&]() {
     auto window = make_shared<OrthoWindow>();
     if (!window->Initialize(width, height)) {
-      cerr << "Failed to create OrthoWindow: " << name << endl;
+      Logger::LogError("Failed to create OrthoWindow: " + name);
       return shared_ptr<OrthoWindow>();
     }
     cout << "Created OrthoWindow: " << name << " (" << width << "x" << height
@@ -342,7 +348,8 @@ bool ResourceManager::HasShader(const std::string &name) const {
 // Error handling helper
 void ResourceManager::SetError(const std::string &error) {
   last_error_ = error;
-  cerr << "ResourceManager Error: " << error << endl;
+  Logger::SetModule("ResourceManager");
+  Logger::LogError(error);
 }
 
 // Reference counting methods

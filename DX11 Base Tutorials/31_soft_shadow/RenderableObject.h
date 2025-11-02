@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Interfaces.h"
+#include "BoundingVolume.h"
 
 #include <memory>
 
@@ -44,6 +45,9 @@ public:
   void SetObjectParameters(const ShaderParameterContainer &params);
 
   void SetWorldMatrix(const DirectX::XMMATRIX &worldMatrix);
+
+  // 获取世界空间的包围体（用于视锥体剔除）
+  BoundingVolume GetWorldBoundingVolume() const;
 
 private:
   std::shared_ptr<Model> model_;

@@ -2,6 +2,7 @@
 
 #include "Interfaces.h"
 #include "ShaderParameterContainer.h"
+#include "BoundingVolume.h"
 #include "texture.h"
 
 #include <d3d11.h>
@@ -45,6 +46,10 @@ public:
     world_matrix_ = worldMatrix;
   }
 
+  const BoundingVolume &GetLocalBoundingVolume() const;
+
+  BoundingVolume GetWorldBoundingVolume() const;
+
 private:
   bool InitializeBuffers(ID3D11Device *device);
 
@@ -57,6 +62,8 @@ private:
   bool LoadModel(const std::string &filename);
 
   void ReleaseModel();
+
+  void CalculateBoundingVolume();  // 计算包围体
 
 private:
   struct Vertex {
@@ -82,6 +89,8 @@ private:
   std::vector<ModelType> model_;
 
   DirectX::XMMATRIX world_matrix_ = DirectX::XMMatrixIdentity();
+
+  BoundingVolume bounding_volume_;  // 本地空间的包围体
 };
 
 class PBRModel : IRenderable {

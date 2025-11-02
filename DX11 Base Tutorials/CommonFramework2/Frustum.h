@@ -25,5 +25,5 @@ public:
   bool CheckRectangle(float, float, float, float, float, float);
 
 private:
-  DirectX::XMVECTOR planes_[6];
+  DirectX::XMVECTOR planes_[6]{};
 };

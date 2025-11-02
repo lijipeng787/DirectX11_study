@@ -1,5 +1,7 @@
 #include "RenderGraph.h"
 
+#include "Logger.h"
+
 #include "../CommonFramework2/DirectX11Device.h"
 #include "Interfaces.h"
 #include "RenderTexture.h"
@@ -272,8 +274,9 @@ bool RenderGraph::Compile() {
     for (auto &in : pass->input_resources_) {
       auto it = resources_.find(in);
       if (it == resources_.end() || !it->second.texture) {
-        std::cerr << "RenderGraph Compile Error: missing input resource " << in
-                  << " for pass " << pass->GetName() << std::endl;
+        Logger::SetModule("RenderGraph");
+        Logger::LogError("Compile Error: missing input resource " + in +
+                         " for pass " + pass->GetName());
         return false;
       }
       pass->input_textures_[in] = it->second.texture;
@@ -289,9 +292,10 @@ bool RenderGraph::Compile() {
     if (!pass->output_resource_.empty()) {
       auto it = resources_.find(pass->output_resource_);
       if (it == resources_.end() || !it->second.texture) {
-        std::cerr << "RenderGraph Compile Error: missing output resource "
-                  << pass->output_resource_ << " for pass " << pass->GetName()
-                  << std::endl;
+        Logger::SetModule("RenderGraph");
+        Logger::LogError("Compile Error: missing output resource " +
+                         pass->output_resource_ + " for pass " +
+                         pass->GetName());
         return false;
       }
       pass->output_texture_ = it->second.texture;
@@ -302,9 +306,9 @@ bool RenderGraph::Compile() {
   if (enable_parameter_validation_ && parameter_validator_) {
     for (auto &pass : sorted_passes_) {
       if (!ValidatePassParameters(pass)) {
-        std::cerr << "RenderGraph Compile Error: parameter validation failed "
-                     "for pass "
-                  << pass->GetName() << std::endl;
+        Logger::SetModule("RenderGraph");
+        Logger::LogError("Compile Error: parameter validation failed for pass " +
+                         pass->GetName());
         return false;
       }
     }
@@ -318,7 +322,8 @@ void RenderGraph::Execute(
     std::vector<std::shared_ptr<IRenderable>> &renderables,
     const ShaderParameterContainer &global_params) {
   if (!compiled_) {
-    std::cerr << "RenderGraph Execute Error: not compiled" << std::endl;
+    Logger::SetModule("RenderGraph");
+    Logger::LogError("Execute Error: not compiled");
     return;
   }
   DirectX11Device::GetD3d11DeviceInstance()->BeginScene(0, 0, 0, 1);
@@ -332,7 +337,8 @@ void RenderGraph::ExecutePasses(
     const ShaderParameterContainer &global_params,
     bool &back_buffer_depth_cleared) {
   if (!compiled_) {
-    std::cerr << "RenderGraph ExecutePasses Error: not compiled" << std::endl;
+    Logger::SetModule("RenderGraph");
+    Logger::LogError("ExecutePasses Error: not compiled");
     return;
   }
   for (auto &p : sorted_passes_)
@@ -465,11 +471,12 @@ void RenderGraph::PrintGraph() const {
     if (p->disable_z_buffer_)
       std::cout << " ZDisabled";
     if (!hasResolvedInput && hasOutput)
-      std::cout << " [WARNING: writes without inputs]";
+      std::cout << " [INFO: writes without inputs (first pass or scene rendering)]";
     std::cout << std::endl;
   }
   if (!isolatedPasses.empty()) {
     std::cout << "Isolated passes (no inputs & no outputs):" << std::endl;
+    std::cout << "  Note: These passes render directly to back buffer, not via intermediate textures" << std::endl;
     for (auto &n : isolatedPasses)
       std::cout << "  * " << n << std::endl;
   }

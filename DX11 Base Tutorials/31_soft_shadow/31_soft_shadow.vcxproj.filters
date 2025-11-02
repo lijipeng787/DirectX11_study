@@ -33,6 +33,8 @@
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="text.cpp" />
     <ClCompile Include="simplelightshader.cpp" />
+    <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="BoundingVolume.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="depthshader.h" />
@@ -67,6 +69,8 @@
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="text.h" />
     <ClInclude Include="simplelightshader.h" />
+    <ClInclude Include="Logger.h" />
+    <ClInclude Include="BoundingVolume.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.ps" />

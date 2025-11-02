@@ -77,6 +77,7 @@ private:
   bool InitializeRenderingPipeline();
 
 private:
+  [[deprecated("Use SetupRenderGraph instead. This function is kept for backward compatibility only.")]]
   void SetupRenderPipeline();
 
   bool SetupRenderGraph();

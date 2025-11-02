@@ -1,19 +1,10 @@
 #include "ShaderBase.h"
 
 #include "../CommonFramework2/DirectX11Device.h"
+#include "Logger.h"
 #include <d3dcompiler.h>
 #include <fstream>
 #include <iostream>
-
-namespace {
-void LogShaderError(const std::wstring &message) {
-  std::wcerr << L"[ShaderBase] " << message << std::endl;
-}
-
-void LogShaderError(const std::string &message) {
-  std::cerr << "[ShaderBase] " << message << std::endl;
-}
-} // namespace
 
 bool ShaderBase::Initialize(HWND hwnd, ID3D11Device *device) {
   // To be implemented by derived classes
@@ -47,7 +38,8 @@ bool ShaderBase::InitializeShaderFromFile(
     if (errorMessage) {
       OutputShaderErrorMessage(errorMessage.Get(), hwnd, vsFilename);
     } else {
-      LogShaderError(std::wstring(L"Missing shader file: ") + vsFilename);
+      Logger::SetModule("ShaderBase");
+      Logger::LogError(L"Missing shader file: " + vsFilename);
     }
     return false;
   }
@@ -61,7 +53,8 @@ bool ShaderBase::InitializeShaderFromFile(
     if (errorMessage) {
       OutputShaderErrorMessage(errorMessage.Get(), hwnd, psFilename);
     } else {
-      LogShaderError(std::wstring(L"Missing shader file: ") + psFilename);
+      Logger::SetModule("ShaderBase");
+      Logger::LogError(L"Missing shader file: " + psFilename);
     }
     return false;
   }
@@ -136,8 +129,9 @@ void ShaderBase::OutputShaderErrorMessage(ID3D10Blob *errorMessage, HWND hwnd,
   }
   fout.close();
 
-  LogShaderError("Error compiling shader. Check shader-error.txt for message.");
-  LogShaderError(std::string(shaderFilename.begin(), shaderFilename.end()));
+  Logger::SetModule("ShaderBase");
+  Logger::LogError("Error compiling shader. Check shader-error.txt for message.");
+  Logger::LogError(std::string(shaderFilename.begin(), shaderFilename.end()));
 }
 
 bool BlurShaderBase::InitializeBlurShader(HWND hwnd,
