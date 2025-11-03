@@ -25,7 +25,6 @@ class VerticalBlurShader;
 class PbrShader;
 class SceneLightShader;
 class RefractionShader;
-class WaterShader;
 class SimpleLightShader;
 
 class ResourceManager {
@@ -240,13 +239,6 @@ ResourceManager::GetShader<RefractionShader>(const std::string &name) {
       GetCachedResource<IShader>(name, shader_cache_, [this]() {
         return CreateShader("RefractionShader");
       }));
-}
-
-template <>
-inline std::shared_ptr<WaterShader>
-ResourceManager::GetShader<WaterShader>(const std::string &name) {
-  return std::dynamic_pointer_cast<WaterShader>(GetCachedResource<IShader>(
-      name, shader_cache_, [this]() { return CreateShader("WaterShader"); }));
 }
 
 template <>

@@ -27,10 +27,6 @@
         "model_path": "./data/wall.txt",
         "texture_path": "./data/wall01.dds"
       },
-      "bath": {
-        "model_path": "./data/bath.txt",
-        "texture_path": "./data/marble01.dds"
-      },
       "water": {
         "model_path": "./data/water.txt",
         "texture_path": "./data/water01.dds"

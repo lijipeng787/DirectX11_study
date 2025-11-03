@@ -77,7 +77,6 @@ struct SceneConfiguration {
   struct RefractionModels {
     ModelConfig ground;
     ModelConfig wall;
-    ModelConfig bath;
     ModelConfig water;
   } refraction;
 

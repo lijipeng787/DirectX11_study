@@ -28,7 +28,6 @@ static constexpr auto reflection_tag = "reflection";
 static constexpr auto scene_light_tag = "scene_light";
 static constexpr auto refraction_pass_tag = "refraction_pass";
 static constexpr auto water_reflection_tag = "water_reflection";
-static constexpr auto water_surface_tag = "water_surface";
 static constexpr auto diffuse_lighting_tag = "diffuse_lighting";
 
 bool Scene::Initialize(const SceneResourceRefs &resources,
@@ -100,6 +99,28 @@ Scene::GetRenderable(const std::string &name) const {
 void Scene::Clear() {
   renderable_objects_.clear();
   named_renderables_.clear();
+  animation_configs_.clear();
+  initial_transforms_.clear();
+}
+
+const AnimationConfig &
+Scene::GetAnimationConfig(std::shared_ptr<IRenderable> renderable) const {
+  static const AnimationConfig default_config; // Returns disabled config
+  auto it = animation_configs_.find(renderable);
+  if (it != animation_configs_.end()) {
+    return it->second;
+  }
+  return default_config;
+}
+
+const DirectX::XMMATRIX &
+Scene::GetInitialTransform(std::shared_ptr<IRenderable> renderable) const {
+  static const DirectX::XMMATRIX identity = DirectX::XMMatrixIdentity();
+  auto it = initial_transforms_.find(renderable);
+  if (it != initial_transforms_.end()) {
+    return it->second;
+  }
+  return identity;
 }
 
 void Scene::Update(float deltaTime) {
@@ -304,31 +325,6 @@ void Scene::BuildSceneObjects(const SceneResourceRefs &resources,
     });
     renderable_objects_.push_back(wall_object);
   }
-
-  if (refraction_assets.bath &&
-      resources.shader_assets.refraction.scene_light) {
-    auto bath_object = std::make_shared<RenderableObject>(
-        refraction_assets.bath, resources.shader_assets.refraction.scene_light);
-    bath_object->SetWorldMatrix(XMMatrixTranslation(0.0f, 2.0f, 0.0f) *
-                                scene_offset);
-    bath_object->AddTag(scene_light_tag);
-    bath_object->AddTag(refraction_pass_tag);
-    bath_object->SetParameterCallback([bath_model = refraction_assets.bath](
-                                          ShaderParameterContainer &params) {
-      params.SetTexture("texture", bath_model->GetTexture());
-    });
-    renderable_objects_.push_back(bath_object);
-  }
-
-  if (refraction_assets.water && resources.shader_assets.refraction.water) {
-    auto water_object = std::make_shared<RenderableObject>(
-        refraction_assets.water, resources.shader_assets.refraction.water);
-    water_object->SetWorldMatrix(
-        XMMatrixTranslation(0.0f, constants.water_plane_height, 0.0f) *
-        scene_offset);
-    water_object->AddTag(water_surface_tag);
-    renderable_objects_.push_back(water_object);
-  }
 }
 
 // Helper methods implementation
@@ -346,9 +342,6 @@ Scene::GetModelByName(const std::string &name,
   }
   if (name == "refraction_wall" || name == "refraction.wall") {
     return resources.scene_assets.refraction.wall;
-  }
-  if (name == "refraction_bath" || name == "refraction.bath") {
-    return resources.scene_assets.refraction.bath;
   }
   if (name == "refraction_water" || name == "refraction.water") {
     return resources.scene_assets.refraction.water;
@@ -390,9 +383,6 @@ Scene::GetShaderByName(const std::string &name,
   if (name == "refraction" || name == "refraction.refraction") {
     return resources.shader_assets.refraction.refraction;
   }
-  if (name == "water" || name == "refraction.water") {
-    return resources.shader_assets.refraction.water;
-  }
   return nullptr;
 }
 
@@ -418,6 +408,45 @@ Scene::GetOrthoWindowByName(const std::string &name,
   if (name == "fullscreen_window")
     return resources.ortho_windows.fullscreen_window;
   return nullptr;
+}
+
+AnimationConfig
+Scene::ParseAnimation(const nlohmann::json &animation_json) const {
+  AnimationConfig config;
+
+  if (!animation_json.is_object()) {
+    return config;
+  }
+
+  // Parse rotation animation
+  if (animation_json.find("rotate") != animation_json.end()) {
+    const auto &rotate_json = animation_json["rotate"];
+    if (rotate_json.is_object()) {
+      config.enabled = true;
+
+      // Parse axis (default to Y)
+      std::string axis_str = rotate_json.value("axis", "y");
+      if (axis_str == "x" || axis_str == "X") {
+        config.axis = AnimationConfig::RotationAxis::X;
+      } else if (axis_str == "z" || axis_str == "Z") {
+        config.axis = AnimationConfig::RotationAxis::Z;
+      } else {
+        config.axis = AnimationConfig::RotationAxis::Y; // Default to Y
+      }
+
+      // Parse speed (degrees per second)
+      if (rotate_json.find("speed") != rotate_json.end()) {
+        config.speed = rotate_json["speed"].get<float>();
+      }
+
+      // Parse initial angle (optional, default to 0)
+      if (rotate_json.find("initial") != rotate_json.end()) {
+        config.initial = rotate_json["initial"].get<float>();
+      }
+    }
+  }
+
+  return config;
 }
 
 DirectX::XMMATRIX
@@ -617,7 +646,19 @@ bool Scene::BuildSceneObjectsFromJson(const nlohmann::json &j,
         }
       }
 
-      // Add to groups
+      // Parse animation configuration
+      AnimationConfig animation_config;
+      if (obj_json.find("animation") != obj_json.end()) {
+        animation_config = ParseAnimation(obj_json["animation"]);
+        if (animation_config.enabled) {
+          animation_configs_[obj] = animation_config;
+          // Store initial transform for animated objects
+          initial_transforms_[obj] = world_matrix;
+        }
+      }
+
+      // Add to groups (for backward compatibility, but animation takes
+      // precedence)
       if (obj_json.find("groups") != obj_json.end() &&
           obj_json["groups"].is_array()) {
         for (const auto &group_name : obj_json["groups"]) {

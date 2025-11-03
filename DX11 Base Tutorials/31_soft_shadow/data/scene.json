@@ -37,7 +37,14 @@
         "scale": [1, 1, 1]
       },
       "tags": ["write_depth", "write_shadow", "pbr"],
-      "groups": ["pbr_group"]
+      "groups": ["pbr_group"],
+      "animation": {
+        "rotate": {
+          "axis": "y",
+          "speed": 15,
+          "initial": 0
+        }
+      }
     },
     {
       "name": "down_sample",
@@ -105,6 +112,13 @@
       "tags": ["diffuse_lighting"],
       "parameters": {
         "texture": true
+      },
+      "animation": {
+        "rotate": {
+          "axis": "y",
+          "speed": 45,
+          "initial": 0
+        }
       }
     },
     {
@@ -119,7 +133,14 @@
       },
       "tags": ["write_depth", "write_shadow", "final", "reflection"],
       "enable_reflection": true,
-      "groups": ["cube_group"]
+      "groups": ["cube_group"],
+      "animation": {
+        "rotate": {
+          "axis": "y",
+          "speed": 90,
+          "initial": 0
+        }
+      }
     },
     {
       "name": "cube_array_1",
@@ -133,7 +154,14 @@
       },
       "tags": ["write_depth", "write_shadow", "final", "reflection"],
       "enable_reflection": true,
-      "groups": ["cube_group"]
+      "groups": ["cube_group"],
+      "animation": {
+        "rotate": {
+          "axis": "y",
+          "speed": 180,
+          "initial": 0
+        }
+      }
     },
     {
       "name": "cube_array_2",
@@ -147,7 +175,14 @@
       },
       "tags": ["write_depth", "write_shadow", "final", "reflection"],
       "enable_reflection": true,
-      "groups": ["cube_group"]
+      "groups": ["cube_group"],
+      "animation": {
+        "rotate": {
+          "axis": "y",
+          "speed": 90,
+          "initial": 0
+        }
+      }
     },
     {
       "name": "cube_array_3",
@@ -161,7 +196,14 @@
       },
       "tags": ["write_depth", "write_shadow", "final", "reflection"],
       "enable_reflection": true,
-      "groups": ["cube_group"]
+      "groups": ["cube_group"],
+      "animation": {
+        "rotate": {
+          "axis": "y",
+          "speed": 180,
+          "initial": 0
+        }
+      }
     },
     {
       "name": "cube_array_4",
@@ -175,69 +217,16 @@
       },
       "tags": ["write_depth", "write_shadow", "final", "reflection"],
       "enable_reflection": true,
-      "groups": ["cube_group"]
-    },
-    {
-      "name": "refraction_ground",
-      "type": "Model",
-      "model": "refraction_ground",
-      "shader": "scene_light",
-      "transform": {
-        "position": [0.0, 1.0, 0.0],
-        "rotation": [0, 0, 0],
-        "scale": [0.5, 1, 0.5]
-      },
-      "tags": ["scene_light"],
-      "apply_scene_offset": true,
-      "parameters": {
-        "texture": true
+      "groups": ["cube_group"],
+      "animation": {
+        "rotate": {
+          "axis": "y",
+          "speed": 90,
+          "initial": 0
+        }
       }
-    },
-    {
-      "name": "refraction_wall",
-      "type": "Model",
-      "model": "refraction_wall",
-      "shader": "scene_light",
-      "transform": {
-        "position": [0.0, 6.0, 8.0],
-        "rotation": [0, 0, 0],
-        "scale": [1, 1, 1]
-      },
-      "tags": ["scene_light", "water_reflection"],
-      "apply_scene_offset": true,
-      "parameters": {
-        "texture": true
-      }
-    },
-    {
-      "name": "refraction_bath",
-      "type": "Model",
-      "model": "refraction_bath",
-      "shader": "scene_light",
-      "transform": {
-        "position": [0.0, 2.0, 0.0],
-        "rotation": [0, 0, 0],
-        "scale": [1, 1, 1]
-      },
-      "tags": ["scene_light", "refraction_pass"],
-      "apply_scene_offset": true,
-      "parameters": {
-        "texture": true
-      }
-    },
-    {
-      "name": "refraction_water",
-      "type": "Model",
-      "model": "refraction_water",
-      "shader": "water",
-      "transform": {
-        "position": [0.0, 2.75, 0.0],
-        "rotation": [0, 0, 0],
-        "scale": [1, 1, 1]
-      },
-      "tags": ["water_surface"],
-      "apply_scene_offset": true
     }
+  
   ]
 }
 

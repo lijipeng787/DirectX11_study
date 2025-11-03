@@ -19,6 +19,20 @@ class IShader;
 // Include nlohmann/json in header to avoid symbol conflicts
 #include <nlohmann/json.hpp>
 
+// Animation configuration structure
+struct AnimationConfig {
+  enum class RotationAxis { X, Y, Z };
+
+  bool enabled = false;
+  RotationAxis axis = RotationAxis::Y;
+  float speed = 0.0f;   // Degrees per second
+  float initial = 0.0f; // Initial angle in degrees
+
+  AnimationConfig() = default;
+  AnimationConfig(RotationAxis axis, float speed, float initial = 0.0f)
+      : enabled(true), axis(axis), speed(speed), initial(initial) {}
+};
+
 // Scene resource references (non-owning)
 struct SceneResourceRefs {
   struct SceneAssets {
@@ -30,7 +44,6 @@ struct SceneResourceRefs {
     struct RefractionAssets {
       std::shared_ptr<Model> ground;
       std::shared_ptr<Model> wall;
-      std::shared_ptr<Model> bath;
       std::shared_ptr<Model> water;
     } refraction;
   };
@@ -48,7 +61,6 @@ struct SceneResourceRefs {
     struct RefractionShaders {
       std::shared_ptr<IShader> scene_light;
       std::shared_ptr<IShader> refraction;
-      std::shared_ptr<IShader> water;
     } refraction;
   };
 
@@ -125,6 +137,15 @@ public:
   // Update scene (for animations, etc.)
   void Update(float deltaTime);
 
+public:
+  // Get animation configuration for a renderable object
+  const AnimationConfig &
+  GetAnimationConfig(std::shared_ptr<IRenderable> renderable) const;
+
+  // Get initial transform for a renderable object (for animation)
+  const DirectX::XMMATRIX &
+  GetInitialTransform(std::shared_ptr<IRenderable> renderable) const;
+
 private:
   // Helper functions for creating different types of objects
   std::shared_ptr<RenderableObject> CreateTexturedModelObject(
@@ -180,7 +201,17 @@ private:
   DirectX::XMMATRIX ParseTransform(const nlohmann::json &transform_json) const;
 
 private:
+  // Helper: Parse animation from JSON
+  AnimationConfig ParseAnimation(const nlohmann::json &animation_json) const;
+
+private:
   std::vector<std::shared_ptr<IRenderable>> renderable_objects_;
   std::unordered_map<std::string, std::shared_ptr<IRenderable>>
       named_renderables_;
+  // Store animation configs for each renderable object
+  std::unordered_map<std::shared_ptr<IRenderable>, AnimationConfig>
+      animation_configs_;
+  // Store initial transforms for animated objects
+  std::unordered_map<std::shared_ptr<IRenderable>, DirectX::XMMATRIX>
+      initial_transforms_;
 };

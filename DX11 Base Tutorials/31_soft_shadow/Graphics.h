@@ -31,7 +31,6 @@ class Font;
 class Text;
 class SceneLightShader;
 class RefractionShader;
-class WaterShader;
 class SimpleLightShader;
 
 class Graphics : public GraphicsBase {
@@ -73,18 +72,18 @@ private:
 
   bool InitializeLight();
 
-  bool InitializeResources(HWND hwnd);
+  bool InitializeResources();
 
   bool InitializeRenderingPipeline();
 
   // Split initialization methods for better organization and testability
-  bool InitializeSceneModels(HWND hwnd);
+  bool InitializeSceneModels();
 
   bool InitializeRenderTargets();
 
   bool InitializeShaders();
 
-  bool InitializeFontSystem(HWND hwnd);
+  bool InitializeFontSystem();
 
   bool InitializeOrthoWindows();
 
@@ -109,7 +108,6 @@ private:
     struct RefractionAssets {
       std::shared_ptr<Model> ground;
       std::shared_ptr<Model> wall;
-      std::shared_ptr<Model> bath;
       std::shared_ptr<Model> water;
     } refraction;
   };
@@ -122,11 +120,6 @@ private:
     std::shared_ptr<RenderTexture> vertical_blur;
     std::shared_ptr<RenderTexture> upsampled_shadow;
     std::shared_ptr<RenderTexture> reflection_map;
-
-    struct RefractionTargets {
-      std::shared_ptr<RenderTexture> refraction_map;
-      std::shared_ptr<RenderTexture> water_reflection_map;
-    } refraction;
   };
 
   struct ShaderAssets {
@@ -142,7 +135,6 @@ private:
     struct RefractionShaders {
       std::shared_ptr<SceneLightShader> scene_light;
       std::shared_ptr<RefractionShader> refraction;
-      std::shared_ptr<WaterShader> water;
     } refraction;
   };
 
@@ -154,8 +146,6 @@ private:
   float pos_x_ = 0.0f, pos_y_ = 0.0f, pos_z_ = 0.0f;
 
   float rot_x_ = 0.0f, rot_y_ = 0.0f, rot_z_ = 0.0f;
-
-  float water_translation_ = 0.0f;
 
   // Diffuse lighting demo rotation
   float diffuse_lighting_rotation_ = 0.0f;
@@ -174,12 +164,6 @@ private:
 
   std::shared_ptr<StandardRenderGroup> cube_group_;
   std::shared_ptr<StandardRenderGroup> pbr_group_;
-
-  // Store initial transforms for rotating cubes (from scene.json)
-  std::vector<DirectX::XMMATRIX> cube_initial_transforms_;
-
-  // Store initial transforms for rotating PBR models
-  std::vector<DirectX::XMMATRIX> pbr_initial_transforms_;
 
   RenderGraph render_graph_;
 

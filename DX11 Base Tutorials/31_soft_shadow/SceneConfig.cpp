@@ -34,8 +34,6 @@ SceneConfiguration GetDefaultConfiguration() {
                   L"./data/ground01.dds");
   config.refraction.wall =
       ModelConfig("refraction_wall", "./data/wall.txt", L"./data/wall01.dds");
-  config.refraction.bath =
-      ModelConfig("refraction_bath", "./data/bath.txt", L"./data/marble01.dds");
   config.refraction.water = ModelConfig("refraction_water", "./data/water.txt",
                                         L"./data/water01.dds");
 
@@ -143,14 +141,6 @@ bool LoadFromJson(SceneConfiguration &config, const std::string &filepath) {
           std::string texture_path_str = m["texture_path"].get<std::string>();
           config.refraction.wall = ModelConfig(
               "refraction_wall", m["model_path"].get<std::string>(),
-              std::wstring(texture_path_str.begin(), texture_path_str.end()));
-        }
-
-        if (ref.find("bath") != ref.end()) {
-          auto &m = ref["bath"];
-          std::string texture_path_str = m["texture_path"].get<std::string>();
-          config.refraction.bath = ModelConfig(
-              "refraction_bath", m["model_path"].get<std::string>(),
               std::wstring(texture_path_str.begin(), texture_path_str.end()));
         }
 
