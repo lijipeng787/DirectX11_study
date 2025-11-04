@@ -4,8 +4,70 @@
 #include <nlohmann/json.hpp>
 
 #include "Logger.h"
+#include "ConfigValidator.h"
 
 namespace SceneConfig {
+
+// Helper functions for string conversion
+namespace {
+  inline std::wstring ToWString(const std::string& str) {
+    return std::wstring(str.begin(), str.end());
+  }
+  
+  inline std::wstring GetWString(const nlohmann::json& j, const std::string& key) {
+    if (j.find(key) != j.end() && j[key].is_string()) {
+      return ToWString(j[key].get<std::string>());
+    }
+    return L"";
+  }
+  
+  // Parse basic model configuration
+  ModelConfig ParseModelConfig(const nlohmann::json& j, const std::string& name) {
+    if (!j.is_object()) return ModelConfig();
+    
+    std::string model_path = j.value("model_path", "");
+    std::wstring texture_path = GetWString(j, "texture_path");
+    
+    return ModelConfig(name, model_path, texture_path);
+  }
+  
+  // Parse PBR model configuration
+  PBRModelConfig ParsePBRModelConfig(const nlohmann::json& j, const std::string& name) {
+    if (!j.is_object()) return PBRModelConfig();
+    
+    return PBRModelConfig(
+      name,
+      j.value("model_path", ""),
+      j.value("albedo_path", ""),
+      j.value("normal_path", ""),
+      j.value("roughmetal_path", "")
+    );
+  }
+  
+  // Parse render target configuration
+  RenderTargetConfig ParseRenderTargetConfig(const nlohmann::json& j, const std::string& name) {
+    if (!j.is_object()) return RenderTargetConfig();
+    
+    return RenderTargetConfig(
+      name,
+      j.value("width", 0),
+      j.value("height", 0),
+      j.value("depth", 0.0f),
+      j.value("near", 0.0f)
+    );
+  }
+  
+  // Parse ortho window configuration
+  OrthoWindowConfig ParseOrthoWindowConfig(const nlohmann::json& j, const std::string& name) {
+    if (!j.is_object()) return OrthoWindowConfig();
+    
+    return OrthoWindowConfig(
+      name,
+      j.value("width", 0),
+      j.value("height", 0)
+    );
+  }
+}
 
 SceneConfiguration::SceneConfiguration() {
   // Initialize with default configurations
@@ -77,6 +139,27 @@ bool LoadFromJson(SceneConfiguration &config, const std::string &filepath) {
 
     nlohmann::json j;
     file >> j;
+    file.close();
+
+    // Validate configuration before parsing
+    ConfigValidator validator;
+    auto validation = validator.ValidateSceneConfig(j);
+    
+    if (!validation.success) {
+      Logger::SetModule("SceneConfig");
+      Logger::LogError("Configuration validation failed:");
+      for (const auto& error : validation.errors) {
+        Logger::LogError("  Error: " + error);
+      }
+      config = GetDefaultConfiguration();
+      return false;
+    }
+    
+    // Log warnings
+    for (const auto& warning : validation.warnings) {
+      Logger::SetModule("SceneConfig");
+      Logger::LogError("Validation warning: " + warning);
+    }
 
     // Clear existing config
     config = SceneConfiguration();
@@ -85,42 +168,22 @@ bool LoadFromJson(SceneConfiguration &config, const std::string &filepath) {
     if (j.find("models") != j.end() && j["models"].is_object()) {
       auto &models = j["models"];
 
-      // Parse basic models (cube, sphere, ground)
-      if (models.find("cube") != models.end() && models["cube"].is_object()) {
-        auto &m = models["cube"];
-        std::string texture_path_str = m["texture_path"].get<std::string>();
-        config.models["cube"] = ModelConfig(
-            "cube", m["model_path"].get<std::string>(),
-            std::wstring(texture_path_str.begin(), texture_path_str.end()));
-      }
-
-      if (models.find("sphere") != models.end() &&
-          models["sphere"].is_object()) {
-        auto &m = models["sphere"];
-        std::string texture_path_str = m["texture_path"].get<std::string>();
-        config.models["sphere"] = ModelConfig(
-            "sphere", m["model_path"].get<std::string>(),
-            std::wstring(texture_path_str.begin(), texture_path_str.end()));
-      }
-
-      if (models.find("ground") != models.end() &&
-          models["ground"].is_object()) {
-        auto &m = models["ground"];
-        std::string texture_path_str = m["texture_path"].get<std::string>();
-        config.models["ground"] = ModelConfig(
-            "ground", m["model_path"].get<std::string>(),
-            std::wstring(texture_path_str.begin(), texture_path_str.end()));
+      // Parse basic models using iterator (excluding special cases)
+      for (auto& [key, value] : models.items()) {
+        if (key == "refraction" || key == "pbr_sphere") {
+          continue; // Handle separately
+        }
+        
+        if (value.is_object()) {
+          config.models[key] = ParseModelConfig(value, key);
+        }
       }
 
       // Parse PBR model
       if (models.find("pbr_sphere") != models.end() &&
           models["pbr_sphere"].is_object()) {
-        auto &m = models["pbr_sphere"];
-        config.pbr_models["sphere_pbr"] =
-            PBRModelConfig("sphere_pbr", m["model_path"].get<std::string>(),
-                           m["albedo_path"].get<std::string>(),
-                           m["normal_path"].get<std::string>(),
-                           m["roughmetal_path"].get<std::string>());
+        config.pbr_models["sphere_pbr"] = 
+            ParsePBRModelConfig(models["pbr_sphere"], "sphere_pbr");
       }
 
       // Parse refraction models
@@ -128,28 +191,16 @@ bool LoadFromJson(SceneConfiguration &config, const std::string &filepath) {
           models["refraction"].is_object()) {
         auto &ref = models["refraction"];
 
-        if (ref.find("ground") != ref.end()) {
-          auto &m = ref["ground"];
-          std::string texture_path_str = m["texture_path"].get<std::string>();
-          config.refraction.ground = ModelConfig(
-              "refraction_ground", m["model_path"].get<std::string>(),
-              std::wstring(texture_path_str.begin(), texture_path_str.end()));
+        if (ref.find("ground") != ref.end() && ref["ground"].is_object()) {
+          config.refraction.ground = ParseModelConfig(ref["ground"], "refraction_ground");
         }
 
-        if (ref.find("wall") != ref.end()) {
-          auto &m = ref["wall"];
-          std::string texture_path_str = m["texture_path"].get<std::string>();
-          config.refraction.wall = ModelConfig(
-              "refraction_wall", m["model_path"].get<std::string>(),
-              std::wstring(texture_path_str.begin(), texture_path_str.end()));
+        if (ref.find("wall") != ref.end() && ref["wall"].is_object()) {
+          config.refraction.wall = ParseModelConfig(ref["wall"], "refraction_wall");
         }
 
-        if (ref.find("water") != ref.end()) {
-          auto &m = ref["water"];
-          std::string texture_path_str = m["texture_path"].get<std::string>();
-          config.refraction.water = ModelConfig(
-              "refraction_water", m["model_path"].get<std::string>(),
-              std::wstring(texture_path_str.begin(), texture_path_str.end()));
+        if (ref.find("water") != ref.end() && ref["water"].is_object()) {
+          config.refraction.water = ParseModelConfig(ref["water"], "refraction_water");
         }
       }
     }
@@ -159,42 +210,23 @@ bool LoadFromJson(SceneConfiguration &config, const std::string &filepath) {
         j["render_targets"].is_object()) {
       auto &targets = j["render_targets"];
 
-      auto parseRenderTarget = [&](const std::string &name) {
-        if (targets.find(name) != targets.end() && targets[name].is_object()) {
-          auto &t = targets[name];
-          config.render_targets[name] = RenderTargetConfig(
-              name, t["width"].get<int>(), t["height"].get<int>(),
-              t["depth"].get<float>(), t["near"].get<float>());
+      // Parse all render targets using iterator
+      for (auto& [key, value] : targets.items()) {
+        if (value.is_object()) {
+          config.render_targets[key] = ParseRenderTargetConfig(value, key);
         }
-      };
-
-      parseRenderTarget("shadow_depth");
-      parseRenderTarget("shadow_map");
-      parseRenderTarget("downsampled_shadow");
-      parseRenderTarget("horizontal_blur");
-      parseRenderTarget("vertical_blur");
-      parseRenderTarget("upsampled_shadow");
-      parseRenderTarget("reflection_map");
-      parseRenderTarget("water_refraction");
-      parseRenderTarget("water_reflection");
+      }
     }
 
     // Parse ortho windows
     if (j.find("ortho_windows") != j.end() && j["ortho_windows"].is_object()) {
       auto &windows = j["ortho_windows"];
 
-      if (windows.find("small_window") != windows.end() &&
-          windows["small_window"].is_object()) {
-        auto &w = windows["small_window"];
-        config.ortho_windows["small_window"] = OrthoWindowConfig(
-            "small_window", w["width"].get<int>(), w["height"].get<int>());
-      }
-
-      if (windows.find("fullscreen_window") != windows.end() &&
-          windows["fullscreen_window"].is_object()) {
-        auto &w = windows["fullscreen_window"];
-        config.ortho_windows["fullscreen_window"] = OrthoWindowConfig(
-            "fullscreen_window", w["width"].get<int>(), w["height"].get<int>());
+      // Parse all ortho windows using iterator
+      for (auto& [key, value] : windows.items()) {
+        if (value.is_object()) {
+          config.ortho_windows[key] = ParseOrthoWindowConfig(value, key);
+        }
       }
     }
 
@@ -202,27 +234,28 @@ bool LoadFromJson(SceneConfiguration &config, const std::string &filepath) {
     if (j.find("constants") != j.end() && j["constants"].is_object()) {
       auto &constants = j["constants"];
 
-      if (constants.find("water_plane_height") != constants.end())
-        config.constants.water_plane_height =
-            constants["water_plane_height"].get<float>();
-      if (constants.find("water_reflect_refract_scale") != constants.end())
-        config.constants.water_reflect_refract_scale =
-            constants["water_reflect_refract_scale"].get<float>();
-      if (constants.find("reflection_plane_height") != constants.end())
-        config.constants.reflection_plane_height =
-            constants["reflection_plane_height"].get<float>();
-      if (constants.find("refraction_scene_offset_x") != constants.end())
-        config.constants.refraction_scene_offset_x =
-            constants["refraction_scene_offset_x"].get<float>();
-      if (constants.find("refraction_scene_offset_y") != constants.end())
-        config.constants.refraction_scene_offset_y =
-            constants["refraction_scene_offset_y"].get<float>();
-      if (constants.find("refraction_scene_offset_z") != constants.end())
-        config.constants.refraction_scene_offset_z =
-            constants["refraction_scene_offset_z"].get<float>();
-      if (constants.find("refraction_ground_scale") != constants.end())
-        config.constants.refraction_ground_scale =
-            constants["refraction_ground_scale"].get<float>();
+      // Parse constants using value() method for safe access
+      if (constants.find("water_plane_height") != constants.end()) {
+        config.constants.water_plane_height = constants["water_plane_height"].get<float>();
+      }
+      if (constants.find("water_reflect_refract_scale") != constants.end()) {
+        config.constants.water_reflect_refract_scale = constants["water_reflect_refract_scale"].get<float>();
+      }
+      if (constants.find("reflection_plane_height") != constants.end()) {
+        config.constants.reflection_plane_height = constants["reflection_plane_height"].get<float>();
+      }
+      if (constants.find("refraction_scene_offset_x") != constants.end()) {
+        config.constants.refraction_scene_offset_x = constants["refraction_scene_offset_x"].get<float>();
+      }
+      if (constants.find("refraction_scene_offset_y") != constants.end()) {
+        config.constants.refraction_scene_offset_y = constants["refraction_scene_offset_y"].get<float>();
+      }
+      if (constants.find("refraction_scene_offset_z") != constants.end()) {
+        config.constants.refraction_scene_offset_z = constants["refraction_scene_offset_z"].get<float>();
+      }
+      if (constants.find("refraction_ground_scale") != constants.end()) {
+        config.constants.refraction_ground_scale = constants["refraction_ground_scale"].get<float>();
+      }
     }
 
     Logger::SetModule("SceneConfig");

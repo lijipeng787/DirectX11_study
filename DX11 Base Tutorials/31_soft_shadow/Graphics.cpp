@@ -1,5 +1,9 @@
 ﻿#include "Graphics.h"
 
+#include <algorithm>
+#include <iostream>
+#include <unordered_map>
+
 #include "../CommonFramework2/DirectX11Device.h"
 #include "../CommonFramework2/TypeDefine.h"
 
@@ -27,47 +31,91 @@
 #include "textureshader.h"
 #include "verticalblurshader.h"
 
-#include <algorithm>
-#include <iostream>
-#include <unordered_map>
-
 using namespace std;
 using namespace DirectX;
-
 using namespace SceneConfig;
 
+// Shadow map dimensions
 static constexpr auto SHADOW_MAP_WIDTH = 1024;
 static constexpr auto SHADOW_MAP_HEIGHT = 1024;
-// Set the size to sample down to.
-static constexpr auto downSampleWidth = SHADOW_MAP_WIDTH / 2;
-static constexpr auto downSampleHeight = SHADOW_MAP_HEIGHT / 2;
+static constexpr auto DOWN_SAMPLE_WIDTH = SHADOW_MAP_WIDTH / 2;
+static constexpr auto DOWN_SAMPLE_HEIGHT = SHADOW_MAP_HEIGHT / 2;
+
+// Light animation constants
+static constexpr auto LIGHT_MOVE_SPEED = 1.0f; // units per second
+static constexpr auto LIGHT_X_MIN = -5.0f;
+static constexpr auto LIGHT_X_MAX = 5.0f;
+static constexpr auto LIGHT_Y_POSITION = 8.0f;
+static constexpr auto LIGHT_Z_POSITION = -5.0f;
+
+// Debug resource logging interval (seconds)
+#ifdef _DEBUG
+static constexpr auto DEBUG_RESOURCE_LOG_INTERVAL = 5.0f;
+#endif
+
+// Render tag constants
+static constexpr const char* WRITE_DEPTH_TAG = "write_depth";
+static constexpr const char* WRITE_SHADOW_TAG = "write_shadow";
+static constexpr const char* DOWN_SAMPLE_TAG = "down_sample";
+static constexpr const char* HORIZONTAL_BLUR_TAG = "horizontal_blur";
+static constexpr const char* VERTICAL_BLUR_TAG = "vertical_blur";
+static constexpr const char* UP_SAMPLE_TAG = "up_sample";
+static constexpr const char* PBR_TAG = "pbr";
+static constexpr const char* FINAL_TAG = "final";
+static constexpr const char* REFLECTION_TAG = "reflection";
+static constexpr const char* DIFFUSE_LIGHTING_TAG = "diffuse_lighting";
+
+// 辅助函数：统一错误日志记录
+namespace {
+void LogGraphicsError(const std::wstring& message) {
+  Logger::SetModule("Graphics");
+  Logger::LogError(message);
+}
+
+void LogGraphicsError(const std::string& message) {
+  Logger::SetModule("Graphics");
+  Logger::LogError(message);
+}
+
+std::wstring GetResourceManagerError(const ResourceManager& rm) {
+  const auto& last_error = rm.GetLastError();
+  if (last_error.empty()) {
+    return L"";
+  }
+  return L"\n" + std::wstring(last_error.begin(), last_error.end());
+}
+} // namespace
 
 bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
-
+  // Initialize core DirectX device and resources
   if (!InitializeDevice(screenWidth, screenHeight, hwnd)) {
     return false;
   }
 
+  // Setup camera and frustum culling system
   if (!InitializeCamera()) {
     return false;
   }
 
+  // Setup lighting system
   if (!InitializeLight()) {
     return false;
   }
 
-  // Load scene configuration from JSON or use default
+  // Load scene configuration from JSON
   SceneConfig::LoadFromJson(scene_config_, "./data/scene_config.json");
 
+  // Load all rendering resources (models, shaders, render targets, etc.)
   if (!InitializeResources()) {
     return false;
   }
 
+  // Setup rendering pipeline and render graph
   if (!InitializeRenderingPipeline()) {
     return false;
   }
 
-  // Log resource statistics
+  // Log resource statistics for debugging
   auto &resource_manager = ResourceManager::GetInstance();
   resource_manager.LogResourceStats();
 
@@ -75,27 +123,25 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
 }
 
 bool Graphics::InitializeDevice(int screenWidth, int screenHeight, HWND hwnd) {
-
   auto *directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
-  if (!(directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED,
-                                      hwnd, FULL_SCREEN, SCREEN_DEPTH,
-                                      SCREEN_NEAR))) {
-    Logger::SetModule("Graphics");
-    Logger::LogError(L"Could not initialize Direct3D.");
+  if (!directx11_device_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED,
+                                     hwnd, FULL_SCREEN, SCREEN_DEPTH,
+                                     SCREEN_NEAR)) {
+    LogGraphicsError(L"Could not initialize Direct3D.");
     return false;
   }
 
   this->screenWidth = screenWidth;
   this->screenHeight = screenHeight;
 
-  // Initialize ResourceManager
+  // Initialize ResourceManager for centralized resource management
   auto &resource_manager = ResourceManager::GetInstance();
   auto *device = directx11_device_->GetDevice();
   auto *device_context = directx11_device_->GetDeviceContext();
 
   if (!resource_manager.Initialize(device, device_context, hwnd)) {
-    Logger::LogError("Could not initialize ResourceManager.");
+    LogGraphicsError("Could not initialize ResourceManager.");
     return false;
   }
 
@@ -103,16 +149,17 @@ bool Graphics::InitializeDevice(int screenWidth, int screenHeight, HWND hwnd) {
 }
 
 bool Graphics::InitializeCamera() {
-
   camera_ = make_unique<Camera>();
   if (nullptr == camera_) {
     return false;
   }
+  
+  // Set initial camera position and compute matrices
   camera_->SetPosition(0.0f, -1.0f, -10.0f);
   camera_->Render();
   camera_->RenderBaseViewMatrix();
 
-  // Initialize frustum for culling
+  // Initialize frustum for visibility culling
   frustum_ = make_unique<FrustumClass>();
   if (nullptr == frustum_) {
     return false;
@@ -122,12 +169,12 @@ bool Graphics::InitializeCamera() {
 }
 
 bool Graphics::InitializeLight() {
-
   light_ = make_unique<Light>();
   if (nullptr == light_) {
     return false;
   }
 
+  // Configure light properties
   light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
   light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
   light_->SetLookAt(0.0f, 0.0f, 0.0f);
@@ -137,7 +184,6 @@ bool Graphics::InitializeLight() {
 }
 
 bool Graphics::InitializeSceneModels() {
-
   auto &resource_manager = ResourceManager::GetInstance();
 
   // Load basic geometry models from configuration
@@ -154,13 +200,7 @@ bool Graphics::InitializeSceneModels() {
       ground_config.name, ground_config.model_path, ground_config.texture_path);
 
   if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground) {
-    std::wstring error_msg = L"Could not load models.";
-    const auto &last_error = resource_manager.GetLastError();
-    if (!last_error.empty()) {
-      error_msg += L"\n" + std::wstring(last_error.begin(), last_error.end());
-    }
-    Logger::SetModule("Graphics");
-    Logger::LogError(error_msg);
+    LogGraphicsError(L"Could not load models." + GetResourceManagerError(resource_manager));
     return false;
   }
 
@@ -171,13 +211,7 @@ bool Graphics::InitializeSceneModels() {
       pbr_config.normal_path, pbr_config.roughmetal_path);
 
   if (!scene_assets_.pbr_sphere) {
-    std::wstring error_msg = L"Could not load PBR model.";
-    const auto &last_error = resource_manager.GetLastError();
-    if (!last_error.empty()) {
-      error_msg += L"\n" + std::wstring(last_error.begin(), last_error.end());
-    }
-    Logger::SetModule("Graphics");
-    Logger::LogError(error_msg);
+    LogGraphicsError(L"Could not load PBR model." + GetResourceManagerError(resource_manager));
     return false;
   }
 
@@ -199,13 +233,7 @@ bool Graphics::InitializeSceneModels() {
 
   if (!scene_assets_.refraction.ground || !scene_assets_.refraction.wall ||
       !scene_assets_.refraction.water) {
-    std::wstring error_msg = L"Could not load refraction scene models.";
-    const auto &last_error = resource_manager.GetLastError();
-    if (!last_error.empty()) {
-      error_msg += L"\n" + std::wstring(last_error.begin(), last_error.end());
-    }
-    Logger::SetModule("Graphics");
-    Logger::LogError(error_msg);
+    LogGraphicsError(L"Could not load refraction scene models." + GetResourceManagerError(resource_manager));
     return false;
   }
 
@@ -213,7 +241,6 @@ bool Graphics::InitializeSceneModels() {
 }
 
 bool Graphics::InitializeRenderTargets() {
-
   auto &resource_manager = ResourceManager::GetInstance();
 
   // Helper lambda to get width/height with screen fallback
@@ -269,12 +296,12 @@ bool Graphics::InitializeRenderTargets() {
       getHeight(reflection_map_config), reflection_map_config.depth,
       reflection_map_config.near_plane);
 
+  // Validate all render targets were created successfully
   if (!render_targets_.shadow_depth || !render_targets_.shadow_map ||
       !render_targets_.downsampled_shadow || !render_targets_.horizontal_blur ||
       !render_targets_.vertical_blur || !render_targets_.upsampled_shadow ||
       !render_targets_.reflection_map) {
-    Logger::SetModule("Graphics");
-    Logger::LogError(L"Could not create render textures.");
+    LogGraphicsError(L"Could not create render textures.");
     return false;
   }
 
@@ -282,10 +309,9 @@ bool Graphics::InitializeRenderTargets() {
 }
 
 bool Graphics::InitializeShaders() {
-
   auto &resource_manager = ResourceManager::GetInstance();
 
-  // Load core rendering shaders
+  // Load core rendering shaders from ResourceManager
   shader_assets_.depth = resource_manager.GetShader<DepthShader>("depth");
   shader_assets_.shadow = resource_manager.GetShader<ShadowShader>("shadow");
   shader_assets_.texture = resource_manager.GetShader<TextureShader>("texture");
@@ -299,12 +325,12 @@ bool Graphics::InitializeShaders() {
   shader_assets_.diffuse_lighting =
       resource_manager.GetShader<SimpleLightShader>("simple_light");
 
+  // Validate all shaders were loaded successfully
   if (!shader_assets_.depth || !shader_assets_.shadow ||
       !shader_assets_.texture || !shader_assets_.horizontal_blur ||
       !shader_assets_.vertical_blur || !shader_assets_.soft_shadow ||
       !shader_assets_.pbr || !shader_assets_.diffuse_lighting) {
-    Logger::SetModule("Graphics");
-    Logger::LogError(L"Could not load shaders.");
+    LogGraphicsError(L"Could not load shaders.");
     return false;
   }
 
@@ -312,31 +338,28 @@ bool Graphics::InitializeShaders() {
 }
 
 bool Graphics::InitializeFontSystem() {
-
   auto &resource_manager = ResourceManager::GetInstance();
 
   // Load font shader
   auto font_shader = resource_manager.GetShader<FontShader>("font");
   if (!font_shader) {
-    Logger::SetModule("Graphics");
-    Logger::LogError(L"Could not load font shader.");
+    LogGraphicsError(L"Could not load font shader.");
     return false;
   }
 
-  // Load font
+  // Load font resource
   auto font = std::make_shared<Font>();
   if (!font->Initialize("./data/fontdata.txt", L"./data/font.dds",
                         resource_manager.GetDevice())) {
-    Logger::SetModule("Graphics");
-    Logger::LogError(L"Could not initialize font.");
+    LogGraphicsError(L"Could not initialize font.");
     return false;
   }
 
-  // Store font and shader
+  // Store font and shader for text rendering
   font_shader_ = font_shader;
   font_ = font;
 
-  // Initialize text rendering
+  // Initialize text rendering system
   if (font_ && font_shader_) {
     XMMATRIX baseViewMatrix;
     camera_->GetBaseViewMatrix(baseViewMatrix);
@@ -344,8 +367,7 @@ bool Graphics::InitializeFontSystem() {
     text_ = make_unique<Text>();
     if (!text_->Initialize(screenWidth, screenHeight, baseViewMatrix, font_,
                            font_shader_, resource_manager.GetDevice())) {
-      Logger::SetModule("Graphics");
-      Logger::LogError(L"Could not initialize text.");
+      LogGraphicsError(L"Could not initialize text.");
       return false;
     }
   }
@@ -354,7 +376,6 @@ bool Graphics::InitializeFontSystem() {
 }
 
 bool Graphics::InitializeOrthoWindows() {
-
   auto &resource_manager = ResourceManager::GetInstance();
 
   // Load ortho windows from configuration
@@ -370,8 +391,7 @@ bool Graphics::InitializeOrthoWindows() {
       fullscreen_window_config.height);
 
   if (!ortho_windows_.small_window || !ortho_windows_.fullscreen_window) {
-    Logger::SetModule("Graphics");
-    Logger::LogError(L"Could not create ortho windows.");
+    LogGraphicsError(L"Could not create ortho windows.");
     return false;
   }
 
@@ -379,7 +399,6 @@ bool Graphics::InitializeOrthoWindows() {
 }
 
 bool Graphics::InitializeResources() {
-
   if (!InitializeSceneModels()) {
     return false;
   }
@@ -400,8 +419,8 @@ bool Graphics::InitializeResources() {
     return false;
   }
 
-  // Pre-create render groups (for backward compatibility, but rotation is now
-  // JSON-driven)
+  // Pre-create render groups for backward compatibility
+  // Note: Object rotation is now JSON-driven, but groups are still needed
   cube_group_ = make_shared<StandardRenderGroup>();
   pbr_group_ = make_shared<StandardRenderGroup>();
 
@@ -410,8 +429,7 @@ bool Graphics::InitializeResources() {
 
 bool Graphics::InitializeRenderingPipeline() {
   if (!SetupRenderGraph()) {
-    Logger::SetModule("Graphics");
-    Logger::LogError(L"Failed to setup RenderGraph.");
+    LogGraphicsError(L"Failed to setup RenderGraph.");
     return false;
   }
   return true;
@@ -467,19 +485,15 @@ void Graphics::Frame(float deltaTime) {
   camera_->SetPosition(pos_x_, pos_y_, pos_z_);
   camera_->SetRotation(rot_x_, rot_y_, rot_z_);
 
-  // Update the position of the light each frame.
-  // deltaTime is now in seconds (converted from milliseconds in System.cpp)
-  // Light moves at 1 unit per second
-  lightPositionX += 1.0f * deltaTime;
-  if (lightPositionX > 5.0f) {
-    lightPositionX = -5.0f;
+  // Update light position: moves horizontally at constant speed
+  lightPositionX += LIGHT_MOVE_SPEED * deltaTime;
+  if (lightPositionX > LIGHT_X_MAX) {
+    lightPositionX = LIGHT_X_MIN;
   }
-  light_->SetPosition(lightPositionX, 8.0f, -5.0f);
+  light_->SetPosition(lightPositionX, LIGHT_Y_POSITION, LIGHT_Z_POSITION);
 
   // Update animations based on animation config from JSON
   const auto &scene_objects = scene_.GetRenderables();
-  static std::unordered_map<std::shared_ptr<IRenderable>, float>
-      rotation_states;
 
   for (const auto &renderable : scene_objects) {
     const auto &anim_config = scene_.GetAnimationConfig(renderable);
@@ -492,7 +506,7 @@ void Graphics::Frame(float deltaTime) {
 
     // Calculate rotation based on animation config
     // Speed is in degrees per second, convert to radians
-    float &rotation_angle = rotation_states[renderable];
+    float &rotation_angle = scene_.GetRotationState(renderable);
     rotation_angle +=
         DirectX::XMConvertToRadians(anim_config.speed) * deltaTime;
 
@@ -542,22 +556,14 @@ void Graphics::Frame(float deltaTime) {
   }
 
   // Clean up rotation states for objects that no longer exist
-  for (auto it = rotation_states.begin(); it != rotation_states.end();) {
-    if (std::find(scene_objects.begin(), scene_objects.end(), it->first) ==
-        scene_objects.end()) {
-      it = rotation_states.erase(it);
-    } else {
-      ++it;
-    }
-  }
+  scene_.CleanupAnimationStates(scene_objects);
 
 #ifdef _DEBUG
-  // Debug: periodically log resource usage (every 5 seconds)
-  static float debugTimer = 0.0f;
-  // deltaTime is now in seconds, no conversion needed
-  debugTimer += deltaTime;
-  if (debugTimer > 5.0f) {
-    debugTimer = 0.0f;
+  // Periodically log resource usage for debugging
+  static float debug_timer = 0.0f;
+  debug_timer += deltaTime;
+  if (debug_timer >= DEBUG_RESOURCE_LOG_INTERVAL) {
+    debug_timer = 0.0f;
     auto &resource_manager = ResourceManager::GetInstance();
     cout << "\n[DEBUG] Resource Usage:" << endl;
     cout << "  Cube model ref count: "
@@ -572,35 +578,15 @@ void Graphics::Frame(float deltaTime) {
 #endif
 }
 
-static constexpr auto write_depth_tag = "write_depth";
-static constexpr auto write_shadow_tag = "write_shadow";
-static constexpr auto down_sample_tag = "down_sample";
-static constexpr auto horizontal_blur_tag = "horizontal_blur";
-static constexpr auto vertical_blur_tag = "vertical_blur";
-static constexpr auto up_sample_tag = "up_sample";
-static constexpr auto pbr_tag = "pbr";
-static constexpr auto final_tag = "final";
-static constexpr auto reflection_tag = "reflection";
-static constexpr auto diffuse_lighting_tag = "diffuse_lighting";
-// Note: Scene constants are now loaded from JSON configuration
-// These default values are kept for reference only
-// static constexpr float water_plane_height = 2.75f;
-// static constexpr float water_reflect_refract_scale = 0.01f;
-// static constexpr float reflection_plane_height = 1.0f;
-// static constexpr float refraction_scene_offset_x = 15.0f;
-// static constexpr float refraction_scene_offset_y = 0.0f;
-// static constexpr float refraction_scene_offset_z = 0.0f;
-// static constexpr float refraction_ground_scale = 0.5f;
-
 bool Graphics::SetupRenderGraph() {
   cout << "\n=== Setting up RenderGraph ===" << endl;
 
+  // Validate required resources are initialized
   if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground ||
       !scene_assets_.pbr_sphere || !render_targets_.shadow_depth ||
       !shader_assets_.depth || !shader_assets_.diffuse_lighting ||
       !ortho_windows_.small_window || !ortho_windows_.fullscreen_window) {
-    Logger::SetModule("Graphics");
-    Logger::LogError("SetupRenderGraph: resources not initialized.");
+    LogGraphicsError("SetupRenderGraph: resources not initialized.");
     return false;
   }
 
@@ -664,19 +650,16 @@ bool Graphics::SetupRenderGraph() {
   scene_constants.water_plane_height =
       scene_config_.constants.water_plane_height;
 
-  // Try to load scene from JSON file first, fallback to hardcoded if file not
-  // found
-  if (!scene_.Initialize(scene_resources, scene_constants,
-                         "./data/scene.json", // Try loading from JSON
+  // Load scene from JSON configuration
+  if (!scene_.Initialize(scene_resources, scene_constants, "./data/scene.json",
                          cube_group_.get(), pbr_group_.get())) {
-    Logger::SetModule("Graphics");
-    Logger::LogError("Failed to initialize Scene!");
+    LogGraphicsError("Failed to initialize Scene!");
     return false;
   }
 
+  // Compile render graph to validate dependencies and build execution order
   if (!render_graph_.Compile()) {
-    Logger::SetModule("Graphics");
-    Logger::LogError("Failed to compile RenderGraph!");
+    LogGraphicsError("Failed to compile RenderGraph!");
     return false;
   }
 
@@ -687,8 +670,7 @@ bool Graphics::SetupRenderGraph() {
 }
 
 void Graphics::SetupRenderPasses() {
-
-  // Import existing textures into RenderGraph
+  // Import existing textures into RenderGraph for pass dependencies
   const auto &depth_tex = render_targets_.shadow_depth;
   render_graph_.ImportTexture("DepthMap", depth_tex);
 
@@ -710,80 +692,78 @@ void Graphics::SetupRenderPasses() {
   const auto &reflection_tex = render_targets_.reflection_map;
   render_graph_.ImportTexture("ReflectionMap", reflection_tex);
 
-  // Pass 1: Depth Pass
+  // Pass 1: Depth Pass - Render depth map from light's perspective
   const auto &depth_shader = shader_assets_.depth;
   render_graph_.AddPass("DepthPass")
       .SetShader(depth_shader)
       .Write("DepthMap")
-      .AddRenderTag(write_depth_tag);
+      .AddRenderTag(WRITE_DEPTH_TAG);
 
-  // Pass 2: Shadow Pass (standard execution, auto-bind depth map as parameter)
+  // Pass 2: Shadow Pass - Generate shadow map using depth map
   const auto &shadow_shader = shader_assets_.shadow;
   render_graph_.AddPass("ShadowPass")
       .SetShader(shadow_shader)
-      .ReadAsParameter("DepthMap",
-                       "depthMapTexture") // Auto-bind resource to parameter
+      .ReadAsParameter("DepthMap", "depthMapTexture")
       .Write("ShadowMap")
-      .AddRenderTag(write_shadow_tag);
+      .AddRenderTag(WRITE_SHADOW_TAG);
 
-  // Pass 3: Downsample
+  // Pass 3: Downsample - Reduce shadow map resolution for blur processing
   XMMATRIX orthoMatrix;
   downsample_tex->GetOrthoMatrix(orthoMatrix);
 
   const auto &texture_shader = shader_assets_.texture;
   render_graph_.AddPass("DownsamplePass")
       .SetShader(texture_shader)
-      .ReadAsParameter("ShadowMap",
-                       "texture") // Auto-bind: ShadowMap -> texture
+      .ReadAsParameter("ShadowMap", "texture")
       .Write("DownsampledShadow")
-      .AddRenderTag(down_sample_tag)
+      .AddRenderTag(DOWN_SAMPLE_TAG)
       .DisableZBuffer(true)
       .SetParameter("orthoMatrix", orthoMatrix);
 
-  // Pass 4: Horizontal Blur
+  // Pass 4: Horizontal Blur - Apply horizontal Gaussian blur
   h_blur_tex->GetOrthoMatrix(orthoMatrix);
 
   const auto &horizontal_blur_shader = shader_assets_.horizontal_blur;
   render_graph_.AddPass("HorizontalBlurPass")
       .SetShader(horizontal_blur_shader)
-      .ReadAsParameter("DownsampledShadow", "texture") // Auto-bind resource
+      .ReadAsParameter("DownsampledShadow", "texture")
       .Write("HorizontalBlur")
-      .AddRenderTag(horizontal_blur_tag)
+      .AddRenderTag(HORIZONTAL_BLUR_TAG)
       .DisableZBuffer(true)
       .SetParameter("orthoMatrix", orthoMatrix)
-      .SetParameter("screenWidth", static_cast<float>(downSampleWidth));
+      .SetParameter("screenWidth", static_cast<float>(DOWN_SAMPLE_WIDTH));
 
-  // Pass 5: Vertical Blur
+  // Pass 5: Vertical Blur - Apply vertical Gaussian blur (completes 2D blur)
   v_blur_tex->GetOrthoMatrix(orthoMatrix);
 
   const auto &vertical_blur_shader = shader_assets_.vertical_blur;
   render_graph_.AddPass("VerticalBlurPass")
       .SetShader(vertical_blur_shader)
-      .ReadAsParameter("HorizontalBlur", "texture") // Auto-bind resource
+      .ReadAsParameter("HorizontalBlur", "texture")
       .Write("VerticalBlur")
-      .AddRenderTag(vertical_blur_tag)
+      .AddRenderTag(VERTICAL_BLUR_TAG)
       .DisableZBuffer(true)
       .SetParameter("orthoMatrix", orthoMatrix)
-      .SetParameter("screenHeight", static_cast<float>(downSampleHeight));
+      .SetParameter("screenHeight", static_cast<float>(DOWN_SAMPLE_HEIGHT));
 
-  // Pass 6: Upsample
+  // Pass 6: Upsample - Scale blurred shadow map back to original resolution
   upsample_tex->GetOrthoMatrix(orthoMatrix);
 
   render_graph_.AddPass("UpsamplePass")
       .SetShader(texture_shader)
-      .ReadAsParameter("VerticalBlur", "texture") // Auto-bind resource
+      .ReadAsParameter("VerticalBlur", "texture")
       .Write("UpsampledShadow")
-      .AddRenderTag(up_sample_tag)
+      .AddRenderTag(UP_SAMPLE_TAG)
       .DisableZBuffer(true)
       .SetParameter("orthoMatrix", orthoMatrix);
 
-  // Pass 7: Reflection scene pass (render reflected objects)
+  // Pass 7: Reflection Scene Pass - Render scene from reflection camera view
   const auto &soft_shadow_shader = shader_assets_.soft_shadow;
   render_graph_.AddPass("ReflectionScenePass")
       .SetShader(soft_shadow_shader)
       .ReadAsParameter("UpsampledShadow", "shadowTexture")
       .Write("ReflectionMap")
-      .AddRenderTag(reflection_tag)
+      .AddRenderTag(REFLECTION_TAG)
       .SetParameter("ambientColor", light_->GetAmbientColor())
       .SetParameter("diffuseColor", light_->GetDiffuseColor())
       .SetParameter("reflectionBlend", 0.0f)
@@ -795,18 +775,21 @@ void Graphics::SetupRenderPasses() {
         ShaderParameterContainer merged = *ctx.pass_params;
         merged.Merge(*ctx.global_params);
 
+        // Override view matrix with reflection matrix if available
         if (ctx.global_params->HasParameter("reflectionMatrix")) {
           merged.SetMatrix("viewMatrix",
                            ctx.global_params->GetMatrix("reflectionMatrix"));
         }
 
+        // Ensure projection matrix is set
         if (ctx.global_params->HasParameter("projectionMatrix")) {
           merged.SetMatrix("projectionMatrix",
                            ctx.global_params->GetMatrix("projectionMatrix"));
         }
 
+        // Render only objects tagged for reflection
         for (const auto &renderable : *ctx.renderables) {
-          if (!renderable->HasTag(reflection_tag))
+          if (!renderable->HasTag(REFLECTION_TAG))
             continue;
 
           ShaderParameterContainer objParams = merged;
@@ -814,44 +797,44 @@ void Graphics::SetupRenderPasses() {
           if (auto cb = renderable->GetParameterCallback()) {
             cb(objParams);
           }
-          // Disable shadowing and recursive reflection for reflection pass.
+          // Disable shadowing and recursive reflection for reflection pass
           objParams.SetFloat("shadowStrength", 0.0f);
           objParams.SetFloat("reflectionBlend", 0.0f);
           renderable->Render(*ctx.shader, objParams, ctx.device_context);
         }
       });
 
-  // Pass 8: Final Pass (soft shadow)
+  // Pass 8: Final Pass - Render main scene with soft shadows and reflections
   render_graph_.AddPass("FinalPass")
       .SetShader(soft_shadow_shader)
-      .ReadAsParameter("UpsampledShadow", "shadowTexture") // Auto-bind resource
+      .ReadAsParameter("UpsampledShadow", "shadowTexture")
       .ReadAsParameter("ReflectionMap", "reflectionTexture")
-      .AddRenderTag(final_tag)
+      .AddRenderTag(FINAL_TAG)
       .SetParameter("diffuseColor", light_->GetDiffuseColor())
       .SetParameter("ambientColor", light_->GetAmbientColor())
       .SetParameter("reflectionBlend", 0.0f)
       .SetParameter("shadowStrength", 1.0f);
 
-  // Pass 9: PBR Pass (standard execution)
+  // Pass 9: PBR Pass - Render physically-based rendered objects
   const auto &sphere_pbr_model = scene_assets_.pbr_sphere;
   const auto &pbr_shader = shader_assets_.pbr;
   render_graph_.AddPass("PBRPass")
       .SetShader(pbr_shader)
-      .AddRenderTag(pbr_tag)
+      .AddRenderTag(PBR_TAG)
       .SetTexture("diffuseTexture", sphere_pbr_model->GetTexture(0))
       .SetTexture("normalMap", sphere_pbr_model->GetTexture(1))
       .SetTexture("rmTexture", sphere_pbr_model->GetTexture(2));
 
-  // Pass 10: DiffuseLighting Pass (diffuse lighting shader demo)
+  // Pass 10: Diffuse Lighting Pass - Render objects with simple diffuse lighting
   const auto &diffuse_lighting_shader = shader_assets_.diffuse_lighting;
   render_graph_.AddPass("DiffuseLightingPass")
       .SetShader(diffuse_lighting_shader)
-      .AddRenderTag(diffuse_lighting_tag)
+      .AddRenderTag(DIFFUSE_LIGHTING_TAG)
       .SetParameter("ambientColor", light_->GetAmbientColor())
       .SetParameter("diffuseColor", light_->GetDiffuseColor())
       .SetParameter("lightDirection", light_->GetDirection());
 
-  // Pass 11: Text overlay (executed via custom lambda)
+  // Pass 11: Text Overlay - Render debug text and UI elements
   render_graph_.AddPass("TextOverlayPass")
       .DisableZBuffer(true)
       .Execute([this](RenderPassContext &ctx) {
@@ -873,8 +856,6 @@ void Graphics::SetupRenderPasses() {
         dx->TurnOffAlphaBlending();
       });
 }
-
-// Scene object creation moved to Scene class
 
 void Graphics::RegisterShaderParameters() {
   // Set validation mode to Warning (report issues but don't block execution)
@@ -1057,7 +1038,7 @@ void Graphics::Render() {
 
   auto directx_device_ = DirectX11Device::GetD3d11DeviceInstance();
 
-  // Update the view matrix based on the camera's position.
+  // Update camera matrices
   camera_->Render();
   camera_->RenderReflection(scene_config_.constants.reflection_plane_height);
   XMMATRIX viewMatrix, baseViewMatrix;
@@ -1065,39 +1046,32 @@ void Graphics::Render() {
   camera_->GetBaseViewMatrix(baseViewMatrix);
   auto reflectionMatrix = camera_->GetReflectionViewMatrix();
 
-  camera_->RenderReflection(scene_config_.constants.water_plane_height);
-  auto waterReflectionMatrix = camera_->GetReflectionViewMatrix();
-
-  // Restore the original reflection matrix for soft shadow pipeline.
-  camera_->RenderReflection(scene_config_.constants.reflection_plane_height);
-
-  // Update the light
+  // Update light matrices
   light_->GenerateViewMatrix();
   XMMATRIX lightViewMatrix, lightProjectionMatrix;
   light_->GetViewMatrix(lightViewMatrix);
   light_->GetProjectionMatrix(lightProjectionMatrix);
-  // light_->SetDirection(0.0f - light_->GetPosition().x, 2.0f -
-  // light_->GetPosition().y, -2.0f - light_->GetPosition().z);
   light_->SetDirection(0.5f, 0.5f, 0.5f);
 
-  ShaderParameterContainer Params;
-  Params.SetGlobalDynamicMatrix("viewMatrix", viewMatrix);
-  Params.SetGlobalDynamicMatrix("baseViewMatrix", baseViewMatrix);
-  Params.SetGlobalDynamicMatrix("lightViewMatrix", lightViewMatrix);
-  Params.SetGlobalDynamicMatrix("lightProjectionMatrix", lightProjectionMatrix);
-  Params.SetGlobalDynamicVector3("lightPosition", light_->GetPosition());
-  Params.SetGlobalDynamicVector3("lightDirection", light_->GetDirection());
-  Params.SetGlobalDynamicVector3("cameraPosition", camera_->GetPosition());
-  Params.SetMatrix("reflectionMatrix", reflectionMatrix);
-  Params.SetVector4("ambientColor", light_->GetAmbientColor());
-  Params.SetVector4("diffuseColor", light_->GetDiffuseColor());
+  // Build global shader parameters
+  ShaderParameterContainer globalParams;
+  globalParams.SetGlobalDynamicMatrix("viewMatrix", viewMatrix);
+  globalParams.SetGlobalDynamicMatrix("baseViewMatrix", baseViewMatrix);
+  globalParams.SetGlobalDynamicMatrix("lightViewMatrix", lightViewMatrix);
+  globalParams.SetGlobalDynamicMatrix("lightProjectionMatrix", lightProjectionMatrix);
+  globalParams.SetGlobalDynamicVector3("lightPosition", light_->GetPosition());
+  globalParams.SetGlobalDynamicVector3("lightDirection", light_->GetDirection());
+  globalParams.SetGlobalDynamicVector3("cameraPosition", camera_->GetPosition());
+  globalParams.SetMatrix("reflectionMatrix", reflectionMatrix);
+  globalParams.SetVector4("ambientColor", light_->GetAmbientColor());
+  globalParams.SetVector4("diffuseColor", light_->GetDiffuseColor());
 
   // Add device matrices
   XMMATRIX deviceWorldMatrix, projectionMatrix;
   directx_device_->GetWorldMatrix(deviceWorldMatrix);
   directx_device_->GetProjectionMatrix(projectionMatrix);
-  Params.SetMatrix("deviceWorldMatrix", deviceWorldMatrix);
-  Params.SetMatrix("projectionMatrix", projectionMatrix);
+  globalParams.SetMatrix("deviceWorldMatrix", deviceWorldMatrix);
+  globalParams.SetMatrix("projectionMatrix", projectionMatrix);
 
   // Construct frustum for culling
   if (frustum_) {
@@ -1118,11 +1092,11 @@ void Graphics::Render() {
     culled_objects = scene_objects;
   }
 
-  // Update render count before rendering
-  int renderCount = static_cast<int>(culled_objects.size());
+  // Update render count for debug display
   if (text_) {
-    text_->SetRenderCount(renderCount);
+    text_->SetRenderCount(static_cast<int>(culled_objects.size()));
   }
 
-  render_graph_.Execute(culled_objects, Params);
+  // Execute render graph with culled objects
+  render_graph_.Execute(culled_objects, globalParams);
 }

@@ -36,6 +36,7 @@
     <ClCompile Include="BoundingVolume.cpp" />
     <ClCompile Include="SceneConfig.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="ConfigValidator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="depthshader.h" />
@@ -73,6 +74,7 @@
     <ClInclude Include="BoundingVolume.h" />
     <ClInclude Include="SceneConfig.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="ConfigValidator.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.ps" />

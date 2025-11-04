@@ -145,6 +145,13 @@ public:
   // Get initial transform for a renderable object (for animation)
   const DirectX::XMMATRIX &
   GetInitialTransform(std::shared_ptr<IRenderable> renderable) const;
+  
+  // Animation state management
+  // Get rotation state for an animated object (used by Graphics::Frame)
+  float& GetRotationState(std::shared_ptr<IRenderable> renderable);
+  
+  // Clean up animation states for objects that no longer exist
+  void CleanupAnimationStates(const std::vector<std::shared_ptr<IRenderable>>& active_objects);
 
 private:
   // Helper functions for creating different types of objects
@@ -214,4 +221,16 @@ private:
   // Store initial transforms for animated objects
   std::unordered_map<std::shared_ptr<IRenderable>, DirectX::XMMATRIX>
       initial_transforms_;
+  // Store rotation states for animated objects (used by Graphics::Frame)
+  std::unordered_map<std::shared_ptr<IRenderable>, float> rotation_states_;
+  
+  // Resource lookup caches (built once during initialization)
+  mutable std::unordered_map<std::string, std::shared_ptr<Model>> model_cache_;
+  mutable std::unordered_map<std::string, std::shared_ptr<PBRModel>> pbr_model_cache_;
+  mutable std::unordered_map<std::string, std::shared_ptr<IShader>> shader_cache_;
+  mutable std::unordered_map<std::string, std::shared_ptr<RenderTexture>> render_texture_cache_;
+  mutable std::unordered_map<std::string, std::shared_ptr<OrthoWindow>> ortho_window_cache_;
+  
+  // Helper: Build resource caches from SceneResourceRefs
+  void BuildResourceCaches(const SceneResourceRefs& resources) const;
 };

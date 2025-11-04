@@ -100,12 +100,5 @@
     }
   },
   "constants": {
-    "water_plane_height": 2.75,
-    "water_reflect_refract_scale": 0.01,
-    "reflection_plane_height": 1.0,
-    "refraction_scene_offset_x": 15.0,
-    "refraction_scene_offset_y": 0.0,
-    "refraction_scene_offset_z": 0.0,
-    "refraction_ground_scale": 0.5
   }
 }

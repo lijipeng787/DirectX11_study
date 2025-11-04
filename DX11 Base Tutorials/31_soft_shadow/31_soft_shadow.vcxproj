@@ -160,6 +160,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BoundingVolume.h" />
+    <ClInclude Include="ConfigValidator.h" />
     <ClInclude Include="depthshader.h" />
     <ClInclude Include="font.h" />
     <ClInclude Include="fontshader.h" />
@@ -197,6 +198,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BoundingVolume.cpp" />
+    <ClCompile Include="ConfigValidator.cpp" />
     <ClCompile Include="depthshader.cpp" />
     <ClCompile Include="font.cpp" />
     <ClCompile Include="fontshader.cpp" />

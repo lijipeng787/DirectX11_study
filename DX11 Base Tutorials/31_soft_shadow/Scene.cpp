@@ -10,10 +10,12 @@
 #include "RenderableObject.h"
 #include "ShaderParameterContainer.h"
 #include "orthowindow.h"
+#include "ConfigValidator.h"
 
 #include <nlohmann/json.hpp>
 
 using namespace DirectX;
+using namespace SceneConfig;
 
 // Render tags (moved from Graphics.cpp)
 static constexpr auto write_depth_tag = "write_depth";
@@ -71,6 +73,25 @@ bool Scene::LoadFromJson(const SceneResourceRefs &resources,
     file >> j;
     file.close();
 
+    // Validate scene JSON before parsing
+    ConfigValidator validator;
+    auto validation = validator.ValidateSceneJson(j);
+    
+    if (!validation.success) {
+      Logger::SetModule("Scene");
+      Logger::LogError("Scene JSON validation failed:");
+      for (const auto& error : validation.errors) {
+        Logger::LogError("  Error: " + error);
+      }
+      return false;
+    }
+    
+    // Log warnings
+    for (const auto& warning : validation.warnings) {
+      Logger::SetModule("Scene");
+      Logger::LogError("Validation warning: " + warning);
+    }
+
     Clear();
     return BuildSceneObjectsFromJson(j, resources, constants, cube_group,
                                      pbr_group);
@@ -101,6 +122,14 @@ void Scene::Clear() {
   named_renderables_.clear();
   animation_configs_.clear();
   initial_transforms_.clear();
+  rotation_states_.clear(); // Clear animation states
+  
+  // Clear resource caches
+  model_cache_.clear();
+  pbr_model_cache_.clear();
+  shader_cache_.clear();
+  render_texture_cache_.clear();
+  ortho_window_cache_.clear();
 }
 
 const AnimationConfig &
@@ -121,6 +150,21 @@ Scene::GetInitialTransform(std::shared_ptr<IRenderable> renderable) const {
     return it->second;
   }
   return identity;
+}
+
+float& Scene::GetRotationState(std::shared_ptr<IRenderable> renderable) {
+  return rotation_states_[renderable];
+}
+
+void Scene::CleanupAnimationStates(const std::vector<std::shared_ptr<IRenderable>>& active_objects) {
+  // Remove rotation states for objects that no longer exist
+  for (auto it = rotation_states_.begin(); it != rotation_states_.end();) {
+    if (std::find(active_objects.begin(), active_objects.end(), it->first) == active_objects.end()) {
+      it = rotation_states_.erase(it);
+    } else {
+      ++it;
+    }
+  }
 }
 
 void Scene::Update(float deltaTime) {
@@ -327,24 +371,112 @@ void Scene::BuildSceneObjects(const SceneResourceRefs &resources,
   }
 }
 
+void Scene::BuildResourceCaches(const SceneResourceRefs& resources) const {
+  // Clear existing caches
+  model_cache_.clear();
+  pbr_model_cache_.clear();
+  shader_cache_.clear();
+  render_texture_cache_.clear();
+  ortho_window_cache_.clear();
+  
+  // Build model cache
+  if (resources.scene_assets.cube) {
+    model_cache_["cube"] = resources.scene_assets.cube;
+  }
+  if (resources.scene_assets.sphere) {
+    model_cache_["sphere"] = resources.scene_assets.sphere;
+  }
+  if (resources.scene_assets.ground) {
+    model_cache_["ground"] = resources.scene_assets.ground;
+  }
+  if (resources.scene_assets.refraction.ground) {
+    model_cache_["refraction_ground"] = resources.scene_assets.refraction.ground;
+    model_cache_["refraction.ground"] = resources.scene_assets.refraction.ground;
+  }
+  if (resources.scene_assets.refraction.wall) {
+    model_cache_["refraction_wall"] = resources.scene_assets.refraction.wall;
+    model_cache_["refraction.wall"] = resources.scene_assets.refraction.wall;
+  }
+  if (resources.scene_assets.refraction.water) {
+    model_cache_["refraction_water"] = resources.scene_assets.refraction.water;
+    model_cache_["refraction.water"] = resources.scene_assets.refraction.water;
+  }
+  
+  // Build PBR model cache
+  if (resources.scene_assets.pbr_sphere) {
+    pbr_model_cache_["pbr_sphere"] = resources.scene_assets.pbr_sphere;
+    pbr_model_cache_["sphere_pbr"] = resources.scene_assets.pbr_sphere;
+  }
+  
+  // Build shader cache
+  if (resources.shader_assets.depth) {
+    shader_cache_["depth"] = resources.shader_assets.depth;
+  }
+  if (resources.shader_assets.shadow) {
+    shader_cache_["shadow"] = resources.shader_assets.shadow;
+  }
+  if (resources.shader_assets.texture) {
+    shader_cache_["texture"] = resources.shader_assets.texture;
+  }
+  if (resources.shader_assets.horizontal_blur) {
+    shader_cache_["horizontal_blur"] = resources.shader_assets.horizontal_blur;
+  }
+  if (resources.shader_assets.vertical_blur) {
+    shader_cache_["vertical_blur"] = resources.shader_assets.vertical_blur;
+  }
+  if (resources.shader_assets.soft_shadow) {
+    shader_cache_["soft_shadow"] = resources.shader_assets.soft_shadow;
+  }
+  if (resources.shader_assets.pbr) {
+    shader_cache_["pbr"] = resources.shader_assets.pbr;
+  }
+  if (resources.shader_assets.diffuse_lighting) {
+    shader_cache_["diffuse_lighting"] = resources.shader_assets.diffuse_lighting;
+  }
+  if (resources.shader_assets.refraction.scene_light) {
+    shader_cache_["scene_light"] = resources.shader_assets.refraction.scene_light;
+    shader_cache_["refraction.scene_light"] = resources.shader_assets.refraction.scene_light;
+  }
+  if (resources.shader_assets.refraction.refraction) {
+    shader_cache_["refraction"] = resources.shader_assets.refraction.refraction;
+    shader_cache_["refraction.refraction"] = resources.shader_assets.refraction.refraction;
+  }
+  
+  // Build render texture cache
+  if (resources.render_targets.shadow_map) {
+    render_texture_cache_["shadow_map"] = resources.render_targets.shadow_map;
+  }
+  if (resources.render_targets.downsampled_shadow) {
+    render_texture_cache_["downsampled_shadow"] = resources.render_targets.downsampled_shadow;
+  }
+  if (resources.render_targets.horizontal_blur) {
+    render_texture_cache_["horizontal_blur"] = resources.render_targets.horizontal_blur;
+  }
+  if (resources.render_targets.vertical_blur) {
+    render_texture_cache_["vertical_blur"] = resources.render_targets.vertical_blur;
+  }
+  
+  // Build ortho window cache
+  if (resources.ortho_windows.small_window) {
+    ortho_window_cache_["small_window"] = resources.ortho_windows.small_window;
+  }
+  if (resources.ortho_windows.fullscreen_window) {
+    ortho_window_cache_["fullscreen_window"] = resources.ortho_windows.fullscreen_window;
+  }
+}
+
 // Helper methods implementation
 std::shared_ptr<Model>
 Scene::GetModelByName(const std::string &name,
                       const SceneResourceRefs &resources) const {
-  if (name == "cube")
-    return resources.scene_assets.cube;
-  if (name == "sphere")
-    return resources.scene_assets.sphere;
-  if (name == "ground")
-    return resources.scene_assets.ground;
-  if (name == "refraction_ground" || name == "refraction.ground") {
-    return resources.scene_assets.refraction.ground;
+  // Build cache if empty
+  if (model_cache_.empty()) {
+    BuildResourceCaches(resources);
   }
-  if (name == "refraction_wall" || name == "refraction.wall") {
-    return resources.scene_assets.refraction.wall;
-  }
-  if (name == "refraction_water" || name == "refraction.water") {
-    return resources.scene_assets.refraction.water;
+  
+  auto it = model_cache_.find(name);
+  if (it != model_cache_.end()) {
+    return it->second;
   }
   return nullptr;
 }
@@ -352,8 +484,14 @@ Scene::GetModelByName(const std::string &name,
 std::shared_ptr<PBRModel>
 Scene::GetPBRModelByName(const std::string &name,
                          const SceneResourceRefs &resources) const {
-  if (name == "pbr_sphere" || name == "sphere_pbr") {
-    return resources.scene_assets.pbr_sphere;
+  // Build cache if empty
+  if (pbr_model_cache_.empty()) {
+    BuildResourceCaches(resources);
+  }
+  
+  auto it = pbr_model_cache_.find(name);
+  if (it != pbr_model_cache_.end()) {
+    return it->second;
   }
   return nullptr;
 }
@@ -361,27 +499,14 @@ Scene::GetPBRModelByName(const std::string &name,
 std::shared_ptr<IShader>
 Scene::GetShaderByName(const std::string &name,
                        const SceneResourceRefs &resources) const {
-  if (name == "depth")
-    return resources.shader_assets.depth;
-  if (name == "shadow")
-    return resources.shader_assets.shadow;
-  if (name == "texture")
-    return resources.shader_assets.texture;
-  if (name == "horizontal_blur")
-    return resources.shader_assets.horizontal_blur;
-  if (name == "vertical_blur")
-    return resources.shader_assets.vertical_blur;
-  if (name == "soft_shadow")
-    return resources.shader_assets.soft_shadow;
-  if (name == "pbr")
-    return resources.shader_assets.pbr;
-  if (name == "diffuse_lighting")
-    return resources.shader_assets.diffuse_lighting;
-  if (name == "scene_light" || name == "refraction.scene_light") {
-    return resources.shader_assets.refraction.scene_light;
+  // Build cache if empty
+  if (shader_cache_.empty()) {
+    BuildResourceCaches(resources);
   }
-  if (name == "refraction" || name == "refraction.refraction") {
-    return resources.shader_assets.refraction.refraction;
+  
+  auto it = shader_cache_.find(name);
+  if (it != shader_cache_.end()) {
+    return it->second;
   }
   return nullptr;
 }
@@ -389,24 +514,30 @@ Scene::GetShaderByName(const std::string &name,
 std::shared_ptr<RenderTexture>
 Scene::GetRenderTextureByName(const std::string &name,
                               const SceneResourceRefs &resources) const {
-  if (name == "shadow_map")
-    return resources.render_targets.shadow_map;
-  if (name == "downsampled_shadow")
-    return resources.render_targets.downsampled_shadow;
-  if (name == "horizontal_blur")
-    return resources.render_targets.horizontal_blur;
-  if (name == "vertical_blur")
-    return resources.render_targets.vertical_blur;
+  // Build cache if empty
+  if (render_texture_cache_.empty()) {
+    BuildResourceCaches(resources);
+  }
+  
+  auto it = render_texture_cache_.find(name);
+  if (it != render_texture_cache_.end()) {
+    return it->second;
+  }
   return nullptr;
 }
 
 std::shared_ptr<OrthoWindow>
 Scene::GetOrthoWindowByName(const std::string &name,
                             const SceneResourceRefs &resources) const {
-  if (name == "small_window")
-    return resources.ortho_windows.small_window;
-  if (name == "fullscreen_window")
-    return resources.ortho_windows.fullscreen_window;
+  // Build cache if empty
+  if (ortho_window_cache_.empty()) {
+    BuildResourceCaches(resources);
+  }
+  
+  auto it = ortho_window_cache_.find(name);
+  if (it != ortho_window_cache_.end()) {
+    return it->second;
+  }
   return nullptr;
 }
 
