@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <iostream>
 #include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 #include "../CommonFramework2/DirectX11Device.h"
 #include "../CommonFramework2/TypeDefine.h"
@@ -13,6 +15,7 @@
 #include "Logger.h"
 #include "RenderableObject.h"
 #include "ResourceManager.h"
+#include "ShaderBase.h"
 #include "ShaderParameterValidator.h"
 #include "depthshader.h"
 #include "font.h"
@@ -887,88 +890,170 @@ void Graphics::RegisterShaderParameters() {
   parameter_validator_.RegisterGlobalParameter("ambientColor"); // From Render()
   parameter_validator_.RegisterGlobalParameter("diffuseColor"); // From Render()
 
+  const auto register_with_reflection =
+      [this](const std::string &shader_name,
+             const std::shared_ptr<ShaderBase> &shader,
+             std::initializer_list<const char *> optional_parameters = {},
+             std::initializer_list<const char *> ignored_parameters = {}) {
+        if (!shader) {
+          return false;
+        }
+
+        const auto &reflected = shader->GetReflectedParameters();
+        if (reflected.empty()) {
+          return false;
+        }
+
+        std::unordered_set<std::string> optional;
+        for (const auto &name : optional_parameters) {
+          optional.emplace(name);
+        }
+
+        std::unordered_set<std::string> ignored;
+        for (const auto &name : ignored_parameters) {
+          ignored.emplace(name);
+        }
+
+        std::vector<ReflectedParameter> adjusted;
+        adjusted.reserve(reflected.size());
+        for (const auto &parameter : reflected) {
+          if (ignored.find(parameter.name) != ignored.end()) {
+            continue;
+          }
+
+          ReflectedParameter entry = parameter;
+          if (optional.find(entry.name) != optional.end()) {
+            entry.required = false;
+          }
+          adjusted.push_back(entry);
+        }
+
+        if (adjusted.empty()) {
+          return false;
+        }
+
+        parameter_validator_.RegisterShader(shader_name, adjusted);
+        return true;
+      };
+
   // Register DepthShader parameters
-  parameter_validator_.RegisterShader(
-      "DepthShader",
-      {{"worldMatrix", ShaderParameterType::Matrix, true},
-       {"lightViewMatrix", ShaderParameterType::Matrix, true},
-       {"lightProjectionMatrix", ShaderParameterType::Matrix, true}});
+  if (!register_with_reflection(
+          "DepthShader",
+          std::static_pointer_cast<ShaderBase>(shader_assets_.depth))) {
+    parameter_validator_.RegisterShader(
+        "DepthShader",
+        {{"worldMatrix", ShaderParameterType::Matrix, true},
+         {"lightViewMatrix", ShaderParameterType::Matrix, true},
+         {"lightProjectionMatrix", ShaderParameterType::Matrix, true}});
+  }
 
   // Register ShadowShader parameters
-  parameter_validator_.RegisterShader(
-      "ShadowShader",
-      {{"worldMatrix", ShaderParameterType::Matrix, true},
-       {"viewMatrix", ShaderParameterType::Matrix, true},
-       {"projectionMatrix", ShaderParameterType::Matrix, true},
-       {"lightViewMatrix", ShaderParameterType::Matrix, true},
-       {"lightProjectionMatrix", ShaderParameterType::Matrix, true},
-       {"lightPosition", ShaderParameterType::Vector3, true},
-       {"depthMapTexture", ShaderParameterType::Texture, true}});
+  if (!register_with_reflection(
+          "ShadowShader",
+          std::static_pointer_cast<ShaderBase>(shader_assets_.shadow))) {
+    parameter_validator_.RegisterShader(
+        "ShadowShader",
+        {{"worldMatrix", ShaderParameterType::Matrix, true},
+         {"viewMatrix", ShaderParameterType::Matrix, true},
+         {"projectionMatrix", ShaderParameterType::Matrix, true},
+         {"lightViewMatrix", ShaderParameterType::Matrix, true},
+         {"lightProjectionMatrix", ShaderParameterType::Matrix, true},
+         {"lightPosition", ShaderParameterType::Vector3, true},
+         {"depthMapTexture", ShaderParameterType::Texture, true}});
+  }
 
   // Register SoftShadowShader parameters
   // Note: "texture" is set via object callbacks, not at Pass level
-  parameter_validator_.RegisterShader(
-      "SoftShadowShader",
-      {{"worldMatrix", ShaderParameterType::Matrix, true},
-       {"viewMatrix", ShaderParameterType::Matrix, true},
-       {"projectionMatrix", ShaderParameterType::Matrix, true},
-       {"texture", ShaderParameterType::Texture, false}, // Set via callback
-       {"shadowTexture", ShaderParameterType::Texture, true},
-       {"ambientColor", ShaderParameterType::Vector4, true},
-       {"diffuseColor", ShaderParameterType::Vector4, true},
-       {"lightPosition", ShaderParameterType::Vector3, true},
-       {"reflectionMatrix", ShaderParameterType::Matrix, true},
-       {"reflectionTexture", ShaderParameterType::Texture, false},
-       {"reflectionBlend", ShaderParameterType::Float, false},
-       {"shadowStrength", ShaderParameterType::Float, false}});
+  if (!register_with_reflection(
+          "SoftShadowShader",
+          std::static_pointer_cast<ShaderBase>(shader_assets_.soft_shadow),
+          {"texture", "reflectionTexture", "reflectionBlend",
+           "shadowStrength"})) {
+    parameter_validator_.RegisterShader(
+        "SoftShadowShader",
+        {{"worldMatrix", ShaderParameterType::Matrix, true},
+         {"viewMatrix", ShaderParameterType::Matrix, true},
+         {"projectionMatrix", ShaderParameterType::Matrix, true},
+         {"texture", ShaderParameterType::Texture, false},
+         {"shadowTexture", ShaderParameterType::Texture, true},
+         {"ambientColor", ShaderParameterType::Vector4, true},
+         {"diffuseColor", ShaderParameterType::Vector4, true},
+         {"lightPosition", ShaderParameterType::Vector3, true},
+         {"reflectionMatrix", ShaderParameterType::Matrix, true},
+         {"reflectionTexture", ShaderParameterType::Texture, false},
+         {"reflectionBlend", ShaderParameterType::Float, false},
+         {"shadowStrength", ShaderParameterType::Float, false}});
+  }
 
   // Register PbrShader parameters
-  parameter_validator_.RegisterShader(
-      "PbrShader", {{"worldMatrix", ShaderParameterType::Matrix, true},
-                    {"viewMatrix", ShaderParameterType::Matrix, true},
-                    {"projectionMatrix", ShaderParameterType::Matrix, true},
-                    {"diffuseTexture", ShaderParameterType::Texture, true},
-                    {"normalMap", ShaderParameterType::Texture, true},
-                    {"rmTexture", ShaderParameterType::Texture, true},
-                    {"lightDirection", ShaderParameterType::Vector3, true},
-                    {"cameraPosition", ShaderParameterType::Vector3, true}});
+  if (!register_with_reflection(
+          "PbrShader", std::static_pointer_cast<ShaderBase>(shader_assets_.pbr))) {
+    parameter_validator_.RegisterShader(
+        "PbrShader",
+        {{"worldMatrix", ShaderParameterType::Matrix, true},
+         {"viewMatrix", ShaderParameterType::Matrix, true},
+         {"projectionMatrix", ShaderParameterType::Matrix, true},
+         {"diffuseTexture", ShaderParameterType::Texture, true},
+         {"normalMap", ShaderParameterType::Texture, true},
+         {"rmTexture", ShaderParameterType::Texture, true},
+         {"lightDirection", ShaderParameterType::Vector3, true},
+         {"cameraPosition", ShaderParameterType::Vector3, true}});
+  }
 
   // Register TextureShader parameters
-  parameter_validator_.RegisterShader(
-      "TextureShader",
-      {{"deviceWorldMatrix", ShaderParameterType::Matrix, true},
-       {"baseViewMatrix", ShaderParameterType::Matrix, true},
-       {"orthoMatrix", ShaderParameterType::Matrix, true},
-       {"texture", ShaderParameterType::Texture, true}});
+  if (!register_with_reflection(
+          "TextureShader",
+          std::static_pointer_cast<ShaderBase>(shader_assets_.texture))) {
+    parameter_validator_.RegisterShader(
+        "TextureShader",
+        {{"deviceWorldMatrix", ShaderParameterType::Matrix, true},
+         {"baseViewMatrix", ShaderParameterType::Matrix, true},
+         {"orthoMatrix", ShaderParameterType::Matrix, true},
+         {"texture", ShaderParameterType::Texture, true}});
+  }
 
   // Register HorizontalBlurShader parameters
-  parameter_validator_.RegisterShader(
-      "HorizontalBlurShader",
-      {{"worldMatrix", ShaderParameterType::Matrix, true},
-       {"baseViewMatrix", ShaderParameterType::Matrix, true},
-       {"orthoMatrix", ShaderParameterType::Matrix, true},
-       {"screenWidth", ShaderParameterType::Float, true},
-       {"texture", ShaderParameterType::Texture, true}});
+  if (!register_with_reflection("HorizontalBlurShader",
+                                std::static_pointer_cast<ShaderBase>(
+                                    shader_assets_.horizontal_blur))) {
+    parameter_validator_.RegisterShader(
+        "HorizontalBlurShader",
+        {{"worldMatrix", ShaderParameterType::Matrix, true},
+         {"baseViewMatrix", ShaderParameterType::Matrix, true},
+         {"orthoMatrix", ShaderParameterType::Matrix, true},
+         {"screenWidth", ShaderParameterType::Float, true},
+         {"texture", ShaderParameterType::Texture, true}});
+  }
 
   // Register VerticalBlurShader parameters
-  parameter_validator_.RegisterShader(
-      "VerticalBlurShader",
-      {{"worldMatrix", ShaderParameterType::Matrix, true},
-       {"baseViewMatrix", ShaderParameterType::Matrix, true},
-       {"orthoMatrix", ShaderParameterType::Matrix, true},
-       {"screenHeight", ShaderParameterType::Float, true},
-       {"texture", ShaderParameterType::Texture, true}});
+  if (!register_with_reflection(
+          "VerticalBlurShader",
+          std::static_pointer_cast<ShaderBase>(shader_assets_.vertical_blur))) {
+    parameter_validator_.RegisterShader(
+        "VerticalBlurShader",
+        {{"worldMatrix", ShaderParameterType::Matrix, true},
+         {"baseViewMatrix", ShaderParameterType::Matrix, true},
+         {"orthoMatrix", ShaderParameterType::Matrix, true},
+         {"screenHeight", ShaderParameterType::Float, true},
+         {"texture", ShaderParameterType::Texture, true}});
+  }
 
   // Register SimpleLightShader parameters (diffuse lighting shader demo)
-  parameter_validator_.RegisterShader(
-      "SimpleLightShader",
-      {{"worldMatrix", ShaderParameterType::Matrix, true},
-       {"viewMatrix", ShaderParameterType::Matrix, true},
-       {"projectionMatrix", ShaderParameterType::Matrix, true},
-       {"texture", ShaderParameterType::Texture, false}, // Set via callback
-       {"ambientColor", ShaderParameterType::Vector4, true},
-       {"diffuseColor", ShaderParameterType::Vector4, true},
-       {"lightDirection", ShaderParameterType::Vector3, true}});
+  if (!register_with_reflection(
+          "SimpleLightShader",
+          std::static_pointer_cast<ShaderBase>(
+              shader_assets_.diffuse_lighting),
+          {"texture"})) {
+    parameter_validator_.RegisterShader(
+        "SimpleLightShader",
+        {{"worldMatrix", ShaderParameterType::Matrix, true},
+         {"viewMatrix", ShaderParameterType::Matrix, true},
+         {"projectionMatrix", ShaderParameterType::Matrix, true},
+         {"texture", ShaderParameterType::Texture, false},
+         {"ambientColor", ShaderParameterType::Vector4, true},
+         {"diffuseColor", ShaderParameterType::Vector4, true},
+         {"lightDirection", ShaderParameterType::Vector3, true}});
+  }
 
   cout << "[Graphics] Registered shader parameters for validation" << endl;
 }

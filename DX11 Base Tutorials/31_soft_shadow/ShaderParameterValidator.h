@@ -2,6 +2,7 @@
 
 #include "ShaderParameterContainer.h" // Use unified type definitions
 
+#include <initializer_list>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -31,6 +32,11 @@ public:
   // Register shader required parameters
   void RegisterShader(const std::string &shader_name,
                       const std::vector<ShaderParameterInfo> &parameters);
+  void RegisterShader(
+      const std::string &shader_name,
+      std::initializer_list<ShaderParameterInfo> parameters);
+  void RegisterShader(const std::string &shader_name,
+                      const std::vector<ReflectedParameter> &parameters);
   //void RegisterShader(const std::string &shader_name,
   //                    const std::vector<ReflectedParameter> &parameters);
 
@@ -89,6 +95,18 @@ public:
   ValidationMode GetValidationMode() const { return validation_mode_; }
 
 private:
+  struct ValidationSummary {
+    std::vector<const ShaderParameterInfo *> missing;
+    std::vector<std::string> type_mismatches;
+    std::vector<std::string> unknown;
+
+    bool HasErrors() const {
+      return !missing.empty() || !type_mismatches.empty();
+    }
+    bool HasWarnings() const { return !unknown.empty(); }
+    bool HasIssues() const { return HasErrors() || HasWarnings(); }
+  };
+
   // Shader name -> parameter info list
   std::unordered_map<std::string, std::vector<ShaderParameterInfo>>
       shader_parameters_;
@@ -105,6 +123,16 @@ private:
                        const std::vector<ShaderParameterInfo> &params) const;
   int CalculateLevenshteinDistance(const std::string &source,
                                    const std::string &target) const;
+
+  ValidationSummary AnalyzeProvidedParameters(
+      const std::vector<ShaderParameterInfo> &required_params,
+      const std::unordered_map<std::string, ShaderParameterType>
+          &provided_parameters) const;
+
+  std::string BuildValidationReport(
+      const std::string &pass_name, const std::string &shader_name,
+      const std::vector<ShaderParameterInfo> &required_params,
+      const ValidationSummary &summary) const;
 
   bool ValidatePassParametersInternal(
     const std::string &pass_name, const std::string &shader_name,

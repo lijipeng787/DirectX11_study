@@ -1,11 +1,13 @@
 #pragma once
 
 #include "Interfaces.h"
+#include "ShaderParameterValidator.h"
 
 #include <DirectXMath.h>
 #include <d3d11.h>
 #include <string>
 #include <wrl/client.h>
+#include <vector>
 
 class ShaderBase : public IShader {
 public:
@@ -22,6 +24,10 @@ public:
   virtual bool Render(int indexCount,
                       const ShaderParameterContainer &parameters,
                       ID3D11DeviceContext *deviceContext) const override = 0;
+
+  const std::vector<ReflectedParameter> &GetReflectedParameters() const {
+    return reflected_parameters_;
+  }
 
 protected:
   // Protected utility methods for shader compilation and setup
@@ -44,6 +50,8 @@ protected:
   Microsoft::WRL::ComPtr<ID3D11PixelShader> pixel_shader_;
   Microsoft::WRL::ComPtr<ID3D11InputLayout> layout_;
   Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_state_;
+
+  std::vector<ReflectedParameter> reflected_parameters_;
 
 private:
   void OutputShaderErrorMessage(ID3D10Blob *errorMessage, HWND hwnd,

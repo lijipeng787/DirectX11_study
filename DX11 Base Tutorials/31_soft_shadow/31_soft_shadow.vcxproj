@@ -186,7 +186,7 @@
     <ClInclude Include="ShaderBase.h" />
     <ClInclude Include="ShaderParameterContainer.h" />
     <ClInclude Include="ShaderParameterValidator.h" />
-  <ClInclude Include="ShaderParameterContainerTests.h" />
+    <ClInclude Include="ShaderParameterContainerTests.h" />
     <ClInclude Include="shadowshader.h" />
     <ClInclude Include="simplelightshader.h" />
     <ClInclude Include="softshadowshader.h" />
@@ -224,8 +224,9 @@
     <ClCompile Include="SceneConfig.cpp" />
     <ClCompile Include="ShaderBase.cpp" />
     <ClCompile Include="ShaderParameterContainer.cpp" />
+    <ClCompile Include="ShaderParameterReflection.cpp" />
     <ClCompile Include="ShaderParameterValidator.cpp" />
-  <ClCompile Include="ShaderParameterContainerTests.cpp" />
+    <ClCompile Include="ShaderParameterContainerTests.cpp" />
     <ClCompile Include="shadowshader.cpp" />
     <ClCompile Include="simplelightshader.cpp" />
     <ClCompile Include="softshadowshader.cpp" />
