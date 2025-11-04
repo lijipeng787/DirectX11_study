@@ -128,12 +128,15 @@ public:
       const ShaderParameterContainer *object = nullptr,
       const ShaderParameterContainer *callback = nullptr);
 
+  static void SetTypeMismatchLoggingEnabled(bool enabled);
+
 private:
   void AssignValue(const std::string &name, const ParamValue &value);
   void ApplyOverrides(const ShaderParameterContainer &other);
   static ShaderParameterType DeduceType(const ParamValue &value);
 
   std::unordered_map<std::string, ParamValue> typed_parameters_;
+  static bool type_mismatch_logging_enabled_;
 };
 
 // ============================================================================
@@ -335,12 +338,13 @@ inline void ShaderParameterContainer::AssignValue(
     auto incoming_type = DeduceType(value);
     if (existing_type != incoming_type) {
       std::ostringstream oss;
-    oss << "Parameter \"" << name << "\" type mismatch: existing="
-      << ShaderParameterTypeToString(existing_type)
-      << ", incoming="
-      << ShaderParameterTypeToString(incoming_type);
-      Logger::SetModule("ShaderParameterContainer");
-      Logger::LogError(oss.str());
+      oss << "Parameter \"" << name << "\" type mismatch: existing="
+          << ShaderParameterTypeToString(existing_type) << ", incoming="
+          << ShaderParameterTypeToString(incoming_type);
+      if (type_mismatch_logging_enabled_) {
+        Logger::SetModule("ShaderParameterContainer");
+        Logger::LogError(oss.str());
+      }
       throw std::runtime_error(oss.str());
     }
     iter->second = value;

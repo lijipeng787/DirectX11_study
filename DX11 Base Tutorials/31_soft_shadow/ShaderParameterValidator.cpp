@@ -286,7 +286,7 @@ std::string ShaderParameterValidator::FindSimilarParameter(
   const int max_distance = 3; // Maximum edit distance to consider
 
   for (const auto &param_info : params) {
-    int distance = CalculateLevenshteinDistance(param_name, param_info.name);
+  int distance = CalculateLevenshteinDistance(param_name, param_info.name);
     if (distance < best_distance && distance <= max_distance) {
       best_distance = distance;
       best_match = param_info.name;
@@ -297,9 +297,9 @@ std::string ShaderParameterValidator::FindSimilarParameter(
 }
 
 int ShaderParameterValidator::CalculateLevenshteinDistance(
-    const std::string &s1, const std::string &s2) const {
-  const size_t len1 = s1.size();
-  const size_t len2 = s2.size();
+    const std::string &source, const std::string &target) const {
+  const size_t len1 = source.size();
+  const size_t len2 = target.size();
 
   // Simple optimization: if lengths differ significantly, skip
   if (std::abs(static_cast<int>(len1) - static_cast<int>(len2)) > 5) {
@@ -318,7 +318,7 @@ int ShaderParameterValidator::CalculateLevenshteinDistance(
   // Fill DP table
   for (size_t i = 1; i <= len1; ++i) {
     for (size_t j = 1; j <= len2; ++j) {
-      if (s1[i - 1] == s2[j - 1]) {
+      if (source[i - 1] == target[j - 1]) {
         dp[i][j] = dp[i - 1][j - 1];
       } else {
         dp[i][j] = 1 + (std::min)((std::min)(dp[i - 1][j], dp[i][j - 1]),
@@ -392,3 +392,4 @@ bool IsValidResourceName(const std::string &name) {
 }
 
 } // namespace RenderGraphNaming
+

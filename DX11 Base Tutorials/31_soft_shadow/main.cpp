@@ -1,4 +1,5 @@
 #include "System.h"
+#include "ShaderParameterContainerTests.h"
 #include <iostream>
 #include <memory>
 
@@ -15,6 +16,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
   std::cerr.clear();
   std::cout << "=== Debug Console Initialized ===" << std::endl;
 #endif
+
+  if (!RunShaderParameterContainerTests()) {
+    std::cerr << "ShaderParameterContainer tests failed. Aborting startup." << std::endl;
+#ifdef _DEBUG
+    FreeConsole();
+#endif
+    return 1;
+  }
 
   // Use smart pointer to manage System lifetime, avoid manual new/delete
   auto system = std::make_unique<System>();

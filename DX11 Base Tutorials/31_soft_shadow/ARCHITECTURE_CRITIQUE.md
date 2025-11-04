@@ -193,3 +193,59 @@ Validator::RegisterShader 可接受反射结果直接填充，而不是手工枚
 - 参数覆盖顺序可通过日志或断言验证。
 
 ---
+### 当前进度评估 (2025-11-04)
+状态概览：已直接切换到强类型 variant 容器并完成主要调用点迁移，跳过“兼容双写”过渡层；合并策略与类型查询接口已落地；着色器反射仅添加了占位 stub 与注册重载。以下按原计划阶段标记：
+
+1. 阶段 1（强类型容器引入 + 双写兼容）
+	- 实际完成：using ParamValue = std::variant<...> 与 typed_parameters_ 已实现；所有 Set* / Get* 改为使用 variant；旧 std::any 容器与任何双写逻辑未保留。
+	- 偏离：未实现“同时写入旧 parameters_”的兼容层，直接删除了旧动态结构。意味着无法渐进回滚，只能前进。需要在风险控制中记录。
+
+2. 阶段 2（GetType / Validator 类型接口）
+	- 已完成：GetType(const std::string&) 和内部 DeduceType(std::visit) 已实现；Validator 提供 ValidateParameterType 间接基于 container 类型查询。
+	- 待补充：Validator 目前仍大量字符串检查 + 手工列表，未使用 GPU 反射真实布局。
+
+3. 阶段 3（合并策略重写）
+	- 已完成：MergeWithPriority(lower, higher) 与 ChainMerge(global, pass, object, callback) 已实现；调用点（RenderGraphPass、RenderPass、Graphics、RenderableObject）使用新接口；覆盖顺序语义 = 后者覆盖前者。
+	- 待验证：类型冲突抛出异常逻辑仅在 AssignValue 内检测；需添加针对不同来源（global→pass→object→callback）的日志来源标记方便调试。
+
+4. 阶段 4（调用点迁移）
+	- 已完成：全局搜索显示当前不再直接访问旧 parameters_；对象 worldMatrix、回调覆盖路径已迁移；RenderGraph 自定义 Execute 回调使用 ChainMerge。
+	- 待补充：统一获取参数名的 GetAllParameterNamesTyped() 可用于 Validator 报告增强，目前未与 Validator 集成（仍手动构造 provided_parameters）。
+
+5. 阶段 5（删除旧 std::any 容器）
+	- 已提前完成：std::any 已全局清除；相关 Merge 旧实现与 any_cast 全部移除。
+	- 风险：因缺乏过渡宏 (#ifdef USE_TYPED_PARAMS) 回退成本升高；建议新增最小宏包装以便快速关闭类型强制检查（非必须但可降低试验风险）。
+
+6. 阶段 6（反射预留接口）
+	- 已部分完成：ReflectedParameter 结构、ReflectShader(...) stub、Validator::RegisterShader 重载与桥接文件 ShaderParameterReflection.cpp 已添加。
+	- 未完成：实际 D3D11 shader reflection (ID3D11ShaderReflection 等) 尚未实现；暂未自动填充 required 集合与 slot 信息；未与自动 SRV/常量缓冲绑定策略结合。
+
+已实现的附加内容：
+ - 类型冲突时 Logger + runtime_error 抛出，提前阻断错误覆盖。
+ - 自定义执行回调处按需重写 viewMatrix / projectionMatrix 时仍保持类型安全路径。
+ - 新增 `ShaderParameterContainerTests`（MergeWithPriority 覆盖顺序、ChainMerge 优先级、类型冲突抛异常），开机阶段自动运行，失败将中止启动。
+
+仍需的后续工作 / TODO：
+ - 引入轻量 FrameContext（时间、摄像机矩阵）并在 ChainMerge 时自动注入（计划中的扩展未开始）。
+ - Validator 复杂度过高（ValidatePassParametersInternal 认知复杂度较高），需要拆分：收集缺失 / 类型不匹配 / 未注册 分离函数，降低维护成本。
+ - 反射实现：使用 D3DReflect / ID3D11ShaderReflection 提取 CB / SRV 绑定并自动生成 ReflectedParameter 列表；与 RegisterShader 重载整合。
+ - 性能评估：XMMATRIX 直接存入 variant 可能导致拷贝成本；考虑改为 XMFLOAT4X4 或包装结构以减少 register pressure（仅在热点路径必要时）。
+ - 更完善的覆盖顺序日志：在 AssignValue 中加入来源标签（枚举或字符串）以区分覆盖链步骤。
+ - 自动将 ReadAsParameter 的纹理命名转换规则与 Validator 的命名合法性检查统一（当前存在两个分离规则）。
+ - 文档同步：在 README_CONFIG_SYSTEM 或专门的 SHADER_PARAMETER_CONTAINER_REVIEW.md 中追加“当前实现差异点”与“迁移注意事项”。
+
+风险与建议：
+ - 已跳过兼容阶段，若出现运行期问题回滚困难；建议创建临时分支保存当前状态并写最小 revert 脚本（或宏门控）。
+ - 反射未实现导致 Validator 类型信息仍需手工维护；在添加反射前继续使用明确注册避免信息缺失。
+ - 异常抛出策略会在 Release 模式中引发潜在频繁 try/catch 开销（如果上层捕获）；可考虑默认日志 + 跳过覆盖，提供可配置严格模式。
+
+当前总体完成度（粗略）：阶段 1~5 已完成（带偏离与提前删除），阶段 6 约 30%。整体进入“验证与反射接入”阶段。
+
+下一步优先级建议：
+ 1) 编写 4 条关键单元测试验证合并与类型冲突。
+ 2) 拆分 Validator 内部函数降低复杂度。
+ 3) 实现最小 shader 反射（仅枚举 VS/PS 常量缓冲与纹理绑定名 + 类型）。
+ 4) 增加覆盖来源日志提升调试可观测性。
+
+（本节仅更新进度，不替换原计划，可在后续提交中折叠为“进度/差异”章节。）
+

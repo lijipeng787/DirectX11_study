@@ -259,7 +259,7 @@ bool LoadFromJson(SceneConfiguration &config, const std::string &filepath) {
     }
 
     Logger::SetModule("SceneConfig");
-    Logger::LogError("Successfully loaded configuration from: " + filepath);
+  Logger::LogInfo("Successfully loaded configuration from: " + filepath);
     return true;
 
   } catch (const std::exception &e) {

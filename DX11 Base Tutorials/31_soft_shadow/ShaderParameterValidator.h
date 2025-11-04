@@ -7,6 +7,19 @@
 #include <unordered_set>
 #include <vector>
 
+struct ID3D10Blob;
+struct ID3D11Device;
+
+struct ReflectedParameter {
+  std::string name;
+  ShaderParameterType type = ShaderParameterType::Unknown;
+  bool required = true;
+};
+
+std::vector<ReflectedParameter>
+ReflectShader(ID3D11Device *device, ID3D10Blob *vs_blob,
+              ID3D10Blob *ps_blob);
+
 enum class ValidationMode {
   Strict,  // Strict mode: all required parameters must exist
   Warning, // Warning mode: report missing parameters but don't block execution
@@ -18,6 +31,8 @@ public:
   // Register shader required parameters
   void RegisterShader(const std::string &shader_name,
                       const std::vector<ShaderParameterInfo> &parameters);
+  //void RegisterShader(const std::string &shader_name,
+  //                    const std::vector<ReflectedParameter> &parameters);
 
   // Register global parameters (provided by Render() at runtime, not needed in
   // Pass)
@@ -88,8 +103,8 @@ private:
   std::string
   FindSimilarParameter(const std::string &param_name,
                        const std::vector<ShaderParameterInfo> &params) const;
-  int CalculateLevenshteinDistance(const std::string &s1,
-                                   const std::string &s2) const;
+  int CalculateLevenshteinDistance(const std::string &source,
+                                   const std::string &target) const;
 
   bool ValidatePassParametersInternal(
     const std::string &pass_name, const std::string &shader_name,
