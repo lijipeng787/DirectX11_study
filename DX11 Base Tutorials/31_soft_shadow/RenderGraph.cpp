@@ -144,19 +144,11 @@ RenderGraphPassBuilder RenderGraphPass::GetBuilder() {
 
 ShaderParameterContainer RenderGraphPass::MergeParameters(
     const ShaderParameterContainer &global_params) const {
-  // Merge parameters in priority order (later merges override earlier ones):
-  // 1. Start with pass-specific parameters (lowest priority)
-  //    - Includes manually set parameters via SetParameter/SetTexture
-  //    - Includes auto-bound parameters from ReadAsParameter()
-  // 2. Merge global parameters (override pass parameters)
-  // 3. Note: input_textures_ is now only used for resource dependency tracking
-  //    Actual parameter binding happens via pass_parameters_ (set during
-  //    Compile)
-  ShaderParameterContainer merged = *pass_parameters_;
-  merged.Merge(global_params);
-  // Note: input_textures_ binding is now handled via pass_parameters_ during
-  // Compile() so we don't need to bind them here again
-  return merged;
+  // Merge global (lowest priority) and pass-specific parameters (higher
+  // priority). Resource bindings injected during Compile() live inside
+  // pass_parameters_.
+  return ShaderParameterContainer::MergeWithPriority(global_params,
+                                                     *pass_parameters_);
 }
 
 void RenderGraphPass::Execute(
@@ -210,7 +202,7 @@ void RenderGraphPass::Execute(
       // 2. Add world matrix (per-object)
       // 3. Apply object callback (highest priority, can override anything)
       ShaderParameterContainer objParams = merged;
-      objParams.Set("worldMatrix", r->GetWorldMatrix());
+      objParams.SetMatrix("worldMatrix", r->GetWorldMatrix());
       if (auto cb = r->GetParameterCallback()) {
         cb(objParams);
       }
@@ -498,16 +490,15 @@ bool RenderGraph::ValidatePassParameters(
     return true; // Skip validation if no validator or no shader
   }
 
-  // Collect all parameter names from pass
+  // Collect all parameter names and types defined on the pass.
   // Note: Only parameters explicitly set via SetParameter/SetTexture are
-  // validated Input textures (from Read()) are resources, not parameters by
-  // themselves
-  std::unordered_set<std::string> provided_params;
-
-  // Add pass parameters (set via SetParameter/SetTexture in builder)
-  auto pass_param_names = pass->pass_parameters_->GetAllParameterNames();
-  for (const auto &name : pass_param_names) {
-    provided_params.insert(name);
+  // validated. Input textures (from Read) are resources, not parameters by
+  // themselves.
+  std::unordered_map<std::string, ShaderParameterType> provided_params;
+  auto parameter_entries = pass->pass_parameters_->GetAllParameterEntries();
+  provided_params.reserve(parameter_entries.size());
+  for (const auto &entry : parameter_entries) {
+    provided_params.emplace(entry.name, entry.type);
   }
 
   // Note: input_textures_ contains resource names as keys, not parameter names
@@ -541,8 +532,8 @@ bool RenderGraph::ValidatePassParameters(
 
   // Validate parameters
   return parameter_validator_->ValidatePassParameters(
-      pass->GetName(), shader_name, provided_params,
-      parameter_validator_->GetValidationMode());
+    pass->GetName(), shader_name, provided_params,
+    parameter_validator_->GetValidationMode());
 }
 
 void RenderGraph::AllocateResources() { /* simplified - allocation handled

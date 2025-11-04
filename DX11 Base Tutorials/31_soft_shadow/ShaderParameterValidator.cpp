@@ -49,78 +49,101 @@ bool ShaderParameterValidator::ValidatePassParameters(
     const std::string &pass_name, const std::string &shader_name,
     const std::unordered_set<std::string> &provided_parameters,
     ValidationMode mode) const {
+  std::unordered_map<std::string, ShaderParameterType> typed_parameters;
+  typed_parameters.reserve(provided_parameters.size());
+  for (const auto &name : provided_parameters) {
+    typed_parameters.emplace(name, ShaderParameterType::Unknown);
+  }
+  return ValidatePassParametersInternal(pass_name, shader_name,
+                                        typed_parameters, mode);
+}
 
-  // Check if shader is registered
-  auto it = shader_parameters_.find(shader_name);
-  if (it == shader_parameters_.end()) {
+bool ShaderParameterValidator::ValidatePassParameters(
+    const std::string &pass_name, const std::string &shader_name,
+    const std::unordered_map<std::string, ShaderParameterType>
+        &provided_parameters,
+    ValidationMode mode) const {
+  return ValidatePassParametersInternal(pass_name, shader_name,
+                                        provided_parameters, mode);
+}
+
+bool ShaderParameterValidator::ValidatePassParametersInternal(
+    const std::string &pass_name, const std::string &shader_name,
+    const std::unordered_map<std::string, ShaderParameterType>
+        &provided_parameters,
+    ValidationMode mode) const {
+
+  auto shader_it = shader_parameters_.find(shader_name);
+  if (shader_it == shader_parameters_.end()) {
     if (mode == ValidationMode::Strict) {
       Logger::SetModule("ShaderParameterValidator");
-      Logger::LogError("Shader \"" + shader_name + "\" used in pass \"" +
-                       pass_name +
+      Logger::LogError("Shader \"" + shader_name +
+                       "\" used in pass \"" + pass_name +
                        "\" is not registered. Cannot validate parameters.");
       return false;
     }
-    return true; // Warning mode: unregistered shaders skip validation
+    return true;
   }
 
-  const auto &required_params = it->second;
+  const auto &required_params = shader_it->second;
   std::vector<std::string> missing_params;
   std::vector<std::string> invalid_params;
+  std::vector<std::string> type_mismatches;
 
-  // Check required parameters (excluding global parameters, as they are
-  // provided at runtime)
   for (const auto &param_info : required_params) {
-    if (param_info.required) {
-      // If it's a global parameter, skip validation (provided at runtime)
-      if (IsGlobalParameter(param_info.name)) {
-        continue;
-      }
-      // Check if provided at Pass level
+    if (param_info.required && !IsGlobalParameter(param_info.name)) {
       if (provided_parameters.find(param_info.name) ==
           provided_parameters.end()) {
         missing_params.push_back(param_info.name);
       }
     }
+
+    auto provided_it = provided_parameters.find(param_info.name);
+    if (provided_it != provided_parameters.end()) {
+      auto actual_type = provided_it->second;
+      if (actual_type != ShaderParameterType::Unknown &&
+          actual_type != param_info.type) {
+        std::ostringstream oss;
+        oss << param_info.name << " (expected "
+            << GetTypeName(param_info.type) << ", actual "
+            << GetTypeName(actual_type) << ")";
+        type_mismatches.push_back(oss.str());
+      }
+    }
   }
 
-  // Check unknown parameters (not in registered list)
-  // Note: exclude global parameters and resource names (resource names don't
-  // follow camelCase convention)
-  for (const auto &provided : provided_parameters) {
-    // Skip global parameters
-    if (IsGlobalParameter(provided)) {
+  for (const auto &kv : provided_parameters) {
+    const auto &provided_name = kv.first;
+    if (IsGlobalParameter(provided_name)) {
       continue;
     }
-    // Skip resource names (don't follow camelCase convention, e.g. "DepthMap")
-    if (!RenderGraphNaming::IsValidParameterName(provided)) {
-      continue; // This is a resource name, not a parameter name
+    if (!RenderGraphNaming::IsValidParameterName(provided_name)) {
+      continue;
     }
 
     bool found = false;
     for (const auto &param_info : required_params) {
-      if (param_info.name == provided) {
+      if (param_info.name == provided_name) {
         found = true;
         break;
       }
     }
     if (!found) {
-      invalid_params.push_back(provided);
+      invalid_params.push_back(provided_name);
     }
   }
 
-  // Process results based on mode
-  bool has_errors = !missing_params.empty();
+  bool has_errors = !missing_params.empty() || !type_mismatches.empty();
   bool has_warnings = !invalid_params.empty();
 
   if (has_errors || has_warnings) {
     std::ostringstream oss;
-    oss << "[ShaderParameterValidator] Pass \"" << pass_name << "\" (Shader: \""
-        << shader_name << "\"):\n";
+    oss << "[ShaderParameterValidator] Pass \"" << pass_name
+        << "\" (Shader: \"" << shader_name << "\"):\n";
 
-    if (has_errors) {
+    if (!missing_params.empty()) {
       oss << "  Missing required parameters:\n";
       for (const auto &missing : missing_params) {
-        // Find parameter info to get type
         ShaderParameterType param_type = ShaderParameterType::Unknown;
         for (const auto &param_info : required_params) {
           if (param_info.name == missing) {
@@ -128,8 +151,8 @@ bool ShaderParameterValidator::ValidatePassParameters(
             break;
           }
         }
-        oss << "    - " << missing << " (" << GetTypeName(param_type) << ")";
-        // Add helpful hints based on parameter name patterns
+        oss << "    - " << missing << " (" << GetTypeName(param_type)
+            << ")";
         if (missing.find("Texture") != std::string::npos) {
           oss << " - Consider using ReadAsParameter() or SetTexture()";
         } else if (IsGlobalParameter(missing)) {
@@ -139,11 +162,17 @@ bool ShaderParameterValidator::ValidatePassParameters(
       }
     }
 
+    if (!type_mismatches.empty()) {
+      oss << "  Type mismatches:\n";
+      for (const auto &entry : type_mismatches) {
+        oss << "    - " << entry << "\n";
+      }
+    }
+
     if (has_warnings) {
       oss << "  Unknown parameters (not registered):\n";
       for (const auto &invalid : invalid_params) {
         oss << "    - " << invalid;
-        // Try to find similar parameter name
         std::string suggestion = FindSimilarParameter(invalid, required_params);
         if (!suggestion.empty()) {
           oss << " - Did you mean: " << suggestion << "?";
@@ -156,40 +185,13 @@ bool ShaderParameterValidator::ValidatePassParameters(
     if (mode == ValidationMode::Strict) {
       Logger::LogError(oss.str());
       return false;
-    } else if (mode == ValidationMode::Warning) {
+    }
+    if (mode == ValidationMode::Warning) {
       Logger::LogWarning(oss.str());
-      return true; // Warning mode doesn't block execution
     }
   }
 
   return true;
-}
-
-std::vector<std::string> ShaderParameterValidator::GetMissingParameters(
-    const std::string &shader_name,
-    const std::unordered_set<std::string> &provided_parameters) const {
-
-  std::vector<std::string> missing;
-
-  auto it = shader_parameters_.find(shader_name);
-  if (it == shader_parameters_.end()) {
-    return missing;
-  }
-
-  for (const auto &param_info : it->second) {
-    if (param_info.required) {
-      // Skip global parameters (provided at runtime)
-      if (IsGlobalParameter(param_info.name)) {
-        continue;
-      }
-      if (provided_parameters.find(param_info.name) ==
-          provided_parameters.end()) {
-        missing.push_back(param_info.name);
-      }
-    }
-  }
-
-  return missing;
 }
 
 std::vector<std::string> ShaderParameterValidator::GetInvalidParameters(
@@ -245,6 +247,13 @@ std::vector<ShaderParameterInfo> ShaderParameterValidator::GetShaderParameters(
 void ShaderParameterValidator::Clear() {
   shader_parameters_.clear();
   global_parameters_.clear();
+}
+
+bool ShaderParameterValidator::ValidateParameterType(
+    const ShaderParameterContainer &container,
+    const std::string &parameter_name,
+    ShaderParameterType expected_type) const {
+  return container.GetType(parameter_name) == expected_type;
 }
 
 // Helper methods for enhanced reporting

@@ -1,11 +1,4 @@
 #include "ShaderParameterContainer.h"
 
-#include <stdexcept>
-
-void ShaderParameterContainer::Merge(const ShaderParameterContainer &other) {
-  for (const auto &[name, value] : other.parameters_) {
-    // If the parameter already exists in this container, override it
-    // If it doesn't exist, add it
-    parameters_[name] = value;
-  }
-}
+// Strongly typed ShaderParameterContainer is now implemented inline in the
+// header to keep variant-based helpers available to all translation units.

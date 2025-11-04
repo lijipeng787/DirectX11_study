@@ -772,8 +772,8 @@ void Graphics::SetupRenderPasses() {
         if (!ctx.shader)
           return;
 
-        ShaderParameterContainer merged = *ctx.pass_params;
-        merged.Merge(*ctx.global_params);
+        ShaderParameterContainer merged = ShaderParameterContainer::ChainMerge(
+            *ctx.global_params, *ctx.pass_params);
 
         // Override view matrix with reflection matrix if available
         if (ctx.global_params->HasParameter("reflectionMatrix")) {
@@ -793,7 +793,7 @@ void Graphics::SetupRenderPasses() {
             continue;
 
           ShaderParameterContainer objParams = merged;
-          objParams.Set("worldMatrix", renderable->GetWorldMatrix());
+          objParams.SetMatrix("worldMatrix", renderable->GetWorldMatrix());
           if (auto cb = renderable->GetParameterCallback()) {
             cb(objParams);
           }

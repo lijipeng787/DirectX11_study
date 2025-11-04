@@ -39,6 +39,12 @@ public:
       const std::unordered_set<std::string> &provided_parameters,
       ValidationMode mode = ValidationMode::Warning) const;
 
+  bool ValidatePassParameters(
+    const std::string &pass_name, const std::string &shader_name,
+    const std::unordered_map<std::string, ShaderParameterType>
+      &provided_parameters,
+    ValidationMode mode = ValidationMode::Warning) const;
+
   // Get missing parameters list (excluding global parameters)
   std::vector<std::string> GetMissingParameters(
       const std::string &shader_name,
@@ -55,6 +61,10 @@ public:
   // Get all parameters required by shader
   std::vector<ShaderParameterInfo>
   GetShaderParameters(const std::string &shader_name) const;
+
+  bool ValidateParameterType(const ShaderParameterContainer &container,
+                             const std::string &parameter_name,
+                             ShaderParameterType expected_type) const;
 
   // Clear all registration information
   void Clear();
@@ -80,6 +90,12 @@ private:
                        const std::vector<ShaderParameterInfo> &params) const;
   int CalculateLevenshteinDistance(const std::string &s1,
                                    const std::string &s2) const;
+
+  bool ValidatePassParametersInternal(
+    const std::string &pass_name, const std::string &shader_name,
+    const std::unordered_map<std::string, ShaderParameterType>
+      &provided_parameters,
+    ValidationMode mode) const;
 };
 
 // Helper functions for resource name to parameter name conversion

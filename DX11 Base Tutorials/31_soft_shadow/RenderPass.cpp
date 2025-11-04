@@ -31,11 +31,11 @@ void RenderPass::Execute(
     output_texture_->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
   }
 
-  ShaderParameterContainer globalFramePassParams = pass_parameters_;
-  globalFramePassParams.Merge(globalFrameParams);
+  ShaderParameterContainer globalFramePassParams =
+      ShaderParameterContainer::ChainMerge(globalFrameParams, pass_parameters_);
 
   for (const auto &[name, texture] : input_textures_) {
-    globalFramePassParams.Set(name, texture->GetShaderResourceView());
+    globalFramePassParams.SetTexture(name, texture->GetShaderResourceView());
   }
 
   if (need_turn_z_buffer_off_)
@@ -43,8 +43,8 @@ void RenderPass::Execute(
 
   for (const auto &renderable : renderables) {
     if (ShouldRenderObject(*renderable)) {
-      ShaderParameterContainer objectParams = globalFramePassParams;
-      objectParams.Set("worldMatrix", renderable->GetWorldMatrix());
+  ShaderParameterContainer objectParams = globalFramePassParams;
+  objectParams.SetMatrix("worldMatrix", renderable->GetWorldMatrix());
 
       auto callback = renderable->GetParameterCallback();
       if (callback) {
