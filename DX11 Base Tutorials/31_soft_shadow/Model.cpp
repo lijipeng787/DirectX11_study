@@ -1,4 +1,4 @@
-#include "model.h"
+#include "Model.h"
 
 #include "../CommonFramework2/DirectX11Device.h"
 #include "BoundingVolume.h"

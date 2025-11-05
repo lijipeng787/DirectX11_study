@@ -1,4 +1,4 @@
-#include "depthshader.h"
+#include "DepthShader.h"
 
 #include <d3dcompiler.h>
 #include <fstream>

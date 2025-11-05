@@ -10,17 +10,17 @@
 #include "ShaderParameterValidator.h"
 
 // do not remove these includes
-#include "depthshader.h"
-#include "fontshader.h"
-#include "horizontalblurshader.h"
-#include "pbrshader.h"
-#include "refractionshader.h"
-#include "scenelightshader.h"
-#include "shadowshader.h"
-#include "simplelightshader.h"
-#include "softshadowshader.h"
-#include "textureshader.h"
-#include "verticalblurshader.h"
+#include "DepthShader.h"
+#include "FontShader.h"
+#include "HorizontalBlurShader.h"
+#include "PbrShader.h"
+#include "RefractionShader.h"
+#include "SceneLightShader.h"
+#include "ShadowShader.h"
+#include "SimpleLightShader.h"
+#include "SoftShadowShader.h"
+#include "TextureShader.h"
+#include "VerticalBlurShader.h"
 // !do not remove these includes
 
 #include <algorithm>

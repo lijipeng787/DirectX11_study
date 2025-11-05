@@ -1,4 +1,4 @@
-#include "watershader.h"
+#include "WaterShader.h"
 
 #include <d3d11.h>
 

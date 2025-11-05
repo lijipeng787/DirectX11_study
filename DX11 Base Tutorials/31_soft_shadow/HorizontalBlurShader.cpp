@@ -1,4 +1,4 @@
-#include "horizontalblurshader.h"
+#include "HorizontalBlurShader.h"
 
 #include <d3dcompiler.h>
 #include <fstream>

@@ -2,7 +2,7 @@
 
 #include "../CommonFramework2/SystemBase.h"
 #include "Graphics.h"
-#include "position.h"
+#include "Position.h"
 
 class System : public SystemBase {
 public:

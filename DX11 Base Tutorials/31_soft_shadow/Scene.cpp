@@ -11,7 +11,7 @@
 #include "RenderableObject.h"
 #include "ResourceRegistry.h"
 #include "ShaderParameterContainer.h"
-#include "orthowindow.h"
+#include "OrthoWindow.h"
 
 #include <nlohmann/json.hpp>
 

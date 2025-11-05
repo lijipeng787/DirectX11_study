@@ -9,8 +9,8 @@
 #include "Scene.h"
 #include "SceneConfig.h"
 #include "ShaderParameterValidator.h"
-#include "light.h"
-#include "text.h"
+#include "Light.h"
+#include "Text.h"
 
 class Camera;
 class DirectX11Device;

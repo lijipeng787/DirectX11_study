@@ -1,4 +1,4 @@
-#include "position.h"
+#include "Position.h"
 
 void Position::SetPosition(float x, float y, float z) {
   position_x_ = x;

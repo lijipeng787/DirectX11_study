@@ -1,4 +1,4 @@
-#include "shadowshader.h"
+#include "ShadowShader.h"
 
 #include "ShaderParameterContainer.h"
 

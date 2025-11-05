@@ -1,5 +1,4 @@
-#ifndef _SHADOWSHADERCLASS_H_
-#define _SHADOWSHADERCLASS_H_
+#pragma once
 
 #include <DirectXMath.h>
 #include <d3d11.h>
@@ -51,5 +50,3 @@ private:
 
   Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_state_clamp_;
 };
-
-#endif

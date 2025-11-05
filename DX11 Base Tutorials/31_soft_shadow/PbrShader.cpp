@@ -1,4 +1,4 @@
-#include "pbrshader.h"
+#include "PbrShader.h"
 
 #include <d3dcompiler.h>
 #include <fstream>

@@ -1,4 +1,4 @@
-#include "textureshader.h"
+#include "TextureShader.h"
 
 #include "ShaderParameterContainer.h"
 

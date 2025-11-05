@@ -4,7 +4,7 @@
 #include "../CommonFramework2/Timer.h"
 
 #include "Graphics.h"
-#include "position.h"
+#include "Position.h"
 
 using namespace std;
 

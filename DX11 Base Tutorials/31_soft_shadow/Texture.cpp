@@ -1,4 +1,4 @@
-#include "texture.h"
+#include "Texture.h"
 
 #include "../CommonFramework2/DirectX11Device.h"
 

@@ -1,9 +1,9 @@
 #include "ResourceRegistry.h"
 
 #include "Logger.h"
-#include "model.h"
-#include "orthowindow.h"
-#include "rendertexture.h"
+#include "Model.h"
+#include "OrthoWindow.h"
+#include "RenderTexture.h"
 
 #include <iostream>
 

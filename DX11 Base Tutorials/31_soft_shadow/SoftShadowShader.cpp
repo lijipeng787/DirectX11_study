@@ -1,4 +1,4 @@
-#include "softshadowshader.h"
+#include "SoftShadowShader.h"
 
 #include <d3dcompiler.h>
 #include <fstream>

@@ -3,7 +3,7 @@
 #include "BoundingVolume.h"
 #include "Interfaces.h"
 #include "Model.h"
-#include "orthowindow.h"
+#include "OrthoWindow.h"
 
 using namespace DirectX;
 

@@ -1,6 +1,6 @@
-#include "font.h"
+#include "Font.h"
 
-#include "texture.h"
+#include "Texture.h"
 
 #include <DirectXMath.h>
 #include <fstream>

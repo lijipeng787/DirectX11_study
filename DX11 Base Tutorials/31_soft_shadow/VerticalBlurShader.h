@@ -1,5 +1,4 @@
-#ifndef _VERTICALBLURSHADERCLASS_H_
-#define _VERTICALBLURSHADERCLASS_H_
+#pragma once
 
 #include <DirectXMath.h>
 #include <d3d11.h>
@@ -19,5 +18,3 @@ public:
   bool Render(int indexCount, const ShaderParameterContainer &parameters,
               ID3D11DeviceContext *deviceContext) const override;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _PBRSHADERCLASS_H_
-#define _PBRSHADERCLASS_H_
+#pragma once
 
 #include <d3d11.h>
 #include <directxmath.h>
@@ -53,5 +52,3 @@ private:
   Microsoft::WRL::ComPtr<ID3D11Buffer> light_buffer_;
   Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_state_;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _ORTHOWINDOWCLASS_H_
-#define _ORTHOWINDOWCLASS_H_
+#pragma once
 
 #include <DirectXMath.h>
 #include <d3d11.h>
@@ -56,5 +55,3 @@ private:
 
   DirectX::XMMATRIX device_world_matrix_;
 };
-
-#endif

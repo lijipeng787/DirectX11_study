@@ -1,9 +1,9 @@
-#include "text.h"
+#include "Text.h"
 
 #include "../CommonFramework2/DirectX11Device.h"
 #include "ShaderParameterContainer.h"
-#include "font.h"
-#include "fontshader.h"
+#include "Font.h"
+#include "FontShader.h"
 
 #include <DirectXMath.h>
 #include <cstring>

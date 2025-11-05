@@ -3,7 +3,7 @@
 #include "BoundingVolume.h"
 #include "Interfaces.h"
 #include "ShaderParameterContainer.h"
-#include "texture.h"
+#include "Texture.h"
 
 #include <d3d11.h>
 #include <wrl/client.h>

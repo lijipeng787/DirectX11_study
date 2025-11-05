@@ -1,4 +1,4 @@
-#include "orthowindow.h"
+#include "OrthoWindow.h"
 
 #include "../CommonFramework2/DirectX11Device.h"
 #include "Interfaces.h"

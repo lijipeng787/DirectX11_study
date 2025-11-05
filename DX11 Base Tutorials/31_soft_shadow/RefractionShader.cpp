@@ -1,4 +1,4 @@
-#include "refractionshader.h"
+#include "RefractionShader.h"
 
 #include <d3d11.h>
 

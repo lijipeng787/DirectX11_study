@@ -1,4 +1,4 @@
-#include "simplelightshader.h"
+#include "SimpleLightShader.h"
 
 #include <d3dcompiler.h>
 

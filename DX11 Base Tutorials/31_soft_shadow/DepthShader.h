@@ -1,5 +1,4 @@
-#ifndef _DEPTHSHADERCLASS_H_
-#define _DEPTHSHADERCLASS_H_
+#pragma once
 
 #include <DirectXMath.h>
 #include <d3d11.h>
@@ -35,5 +34,3 @@ private:
 private:
   Microsoft::WRL::ComPtr<ID3D11Buffer> matrix_buffer_;
 };
-
-#endif
