@@ -872,7 +872,8 @@ void Graphics::RegisterShaderParameters() {
   // Register global parameters (provided at runtime by Render() or per-object)
   // These parameters are automatically available to all shaders and don't need
   // to be set at Pass level
-  parameter_validator_.RegisterGlobalParameter("worldMatrix"); // Set per-object
+  // Set per-object
+  parameter_validator_.RegisterGlobalParameter("worldMatrix");
   // From Render()
   parameter_validator_.RegisterGlobalParameter("viewMatrix");
   parameter_validator_.RegisterGlobalParameter("projectionMatrix"); 

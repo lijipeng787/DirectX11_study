@@ -220,7 +220,8 @@ Validator::RegisterShader 可接受反射结果直接填充，而不是手工枚
 6. 阶段 6（反射预留接口）
 	- 新增：ReflectShader 现使用 D3DReflect 获取 VS/PS 常量缓冲变量与纹理绑定，并根据 D3D11 shader reflection 填充 ReflectedParameter 列表；Validator::RegisterShader 重载可以直接消化反射结果。
 	- 集成：Graphics::RegisterShaderParameters 优先调用各 Shader 实例的反射结果，并在缺失或需要例外处理时回退至手工清单；可为特定参数标记 optional。
-	- 尚待加强：默认 required=true 且未附带 slot/阶段元数据；结构体、数组及 UAV/Sampler 暂记为 Unknown，尚未与自动 SRV/常量缓冲绑定策略联动。
+	- 拓展：反射结果现附带 stage_mask，自动展平常量缓冲中的结构体字段，并补齐 Sampler 资源的条目（默认标记为非必需）。
+	- 尚待加强：仍缺少 UAV/StructuredBuffer/数组元素的精细化输出，以及绑定槽位与资源维度元数据，尚未与自动 SRV/UAV 绑定策略联动。
 
 已实现的附加内容：
  - 类型冲突时 Logger + runtime_error 抛出，提前阻断错误覆盖。
@@ -233,7 +234,7 @@ Validator::RegisterShader 可接受反射结果直接填充，而不是手工枚
 
 仍需的后续工作 / TODO：
 	- 引入轻量 FrameContext（时间、摄像机矩阵）并在 ChainMerge 时自动注入（计划中的扩展未开始）。
-	- 扩展反射：补充 UAV/Sampler/StructuredBuffer、数组/结构体成员识别，携带 slot/stage 信息并与自动绑定策略融合。
+	- 扩展反射：继续补充 UAV/StructuredBuffer、数组索引展开与绑定槽位元数据，并与自动绑定策略融合。
 	- 性能评估：XMMATRIX 直接存入 variant 可能导致拷贝成本；考虑改为 XMFLOAT4X4 或包装结构以减少 register pressure（仅在热点路径必要时）。
 	- 按需细化覆盖日志：提供过滤/采样或模块级开关，避免在 Release 模式产生过量输出。
 	- 自动将 ReadAsParameter 的纹理命名转换规则与 Validator 的命名合法性检查统一（当前存在两个分离规则）。
@@ -247,8 +248,88 @@ Validator::RegisterShader 可接受反射结果直接填充，而不是手工枚
 当前总体完成度（粗略）：阶段 1~5 已完成（带偏离与提前删除），阶段 6 已完成最小 VS/PS 反射管线（约 55%），仍需补齐高级场景与自动绑定集成。整体进入“验证与反射接入”阶段。
 
 下一步优先级建议：
- 1) 扩展反射输出，补齐 UAV/Sampler/结构体字段与阶段元数据。
+ 1) 扩展反射输出，补齐 UAV/StructuredBuffer 支持并记录绑定槽位/资源维度。
  2) 设计覆盖日志的过滤/开关策略，并评估在 Release/非调试场景的默认配置。
 
 （本节仅更新进度，不替换原计划，可在后续提交中折叠为“进度/差异”章节。）
+
+---
+## Shader 参数管理阶段收尾 (2025-11-05)
+
+本阶段目标（强类型化 + 反射最小接入 + 覆盖链路可观测性）已达成，现将该模块冻结，进入“增量特性接入”模式；后续对该模块的修改需满足：
+1. 不破坏现有 `ChainMerge` 语义与覆盖优先级 (Global < Pass < Object < Callback)。
+2. 不降低当前测试与日志的可观测性（覆盖链路、类型冲突）。
+3. 新增反射能力以增量方式插入（结构: slot/阶段元数据 → UAV/StructuredBuffer → 自动绑定策略）。
+
+### 已交付要点
+- 强类型容器：`std::variant` 替代 `std::any`，移除运行期类型不安全与 bad_any_cast 风险。
+- 合并策略：`MergeWithPriority` + `ChainMerge` 固化覆盖顺序。
+- 覆盖溯源：`AssignValue` 记录来源并可按需输出日志（默认开启）。
+- 反射增强：采集 VS/PS 常量缓冲字段（结构体展开）、纹理、采样器（可选），补充 `stage_mask` 元数据。
+- 参数别名：解决历史 shader 中 `shaderTexture` / `projectionMatrix` 与运行期命名不一致导致的验证噪声。
+- 验证模式：Validator 以 Warning 方式运行，不阻断执行，降低迭代成本。
+- 单元测试：核心 3 条覆盖顺序与类型冲突用例通过，能早期捕获错误覆盖。
+
+### 已记录偏离 / 风险
+- 跳过“双写兼容层”直接删除旧容器，回滚需要额外分支或宏。
+- 反射输出暂未包含 slot / 维度 / UAV / StructuredBuffer；可能导致后续自动绑定策略需要二次改签名。
+- 覆盖日志在大型场景可能产生噪声，尚未做分级过滤。
+
+### 冻结准则
+以下行为在本阶段后不建议随意修改：
+- 参数基础类型集合与枚举值（除新增类型外不做重命名）。
+- `ChainMerge` 顺序与调用路径（保证调用方心理模型稳定）。
+- 覆盖来源枚举与日志格式（便于持续观察差异）。
+
+### 向后兼容策略（若需扩展）
+| 计划扩展 | 最小安全集成方式 |
+|----------|------------------|
+| UAV/StructuredBuffer 反射 | 新增枚举值 + 可选 required=false 初始引入，后续再根据使用标记 required |
+| Slot / Stage 元数据 | 扩展 `ReflectedParameter`，增加 `slot` 与 `binding_class`，不改现有字段语义 |
+| 自动绑定 | 增加“绑定解析器”组件，读取反射缓存，根据 Pass 声明补齐缺失纹理/缓冲 |
+| 覆盖日志降噪 | 引入 Verbosity 等级或采样策略；默认保持当前详细级别在 Debug 构建 |
+
+### 暂不处理（延后）
+- 执行期性能微优化（XMMATRIX 拷贝 → XMFLOAT4X4）：等待性能基线采样。
+- Release 模式日志策略：等覆盖日志样本量达到评估阈值重新审查。
+
+### 迁移建议（其他子系统）
+首选迁移顺序（与 Shader 参数模块脱钩程度由低到高）：
+1. RenderGraph DAG 化（不直接依赖参数类型，安全）。
+2. Graphics 拆分（需要最小适配参数注入接口）。
+3. ResourceManager 去单例（需注入点清点）。
+4. FrameContext 引入并在 `ChainMerge` 注入时间/摄像机矩阵别名。
+5. 自动绑定（读反射 + Pass 声明 → 参数容器）。
+6. 验证强化（slot/阶段/维度一致性）。
+
+### 下阶段进入条件
+满足以下至少两项即可启动下一扩展阶段：
+- RenderGraph 基础 DAG & 拓扑排序完成。
+- 采集一次覆盖日志量化数据（≥200 合并事件）。
+- 对至少 2 个 shader 引入 UAV/StructuredBuffer 使用需求。
+
+---
+## 建议的下一步执行列表 (高→低)
+1. RenderGraph 正式 DAG 化与循环检测 (价值: 为资源生命周期与自动参数绑定铺路)。
+2. 引入 `FrameContext` (统一时间/摄像机/可见集传递，减少全局参数显式传递)。
+3. 反射扩展：slot 与 binding_class 字段；起步仅记录 VS/PS CB/Texture/Sampler Slot。
+4. 覆盖日志分级：DEBUG 全量 / RELEASE 重要事件（类型冲突 + 缺失必需）。
+5. 设计自动绑定解析器接口：`ResolveBindings(pass_decl, reflection_cache, container)`。
+6. ResourceManager 去单例（构造注入 + 生命周期聚合），为多视图/离屏渲染准备。
+7. Graphics 拆分为 Pipeline/SceneSystem/ViewSystem，减少“上帝对象”耦合。
+
+---
+## 粗略工作量估算 (人日)
+| 任务 | 估算 | 备注 |
+|------|------|------|
+| RenderGraph DAG + 拓扑检测 | 1.5 | 含回归测试与替换现有顺序列表 |
+| FrameContext 注入 | 0.5 | 主要调整 Render / ChainMerge 参数签名 |
+| 反射 slot 扩展 | 0.75 | 遍历 `GetResourceBindingDesc` 补充 slot/class |
+| 覆盖日志分级 | 0.5 | Logger 模块新增等级过滤 |
+| 自动绑定解析器 PoC | 1.0 | 仅纹理 + 常量缓冲；不含 UAV |
+| ResourceManager 去单例 | 2.0 | 涉及构造路径与缓存引用迁移 |
+| Graphics 拆分第一步 | 1.5 | 提取 Pipeline 执行与 Scene 更新分离 |
+
+---
+本节添加日期：2025-11-05
 

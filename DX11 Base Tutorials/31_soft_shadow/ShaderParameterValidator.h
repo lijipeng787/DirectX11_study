@@ -2,6 +2,7 @@
 
 #include "ShaderParameterContainer.h" // Use unified type definitions
 
+#include <cstdint>
 #include <initializer_list>
 #include <string>
 #include <unordered_map>
@@ -11,10 +12,22 @@
 struct ID3D10Blob;
 struct ID3D11Device;
 
+enum class ShaderStage : std::uint8_t {
+  Vertex = 1U << 0U,
+  Pixel = 1U << 1U,
+  Geometry = 1U << 2U,
+  Hull = 1U << 3U,
+  Domain = 1U << 4U,
+  Compute = 1U << 5U
+};
+
+using ShaderStageMask = std::uint8_t;
+
 struct ReflectedParameter {
   std::string name;
   ShaderParameterType type = ShaderParameterType::Unknown;
   bool required = true;
+  ShaderStageMask stage_mask = 0U;
 };
 
 std::vector<ReflectedParameter>

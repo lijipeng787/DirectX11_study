@@ -26,6 +26,7 @@ enum class ShaderParameterType {
   Vector3,
   Vector4,
   Texture,
+  Sampler,
   Float,
   Unknown // Used by Validator for unknown types
 };
@@ -40,6 +41,8 @@ inline const char *ShaderParameterTypeToString(ShaderParameterType type) {
     return "Vector4";
   case ShaderParameterType::Texture:
     return "Texture";
+  case ShaderParameterType::Sampler:
+    return "Sampler";
   case ShaderParameterType::Float:
     return "Float";
   default:

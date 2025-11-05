@@ -289,6 +289,8 @@ ShaderParameterValidator::GetTypeName(ShaderParameterType type) const {
     return "Vector4";
   case ShaderParameterType::Texture:
     return "Texture";
+  case ShaderParameterType::Sampler:
+    return "Sampler";
   case ShaderParameterType::Float:
     return "Float";
   default:

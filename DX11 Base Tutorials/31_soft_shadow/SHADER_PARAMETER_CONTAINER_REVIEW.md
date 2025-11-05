@@ -81,11 +81,44 @@ if (existing_type != incoming_type) {
 - ✅ `ReflectedParameter` 结构体定义 (```13:17:DX11 Base Tutorials/31_soft_shadow/ShaderParameterValidator.h```)
 - ✅ `ReflectShader()` 函数声明 (```19:21:DX11 Base Tutorials/31_soft_shadow/ShaderParameterValidator.h```)
 - ✅ `ShaderParameterReflection.cpp` 实现文件 (```1:24:DX11 Base Tutorials/31_soft_shadow/ShaderParameterReflection.cpp```)
+- ✅ 反射结果新增 `stage_mask`、结构体字段展开以及 Sampler 条目（默认 non-required）。
 
 **评估**：
 - ✅ **符合重构规划阶段 6**：着色器反射预留接口
-- ✅ **实现方式正确**：空实现 + TODO 注释，不影响现有功能
-- ✅ **接口设计合理**：为后续实现预留了扩展空间
+- ✅ **实现方式完善**：自动采集 VS/PS 常量缓冲字段、纹理与采样器，并记录使用阶段
+- ✅ **接口设计合理**：保留 ReflectedParameter 扩展空间，可继续追加 UAV/结构化缓冲信息
+
+### 7. 阶段收尾与冻结策略 ✅
+
+**当前状态**：Shader 参数管理重构阶段目标（强类型化 / 覆盖顺序 / 基础反射 / 覆盖日志）全部达成，并已在 `ARCHITECTURE_CRITIQUE.md` 登记冻结准则与下一阶段优先级。
+
+**冻结内容**：
+- 覆盖优先级链：Global < Pass < Object < Callback
+- 类型枚举（仅允许新增，不重命名已有项）
+- 覆盖日志格式（来源链条保持文本可检索性）
+
+**未决扩展（延后处理）**：
+- UAV / StructuredBuffer 反射条目与 slot 输出
+- 自动绑定解析器（基于反射与 Pass 声明填充参数容器）
+- FrameContext 注入（减少显式矩阵传递）
+- 覆盖日志分级（Debug 全量 / Release 关键事件）
+
+**风险与缓解**：
+- 跳过兼容层 → 回滚成本高：建议在开始 UAV 扩展前打标签 (git tag) 以便回退。
+- Sampler 默认非必需：若后续出现采样器缺失误用，可在 Validator 增加“引用但未绑定”二级告警。
+
+**迁移指引（新增 Shader 时）**：
+1. 先实现 Shader，确认 VS/PS 编译成功。
+2. 调用反射自动注册；检查日志是否出现 Unknown 类型（结构体成员未识别时手动补）。
+3. 必需纹理 / 矩阵在 Pass 或 Global 提前注册；可选纹理通过 `optional` 列表或对象回调提供。
+4. 若出现历史命名不一致（如 shaderTexture），优先用 alias 机制映射，避免直接改 HLSL 破坏已有资源链。
+
+**Release 模式建议**：暂不关闭覆盖日志；待样本量统计（≥200 次覆盖）后评估是否默认降级到 WARN 级别。类型冲突仍保留为 ERROR 立即抛出。
+
+**工作量回顾**：实际投入略高于初始估算（主要因即时引入 alias + stage_mask 支持），但换取后续扩展可维护性与调试清晰度。
+
+---
+本节更新：2025-11-05
 
 ## ⚠️ 需要改进的问题
 

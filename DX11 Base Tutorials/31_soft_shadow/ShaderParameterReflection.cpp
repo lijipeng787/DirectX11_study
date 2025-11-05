@@ -37,25 +37,42 @@ ShaderParameterType MapShaderType(const D3D11_SHADER_TYPE_DESC &type_desc) {
 
 using ReflectionCache = std::unordered_map<std::string, ReflectedParameter>;
 
+ShaderStageMask StageToMask(ShaderStage stage) {
+  return static_cast<ShaderStageMask>(stage);
+}
+
+void MergeStageMask(ReflectedParameter &parameter, ShaderStage stage) {
+  parameter.stage_mask = static_cast<ShaderStageMask>(
+      parameter.stage_mask | StageToMask(stage));
+}
+
 void AddOrUpdateParameter(ReflectionCache &cache, const std::string &name,
-                          ShaderParameterType type, const char *stage_label) {
+                          ShaderParameterType type, ShaderStage stage,
+                          const char *stage_label, bool required = true) {
   if (name.empty()) {
     return;
   }
 
+  const auto stage_mask = StageToMask(stage);
+
   auto existing_iterator = cache.find(name);
   if (existing_iterator == cache.end()) {
-    cache.emplace(name, ReflectedParameter{name, type, true});
+    cache.emplace(name, ReflectedParameter{name, type, required, stage_mask});
     return;
   }
 
-  if (existing_iterator->second.type == type ||
-      type == ShaderParameterType::Unknown) {
+  auto &existing = existing_iterator->second;
+  MergeStageMask(existing, stage);
+  if (required && !existing.required) {
+    existing.required = true;
+  }
+
+  if (existing.type == type || type == ShaderParameterType::Unknown) {
     return;
   }
 
-  if (existing_iterator->second.type == ShaderParameterType::Unknown) {
-    existing_iterator->second.type = type;
+  if (existing.type == ShaderParameterType::Unknown) {
+    existing.type = type;
     return;
   }
 
@@ -63,13 +80,61 @@ void AddOrUpdateParameter(ReflectionCache &cache, const std::string &name,
   Logger::LogWarning(
       "Parameter type mismatch detected during reflection for "
       "parameter '" +
-      name + "' in stage " + stage_label + ": existing=" +
-      ShaderParameterTypeToString(existing_iterator->second.type) +
+      name + " in stage " + stage_label + ": existing=" +
+      ShaderParameterTypeToString(existing.type) +
       ", incoming=" + ShaderParameterTypeToString(type));
 }
 
+void ReflectTypeRecursive(ID3D11ShaderReflectionType *type,
+                          const std::string &qualified_name,
+                          ShaderStage stage, const char *stage_label,
+                          ReflectionCache &cache) {
+  if (type == nullptr) {
+    return;
+  }
+
+  D3D11_SHADER_TYPE_DESC type_desc = {};
+  if (FAILED(type->GetDesc(&type_desc))) {
+    return;
+  }
+
+  if (type_desc.Elements > 0) {
+    const ShaderParameterType parameter_type = MapShaderType(type_desc);
+    AddOrUpdateParameter(cache, qualified_name, parameter_type, stage,
+                         stage_label);
+    return;
+  }
+
+  if (type_desc.Class == D3D_SVC_STRUCT) {
+    for (UINT member_index = 0; member_index < type_desc.Members;
+         ++member_index) {
+      ID3D11ShaderReflectionType *member_type =
+          type->GetMemberTypeByIndex(member_index);
+      const char *member_name = type->GetMemberTypeName(member_index);
+      if (member_type == nullptr || member_name == nullptr) {
+        continue;
+      }
+
+      std::string member_qualified_name = qualified_name;
+      if (!member_qualified_name.empty()) {
+        member_qualified_name.append(".");
+      }
+      member_qualified_name.append(member_name);
+
+      ReflectTypeRecursive(member_type, member_qualified_name, stage,
+                           stage_label, cache);
+    }
+    return;
+  }
+
+  const ShaderParameterType parameter_type = MapShaderType(type_desc);
+  AddOrUpdateParameter(cache, qualified_name, parameter_type, stage,
+                       stage_label);
+}
+
 void ReflectConstantBuffers(ID3D11ShaderReflection *reflection,
-                            const char *stage_label, ReflectionCache &cache) {
+                            ShaderStage stage, const char *stage_label,
+                            ReflectionCache &cache) {
   if (reflection == nullptr) {
     return;
   }
@@ -114,20 +179,15 @@ void ReflectConstantBuffers(ID3D11ShaderReflection *reflection,
         continue;
       }
 
-      D3D11_SHADER_TYPE_DESC type_desc = {};
-      if (FAILED(type->GetDesc(&type_desc))) {
-        continue;
-      }
-
-      const ShaderParameterType parameter_type = MapShaderType(type_desc);
-      AddOrUpdateParameter(cache, variable_desc.Name, parameter_type,
-                           stage_label);
+      ReflectTypeRecursive(type, variable_desc.Name, stage, stage_label,
+                           cache);
     }
   }
 }
 
 void ReflectResourceBindings(ID3D11ShaderReflection *reflection,
-                             const char *stage_label, ReflectionCache &cache) {
+                             ShaderStage stage, const char *stage_label,
+                             ReflectionCache &cache) {
   if (reflection == nullptr) {
     return;
   }
@@ -145,15 +205,23 @@ void ReflectResourceBindings(ID3D11ShaderReflection *reflection,
       continue;
     }
 
-    if (bind_desc.Type == D3D_SIT_TEXTURE) {
+    switch (bind_desc.Type) {
+    case D3D_SIT_TEXTURE:
       AddOrUpdateParameter(cache, bind_desc.Name, ShaderParameterType::Texture,
-                           stage_label);
+                           stage, stage_label);
+      break;
+    case D3D_SIT_SAMPLER:
+      AddOrUpdateParameter(cache, bind_desc.Name, ShaderParameterType::Sampler,
+                           stage, stage_label, false);
+      break;
+    default:
+      break;
     }
   }
 }
 
-void CollectStageParameters(ID3D10Blob *shader_blob, const char *stage_label,
-                            ReflectionCache &cache) {
+void CollectStageParameters(ID3D10Blob *shader_blob, ShaderStage stage,
+                            const char *stage_label, ReflectionCache &cache) {
   if (shader_blob == nullptr) {
     return;
   }
@@ -172,8 +240,8 @@ void CollectStageParameters(ID3D10Blob *shader_blob, const char *stage_label,
     return;
   }
 
-  ReflectConstantBuffers(reflection, stage_label, cache);
-  ReflectResourceBindings(reflection, stage_label, cache);
+  ReflectConstantBuffers(reflection, stage, stage_label, cache);
+  ReflectResourceBindings(reflection, stage, stage_label, cache);
 
   if (reflection != nullptr) {
     reflection->Release();
@@ -187,8 +255,8 @@ ReflectShader(ID3D11Device *device, ID3D10Blob *vs_blob, ID3D10Blob *ps_blob) {
   (void)device; // Currently unused but retained for future expansion.
 
   ReflectionCache cache;
-  CollectStageParameters(vs_blob, "VS", cache);
-  CollectStageParameters(ps_blob, "PS", cache);
+  CollectStageParameters(vs_blob, ShaderStage::Vertex, "VS", cache);
+  CollectStageParameters(ps_blob, ShaderStage::Pixel, "PS", cache);
 
   std::vector<ReflectedParameter> parameters;
   parameters.reserve(cache.size());
