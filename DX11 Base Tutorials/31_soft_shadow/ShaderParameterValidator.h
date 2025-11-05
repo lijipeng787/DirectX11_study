@@ -18,8 +18,7 @@ struct ReflectedParameter {
 };
 
 std::vector<ReflectedParameter>
-ReflectShader(ID3D11Device *device, ID3D10Blob *vs_blob,
-              ID3D10Blob *ps_blob);
+ReflectShader(ID3D11Device *device, ID3D10Blob *vs_blob, ID3D10Blob *ps_blob);
 
 enum class ValidationMode {
   Strict,  // Strict mode: all required parameters must exist
@@ -32,13 +31,12 @@ public:
   // Register shader required parameters
   void RegisterShader(const std::string &shader_name,
                       const std::vector<ShaderParameterInfo> &parameters);
-  void RegisterShader(
-      const std::string &shader_name,
-      std::initializer_list<ShaderParameterInfo> parameters);
+  void RegisterShader(const std::string &shader_name,
+                      std::initializer_list<ShaderParameterInfo> parameters);
   void RegisterShader(const std::string &shader_name,
                       const std::vector<ReflectedParameter> &parameters);
-  //void RegisterShader(const std::string &shader_name,
-  //                    const std::vector<ReflectedParameter> &parameters);
+  // void RegisterShader(const std::string &shader_name,
+  //                     const std::vector<ReflectedParameter> &parameters);
 
   // Register global parameters (provided by Render() at runtime, not needed in
   // Pass)
@@ -61,10 +59,10 @@ public:
       ValidationMode mode = ValidationMode::Warning) const;
 
   bool ValidatePassParameters(
-    const std::string &pass_name, const std::string &shader_name,
-    const std::unordered_map<std::string, ShaderParameterType>
-      &provided_parameters,
-    ValidationMode mode = ValidationMode::Warning) const;
+      const std::string &pass_name, const std::string &shader_name,
+      const std::unordered_map<std::string, ShaderParameterType>
+          &provided_parameters,
+      ValidationMode mode = ValidationMode::Warning) const;
 
   // Get missing parameters list (excluding global parameters)
   std::vector<std::string> GetMissingParameters(
@@ -129,16 +127,17 @@ private:
       const std::unordered_map<std::string, ShaderParameterType>
           &provided_parameters) const;
 
-  std::string BuildValidationReport(
-      const std::string &pass_name, const std::string &shader_name,
-      const std::vector<ShaderParameterInfo> &required_params,
-      const ValidationSummary &summary) const;
+  std::string
+  BuildValidationReport(const std::string &pass_name,
+                        const std::string &shader_name,
+                        const std::vector<ShaderParameterInfo> &required_params,
+                        const ValidationSummary &summary) const;
 
   bool ValidatePassParametersInternal(
-    const std::string &pass_name, const std::string &shader_name,
-    const std::unordered_map<std::string, ShaderParameterType>
-      &provided_parameters,
-    ValidationMode mode) const;
+      const std::string &pass_name, const std::string &shader_name,
+      const std::unordered_map<std::string, ShaderParameterType>
+          &provided_parameters,
+      ValidationMode mode) const;
 };
 
 // Helper functions for resource name to parameter name conversion

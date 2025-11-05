@@ -78,7 +78,7 @@ bool ShaderBase::InitializeShaderFromFile(
   }
 
   reflected_parameters_ =
-    ReflectShader(device, vertexShaderBuffer.Get(), pixelShaderBuffer.Get());
+      ReflectShader(device, vertexShaderBuffer.Get(), pixelShaderBuffer.Get());
 
   // Create input layout
   result = device->CreateInputLayout(

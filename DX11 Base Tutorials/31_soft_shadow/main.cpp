@@ -1,5 +1,5 @@
-#include "System.h"
 #include "ShaderParameterContainerTests.h"
+#include "System.h"
 #include <iostream>
 #include <memory>
 
@@ -18,7 +18,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 #endif
 
   if (!RunShaderParameterContainerTests()) {
-    std::cerr << "ShaderParameterContainer tests failed. Aborting startup." << std::endl;
+    std::cerr << "ShaderParameterContainer tests failed. Aborting startup."
+              << std::endl;
 #ifdef _DEBUG
     FreeConsole();
 #endif

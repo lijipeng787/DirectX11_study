@@ -206,7 +206,8 @@ Validator::RegisterShader 可接受反射结果直接填充，而不是手工枚
 
 3. 阶段 3（合并策略重写）
 	- 已完成：MergeWithPriority(lower, higher) 与 ChainMerge(global, pass, object, callback) 已实现；调用点（RenderGraphPass、RenderPass、Graphics、RenderableObject）使用新接口；覆盖顺序语义 = 后者覆盖前者。
-	- 待验证：类型冲突抛出异常逻辑仅在 AssignValue 内检测；需添加针对不同来源（global→pass→object→callback）的日志来源标记方便调试。
+	- 待观察：类型冲突仍只在 AssignValue 内检测；需关注覆盖日志在大场景中的噪声水平。
+	- 新增：AssignValue 记录 Global → Pass → Object → Callback 覆盖链路，并输出覆盖来源的日志（默认在 Graphics::RegisterShaderParameters 中启用）。
 
 4. 阶段 4（调用点迁移）
 	- 已完成：全局搜索显示当前不再直接访问旧 parameters_；对象 worldMatrix、回调覆盖路径已迁移；RenderGraph 自定义 Execute 回调使用 ChainMerge。
@@ -228,14 +229,15 @@ Validator::RegisterShader 可接受反射结果直接填充，而不是手工枚
  - Validator::ValidatePassParametersInternal 拆解为 AnalyzeProvidedParameters / BuildValidationReport，降低认知复杂度并统一日志生成逻辑。
  - `ReflectShader` 实现最小 VS/PS 反射，自动采集常量缓冲变量与纹理绑定并可直接注册验证规则。
 	- `Graphics::RegisterShaderParameters` 以反射结果为主，针对 `texture`/`reflectionTexture` 等运行期注入参数设置 optional，并保留手写配置作为安全兜底。
+ - ShaderParameterContainer 追踪参数来源并在覆盖时输出 Global→Pass→Object→Callback 的日志，便于定位优先级链路。
 
 仍需的后续工作 / TODO：
- - 引入轻量 FrameContext（时间、摄像机矩阵）并在 ChainMerge 时自动注入（计划中的扩展未开始）。
+	- 引入轻量 FrameContext（时间、摄像机矩阵）并在 ChainMerge 时自动注入（计划中的扩展未开始）。
 	- 扩展反射：补充 UAV/Sampler/StructuredBuffer、数组/结构体成员识别，携带 slot/stage 信息并与自动绑定策略融合。
- - 性能评估：XMMATRIX 直接存入 variant 可能导致拷贝成本；考虑改为 XMFLOAT4X4 或包装结构以减少 register pressure（仅在热点路径必要时）。
- - 更完善的覆盖顺序日志：在 AssignValue 中加入来源标签（枚举或字符串）以区分覆盖链步骤。
- - 自动将 ReadAsParameter 的纹理命名转换规则与 Validator 的命名合法性检查统一（当前存在两个分离规则）。
- - 文档同步：在 README_CONFIG_SYSTEM 或专门的 SHADER_PARAMETER_CONTAINER_REVIEW.md 中追加“当前实现差异点”与“迁移注意事项”。
+	- 性能评估：XMMATRIX 直接存入 variant 可能导致拷贝成本；考虑改为 XMFLOAT4X4 或包装结构以减少 register pressure（仅在热点路径必要时）。
+	- 按需细化覆盖日志：提供过滤/采样或模块级开关，避免在 Release 模式产生过量输出。
+	- 自动将 ReadAsParameter 的纹理命名转换规则与 Validator 的命名合法性检查统一（当前存在两个分离规则）。
+	- 文档同步：在 README_CONFIG_SYSTEM 或专门的 SHADER_PARAMETER_CONTAINER_REVIEW.md 中追加“当前实现差异点”与“迁移注意事项”。
 
 风险与建议：
  - 已跳过兼容阶段，若出现运行期问题回滚困难；建议创建临时分支保存当前状态并写最小 revert 脚本（或宏门控）。
@@ -245,8 +247,8 @@ Validator::RegisterShader 可接受反射结果直接填充，而不是手工枚
 当前总体完成度（粗略）：阶段 1~5 已完成（带偏离与提前删除），阶段 6 已完成最小 VS/PS 反射管线（约 55%），仍需补齐高级场景与自动绑定集成。整体进入“验证与反射接入”阶段。
 
 下一步优先级建议：
- 1) 增加覆盖来源日志提升调试可观测性。
- 2) 扩展反射输出，补齐 UAV/Sampler/结构体字段与阶段元数据。
+ 1) 扩展反射输出，补齐 UAV/Sampler/结构体字段与阶段元数据。
+ 2) 设计覆盖日志的过滤/开关策略，并评估在 Release/非调试场景的默认配置。
 
 （本节仅更新进度，不替换原计划，可在后续提交中折叠为“进度/差异”章节。）
 

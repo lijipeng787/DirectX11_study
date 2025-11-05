@@ -25,9 +25,10 @@ void RenderableObject::Render(const IShader &shader,
                               ID3D11DeviceContext *deviceContext) const {
 
   ShaderParameterContainer combinedParams = parameters;
-  combinedParams =
-      ShaderParameterContainer::MergeWithPriority(combinedParams,
-                                                  object_parameters_);
+  combinedParams = ShaderParameterContainer::MergeWithPriority(
+      combinedParams, object_parameters_,
+      ShaderParameterContainer::ParameterOrigin::Pass,
+      ShaderParameterContainer::ParameterOrigin::Object);
 
   if (is_window_model_)
     window_model_->Render(shader, combinedParams, deviceContext);

@@ -65,8 +65,8 @@ struct ShaderParameterInfo {
 };
 
 using ShaderParameterValueVariant =
-    std::variant<DirectX::XMMATRIX, DirectX::XMFLOAT3, DirectX::XMFLOAT4,
-                 float, ID3D11ShaderResourceView *>;
+    std::variant<DirectX::XMMATRIX, DirectX::XMFLOAT3, DirectX::XMFLOAT4, float,
+                 ID3D11ShaderResourceView *>;
 
 // ============================================================================
 // Shader Parameter Container
@@ -75,6 +75,15 @@ using ShaderParameterValueVariant =
 class ShaderParameterContainer {
 public:
   using ParamValue = ShaderParameterValueVariant;
+
+  enum class ParameterOrigin {
+    Unknown,
+    Manual,
+    Global,
+    Pass,
+    Object,
+    Callback
+  };
 
   struct ParameterEntry {
     std::string name;
@@ -100,8 +109,7 @@ public:
                                const DirectX::XMFLOAT3 &vector);
   void SetVector3(const std::string &name, const DirectX::XMFLOAT3 &vector);
   void SetVector4(const std::string &name, const DirectX::XMFLOAT4 &vector);
-  void SetTexture(const std::string &name,
-                  ID3D11ShaderResourceView *texture);
+  void SetTexture(const std::string &name, ID3D11ShaderResourceView *texture);
 
   template <typename T> T Get(const std::string &name) const;
   template <typename T> bool TryGet(const std::string &name, T &out) const;
@@ -121,22 +129,30 @@ public:
 
   static ShaderParameterContainer
   MergeWithPriority(const ShaderParameterContainer &lower,
-                    const ShaderParameterContainer &higher);
-  static ShaderParameterContainer ChainMerge(
-      const ShaderParameterContainer &global,
-      const ShaderParameterContainer &pass,
-      const ShaderParameterContainer *object = nullptr,
-      const ShaderParameterContainer *callback = nullptr);
+                    const ShaderParameterContainer &higher,
+                    ParameterOrigin lower_origin = ParameterOrigin::Unknown,
+                    ParameterOrigin higher_origin = ParameterOrigin::Unknown);
+  static ShaderParameterContainer
+  ChainMerge(const ShaderParameterContainer &global,
+             const ShaderParameterContainer &pass,
+             const ShaderParameterContainer *object = nullptr,
+             const ShaderParameterContainer *callback = nullptr);
 
   static void SetTypeMismatchLoggingEnabled(bool enabled);
+  static void SetOverrideLoggingEnabled(bool enabled);
 
 private:
-  void AssignValue(const std::string &name, const ParamValue &value);
-  void ApplyOverrides(const ShaderParameterContainer &other);
+  void AssignValue(const std::string &name, const ParamValue &value,
+                   ParameterOrigin origin = ParameterOrigin::Manual);
+  void ApplyOverrides(const ShaderParameterContainer &other,
+                      ParameterOrigin origin = ParameterOrigin::Unknown);
   static ShaderParameterType DeduceType(const ParamValue &value);
+  static const char *ParameterOriginToString(ParameterOrigin origin);
 
   std::unordered_map<std::string, ParamValue> typed_parameters_;
+  std::unordered_map<std::string, ParameterOrigin> parameter_origins_;
   static bool type_mismatch_logging_enabled_;
+  static bool override_logging_enabled_;
 };
 
 // ============================================================================
@@ -155,8 +171,8 @@ template <typename T> struct always_false : std::false_type {};
 } // namespace detail
 
 template <typename T>
-ShaderParameterContainer &
-ShaderParameterContainer::Set(const std::string &name, const T &value) {
+ShaderParameterContainer &ShaderParameterContainer::Set(const std::string &name,
+                                                        const T &value) {
   if constexpr (std::is_same_v<std::decay_t<T>, DirectX::XMMATRIX>) {
     SetMatrix(name, value);
   } else if constexpr (std::is_same_v<std::decay_t<T>, DirectX::XMFLOAT3>) {
@@ -165,18 +181,21 @@ ShaderParameterContainer::Set(const std::string &name, const T &value) {
     SetVector4(name, value);
   } else if constexpr (std::is_same_v<std::decay_t<T>, float>) {
     SetFloat(name, value);
-  } else if constexpr (std::is_same_v<std::decay_t<T>, ID3D11ShaderResourceView *>) {
+  } else if constexpr (std::is_same_v<std::decay_t<T>,
+                                      ID3D11ShaderResourceView *>) {
     SetTexture(name, value);
   } else if constexpr (std::is_same_v<std::decay_t<T>, std::nullptr_t>) {
     SetTexture(name, nullptr);
   } else {
-    static_assert(detail::always_false<T>::value,
-                  "Unsupported parameter type for ShaderParameterContainer::Set");
+    static_assert(
+        detail::always_false<T>::value,
+        "Unsupported parameter type for ShaderParameterContainer::Set");
   }
   return *this;
 }
 
-template <typename T> T ShaderParameterContainer::Get(const std::string &name) const {
+template <typename T>
+T ShaderParameterContainer::Get(const std::string &name) const {
   auto it = typed_parameters_.find(name);
   if (it == typed_parameters_.end()) {
     throw std::runtime_error("Parameter not found: " + name);
@@ -211,8 +230,9 @@ inline void ShaderParameterContainer::SetGlobalDynamicMatrix(
   SetMatrix(name, matrix);
 }
 
-inline void ShaderParameterContainer::SetMatrix(
-    const std::string &name, const DirectX::XMMATRIX &matrix) {
+inline void
+ShaderParameterContainer::SetMatrix(const std::string &name,
+                                    const DirectX::XMMATRIX &matrix) {
   auto param_value = decltype(typed_parameters_)::mapped_type(matrix);
   AssignValue(name, param_value);
 }
@@ -222,20 +242,23 @@ inline void ShaderParameterContainer::SetGlobalDynamicVector3(
   SetVector3(name, vector);
 }
 
-inline void ShaderParameterContainer::SetVector3(
-    const std::string &name, const DirectX::XMFLOAT3 &vector) {
+inline void
+ShaderParameterContainer::SetVector3(const std::string &name,
+                                     const DirectX::XMFLOAT3 &vector) {
   auto param_value = decltype(typed_parameters_)::mapped_type(vector);
   AssignValue(name, param_value);
 }
 
-inline void ShaderParameterContainer::SetVector4(
-    const std::string &name, const DirectX::XMFLOAT4 &vector) {
+inline void
+ShaderParameterContainer::SetVector4(const std::string &name,
+                                     const DirectX::XMFLOAT4 &vector) {
   auto param_value = decltype(typed_parameters_)::mapped_type(vector);
   AssignValue(name, param_value);
 }
 
-inline void ShaderParameterContainer::SetTexture(
-    const std::string &name, ID3D11ShaderResourceView *texture) {
+inline void
+ShaderParameterContainer::SetTexture(const std::string &name,
+                                     ID3D11ShaderResourceView *texture) {
   auto param_value = decltype(typed_parameters_)::mapped_type(texture);
   AssignValue(name, param_value);
 }
@@ -264,8 +287,8 @@ ShaderParameterContainer::GetTexture(const std::string &name) const {
   return Get<ID3D11ShaderResourceView *>(name);
 }
 
-inline bool ShaderParameterContainer::HasParameter(
-    const std::string &name) const {
+inline bool
+ShaderParameterContainer::HasParameter(const std::string &name) const {
   return typed_parameters_.find(name) != typed_parameters_.end();
 }
 
@@ -309,59 +332,106 @@ ShaderParameterContainer::GetAllParameterNames() const {
 
 inline ShaderParameterContainer ShaderParameterContainer::MergeWithPriority(
     const ShaderParameterContainer &lower,
-    const ShaderParameterContainer &higher) {
-  ShaderParameterContainer result = lower;
-  result.ApplyOverrides(higher);
+    const ShaderParameterContainer &higher, ParameterOrigin lower_origin,
+    ParameterOrigin higher_origin) {
+  ShaderParameterContainer result;
+  result.ApplyOverrides(lower, lower_origin);
+  result.ApplyOverrides(higher, higher_origin);
   return result;
 }
 
-inline ShaderParameterContainer ShaderParameterContainer::ChainMerge(
-    const ShaderParameterContainer &global,
-    const ShaderParameterContainer &pass,
-    const ShaderParameterContainer *object,
-    const ShaderParameterContainer *callback) {
-  ShaderParameterContainer result = MergeWithPriority(global, pass);
+inline ShaderParameterContainer
+ShaderParameterContainer::ChainMerge(const ShaderParameterContainer &global,
+                                     const ShaderParameterContainer &pass,
+                                     const ShaderParameterContainer *object,
+                                     const ShaderParameterContainer *callback) {
+  ShaderParameterContainer result;
+  result.ApplyOverrides(global, ParameterOrigin::Global);
+  result.ApplyOverrides(pass, ParameterOrigin::Pass);
   if (object != nullptr) {
-    result.ApplyOverrides(*object);
+    result.ApplyOverrides(*object, ParameterOrigin::Object);
   }
   if (callback != nullptr) {
-    result.ApplyOverrides(*callback);
+    result.ApplyOverrides(*callback, ParameterOrigin::Callback);
   }
   return result;
 }
 
 inline void ShaderParameterContainer::AssignValue(
-    const std::string &name, const ParamValue &value) {
+    const std::string &name,
+    const typename decltype(typed_parameters_)::mapped_type &value,
+    ParameterOrigin origin) {
   auto iter = typed_parameters_.find(name);
   if (iter != typed_parameters_.end()) {
+    const auto previous_origin_iter = parameter_origins_.find(name);
+    const ParameterOrigin previous_origin =
+        previous_origin_iter != parameter_origins_.end()
+            ? previous_origin_iter->second
+            : ParameterOrigin::Unknown;
+
+    ParameterOrigin resolved_origin = origin;
+    if (resolved_origin == ParameterOrigin::Unknown) {
+      resolved_origin = previous_origin != ParameterOrigin::Unknown
+                            ? previous_origin
+                            : ParameterOrigin::Manual;
+    }
+
     auto existing_type = DeduceType(iter->second);
     auto incoming_type = DeduceType(value);
     if (existing_type != incoming_type) {
       std::ostringstream oss;
       oss << "Parameter \"" << name << "\" type mismatch: existing="
-          << ShaderParameterTypeToString(existing_type) << ", incoming="
-          << ShaderParameterTypeToString(incoming_type);
+          << ShaderParameterTypeToString(existing_type)
+          << ", incoming=" << ShaderParameterTypeToString(incoming_type);
       if (type_mismatch_logging_enabled_) {
         Logger::SetModule("ShaderParameterContainer");
         Logger::LogError(oss.str());
       }
       throw std::runtime_error(oss.str());
     }
+
+    if (override_logging_enabled_ && previous_origin != resolved_origin &&
+        resolved_origin != ParameterOrigin::Unknown &&
+        previous_origin != ParameterOrigin::Unknown) {
+      std::ostringstream oss;
+      oss << "Parameter \"" << name
+          << "\" overridden: " << ParameterOriginToString(previous_origin)
+          << " -> " << ParameterOriginToString(resolved_origin);
+      Logger::SetModule("ShaderParameterContainer");
+      Logger::LogInfo(oss.str());
+    }
+
     iter->second = value;
+    parameter_origins_[name] = resolved_origin;
     return;
   }
+  ParameterOrigin resolved_origin = origin;
+  if (resolved_origin == ParameterOrigin::Unknown) {
+    resolved_origin = ParameterOrigin::Manual;
+  }
   typed_parameters_.emplace(name, value);
+  parameter_origins_[name] = resolved_origin;
 }
 
-inline void ShaderParameterContainer::ApplyOverrides(
-    const ShaderParameterContainer &other) {
+inline void
+ShaderParameterContainer::ApplyOverrides(const ShaderParameterContainer &other,
+                                         ParameterOrigin origin) {
   for (const auto &kv : other.typed_parameters_) {
-    AssignValue(kv.first, kv.second);
+    ParameterOrigin resolved_origin = origin;
+    if (resolved_origin == ParameterOrigin::Unknown) {
+      auto origin_iter = other.parameter_origins_.find(kv.first);
+      if (origin_iter != other.parameter_origins_.end()) {
+        resolved_origin = origin_iter->second;
+      } else {
+        resolved_origin = ParameterOrigin::Manual;
+      }
+    }
+    AssignValue(kv.first, kv.second, resolved_origin);
   }
 }
 
 inline ShaderParameterType ShaderParameterContainer::DeduceType(
-    const ParamValue &value) {
+    const typename decltype(typed_parameters_)::mapped_type &value) {
   return std::visit(
       [](auto &&arg) -> ShaderParameterType {
         using T = std::decay_t<decltype(arg)>;
@@ -379,4 +449,22 @@ inline ShaderParameterType ShaderParameterContainer::DeduceType(
         return ShaderParameterType::Unknown;
       },
       value);
+}
+
+inline const char *
+ShaderParameterContainer::ParameterOriginToString(ParameterOrigin origin) {
+  switch (origin) {
+  case ParameterOrigin::Manual:
+    return "Manual";
+  case ParameterOrigin::Global:
+    return "Global";
+  case ParameterOrigin::Pass:
+    return "Pass";
+  case ParameterOrigin::Object:
+    return "Object";
+  case ParameterOrigin::Callback:
+    return "Callback";
+  default:
+    return "Unknown";
+  }
 }

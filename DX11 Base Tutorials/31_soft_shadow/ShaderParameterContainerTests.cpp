@@ -36,9 +36,8 @@ bool TestMergeWithPriorityOverrides() {
   global_parameters.SetVector4("ambientColor", ambient_global);
   pass_parameters.SetVector4("ambientColor", ambient_pass);
 
-  auto merged =
-      ShaderParameterContainer::MergeWithPriority(global_parameters,
-                                                  pass_parameters);
+  auto merged = ShaderParameterContainer::MergeWithPriority(global_parameters,
+                                                            pass_parameters);
 
   if (!AreFloatsEqual(merged.GetFloat("shadowStrength"), 0.55f)) {
     return false;
@@ -77,8 +76,12 @@ bool TestChainMergePriorityOrder() {
 
 bool TestTypeConflictThrows() {
   struct ScopedLoggingGuard {
-    ScopedLoggingGuard() { ShaderParameterContainer::SetTypeMismatchLoggingEnabled(false); }
-    ~ScopedLoggingGuard() { ShaderParameterContainer::SetTypeMismatchLoggingEnabled(true); }
+    ScopedLoggingGuard() {
+      ShaderParameterContainer::SetTypeMismatchLoggingEnabled(false);
+    }
+    ~ScopedLoggingGuard() {
+      ShaderParameterContainer::SetTypeMismatchLoggingEnabled(true);
+    }
   } guard;
 
   ShaderParameterContainer global_parameters;
@@ -119,15 +122,12 @@ std::vector<TestCaseResult> RunAllTestsInternal() {
     results.push_back(result);
   };
 
-  run("MergeWithPriority overrides higher precedence", [] {
-    return TestMergeWithPriorityOverrides();
-  });
-  run("ChainMerge respects priority order", [] {
-    return TestChainMergePriorityOrder();
-  });
-  run("MergeWithPriority detects type conflicts", [] {
-    return TestTypeConflictThrows();
-  });
+  run("MergeWithPriority overrides higher precedence",
+      [] { return TestMergeWithPriorityOverrides(); });
+  run("ChainMerge respects priority order",
+      [] { return TestChainMergePriorityOrder(); });
+  run("MergeWithPriority detects type conflicts",
+      [] { return TestTypeConflictThrows(); });
 
   return results;
 }

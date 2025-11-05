@@ -43,8 +43,8 @@ void RenderPass::Execute(
 
   for (const auto &renderable : renderables) {
     if (ShouldRenderObject(*renderable)) {
-  ShaderParameterContainer objectParams = globalFramePassParams;
-  objectParams.SetMatrix("worldMatrix", renderable->GetWorldMatrix());
+      ShaderParameterContainer objectParams = globalFramePassParams;
+      objectParams.SetMatrix("worldMatrix", renderable->GetWorldMatrix());
 
       auto callback = renderable->GetParameterCallback();
       if (callback) {

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include "../CommonFramework2/DirectX11Device.h"
@@ -57,31 +58,31 @@ static constexpr auto DEBUG_RESOURCE_LOG_INTERVAL = 5.0f;
 #endif
 
 // Render tag constants
-static constexpr const char* WRITE_DEPTH_TAG = "write_depth";
-static constexpr const char* WRITE_SHADOW_TAG = "write_shadow";
-static constexpr const char* DOWN_SAMPLE_TAG = "down_sample";
-static constexpr const char* HORIZONTAL_BLUR_TAG = "horizontal_blur";
-static constexpr const char* VERTICAL_BLUR_TAG = "vertical_blur";
-static constexpr const char* UP_SAMPLE_TAG = "up_sample";
-static constexpr const char* PBR_TAG = "pbr";
-static constexpr const char* FINAL_TAG = "final";
-static constexpr const char* REFLECTION_TAG = "reflection";
-static constexpr const char* DIFFUSE_LIGHTING_TAG = "diffuse_lighting";
+static constexpr const char *WRITE_DEPTH_TAG = "write_depth";
+static constexpr const char *WRITE_SHADOW_TAG = "write_shadow";
+static constexpr const char *DOWN_SAMPLE_TAG = "down_sample";
+static constexpr const char *HORIZONTAL_BLUR_TAG = "horizontal_blur";
+static constexpr const char *VERTICAL_BLUR_TAG = "vertical_blur";
+static constexpr const char *UP_SAMPLE_TAG = "up_sample";
+static constexpr const char *PBR_TAG = "pbr";
+static constexpr const char *FINAL_TAG = "final";
+static constexpr const char *REFLECTION_TAG = "reflection";
+static constexpr const char *DIFFUSE_LIGHTING_TAG = "diffuse_lighting";
 
 // 辅助函数：统一错误日志记录
 namespace {
-void LogGraphicsError(const std::wstring& message) {
+void LogGraphicsError(const std::wstring &message) {
   Logger::SetModule("Graphics");
   Logger::LogError(message);
 }
 
-void LogGraphicsError(const std::string& message) {
+void LogGraphicsError(const std::string &message) {
   Logger::SetModule("Graphics");
   Logger::LogError(message);
 }
 
-std::wstring GetResourceManagerError(const ResourceManager& rm) {
-  const auto& last_error = rm.GetLastError();
+std::wstring GetResourceManagerError(const ResourceManager &rm) {
+  const auto &last_error = rm.GetLastError();
   if (last_error.empty()) {
     return L"";
   }
@@ -156,7 +157,7 @@ bool Graphics::InitializeCamera() {
   if (nullptr == camera_) {
     return false;
   }
-  
+
   // Set initial camera position and compute matrices
   camera_->SetPosition(0.0f, -1.0f, -10.0f);
   camera_->Render();
@@ -203,7 +204,8 @@ bool Graphics::InitializeSceneModels() {
       ground_config.name, ground_config.model_path, ground_config.texture_path);
 
   if (!scene_assets_.cube || !scene_assets_.sphere || !scene_assets_.ground) {
-    LogGraphicsError(L"Could not load models." + GetResourceManagerError(resource_manager));
+    LogGraphicsError(L"Could not load models." +
+                     GetResourceManagerError(resource_manager));
     return false;
   }
 
@@ -214,31 +216,33 @@ bool Graphics::InitializeSceneModels() {
       pbr_config.normal_path, pbr_config.roughmetal_path);
 
   if (!scene_assets_.pbr_sphere) {
-    LogGraphicsError(L"Could not load PBR model." + GetResourceManagerError(resource_manager));
+    LogGraphicsError(L"Could not load PBR model." +
+                     GetResourceManagerError(resource_manager));
     return false;
   }
 
   // Load refraction scene models from configuration
-  auto &ref_ground_config = scene_config_.refraction.ground;
-  scene_assets_.refraction.ground = resource_manager.GetModel(
-      ref_ground_config.name, ref_ground_config.model_path,
-      ref_ground_config.texture_path);
+  //auto &refraction_ground_config = scene_config_.refraction.ground;
+  //scene_assets_.refraction.ground = resource_manager.GetModel(
+  //    refraction_ground_config.name, refraction_ground_config.model_path,
+  //    refraction_ground_config.texture_path);
 
-  auto &ref_wall_config = scene_config_.refraction.wall;
-  scene_assets_.refraction.wall = resource_manager.GetModel(
-      ref_wall_config.name, ref_wall_config.model_path,
-      ref_wall_config.texture_path);
+  //auto &refraction_wall_config = scene_config_.refraction.wall;
+  //scene_assets_.refraction.wall = resource_manager.GetModel(
+  //    refraction_wall_config.name, refraction_wall_config.model_path,
+  //    refraction_wall_config.texture_path);
 
-  auto &ref_water_config = scene_config_.refraction.water;
-  scene_assets_.refraction.water = resource_manager.GetModel(
-      ref_water_config.name, ref_water_config.model_path,
-      ref_water_config.texture_path);
+  //auto &refraction_water_config = scene_config_.refraction.water;
+  //scene_assets_.refraction.water = resource_manager.GetModel(
+  //    refraction_water_config.name, refraction_water_config.model_path,
+  //    refraction_water_config.texture_path);
 
-  if (!scene_assets_.refraction.ground || !scene_assets_.refraction.wall ||
-      !scene_assets_.refraction.water) {
-    LogGraphicsError(L"Could not load refraction scene models." + GetResourceManagerError(resource_manager));
-    return false;
-  }
+  //if (!scene_assets_.refraction.ground || !scene_assets_.refraction.wall ||
+  //    !scene_assets_.refraction.water) {
+  //  LogGraphicsError(L"Could not load refraction scene models." +
+  //                   GetResourceManagerError(resource_manager));
+  //  return false;
+  //}
 
   return true;
 }
@@ -422,8 +426,7 @@ bool Graphics::InitializeResources() {
     return false;
   }
 
-  // Pre-create render groups for backward compatibility
-  // Note: Object rotation is now JSON-driven, but groups are still needed
+  // Object rotation is now JSON-driven, but groups are still needed
   cube_group_ = make_shared<StandardRenderGroup>();
   pbr_group_ = make_shared<StandardRenderGroup>();
 
@@ -473,7 +476,7 @@ void Graphics::Shutdown() {
   }
 
   // Optionally prune unused resources
-  // size_t pruned = resourceManager.PruneAllUnusedResources();
+  size_t pruned = resource_manager.PruneAllUnusedResources();
 
   cout << "========================================\n" << endl;
 
@@ -828,7 +831,8 @@ void Graphics::SetupRenderPasses() {
       .SetTexture("normalMap", sphere_pbr_model->GetTexture(1))
       .SetTexture("rmTexture", sphere_pbr_model->GetTexture(2));
 
-  // Pass 10: Diffuse Lighting Pass - Render objects with simple diffuse lighting
+  // Pass 10: Diffuse Lighting Pass - Render objects with simple diffuse
+  // lighting
   const auto &diffuse_lighting_shader = shader_assets_.diffuse_lighting;
   render_graph_.AddPass("DiffuseLightingPass")
       .SetShader(diffuse_lighting_shader)
@@ -863,38 +867,33 @@ void Graphics::SetupRenderPasses() {
 void Graphics::RegisterShaderParameters() {
   // Set validation mode to Warning (report issues but don't block execution)
   parameter_validator_.SetValidationMode(ValidationMode::Warning);
+  ShaderParameterContainer::SetOverrideLoggingEnabled(true);
 
   // Register global parameters (provided at runtime by Render() or per-object)
   // These parameters are automatically available to all shaders and don't need
   // to be set at Pass level
   parameter_validator_.RegisterGlobalParameter("worldMatrix"); // Set per-object
-  parameter_validator_.RegisterGlobalParameter("viewMatrix");  // From Render()
-  parameter_validator_.RegisterGlobalParameter(
-      "projectionMatrix"); // From Render()
-  parameter_validator_.RegisterGlobalParameter(
-      "baseViewMatrix"); // From Render()
-  parameter_validator_.RegisterGlobalParameter(
-      "deviceWorldMatrix"); // From Render()
-  parameter_validator_.RegisterGlobalParameter(
-      "lightViewMatrix"); // From Render()
-  parameter_validator_.RegisterGlobalParameter(
-      "lightProjectionMatrix"); // From Render()
-  parameter_validator_.RegisterGlobalParameter(
-      "lightPosition"); // From Render()
-  parameter_validator_.RegisterGlobalParameter(
-      "lightDirection"); // From Render()
-  parameter_validator_.RegisterGlobalParameter(
-      "cameraPosition"); // From Render()
-  parameter_validator_.RegisterGlobalParameter(
-      "reflectionMatrix");                                      // From Render()
-  parameter_validator_.RegisterGlobalParameter("ambientColor"); // From Render()
-  parameter_validator_.RegisterGlobalParameter("diffuseColor"); // From Render()
+  // From Render()
+  parameter_validator_.RegisterGlobalParameter("viewMatrix");
+  parameter_validator_.RegisterGlobalParameter("projectionMatrix"); 
+  parameter_validator_.RegisterGlobalParameter("baseViewMatrix");
+  parameter_validator_.RegisterGlobalParameter("deviceWorldMatrix");
+  parameter_validator_.RegisterGlobalParameter("lightViewMatrix");
+  parameter_validator_.RegisterGlobalParameter("lightProjectionMatrix");
+  parameter_validator_.RegisterGlobalParameter("lightPosition");
+  parameter_validator_.RegisterGlobalParameter("lightDirection");
+  parameter_validator_.RegisterGlobalParameter("cameraPosition");
+  parameter_validator_.RegisterGlobalParameter("reflectionMatrix");
+  parameter_validator_.RegisterGlobalParameter("ambientColor");
+  parameter_validator_.RegisterGlobalParameter("diffuseColor");
 
   const auto register_with_reflection =
       [this](const std::string &shader_name,
              const std::shared_ptr<ShaderBase> &shader,
              std::initializer_list<const char *> optional_parameters = {},
-             std::initializer_list<const char *> ignored_parameters = {}) {
+             std::initializer_list<const char *> ignored_parameters = {},
+             std::initializer_list<std::pair<const char *, const char *>>
+                 alias_parameters = {}) {
         if (!shader) {
           return false;
         }
@@ -914,16 +913,32 @@ void Graphics::RegisterShaderParameters() {
           ignored.emplace(name);
         }
 
+        std::unordered_map<std::string, std::string> aliases;
+        for (const auto &pair : alias_parameters) {
+          aliases.emplace(pair.first, pair.second);
+        }
+
         std::vector<ReflectedParameter> adjusted;
         adjusted.reserve(reflected.size());
+        std::unordered_set<std::string> seen_names;
         for (const auto &parameter : reflected) {
           if (ignored.find(parameter.name) != ignored.end()) {
             continue;
           }
 
           ReflectedParameter entry = parameter;
-          if (optional.find(entry.name) != optional.end()) {
+          const auto alias_it = aliases.find(entry.name);
+          if (alias_it != aliases.end()) {
+            entry.name = alias_it->second;
+          }
+
+          if (optional.find(entry.name) != optional.end() ||
+              optional.find(parameter.name) != optional.end()) {
             entry.required = false;
+          }
+
+          if (!seen_names.insert(entry.name).second) {
+            continue;
           }
           adjusted.push_back(entry);
         }
@@ -967,8 +982,8 @@ void Graphics::RegisterShaderParameters() {
   if (!register_with_reflection(
           "SoftShadowShader",
           std::static_pointer_cast<ShaderBase>(shader_assets_.soft_shadow),
-          {"texture", "reflectionTexture", "reflectionBlend",
-           "shadowStrength"})) {
+          {"texture", "reflectionTexture", "reflectionBlend", "shadowStrength"},
+          {}, {{"shaderTexture", "texture"}})) {
     parameter_validator_.RegisterShader(
         "SoftShadowShader",
         {{"worldMatrix", ShaderParameterType::Matrix, true},
@@ -987,23 +1002,25 @@ void Graphics::RegisterShaderParameters() {
 
   // Register PbrShader parameters
   if (!register_with_reflection(
-          "PbrShader", std::static_pointer_cast<ShaderBase>(shader_assets_.pbr))) {
+          "PbrShader",
+          std::static_pointer_cast<ShaderBase>(shader_assets_.pbr))) {
     parameter_validator_.RegisterShader(
-        "PbrShader",
-        {{"worldMatrix", ShaderParameterType::Matrix, true},
-         {"viewMatrix", ShaderParameterType::Matrix, true},
-         {"projectionMatrix", ShaderParameterType::Matrix, true},
-         {"diffuseTexture", ShaderParameterType::Texture, true},
-         {"normalMap", ShaderParameterType::Texture, true},
-         {"rmTexture", ShaderParameterType::Texture, true},
-         {"lightDirection", ShaderParameterType::Vector3, true},
-         {"cameraPosition", ShaderParameterType::Vector3, true}});
+        "PbrShader", {{"worldMatrix", ShaderParameterType::Matrix, true},
+                      {"viewMatrix", ShaderParameterType::Matrix, true},
+                      {"projectionMatrix", ShaderParameterType::Matrix, true},
+                      {"diffuseTexture", ShaderParameterType::Texture, true},
+                      {"normalMap", ShaderParameterType::Texture, true},
+                      {"rmTexture", ShaderParameterType::Texture, true},
+                      {"lightDirection", ShaderParameterType::Vector3, true},
+                      {"cameraPosition", ShaderParameterType::Vector3, true}});
   }
 
   // Register TextureShader parameters
   if (!register_with_reflection(
           "TextureShader",
-          std::static_pointer_cast<ShaderBase>(shader_assets_.texture))) {
+          std::static_pointer_cast<ShaderBase>(shader_assets_.texture), {}, {},
+          {{"shaderTexture", "texture"},
+           {"projectionMatrix", "orthoMatrix"}})) {
     parameter_validator_.RegisterShader(
         "TextureShader",
         {{"deviceWorldMatrix", ShaderParameterType::Matrix, true},
@@ -1013,9 +1030,12 @@ void Graphics::RegisterShaderParameters() {
   }
 
   // Register HorizontalBlurShader parameters
-  if (!register_with_reflection("HorizontalBlurShader",
-                                std::static_pointer_cast<ShaderBase>(
-                                    shader_assets_.horizontal_blur))) {
+  if (!register_with_reflection(
+          "HorizontalBlurShader",
+          std::static_pointer_cast<ShaderBase>(shader_assets_.horizontal_blur),
+          {}, {},
+          {{"shaderTexture", "texture"},
+           {"projectionMatrix", "orthoMatrix"}})) {
     parameter_validator_.RegisterShader(
         "HorizontalBlurShader",
         {{"worldMatrix", ShaderParameterType::Matrix, true},
@@ -1028,7 +1048,10 @@ void Graphics::RegisterShaderParameters() {
   // Register VerticalBlurShader parameters
   if (!register_with_reflection(
           "VerticalBlurShader",
-          std::static_pointer_cast<ShaderBase>(shader_assets_.vertical_blur))) {
+          std::static_pointer_cast<ShaderBase>(shader_assets_.vertical_blur),
+          {}, {},
+          {{"shaderTexture", "texture"},
+           {"projectionMatrix", "orthoMatrix"}})) {
     parameter_validator_.RegisterShader(
         "VerticalBlurShader",
         {{"worldMatrix", ShaderParameterType::Matrix, true},
@@ -1041,9 +1064,8 @@ void Graphics::RegisterShaderParameters() {
   // Register SimpleLightShader parameters (diffuse lighting shader demo)
   if (!register_with_reflection(
           "SimpleLightShader",
-          std::static_pointer_cast<ShaderBase>(
-              shader_assets_.diffuse_lighting),
-          {"texture"})) {
+          std::static_pointer_cast<ShaderBase>(shader_assets_.diffuse_lighting),
+          {"texture"}, {}, {{"shaderTexture", "texture"}})) {
     parameter_validator_.RegisterShader(
         "SimpleLightShader",
         {{"worldMatrix", ShaderParameterType::Matrix, true},
@@ -1143,10 +1165,13 @@ void Graphics::Render() {
   globalParams.SetGlobalDynamicMatrix("viewMatrix", viewMatrix);
   globalParams.SetGlobalDynamicMatrix("baseViewMatrix", baseViewMatrix);
   globalParams.SetGlobalDynamicMatrix("lightViewMatrix", lightViewMatrix);
-  globalParams.SetGlobalDynamicMatrix("lightProjectionMatrix", lightProjectionMatrix);
+  globalParams.SetGlobalDynamicMatrix("lightProjectionMatrix",
+                                      lightProjectionMatrix);
   globalParams.SetGlobalDynamicVector3("lightPosition", light_->GetPosition());
-  globalParams.SetGlobalDynamicVector3("lightDirection", light_->GetDirection());
-  globalParams.SetGlobalDynamicVector3("cameraPosition", camera_->GetPosition());
+  globalParams.SetGlobalDynamicVector3("lightDirection",
+                                       light_->GetDirection());
+  globalParams.SetGlobalDynamicVector3("cameraPosition",
+                                       camera_->GetPosition());
   globalParams.SetMatrix("reflectionMatrix", reflectionMatrix);
   globalParams.SetVector4("ambientColor", light_->GetAmbientColor());
   globalParams.SetVector4("diffuseColor", light_->GetDiffuseColor());

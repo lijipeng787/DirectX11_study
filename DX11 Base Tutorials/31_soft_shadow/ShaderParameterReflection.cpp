@@ -35,12 +35,10 @@ ShaderParameterType MapShaderType(const D3D11_SHADER_TYPE_DESC &type_desc) {
   return ShaderParameterType::Unknown;
 }
 
-using ReflectionCache =
-    std::unordered_map<std::string, ReflectedParameter>;
+using ReflectionCache = std::unordered_map<std::string, ReflectedParameter>;
 
 void AddOrUpdateParameter(ReflectionCache &cache, const std::string &name,
-                          ShaderParameterType type,
-                          const char *stage_label) {
+                          ShaderParameterType type, const char *stage_label) {
   if (name.empty()) {
     return;
   }
@@ -62,17 +60,16 @@ void AddOrUpdateParameter(ReflectionCache &cache, const std::string &name,
   }
 
   Logger::SetModule("ShaderParameterReflection");
-  Logger::LogWarning("Parameter type mismatch detected during reflection for "
-                     "parameter '" +
-                     name + "' in stage " + stage_label +
-                     ": existing=" +
-                     ShaderParameterTypeToString(existing_iterator->second.type) +
-                     ", incoming=" + ShaderParameterTypeToString(type));
+  Logger::LogWarning(
+      "Parameter type mismatch detected during reflection for "
+      "parameter '" +
+      name + "' in stage " + stage_label + ": existing=" +
+      ShaderParameterTypeToString(existing_iterator->second.type) +
+      ", incoming=" + ShaderParameterTypeToString(type));
 }
 
 void ReflectConstantBuffers(ID3D11ShaderReflection *reflection,
-                            const char *stage_label,
-                            ReflectionCache &cache) {
+                            const char *stage_label, ReflectionCache &cache) {
   if (reflection == nullptr) {
     return;
   }
@@ -130,8 +127,7 @@ void ReflectConstantBuffers(ID3D11ShaderReflection *reflection,
 }
 
 void ReflectResourceBindings(ID3D11ShaderReflection *reflection,
-                             const char *stage_label,
-                             ReflectionCache &cache) {
+                             const char *stage_label, ReflectionCache &cache) {
   if (reflection == nullptr) {
     return;
   }
@@ -144,8 +140,8 @@ void ReflectResourceBindings(ID3D11ShaderReflection *reflection,
   for (UINT resource_index = 0; resource_index < shader_desc.BoundResources;
        ++resource_index) {
     D3D11_SHADER_INPUT_BIND_DESC bind_desc = {};
-    if (FAILED(reflection->GetResourceBindingDesc(resource_index,
-                                                  &bind_desc))) {
+    if (FAILED(
+            reflection->GetResourceBindingDesc(resource_index, &bind_desc))) {
       continue;
     }
 
@@ -156,18 +152,16 @@ void ReflectResourceBindings(ID3D11ShaderReflection *reflection,
   }
 }
 
-void CollectStageParameters(ID3D10Blob *shader_blob,
-                            const char *stage_label,
+void CollectStageParameters(ID3D10Blob *shader_blob, const char *stage_label,
                             ReflectionCache &cache) {
   if (shader_blob == nullptr) {
     return;
   }
 
   ID3D11ShaderReflection *reflection = nullptr;
-  HRESULT reflect_result = D3DReflect(shader_blob->GetBufferPointer(),
-                                      shader_blob->GetBufferSize(),
-                                      IID_ID3D11ShaderReflection,
-                                      reinterpret_cast<void **>(&reflection));
+  HRESULT reflect_result = D3DReflect(
+      shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(),
+      IID_ID3D11ShaderReflection, reinterpret_cast<void **>(&reflection));
   if (FAILED(reflect_result)) {
     std::ostringstream stream;
     stream << "D3DReflect failed for stage " << stage_label << ": 0x"
@@ -189,8 +183,7 @@ void CollectStageParameters(ID3D10Blob *shader_blob,
 } // namespace
 
 std::vector<ReflectedParameter>
-ReflectShader(ID3D11Device *device, ID3D10Blob *vs_blob,
-              ID3D10Blob *ps_blob) {
+ReflectShader(ID3D11Device *device, ID3D10Blob *vs_blob, ID3D10Blob *ps_blob) {
   (void)device; // Currently unused but retained for future expansion.
 
   ReflectionCache cache;
@@ -204,8 +197,7 @@ ReflectShader(ID3D11Device *device, ID3D10Blob *vs_blob,
   }
 
   std::sort(parameters.begin(), parameters.end(),
-            [](const ReflectedParameter &lhs,
-               const ReflectedParameter &rhs) {
+            [](const ReflectedParameter &lhs, const ReflectedParameter &rhs) {
               return lhs.name < rhs.name;
             });
 
@@ -218,8 +210,7 @@ void ShaderParameterValidator::RegisterShader(
   std::vector<ShaderParameterInfo> converted;
   converted.reserve(parameters.size());
   for (const auto &parameter : parameters) {
-    converted.emplace_back(parameter.name, parameter.type,
-                           parameter.required);
+    converted.emplace_back(parameter.name, parameter.type, parameter.required);
   }
   RegisterShader(shader_name, converted);
 }

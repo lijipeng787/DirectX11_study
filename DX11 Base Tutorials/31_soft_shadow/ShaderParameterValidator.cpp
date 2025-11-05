@@ -26,9 +26,8 @@ void ShaderParameterValidator::RegisterShader(
 void ShaderParameterValidator::RegisterShader(
     const std::string &shader_name,
     std::initializer_list<ShaderParameterInfo> parameters) {
-  RegisterShader(shader_name,
-                 std::vector<ShaderParameterInfo>(parameters.begin(),
-                                                  parameters.end()));
+  RegisterShader(shader_name, std::vector<ShaderParameterInfo>(
+                                  parameters.begin(), parameters.end()));
 }
 
 void ShaderParameterValidator::RegisterGlobalParameter(
@@ -85,8 +84,8 @@ bool ShaderParameterValidator::ValidatePassParametersInternal(
   if (shader_it == shader_parameters_.end()) {
     if (mode == ValidationMode::Strict) {
       Logger::SetModule("ShaderParameterValidator");
-      Logger::LogError("Shader \"" + shader_name +
-                       "\" used in pass \"" + pass_name +
+      Logger::LogError("Shader \"" + shader_name + "\" used in pass \"" +
+                       pass_name +
                        "\" is not registered. Cannot validate parameters.");
       return false;
     }
@@ -187,8 +186,7 @@ std::string ShaderParameterValidator::BuildValidationReport(
       report_stream << "    - " << missing->name << " ("
                     << GetTypeName(missing->type) << ")";
       if (missing->name.find("Texture") != std::string::npos) {
-        report_stream
-            << " - Consider using ReadAsParameter() or SetTexture()";
+        report_stream << " - Consider using ReadAsParameter() or SetTexture()";
       }
       report_stream << "\n";
     }
@@ -309,7 +307,7 @@ std::string ShaderParameterValidator::FindSimilarParameter(
   const int max_distance = 3; // Maximum edit distance to consider
 
   for (const auto &param_info : params) {
-  int distance = CalculateLevenshteinDistance(param_name, param_info.name);
+    int distance = CalculateLevenshteinDistance(param_name, param_info.name);
     if (distance < best_distance && distance <= max_distance) {
       best_distance = distance;
       best_match = param_info.name;
@@ -415,4 +413,3 @@ bool IsValidResourceName(const std::string &name) {
 }
 
 } // namespace RenderGraphNaming
-

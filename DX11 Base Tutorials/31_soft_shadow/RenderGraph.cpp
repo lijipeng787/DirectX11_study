@@ -147,8 +147,10 @@ ShaderParameterContainer RenderGraphPass::MergeParameters(
   // Merge global (lowest priority) and pass-specific parameters (higher
   // priority). Resource bindings injected during Compile() live inside
   // pass_parameters_.
-  return ShaderParameterContainer::MergeWithPriority(global_params,
-                                                     *pass_parameters_);
+  return ShaderParameterContainer::MergeWithPriority(
+      global_params, *pass_parameters_,
+      ShaderParameterContainer::ParameterOrigin::Global,
+      ShaderParameterContainer::ParameterOrigin::Pass);
 }
 
 void RenderGraphPass::Execute(
@@ -532,8 +534,8 @@ bool RenderGraph::ValidatePassParameters(
 
   // Validate parameters
   return parameter_validator_->ValidatePassParameters(
-    pass->GetName(), shader_name, provided_params,
-    parameter_validator_->GetValidationMode());
+      pass->GetName(), shader_name, provided_params,
+      parameter_validator_->GetValidationMode());
 }
 
 void RenderGraph::AllocateResources() { /* simplified - allocation handled
