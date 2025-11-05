@@ -9,6 +9,7 @@
 #include "Model.h"
 #include "RenderTexture.h"
 #include "RenderableObject.h"
+#include "ResourceRegistry.h"
 #include "ShaderParameterContainer.h"
 #include "orthowindow.h"
 
@@ -32,16 +33,14 @@ static constexpr auto refraction_pass_tag = "refraction_pass";
 static constexpr auto water_reflection_tag = "water_reflection";
 static constexpr auto diffuse_lighting_tag = "diffuse_lighting";
 
-bool Scene::Initialize(const SceneResourceRefs &resources,
-                       const SceneConstants &constants,
-                       const std::string &scene_file,
+bool Scene::Initialize(const std::string &scene_file,
                        StandardRenderGroup *cube_group,
                        StandardRenderGroup *pbr_group) {
   Clear();
 
   // Try to load from JSON file first
   if (!scene_file.empty()) {
-    if (LoadFromJson(resources, constants, scene_file, cube_group, pbr_group)) {
+    if (LoadFromJson(scene_file, cube_group, pbr_group)) {
       return true;
     }
     // Fall back to hardcoded if JSON loading fails
@@ -51,13 +50,11 @@ bool Scene::Initialize(const SceneResourceRefs &resources,
   }
 
   // Fallback to hardcoded scene definition
-  BuildSceneObjects(resources, constants, cube_group, pbr_group);
+  BuildSceneObjects(cube_group, pbr_group);
   return true;
 }
 
-bool Scene::LoadFromJson(const SceneResourceRefs &resources,
-                         const SceneConstants &constants,
-                         const std::string &scene_file,
+bool Scene::LoadFromJson(const std::string &scene_file,
                          StandardRenderGroup *cube_group,
                          StandardRenderGroup *pbr_group) {
   Logger::SetModule("Scene");
@@ -93,8 +90,7 @@ bool Scene::LoadFromJson(const SceneResourceRefs &resources,
     }
 
     Clear();
-    return BuildSceneObjectsFromJson(j, resources, constants, cube_group,
-                                     pbr_group);
+    return BuildSceneObjectsFromJson(j, cube_group, pbr_group);
 
   } catch (const std::exception &e) {
     Logger::LogError("Error parsing scene JSON: " + std::string(e.what()));
@@ -123,13 +119,6 @@ void Scene::Clear() {
   animation_configs_.clear();
   initial_transforms_.clear();
   rotation_states_.clear(); // Clear animation states
-
-  // Clear resource caches
-  model_cache_.clear();
-  pbr_model_cache_.clear();
-  shader_cache_.clear();
-  render_texture_cache_.clear();
-  ortho_window_cache_.clear();
 }
 
 const AnimationConfig &
@@ -214,13 +203,11 @@ Scene::CreatePBRModelObject(std::shared_ptr<PBRModel> model,
   return obj;
 }
 
-void Scene::BuildSceneObjects(const SceneResourceRefs &resources,
-                              const SceneConstants &constants,
-                              StandardRenderGroup *cube_group,
+void Scene::BuildSceneObjects(StandardRenderGroup *cube_group,
                               StandardRenderGroup *pbr_group) {
   // Add renderable objects
-  const auto &cube_model = resources.scene_assets.cube;
-  const auto &soft_shadow_shader = resources.shader_assets.soft_shadow;
+  auto cube_model = ResourceRegistry::GetInstance().Get<Model>("cube");
+  auto soft_shadow_shader = ResourceRegistry::GetInstance().Get<IShader>("soft_shadow");
 
   {
     auto cube_object = CreateTexturedModelObject(
@@ -229,7 +216,7 @@ void Scene::BuildSceneObjects(const SceneResourceRefs &resources,
   }
 
   {
-    const auto &sphere_model = resources.scene_assets.sphere;
+    auto sphere_model = ResourceRegistry::GetInstance().Get<Model>("sphere");
     auto sphere_object =
         CreateTexturedModelObject(sphere_model, soft_shadow_shader,
                                   XMMatrixTranslation(2.5f, 2.0f, 0.0f));
@@ -237,8 +224,8 @@ void Scene::BuildSceneObjects(const SceneResourceRefs &resources,
   }
 
   {
-    const auto &sphere_pbr_model = resources.scene_assets.pbr_sphere;
-    const auto &pbr_shader = resources.shader_assets.pbr;
+    auto sphere_pbr_model = ResourceRegistry::GetInstance().Get<PBRModel>("pbr_sphere");
+    auto pbr_shader = ResourceRegistry::GetInstance().Get<IShader>("pbr");
     auto pbr_sphere_object = CreatePBRModelObject(
         sphere_pbr_model, pbr_shader, XMMatrixTranslation(0.0f, 2.0f, -2.0f));
     if (pbr_group) {
@@ -247,11 +234,11 @@ void Scene::BuildSceneObjects(const SceneResourceRefs &resources,
     renderable_objects_.push_back(pbr_sphere_object);
   }
 
-  const auto &texture_shader = resources.shader_assets.texture;
-  const auto &small_window = resources.ortho_windows.small_window;
+  auto texture_shader = ResourceRegistry::GetInstance().Get<IShader>("texture");
+  auto small_window = ResourceRegistry::GetInstance().Get<OrthoWindow>("small_window");
 
   {
-    const auto &shadow_tex = resources.render_targets.shadow_map;
+    auto shadow_tex = ResourceRegistry::GetInstance().Get<RenderTexture>("shadow_map");
     auto down_sample_object = CreatePostProcessObject(
         small_window, texture_shader, down_sample_tag, shadow_tex);
     down_sample_object->AddTag("skip_culling");
@@ -259,9 +246,10 @@ void Scene::BuildSceneObjects(const SceneResourceRefs &resources,
   }
 
   {
-    const auto &horizontal_blur_shader =
-        resources.shader_assets.horizontal_blur;
-    const auto &downsample_tex = resources.render_targets.downsampled_shadow;
+    auto horizontal_blur_shader =
+        ResourceRegistry::GetInstance().Get<IShader>("horizontal_blur");
+    auto downsample_tex = 
+        ResourceRegistry::GetInstance().Get<RenderTexture>("downsampled_shadow");
     auto horizontal_blur_object =
         CreatePostProcessObject(small_window, horizontal_blur_shader,
                                 horizontal_blur_tag, downsample_tex);
@@ -270,8 +258,10 @@ void Scene::BuildSceneObjects(const SceneResourceRefs &resources,
   }
 
   {
-    const auto &vertical_blur_shader = resources.shader_assets.vertical_blur;
-    const auto &h_blur_tex = resources.render_targets.horizontal_blur;
+    auto vertical_blur_shader = 
+        ResourceRegistry::GetInstance().Get<IShader>("vertical_blur");
+    auto h_blur_tex = 
+        ResourceRegistry::GetInstance().Get<RenderTexture>("horizontal_blur");
     auto vertical_blur_object = CreatePostProcessObject(
         small_window, vertical_blur_shader, vertical_blur_tag, h_blur_tex);
     vertical_blur_object->AddTag("skip_culling");
@@ -279,8 +269,8 @@ void Scene::BuildSceneObjects(const SceneResourceRefs &resources,
   }
 
   {
-    const auto &fullscreen_window = resources.ortho_windows.fullscreen_window;
-    const auto &v_blur_tex = resources.render_targets.vertical_blur;
+    auto fullscreen_window = ResourceRegistry::GetInstance().Get<OrthoWindow>("fullscreen_window");
+    auto v_blur_tex = ResourceRegistry::GetInstance().Get<RenderTexture>("vertical_blur");
     auto up_sample_object = CreatePostProcessObject(
         fullscreen_window, texture_shader, up_sample_tag, v_blur_tex);
     up_sample_object->AddTag("skip_culling");
@@ -288,7 +278,7 @@ void Scene::BuildSceneObjects(const SceneResourceRefs &resources,
   }
 
   {
-    const auto &ground_model = resources.scene_assets.ground;
+    auto ground_model = ResourceRegistry::GetInstance().Get<Model>("ground");
     auto ground_object =
         CreateTexturedModelObject(ground_model, soft_shadow_shader,
                                   XMMatrixTranslation(0.0f, 1.0f, 0.0f), false);
@@ -302,8 +292,8 @@ void Scene::BuildSceneObjects(const SceneResourceRefs &resources,
 
   // Add diffuse lighting shader demo object
   {
-    const auto &diffuse_lighting_shader =
-        resources.shader_assets.diffuse_lighting;
+    auto diffuse_lighting_shader =
+        ResourceRegistry::GetInstance().Get<IShader>("diffuse_lighting");
     auto diffuse_lighting_cube_obj =
         std::make_shared<RenderableObject>(cube_model, diffuse_lighting_shader);
     diffuse_lighting_cube_obj->SetWorldMatrix(
@@ -333,224 +323,32 @@ void Scene::BuildSceneObjects(const SceneResourceRefs &resources,
     }
     renderable_objects_.push_back(cube_obj);
   }
-
-  const auto &refraction_assets = resources.scene_assets.refraction;
-  const auto scene_offset = XMMatrixTranslation(
-      constants.refraction_scene_offset_x, constants.refraction_scene_offset_y,
-      constants.refraction_scene_offset_z);
-
-  if (refraction_assets.ground &&
-      resources.shader_assets.refraction.scene_light) {
-    auto ground_object = std::make_shared<RenderableObject>(
-        refraction_assets.ground,
-        resources.shader_assets.refraction.scene_light);
-    auto ground_world = XMMatrixScaling(constants.refraction_ground_scale, 1.0f,
-                                        constants.refraction_ground_scale) *
-                        XMMatrixTranslation(0.0f, 1.0f, 0.0f) * scene_offset;
-    ground_object->SetWorldMatrix(ground_world);
-    ground_object->AddTag(scene_light_tag);
-    ground_object->SetParameterCallback(
-        [ground_model =
-             refraction_assets.ground](ShaderParameterContainer &params) {
-          params.SetTexture("texture", ground_model->GetTexture());
-        });
-    renderable_objects_.push_back(ground_object);
-  }
-
-  if (refraction_assets.wall &&
-      resources.shader_assets.refraction.scene_light) {
-    auto wall_object = std::make_shared<RenderableObject>(
-        refraction_assets.wall, resources.shader_assets.refraction.scene_light);
-    wall_object->SetWorldMatrix(XMMatrixTranslation(0.0f, 6.0f, 8.0f) *
-                                scene_offset);
-    wall_object->AddTag(scene_light_tag);
-    wall_object->AddTag(water_reflection_tag);
-    wall_object->SetParameterCallback([wall_model = refraction_assets.wall](
-                                          ShaderParameterContainer &params) {
-      params.SetTexture("texture", wall_model->GetTexture());
-    });
-    renderable_objects_.push_back(wall_object);
-  }
 }
 
-void Scene::BuildResourceCaches(const SceneResourceRefs &resources) const {
-  // Clear existing caches
-  model_cache_.clear();
-  pbr_model_cache_.clear();
-  shader_cache_.clear();
-  render_texture_cache_.clear();
-  ortho_window_cache_.clear();
-
-  // Build model cache
-  if (resources.scene_assets.cube) {
-    model_cache_["cube"] = resources.scene_assets.cube;
-  }
-  if (resources.scene_assets.sphere) {
-    model_cache_["sphere"] = resources.scene_assets.sphere;
-  }
-  if (resources.scene_assets.ground) {
-    model_cache_["ground"] = resources.scene_assets.ground;
-  }
-  if (resources.scene_assets.refraction.ground) {
-    model_cache_["refraction_ground"] =
-        resources.scene_assets.refraction.ground;
-    model_cache_["refraction.ground"] =
-        resources.scene_assets.refraction.ground;
-  }
-  if (resources.scene_assets.refraction.wall) {
-    model_cache_["refraction_wall"] = resources.scene_assets.refraction.wall;
-    model_cache_["refraction.wall"] = resources.scene_assets.refraction.wall;
-  }
-  if (resources.scene_assets.refraction.water) {
-    model_cache_["refraction_water"] = resources.scene_assets.refraction.water;
-    model_cache_["refraction.water"] = resources.scene_assets.refraction.water;
-  }
-
-  // Build PBR model cache
-  if (resources.scene_assets.pbr_sphere) {
-    pbr_model_cache_["pbr_sphere"] = resources.scene_assets.pbr_sphere;
-    pbr_model_cache_["sphere_pbr"] = resources.scene_assets.pbr_sphere;
-  }
-
-  // Build shader cache
-  if (resources.shader_assets.depth) {
-    shader_cache_["depth"] = resources.shader_assets.depth;
-  }
-  if (resources.shader_assets.shadow) {
-    shader_cache_["shadow"] = resources.shader_assets.shadow;
-  }
-  if (resources.shader_assets.texture) {
-    shader_cache_["texture"] = resources.shader_assets.texture;
-  }
-  if (resources.shader_assets.horizontal_blur) {
-    shader_cache_["horizontal_blur"] = resources.shader_assets.horizontal_blur;
-  }
-  if (resources.shader_assets.vertical_blur) {
-    shader_cache_["vertical_blur"] = resources.shader_assets.vertical_blur;
-  }
-  if (resources.shader_assets.soft_shadow) {
-    shader_cache_["soft_shadow"] = resources.shader_assets.soft_shadow;
-  }
-  if (resources.shader_assets.pbr) {
-    shader_cache_["pbr"] = resources.shader_assets.pbr;
-  }
-  if (resources.shader_assets.diffuse_lighting) {
-    shader_cache_["diffuse_lighting"] =
-        resources.shader_assets.diffuse_lighting;
-  }
-  if (resources.shader_assets.refraction.scene_light) {
-    shader_cache_["scene_light"] =
-        resources.shader_assets.refraction.scene_light;
-    shader_cache_["refraction.scene_light"] =
-        resources.shader_assets.refraction.scene_light;
-  }
-  if (resources.shader_assets.refraction.refraction) {
-    shader_cache_["refraction"] = resources.shader_assets.refraction.refraction;
-    shader_cache_["refraction.refraction"] =
-        resources.shader_assets.refraction.refraction;
-  }
-
-  // Build render texture cache
-  if (resources.render_targets.shadow_map) {
-    render_texture_cache_["shadow_map"] = resources.render_targets.shadow_map;
-  }
-  if (resources.render_targets.downsampled_shadow) {
-    render_texture_cache_["downsampled_shadow"] =
-        resources.render_targets.downsampled_shadow;
-  }
-  if (resources.render_targets.horizontal_blur) {
-    render_texture_cache_["horizontal_blur"] =
-        resources.render_targets.horizontal_blur;
-  }
-  if (resources.render_targets.vertical_blur) {
-    render_texture_cache_["vertical_blur"] =
-        resources.render_targets.vertical_blur;
-  }
-
-  // Build ortho window cache
-  if (resources.ortho_windows.small_window) {
-    ortho_window_cache_["small_window"] = resources.ortho_windows.small_window;
-  }
-  if (resources.ortho_windows.fullscreen_window) {
-    ortho_window_cache_["fullscreen_window"] =
-        resources.ortho_windows.fullscreen_window;
-  }
-}
-
-// Helper methods implementation
+// Helper methods implementation - use ResourceRegistry directly
 std::shared_ptr<Model>
-Scene::GetModelByName(const std::string &name,
-                      const SceneResourceRefs &resources) const {
-  // Build cache if empty
-  if (model_cache_.empty()) {
-    BuildResourceCaches(resources);
-  }
-
-  auto it = model_cache_.find(name);
-  if (it != model_cache_.end()) {
-    return it->second;
-  }
-  return nullptr;
+Scene::GetModelByName(const std::string &name) const {
+  return ResourceRegistry::GetInstance().Get<Model>(name);
 }
 
 std::shared_ptr<PBRModel>
-Scene::GetPBRModelByName(const std::string &name,
-                         const SceneResourceRefs &resources) const {
-  // Build cache if empty
-  if (pbr_model_cache_.empty()) {
-    BuildResourceCaches(resources);
-  }
-
-  auto it = pbr_model_cache_.find(name);
-  if (it != pbr_model_cache_.end()) {
-    return it->second;
-  }
-  return nullptr;
+Scene::GetPBRModelByName(const std::string &name) const {
+  return ResourceRegistry::GetInstance().Get<PBRModel>(name);
 }
 
 std::shared_ptr<IShader>
-Scene::GetShaderByName(const std::string &name,
-                       const SceneResourceRefs &resources) const {
-  // Build cache if empty
-  if (shader_cache_.empty()) {
-    BuildResourceCaches(resources);
-  }
-
-  auto it = shader_cache_.find(name);
-  if (it != shader_cache_.end()) {
-    return it->second;
-  }
-  return nullptr;
+Scene::GetShaderByName(const std::string &name) const {
+  return ResourceRegistry::GetInstance().Get<IShader>(name);
 }
 
 std::shared_ptr<RenderTexture>
-Scene::GetRenderTextureByName(const std::string &name,
-                              const SceneResourceRefs &resources) const {
-  // Build cache if empty
-  if (render_texture_cache_.empty()) {
-    BuildResourceCaches(resources);
-  }
-
-  auto it = render_texture_cache_.find(name);
-  if (it != render_texture_cache_.end()) {
-    return it->second;
-  }
-  return nullptr;
+Scene::GetRenderTextureByName(const std::string &name) const {
+  return ResourceRegistry::GetInstance().Get<RenderTexture>(name);
 }
 
 std::shared_ptr<OrthoWindow>
-Scene::GetOrthoWindowByName(const std::string &name,
-                            const SceneResourceRefs &resources) const {
-  // Build cache if empty
-  if (ortho_window_cache_.empty()) {
-    BuildResourceCaches(resources);
-  }
-
-  auto it = ortho_window_cache_.find(name);
-  if (it != ortho_window_cache_.end()) {
-    return it->second;
-  }
-  return nullptr;
+Scene::GetOrthoWindowByName(const std::string &name) const {
+  return ResourceRegistry::GetInstance().Get<OrthoWindow>(name);
 }
 
 AnimationConfig
@@ -645,8 +443,6 @@ Scene::ParseTransform(const nlohmann::json &transform_json) const {
 }
 
 bool Scene::BuildSceneObjectsFromJson(const nlohmann::json &j,
-                                      const SceneResourceRefs &resources,
-                                      const SceneConstants &constants,
                                       StandardRenderGroup *cube_group,
                                       StandardRenderGroup *pbr_group) {
   Logger::SetModule("Scene");
@@ -656,11 +452,6 @@ bool Scene::BuildSceneObjectsFromJson(const nlohmann::json &j,
       Logger::LogError("Scene JSON: missing or invalid 'objects' array");
       return false;
     }
-
-    const auto &scene_offset =
-        XMMatrixTranslation(constants.refraction_scene_offset_x,
-                            constants.refraction_scene_offset_y,
-                            constants.refraction_scene_offset_z);
 
     for (const auto &obj_json : j["objects"]) {
       if (!obj_json.is_object())
@@ -675,9 +466,9 @@ bool Scene::BuildSceneObjectsFromJson(const nlohmann::json &j,
       if (obj_json.find("model") != obj_json.end()) {
         std::string model_name = obj_json["model"].get<std::string>();
         if (type == "PBRModel") {
-          pbr_model = GetPBRModelByName(model_name, resources);
+          pbr_model = GetPBRModelByName(model_name);
         } else {
-          model = GetModelByName(model_name, resources);
+          model = GetModelByName(model_name);
         }
       }
 
@@ -685,7 +476,7 @@ bool Scene::BuildSceneObjectsFromJson(const nlohmann::json &j,
       std::shared_ptr<IShader> shader;
       if (obj_json.find("shader") != obj_json.end()) {
         std::string shader_name = obj_json["shader"].get<std::string>();
-        shader = GetShaderByName(shader_name, resources);
+        shader = GetShaderByName(shader_name);
       }
 
       if (!shader) {
@@ -700,12 +491,6 @@ bool Scene::BuildSceneObjectsFromJson(const nlohmann::json &j,
         world_matrix = ParseTransform(transform_json);
       }
 
-      // Apply scene offset for refraction objects
-      bool is_refraction = obj_json.value("apply_scene_offset", false);
-      if (is_refraction) {
-        world_matrix = world_matrix * scene_offset;
-      }
-
       // Create object
       std::shared_ptr<RenderableObject> obj;
       if (type == "PBRModel" && pbr_model) {
@@ -715,9 +500,9 @@ bool Scene::BuildSceneObjectsFromJson(const nlohmann::json &j,
         std::string ortho_window_name =
             obj_json.value("ortho_window", "small_window");
         std::string render_texture_name = obj_json.value("render_texture", "");
-        auto ortho_window = GetOrthoWindowByName(ortho_window_name, resources);
+        auto ortho_window = GetOrthoWindowByName(ortho_window_name);
         auto render_texture =
-            GetRenderTextureByName(render_texture_name, resources);
+            GetRenderTextureByName(render_texture_name);
 
         if (ortho_window && render_texture &&
             obj_json.find("tag") != obj_json.end()) {

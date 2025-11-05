@@ -33,64 +33,6 @@ struct AnimationConfig {
       : enabled(true), axis(axis), speed(speed), initial(initial) {}
 };
 
-// Scene resource references (non-owning)
-struct SceneResourceRefs {
-  struct SceneAssets {
-    std::shared_ptr<Model> cube;
-    std::shared_ptr<Model> sphere;
-    std::shared_ptr<Model> ground;
-    std::shared_ptr<PBRModel> pbr_sphere;
-
-    struct RefractionAssets {
-      std::shared_ptr<Model> ground;
-      std::shared_ptr<Model> wall;
-      std::shared_ptr<Model> water;
-    } refraction;
-  };
-
-  struct ShaderAssets {
-    std::shared_ptr<IShader> depth;
-    std::shared_ptr<IShader> shadow;
-    std::shared_ptr<IShader> texture;
-    std::shared_ptr<IShader> horizontal_blur;
-    std::shared_ptr<IShader> vertical_blur;
-    std::shared_ptr<IShader> soft_shadow;
-    std::shared_ptr<IShader> pbr;
-    std::shared_ptr<IShader> diffuse_lighting;
-
-    struct RefractionShaders {
-      std::shared_ptr<IShader> scene_light;
-      std::shared_ptr<IShader> refraction;
-    } refraction;
-  };
-
-  struct RenderTargetAssets {
-    std::shared_ptr<RenderTexture> shadow_map;
-    std::shared_ptr<RenderTexture> downsampled_shadow;
-    std::shared_ptr<RenderTexture> horizontal_blur;
-    std::shared_ptr<RenderTexture> vertical_blur;
-  };
-
-  struct OrthoWindowAssets {
-    std::shared_ptr<OrthoWindow> small_window;
-    std::shared_ptr<OrthoWindow> fullscreen_window;
-  };
-
-  SceneAssets scene_assets;
-  ShaderAssets shader_assets;
-  RenderTargetAssets render_targets;
-  OrthoWindowAssets ortho_windows;
-};
-
-// Scene configuration constants (non-owning)
-struct SceneConstants {
-  float refraction_scene_offset_x;
-  float refraction_scene_offset_y;
-  float refraction_scene_offset_z;
-  float refraction_ground_scale;
-  float water_plane_height;
-};
-
 // StandardRenderGroup forward declaration
 class StandardRenderGroup;
 
@@ -104,19 +46,14 @@ public:
   Scene &operator=(const Scene &) = delete;
 
 public:
-  // Initialize scene with resource references
-  // This separates scene object creation from resource management
-  // Option 1: Load from JSON file (preferred)
-  bool Initialize(const SceneResourceRefs &resources,
-                  const SceneConstants &constants,
-                  const std::string &scene_file = "",
+  // Initialize scene from JSON configuration
+  // Resources are loaded via ResourceRegistry
+  bool Initialize(const std::string &scene_file = "",
                   StandardRenderGroup *cube_group = nullptr,
                   StandardRenderGroup *pbr_group = nullptr);
 
-  // Option 2: Load from JSON (explicit)
-  bool LoadFromJson(const SceneResourceRefs &resources,
-                    const SceneConstants &constants,
-                    const std::string &scene_file,
+  // Load from JSON (explicit)
+  bool LoadFromJson(const std::string &scene_file,
                     StandardRenderGroup *cube_group = nullptr,
                     StandardRenderGroup *pbr_group = nullptr);
 
@@ -170,40 +107,28 @@ private:
                        const DirectX::XMMATRIX &worldMatrix);
 
   // Build all scene objects from hardcoded definition (fallback)
-  void BuildSceneObjects(const SceneResourceRefs &resources,
-                         const SceneConstants &constants,
-                         StandardRenderGroup *cube_group,
+  void BuildSceneObjects(StandardRenderGroup *cube_group,
                          StandardRenderGroup *pbr_group);
 
   // Build scene objects from JSON object (internal use, j is already parsed)
   bool BuildSceneObjectsFromJson(const nlohmann::json &j,
-                                 const SceneResourceRefs &resources,
-                                 const SceneConstants &constants,
                                  StandardRenderGroup *cube_group,
                                  StandardRenderGroup *pbr_group);
 
-  // Helper: Get model reference by name
-  std::shared_ptr<Model>
-  GetModelByName(const std::string &name,
-                 const SceneResourceRefs &resources) const;
-  std::shared_ptr<PBRModel>
-  GetPBRModelByName(const std::string &name,
-                    const SceneResourceRefs &resources) const;
+  // Helper: Get model reference by name from ResourceRegistry
+  std::shared_ptr<Model> GetModelByName(const std::string &name) const;
+  std::shared_ptr<PBRModel> GetPBRModelByName(const std::string &name) const;
 
-  // Helper: Get shader reference by name
-  std::shared_ptr<IShader>
-  GetShaderByName(const std::string &name,
-                  const SceneResourceRefs &resources) const;
+  // Helper: Get shader reference by name from ResourceRegistry
+  std::shared_ptr<IShader> GetShaderByName(const std::string &name) const;
 
-  // Helper: Get render texture reference by name
+  // Helper: Get render texture reference by name from ResourceRegistry
   std::shared_ptr<RenderTexture>
-  GetRenderTextureByName(const std::string &name,
-                         const SceneResourceRefs &resources) const;
+  GetRenderTextureByName(const std::string &name) const;
 
-  // Helper: Get ortho window reference by name
+  // Helper: Get ortho window reference by name from ResourceRegistry
   std::shared_ptr<OrthoWindow>
-  GetOrthoWindowByName(const std::string &name,
-                       const SceneResourceRefs &resources) const;
+  GetOrthoWindowByName(const std::string &name) const;
 
   // Helper: Parse transform from JSON
   DirectX::XMMATRIX ParseTransform(const nlohmann::json &transform_json) const;
@@ -224,18 +149,4 @@ private:
       initial_transforms_;
   // Store rotation states for animated objects (used by Graphics::Frame)
   std::unordered_map<std::shared_ptr<IRenderable>, float> rotation_states_;
-
-  // Resource lookup caches (built once during initialization)
-  mutable std::unordered_map<std::string, std::shared_ptr<Model>> model_cache_;
-  mutable std::unordered_map<std::string, std::shared_ptr<PBRModel>>
-      pbr_model_cache_;
-  mutable std::unordered_map<std::string, std::shared_ptr<IShader>>
-      shader_cache_;
-  mutable std::unordered_map<std::string, std::shared_ptr<RenderTexture>>
-      render_texture_cache_;
-  mutable std::unordered_map<std::string, std::shared_ptr<OrthoWindow>>
-      ortho_window_cache_;
-
-  // Helper: Build resource caches from SceneResourceRefs
-  void BuildResourceCaches(const SceneResourceRefs &resources) const;
 };

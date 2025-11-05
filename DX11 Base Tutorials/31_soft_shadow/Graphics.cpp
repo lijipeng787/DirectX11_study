@@ -1,4 +1,4 @@
-﻿#include "Graphics.h"
+#include "Graphics.h"
 
 #include <algorithm>
 #include <iostream>
@@ -16,6 +16,7 @@
 #include "Logger.h"
 #include "RenderableObject.h"
 #include "ResourceManager.h"
+#include "ResourceRegistry.h"
 #include "ShaderBase.h"
 #include "ShaderParameterValidator.h"
 #include "depthshader.h"
@@ -149,6 +150,13 @@ bool Graphics::InitializeDevice(int screenWidth, int screenHeight, HWND hwnd) {
     return false;
   }
 
+  // Initialize ResourceRegistry for unified resource access
+  auto &registry = ResourceRegistry::GetInstance();
+  if (!registry.Initialize(device, device_context, hwnd)) {
+    LogGraphicsError("Could not initialize ResourceRegistry.");
+    return false;
+  }
+
   return true;
 }
 
@@ -220,29 +228,6 @@ bool Graphics::InitializeSceneModels() {
                      GetResourceManagerError(resource_manager));
     return false;
   }
-
-  // Load refraction scene models from configuration
-  //auto &refraction_ground_config = scene_config_.refraction.ground;
-  //scene_assets_.refraction.ground = resource_manager.GetModel(
-  //    refraction_ground_config.name, refraction_ground_config.model_path,
-  //    refraction_ground_config.texture_path);
-
-  //auto &refraction_wall_config = scene_config_.refraction.wall;
-  //scene_assets_.refraction.wall = resource_manager.GetModel(
-  //    refraction_wall_config.name, refraction_wall_config.model_path,
-  //    refraction_wall_config.texture_path);
-
-  //auto &refraction_water_config = scene_config_.refraction.water;
-  //scene_assets_.refraction.water = resource_manager.GetModel(
-  //    refraction_water_config.name, refraction_water_config.model_path,
-  //    refraction_water_config.texture_path);
-
-  //if (!scene_assets_.refraction.ground || !scene_assets_.refraction.wall ||
-  //    !scene_assets_.refraction.water) {
-  //  LogGraphicsError(L"Could not load refraction scene models." +
-  //                   GetResourceManagerError(resource_manager));
-  //  return false;
-  //}
 
   return true;
 }
@@ -610,55 +595,40 @@ bool Graphics::SetupRenderGraph() {
   // Setup render passes
   SetupRenderPasses();
 
-  // Initialize scene with resource references
-  SceneResourceRefs scene_resources;
-  scene_resources.scene_assets.cube = scene_assets_.cube;
-  scene_resources.scene_assets.sphere = scene_assets_.sphere;
-  scene_resources.scene_assets.ground = scene_assets_.ground;
-  scene_resources.scene_assets.pbr_sphere = scene_assets_.pbr_sphere;
-  scene_resources.scene_assets.refraction.ground =
-      scene_assets_.refraction.ground;
-  scene_resources.scene_assets.refraction.wall = scene_assets_.refraction.wall;
-  scene_resources.scene_assets.refraction.water =
-      scene_assets_.refraction.water;
+  // Register all resources to ResourceRegistry
+  auto &registry = ResourceRegistry::GetInstance();
 
-  scene_resources.shader_assets.depth = shader_assets_.depth;
-  scene_resources.shader_assets.shadow = shader_assets_.shadow;
-  scene_resources.shader_assets.texture = shader_assets_.texture;
-  scene_resources.shader_assets.horizontal_blur =
-      shader_assets_.horizontal_blur;
-  scene_resources.shader_assets.vertical_blur = shader_assets_.vertical_blur;
-  scene_resources.shader_assets.soft_shadow = shader_assets_.soft_shadow;
-  scene_resources.shader_assets.pbr = shader_assets_.pbr;
-  scene_resources.shader_assets.diffuse_lighting =
-      shader_assets_.diffuse_lighting;
+  // Register models
+  registry.Register("cube", scene_assets_.cube);
+  registry.Register("sphere", scene_assets_.sphere);
+  registry.Register("ground", scene_assets_.ground);
+  registry.Register("pbr_sphere", scene_assets_.pbr_sphere);
+  registry.Register("refraction_ground", scene_assets_.refraction.ground);
+  registry.Register("refraction_wall", scene_assets_.refraction.wall);
+  registry.Register("refraction_water", scene_assets_.refraction.water);
 
-  scene_resources.render_targets.shadow_map = render_targets_.shadow_map;
-  scene_resources.render_targets.downsampled_shadow =
-      render_targets_.downsampled_shadow;
-  scene_resources.render_targets.horizontal_blur =
-      render_targets_.horizontal_blur;
-  scene_resources.render_targets.vertical_blur = render_targets_.vertical_blur;
+  // Register shaders (cast to IShader interface)
+  registry.Register<IShader>("depth", shader_assets_.depth);
+  registry.Register<IShader>("shadow", shader_assets_.shadow);
+  registry.Register<IShader>("texture", shader_assets_.texture);
+  registry.Register<IShader>("horizontal_blur", shader_assets_.horizontal_blur);
+  registry.Register<IShader>("vertical_blur", shader_assets_.vertical_blur);
+  registry.Register<IShader>("soft_shadow", shader_assets_.soft_shadow);
+  registry.Register<IShader>("pbr", shader_assets_.pbr);
+  registry.Register<IShader>("diffuse_lighting", shader_assets_.diffuse_lighting);
 
-  scene_resources.ortho_windows.small_window = ortho_windows_.small_window;
-  scene_resources.ortho_windows.fullscreen_window =
-      ortho_windows_.fullscreen_window;
+  // Register render textures
+  registry.Register("shadow_map", render_targets_.shadow_map);
+  registry.Register("downsampled_shadow", render_targets_.downsampled_shadow);
+  registry.Register("horizontal_blur", render_targets_.horizontal_blur);
+  registry.Register("vertical_blur", render_targets_.vertical_blur);
 
-  SceneConstants scene_constants;
-  scene_constants.refraction_scene_offset_x =
-      scene_config_.constants.refraction_scene_offset_x;
-  scene_constants.refraction_scene_offset_y =
-      scene_config_.constants.refraction_scene_offset_y;
-  scene_constants.refraction_scene_offset_z =
-      scene_config_.constants.refraction_scene_offset_z;
-  scene_constants.refraction_ground_scale =
-      scene_config_.constants.refraction_ground_scale;
-  scene_constants.water_plane_height =
-      scene_config_.constants.water_plane_height;
+  // Register ortho windows
+  registry.Register("small_window", ortho_windows_.small_window);
+  registry.Register("fullscreen_window", ortho_windows_.fullscreen_window);
 
   // Load scene from JSON configuration
-  if (!scene_.Initialize(scene_resources, scene_constants, "./data/scene.json",
-                         cube_group_.get(), pbr_group_.get())) {
+  if (!scene_.Initialize("./data/scene.json", cube_group_.get(), pbr_group_.get())) {
     LogGraphicsError("Failed to initialize Scene!");
     return false;
   }

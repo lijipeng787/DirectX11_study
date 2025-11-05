@@ -39,6 +39,7 @@
     <ClCompile Include="ConfigValidator.cpp" />
     <ClCompile Include="ShaderParameterContainerTests.cpp" />
     <ClCompile Include="ShaderParameterReflection.cpp" />
+    <ClCompile Include="ResourceRegistry.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="depthshader.h" />
@@ -78,6 +79,7 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ConfigValidator.h" />
     <ClInclude Include="ShaderParameterContainerTests.h" />
+    <ClInclude Include="ResourceRegistry.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.ps" />
