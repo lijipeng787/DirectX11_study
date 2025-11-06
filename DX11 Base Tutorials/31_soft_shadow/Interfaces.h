@@ -58,6 +58,11 @@ public:
 
   virtual ShaderParameterCallback GetParameterCallback() const = 0;
 
+  virtual const ShaderParameterContainer &GetObjectParameters() const {
+    static ShaderParameterContainer empty_parameters;
+    return empty_parameters;
+  }
+
 public:
   void AddTag(const std::string &tag) { tags_.insert(tag); }
 

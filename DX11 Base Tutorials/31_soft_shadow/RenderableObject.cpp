@@ -23,20 +23,17 @@ RenderableObject::RenderableObject(std::shared_ptr<OrthoWindow> windowModel,
 void RenderableObject::Render(const IShader &shader,
                               const ShaderParameterContainer &parameters,
                               ID3D11DeviceContext *deviceContext) const {
-
-  ShaderParameterContainer combinedParams = parameters;
-  combinedParams = ShaderParameterContainer::MergeWithPriority(
-      combinedParams, object_parameters_,
-      ShaderParameterContainer::ParameterOrigin::Pass,
-      ShaderParameterContainer::ParameterOrigin::Object);
-
-  if (is_window_model_)
-    window_model_->Render(shader, combinedParams, deviceContext);
-  else {
-    if (is_pbr_model_)
-      pbr_model_->Render(shader, combinedParams, deviceContext);
-    else
-      model_->Render(shader, combinedParams, deviceContext);
+  // NOTE: Object-level parameters and callback have already been merged
+  // upstream (RenderGraphPass / RenderPass). We intentionally avoid a second
+  // merge here to prevent Object parameters from overriding Callback results.
+  // If direct per-object invocation is needed outside the graph, caller must
+  // perform a merge explicitly.
+  if (is_window_model_) {
+    window_model_->Render(shader, parameters, deviceContext);
+  } else if (is_pbr_model_) {
+    pbr_model_->Render(shader, parameters, deviceContext);
+  } else {
+    model_->Render(shader, parameters, deviceContext);
   }
 }
 
@@ -46,6 +43,10 @@ void RenderableObject::SetParameterCallback(ShaderParameterCallback callback) {
 
 ShaderParameterCallback RenderableObject::GetParameterCallback() const {
   return parameter_callback_;
+}
+
+const ShaderParameterContainer &RenderableObject::GetObjectParameters() const {
+  return object_parameters_;
 }
 
 XMMATRIX RenderableObject::GetWorldMatrix() const noexcept {

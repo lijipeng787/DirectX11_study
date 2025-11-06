@@ -253,7 +253,7 @@ void RenderGraphPass::Execute(
       back_buffer_depth_cleared = true; // depth cleared by BeginScene.
   }
 
-  // Merge pass, global, and input texture parameters
+  // Merge pass and global parameters once per pass
   ShaderParameterContainer merged = MergeParameters(global_params);
 
   if (disable_z_buffer_)
@@ -284,15 +284,21 @@ void RenderGraphPass::Execute(
       if (!draw)
         continue;
 
-      // Build object-specific parameters:
-      // 1. Copy merged pass/global parameters
-      // 2. Add world matrix (per-object)
-      // 3. Apply object callback (highest priority, can override anything)
-      ShaderParameterContainer objParams = merged;
-      objParams.SetMatrix("worldMatrix", r->GetWorldMatrix());
+      ShaderParameterContainer objParams =
+          ShaderParameterContainer::MergeWithPriority(
+              merged, r->GetObjectParameters(),
+              ShaderParameterContainer::ParameterOrigin::Unknown,
+              ShaderParameterContainer::ParameterOrigin::Object);
+
+      objParams.SetMatrix("worldMatrix", r->GetWorldMatrix(),
+                          ShaderParameterContainer::ParameterOrigin::Object);
+
       if (auto cb = r->GetParameterCallback()) {
+        auto origin_guard = objParams.OverrideDefaultOrigin(
+            ShaderParameterContainer::ParameterOrigin::Callback);
         cb(objParams);
       }
+
       r->Render(*shader_, objParams, device_context);
     }
   }
@@ -355,8 +361,9 @@ bool RenderGraph::Compile() {
         auto *shader_base = dynamic_cast<ShaderBase *>(pass->shader_.get());
         if (shader_base) {
           auto reflected_params = shader_base->GetReflectedParameters();
-          if (!reflected_params.empty()) {
-            // Auto-register - overrides any manual registration
+          if (!reflected_params.empty() &&
+              !parameter_validator_->IsShaderRegistered(
+                  shader_base->GetShaderName())) {
             parameter_validator_->RegisterShader(shader_base->GetShaderName(),
                                                  reflected_params);
             Logger::SetModule("RenderGraph");

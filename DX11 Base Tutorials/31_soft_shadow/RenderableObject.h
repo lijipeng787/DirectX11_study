@@ -41,6 +41,8 @@ public:
 
   ShaderParameterCallback GetParameterCallback() const override;
 
+  const ShaderParameterContainer &GetObjectParameters() const override;
+
 public:
   void SetObjectParameters(const ShaderParameterContainer &params);
 

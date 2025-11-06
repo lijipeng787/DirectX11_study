@@ -88,6 +88,36 @@ public:
     Callback
   };
 
+  class ScopedOriginOverride {
+  public:
+    ScopedOriginOverride(ShaderParameterContainer &container,
+                         ParameterOrigin origin)
+        : container_(&container), previous_origin_(container.default_origin_) {
+      container_->default_origin_ = origin;
+    }
+
+    ~ScopedOriginOverride() {
+      if (container_ != nullptr) {
+        container_->default_origin_ = previous_origin_;
+      }
+    }
+
+    ScopedOriginOverride(const ScopedOriginOverride &) = delete;
+    ScopedOriginOverride &operator=(const ScopedOriginOverride &) = delete;
+
+    ScopedOriginOverride(ScopedOriginOverride &&other) noexcept
+        : container_(other.container_),
+          previous_origin_(other.previous_origin_) {
+      other.container_ = nullptr;
+    }
+
+    ScopedOriginOverride &operator=(ScopedOriginOverride &&) = delete;
+
+  private:
+    ShaderParameterContainer *container_;
+    ParameterOrigin previous_origin_;
+  };
+
   struct ParameterEntry {
     std::string name;
     ShaderParameterType type;
@@ -104,15 +134,20 @@ public:
   template <typename T>
   ShaderParameterContainer &Set(const std::string &name, const T &value);
 
-  void SetFloat(const std::string &name, float value);
+  void SetFloat(const std::string &name, float value,
+                ParameterOrigin origin = ParameterOrigin::Manual);
   void SetGlobalDynamicMatrix(const std::string &name,
                               const DirectX::XMMATRIX &matrix);
-  void SetMatrix(const std::string &name, const DirectX::XMMATRIX &matrix);
+  void SetMatrix(const std::string &name, const DirectX::XMMATRIX &matrix,
+                 ParameterOrigin origin = ParameterOrigin::Manual);
   void SetGlobalDynamicVector3(const std::string &name,
                                const DirectX::XMFLOAT3 &vector);
-  void SetVector3(const std::string &name, const DirectX::XMFLOAT3 &vector);
-  void SetVector4(const std::string &name, const DirectX::XMFLOAT4 &vector);
-  void SetTexture(const std::string &name, ID3D11ShaderResourceView *texture);
+  void SetVector3(const std::string &name, const DirectX::XMFLOAT3 &vector,
+                  ParameterOrigin origin = ParameterOrigin::Manual);
+  void SetVector4(const std::string &name, const DirectX::XMFLOAT4 &vector,
+                  ParameterOrigin origin = ParameterOrigin::Manual);
+  void SetTexture(const std::string &name, ID3D11ShaderResourceView *texture,
+                  ParameterOrigin origin = ParameterOrigin::Manual);
 
   template <typename T> T Get(const std::string &name) const;
   template <typename T> bool TryGet(const std::string &name, T &out) const;
@@ -144,6 +179,8 @@ public:
   static void SetTypeMismatchLoggingEnabled(bool enabled);
   static void SetOverrideLoggingEnabled(bool enabled);
 
+  ScopedOriginOverride OverrideDefaultOrigin(ParameterOrigin origin);
+
 private:
   void AssignValue(const std::string &name, const ParamValue &value,
                    ParameterOrigin origin = ParameterOrigin::Manual);
@@ -154,6 +191,7 @@ private:
 
   std::unordered_map<std::string, ParamValue> typed_parameters_;
   std::unordered_map<std::string, ParameterOrigin> parameter_origins_;
+  ParameterOrigin default_origin_ = ParameterOrigin::Manual;
   static bool type_mismatch_logging_enabled_;
   static bool override_logging_enabled_;
 };
@@ -223,9 +261,10 @@ bool ShaderParameterContainer::TryGet(const std::string &name, T &out) const {
 }
 
 inline void ShaderParameterContainer::SetFloat(const std::string &name,
-                                               float value) {
+                                               float value,
+                                               ParameterOrigin origin) {
   auto param_value = decltype(typed_parameters_)::mapped_type(value);
-  AssignValue(name, param_value);
+  AssignValue(name, param_value, origin);
 }
 
 inline void ShaderParameterContainer::SetGlobalDynamicMatrix(
@@ -233,11 +272,11 @@ inline void ShaderParameterContainer::SetGlobalDynamicMatrix(
   SetMatrix(name, matrix);
 }
 
-inline void
-ShaderParameterContainer::SetMatrix(const std::string &name,
-                                    const DirectX::XMMATRIX &matrix) {
+inline void ShaderParameterContainer::SetMatrix(const std::string &name,
+                                                const DirectX::XMMATRIX &matrix,
+                                                ParameterOrigin origin) {
   auto param_value = decltype(typed_parameters_)::mapped_type(matrix);
-  AssignValue(name, param_value);
+  AssignValue(name, param_value, origin);
 }
 
 inline void ShaderParameterContainer::SetGlobalDynamicVector3(
@@ -247,23 +286,26 @@ inline void ShaderParameterContainer::SetGlobalDynamicVector3(
 
 inline void
 ShaderParameterContainer::SetVector3(const std::string &name,
-                                     const DirectX::XMFLOAT3 &vector) {
+                                     const DirectX::XMFLOAT3 &vector,
+                                     ParameterOrigin origin) {
   auto param_value = decltype(typed_parameters_)::mapped_type(vector);
-  AssignValue(name, param_value);
+  AssignValue(name, param_value, origin);
 }
 
 inline void
 ShaderParameterContainer::SetVector4(const std::string &name,
-                                     const DirectX::XMFLOAT4 &vector) {
+                                     const DirectX::XMFLOAT4 &vector,
+                                     ParameterOrigin origin) {
   auto param_value = decltype(typed_parameters_)::mapped_type(vector);
-  AssignValue(name, param_value);
+  AssignValue(name, param_value, origin);
 }
 
 inline void
 ShaderParameterContainer::SetTexture(const std::string &name,
-                                     ID3D11ShaderResourceView *texture) {
+                                     ID3D11ShaderResourceView *texture,
+                                     ParameterOrigin origin) {
   auto param_value = decltype(typed_parameters_)::mapped_type(texture);
-  AssignValue(name, param_value);
+  AssignValue(name, param_value, origin);
 }
 
 inline float ShaderParameterContainer::GetFloat(const std::string &name) const {
@@ -360,10 +402,19 @@ ShaderParameterContainer::ChainMerge(const ShaderParameterContainer &global,
   return result;
 }
 
-inline void ShaderParameterContainer::AssignValue(
-    const std::string &name,
-    const typename decltype(typed_parameters_)::mapped_type &value,
-    ParameterOrigin origin) {
+inline ShaderParameterContainer::ScopedOriginOverride
+ShaderParameterContainer::OverrideDefaultOrigin(ParameterOrigin origin) {
+  return ScopedOriginOverride(*this, origin);
+}
+
+inline void ShaderParameterContainer::AssignValue(const std::string &name,
+                                                  const ParamValue &value,
+                                                  ParameterOrigin origin) {
+  ParameterOrigin effective_origin = origin;
+  if (effective_origin == ParameterOrigin::Manual &&
+      default_origin_ != ParameterOrigin::Manual) {
+    effective_origin = default_origin_;
+  }
   auto iter = typed_parameters_.find(name);
   if (iter != typed_parameters_.end()) {
     const auto previous_origin_iter = parameter_origins_.find(name);
@@ -372,7 +423,7 @@ inline void ShaderParameterContainer::AssignValue(
             ? previous_origin_iter->second
             : ParameterOrigin::Unknown;
 
-    ParameterOrigin resolved_origin = origin;
+    ParameterOrigin resolved_origin = effective_origin;
     if (resolved_origin == ParameterOrigin::Unknown) {
       resolved_origin = previous_origin != ParameterOrigin::Unknown
                             ? previous_origin
@@ -408,7 +459,7 @@ inline void ShaderParameterContainer::AssignValue(
     parameter_origins_[name] = resolved_origin;
     return;
   }
-  ParameterOrigin resolved_origin = origin;
+  ParameterOrigin resolved_origin = effective_origin;
   if (resolved_origin == ParameterOrigin::Unknown) {
     resolved_origin = ParameterOrigin::Manual;
   }

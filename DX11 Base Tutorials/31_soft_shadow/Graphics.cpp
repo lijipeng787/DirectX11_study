@@ -756,13 +756,15 @@ void Graphics::SetupRenderPasses() {
         // Override view matrix with reflection matrix if available
         if (ctx.global_params->HasParameter("reflectionMatrix")) {
           merged.SetMatrix("viewMatrix",
-                           ctx.global_params->GetMatrix("reflectionMatrix"));
+                           ctx.global_params->GetMatrix("reflectionMatrix"),
+                           ShaderParameterContainer::ParameterOrigin::Pass);
         }
 
         // Ensure projection matrix is set
         if (ctx.global_params->HasParameter("projectionMatrix")) {
           merged.SetMatrix("projectionMatrix",
-                           ctx.global_params->GetMatrix("projectionMatrix"));
+                           ctx.global_params->GetMatrix("projectionMatrix"),
+                           ShaderParameterContainer::ParameterOrigin::Pass);
         }
 
         // Render only objects tagged for reflection
@@ -770,14 +772,29 @@ void Graphics::SetupRenderPasses() {
           if (!renderable->HasTag(REFLECTION_TAG))
             continue;
 
-          ShaderParameterContainer objParams = merged;
-          objParams.SetMatrix("worldMatrix", renderable->GetWorldMatrix());
-          if (auto cb = renderable->GetParameterCallback()) {
-            cb(objParams);
+          ShaderParameterContainer objParams =
+              ShaderParameterContainer::MergeWithPriority(
+                  merged, renderable->GetObjectParameters(),
+                  ShaderParameterContainer::ParameterOrigin::Unknown,
+                  ShaderParameterContainer::ParameterOrigin::Object);
+
+          objParams.SetMatrix(
+              "worldMatrix", renderable->GetWorldMatrix(),
+              ShaderParameterContainer::ParameterOrigin::Object);
+
+          if (auto callback = renderable->GetParameterCallback()) {
+            auto origin_guard = objParams.OverrideDefaultOrigin(
+                ShaderParameterContainer::ParameterOrigin::Callback);
+            callback(objParams);
           }
-          // Disable shadowing and recursive reflection for reflection pass
-          objParams.SetFloat("shadowStrength", 0.0f);
-          objParams.SetFloat("reflectionBlend", 0.0f);
+
+          {
+            auto origin_guard = objParams.OverrideDefaultOrigin(
+                ShaderParameterContainer::ParameterOrigin::Callback);
+            // Disable shadowing and recursive reflection for reflection pass
+            objParams.SetFloat("shadowStrength", 0.0f);
+            objParams.SetFloat("reflectionBlend", 0.0f);
+          }
           renderable->Render(*ctx.shader, objParams, ctx.device_context);
         }
       });
