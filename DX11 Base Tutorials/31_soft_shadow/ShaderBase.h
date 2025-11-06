@@ -29,9 +29,7 @@ public:
     return reflected_parameters_;
   }
 
-  const std::string& GetShaderName() const {
-    return shader_name_;
-  }
+  const std::string &GetShaderName() const { return shader_name_; }
 
 protected:
   // Protected utility methods for shader compilation and setup

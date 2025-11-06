@@ -11,24 +11,24 @@
 #include "../CommonFramework2/TypeDefine.h"
 
 #include "BoundingVolume.h"
-#include "Frustum.h"
-#include "Interfaces.h"
-#include "Logger.h"
-#include "RenderableObject.h"
-#include "ResourceManager.h"
-#include "ResourceRegistry.h"
-#include "ShaderBase.h"
-#include "ShaderParameterValidator.h"
 #include "DepthShader.h"
 #include "Font.h"
 #include "FontShader.h"
+#include "Frustum.h"
 #include "HorizontalBlurShader.h"
+#include "Interfaces.h"
+#include "Logger.h"
 #include "Model.h"
 #include "OrthoWindow.h"
 #include "PbrShader.h"
 #include "RefractionShader.h"
 #include "RenderTexture.h"
+#include "RenderableObject.h"
+#include "ResourceManager.h"
+#include "ResourceRegistry.h"
 #include "SceneLightShader.h"
+#include "ShaderBase.h"
+#include "ShaderParameterValidator.h"
 #include "ShadowShader.h"
 #include "SimpleLightShader.h"
 #include "SoftShadowShader.h"
@@ -615,7 +615,8 @@ bool Graphics::SetupRenderGraph() {
   registry.Register<IShader>("vertical_blur", shader_assets_.vertical_blur);
   registry.Register<IShader>("soft_shadow", shader_assets_.soft_shadow);
   registry.Register<IShader>("pbr", shader_assets_.pbr);
-  registry.Register<IShader>("diffuse_lighting", shader_assets_.diffuse_lighting);
+  registry.Register<IShader>("diffuse_lighting",
+                             shader_assets_.diffuse_lighting);
 
   // Register render textures
   registry.Register("shadow_map", render_targets_.shadow_map);
@@ -628,7 +629,8 @@ bool Graphics::SetupRenderGraph() {
   registry.Register("fullscreen_window", ortho_windows_.fullscreen_window);
 
   // Load scene from JSON configuration
-  if (!scene_.Initialize("./data/scene.json", cube_group_.get(), pbr_group_.get())) {
+  if (!scene_.Initialize("./data/scene.json", cube_group_.get(),
+                         pbr_group_.get())) {
     LogGraphicsError("Failed to initialize Scene!");
     return false;
   }
@@ -846,7 +848,7 @@ void Graphics::RegisterShaderParameters() {
   parameter_validator_.RegisterGlobalParameter("worldMatrix");
   // From Render()
   parameter_validator_.RegisterGlobalParameter("viewMatrix");
-  parameter_validator_.RegisterGlobalParameter("projectionMatrix"); 
+  parameter_validator_.RegisterGlobalParameter("projectionMatrix");
   parameter_validator_.RegisterGlobalParameter("baseViewMatrix");
   parameter_validator_.RegisterGlobalParameter("deviceWorldMatrix");
   parameter_validator_.RegisterGlobalParameter("lightViewMatrix");
@@ -1003,8 +1005,7 @@ void Graphics::RegisterShaderParameters() {
   if (!register_with_reflection(
           "HorizontalBlurShader",
           std::static_pointer_cast<ShaderBase>(shader_assets_.horizontal_blur),
-          {}, {},
-          {{"projectionMatrix", "orthoMatrix"}})) {
+          {}, {}, {{"projectionMatrix", "orthoMatrix"}})) {
     parameter_validator_.RegisterShader(
         "HorizontalBlurShader",
         {{"worldMatrix", ShaderParameterType::Matrix, true},
@@ -1018,8 +1019,7 @@ void Graphics::RegisterShaderParameters() {
   if (!register_with_reflection(
           "VerticalBlurShader",
           std::static_pointer_cast<ShaderBase>(shader_assets_.vertical_blur),
-          {}, {},
-          {{"projectionMatrix", "orthoMatrix"}})) {
+          {}, {}, {{"projectionMatrix", "orthoMatrix"}})) {
     parameter_validator_.RegisterShader(
         "VerticalBlurShader",
         {{"worldMatrix", ShaderParameterType::Matrix, true},

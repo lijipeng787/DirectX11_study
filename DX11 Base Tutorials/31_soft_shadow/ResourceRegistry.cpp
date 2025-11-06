@@ -13,7 +13,7 @@ ResourceRegistry &ResourceRegistry::GetInstance() {
 }
 
 bool ResourceRegistry::Initialize(ID3D11Device *device,
-                                 ID3D11DeviceContext *context, HWND hwnd) {
+                                  ID3D11DeviceContext *context, HWND hwnd) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   if (initialized_) {
@@ -68,12 +68,12 @@ void ResourceRegistry::LogStats() const {
 
   std::cout << "\n=== ResourceRegistry Statistics ===" << std::endl;
   std::cout << "Total resource types: " << resources_.size() << std::endl;
-  
+
   for (const auto &[type, cache] : resources_) {
     std::cout << "  Type " << type.name() << ": " << cache.size()
               << " resources" << std::endl;
   }
-  
+
   std::cout << "Total resources: " << GetTotalResourceCount() << std::endl;
   std::cout << "====================================\n" << std::endl;
 }

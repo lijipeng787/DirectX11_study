@@ -37,7 +37,7 @@ void ShaderParameterValidator::RegisterShader(
   param_infos.reserve(parameters.size());
   for (const auto &reflected : parameters) {
     param_infos.emplace_back(reflected.name, reflected.type,
-                            reflected.required);
+                             reflected.required);
   }
   shader_parameters_[shader_name] = param_infos;
 }

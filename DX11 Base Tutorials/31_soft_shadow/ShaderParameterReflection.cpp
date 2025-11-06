@@ -42,8 +42,8 @@ ShaderStageMask StageToMask(ShaderStage stage) {
 }
 
 void MergeStageMask(ReflectedParameter &parameter, ShaderStage stage) {
-  parameter.stage_mask = static_cast<ShaderStageMask>(
-      parameter.stage_mask | StageToMask(stage));
+  parameter.stage_mask =
+      static_cast<ShaderStageMask>(parameter.stage_mask | StageToMask(stage));
 }
 
 void AddOrUpdateParameter(ReflectionCache &cache, const std::string &name,
@@ -77,18 +77,16 @@ void AddOrUpdateParameter(ReflectionCache &cache, const std::string &name,
   }
 
   Logger::SetModule("ShaderParameterReflection");
-  Logger::LogWarning(
-      "Parameter type mismatch detected during reflection for "
-      "parameter '" +
-      name + " in stage " + stage_label + ": existing=" +
-      ShaderParameterTypeToString(existing.type) +
-      ", incoming=" + ShaderParameterTypeToString(type));
+  Logger::LogWarning("Parameter type mismatch detected during reflection for "
+                     "parameter '" +
+                     name + " in stage " + stage_label + ": existing=" +
+                     ShaderParameterTypeToString(existing.type) +
+                     ", incoming=" + ShaderParameterTypeToString(type));
 }
 
 void ReflectTypeRecursive(ID3D11ShaderReflectionType *type,
-                          const std::string &qualified_name,
-                          ShaderStage stage, const char *stage_label,
-                          ReflectionCache &cache) {
+                          const std::string &qualified_name, ShaderStage stage,
+                          const char *stage_label, ReflectionCache &cache) {
   if (type == nullptr) {
     return;
   }
@@ -179,8 +177,7 @@ void ReflectConstantBuffers(ID3D11ShaderReflection *reflection,
         continue;
       }
 
-      ReflectTypeRecursive(type, variable_desc.Name, stage, stage_label,
-                           cache);
+      ReflectTypeRecursive(type, variable_desc.Name, stage, stage_label, cache);
     }
   }
 }

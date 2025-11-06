@@ -5,11 +5,11 @@
 #include "../CommonFramework2/Camera.h"
 #include "../CommonFramework2/GraphicsBase.h"
 #include "Frustum.h"
+#include "Light.h"
 #include "RenderGraph.h"
 #include "Scene.h"
 #include "SceneConfig.h"
 #include "ShaderParameterValidator.h"
-#include "Light.h"
 #include "Text.h"
 
 class Camera;

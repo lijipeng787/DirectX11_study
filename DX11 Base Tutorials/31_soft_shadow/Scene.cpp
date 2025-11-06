@@ -7,11 +7,11 @@
 #include "ConfigValidator.h"
 #include "Logger.h"
 #include "Model.h"
+#include "OrthoWindow.h"
 #include "RenderTexture.h"
 #include "RenderableObject.h"
 #include "ResourceRegistry.h"
 #include "ShaderParameterContainer.h"
-#include "OrthoWindow.h"
 
 #include <nlohmann/json.hpp>
 
@@ -207,7 +207,8 @@ void Scene::BuildSceneObjects(StandardRenderGroup *cube_group,
                               StandardRenderGroup *pbr_group) {
   // Add renderable objects
   auto cube_model = ResourceRegistry::GetInstance().Get<Model>("cube");
-  auto soft_shadow_shader = ResourceRegistry::GetInstance().Get<IShader>("soft_shadow");
+  auto soft_shadow_shader =
+      ResourceRegistry::GetInstance().Get<IShader>("soft_shadow");
 
   {
     auto cube_object = CreateTexturedModelObject(
@@ -224,7 +225,8 @@ void Scene::BuildSceneObjects(StandardRenderGroup *cube_group,
   }
 
   {
-    auto sphere_pbr_model = ResourceRegistry::GetInstance().Get<PBRModel>("pbr_sphere");
+    auto sphere_pbr_model =
+        ResourceRegistry::GetInstance().Get<PBRModel>("pbr_sphere");
     auto pbr_shader = ResourceRegistry::GetInstance().Get<IShader>("pbr");
     auto pbr_sphere_object = CreatePBRModelObject(
         sphere_pbr_model, pbr_shader, XMMatrixTranslation(0.0f, 2.0f, -2.0f));
@@ -235,10 +237,12 @@ void Scene::BuildSceneObjects(StandardRenderGroup *cube_group,
   }
 
   auto texture_shader = ResourceRegistry::GetInstance().Get<IShader>("texture");
-  auto small_window = ResourceRegistry::GetInstance().Get<OrthoWindow>("small_window");
+  auto small_window =
+      ResourceRegistry::GetInstance().Get<OrthoWindow>("small_window");
 
   {
-    auto shadow_tex = ResourceRegistry::GetInstance().Get<RenderTexture>("shadow_map");
+    auto shadow_tex =
+        ResourceRegistry::GetInstance().Get<RenderTexture>("shadow_map");
     auto down_sample_object = CreatePostProcessObject(
         small_window, texture_shader, down_sample_tag, shadow_tex);
     down_sample_object->AddTag("skip_culling");
@@ -248,8 +252,8 @@ void Scene::BuildSceneObjects(StandardRenderGroup *cube_group,
   {
     auto horizontal_blur_shader =
         ResourceRegistry::GetInstance().Get<IShader>("horizontal_blur");
-    auto downsample_tex = 
-        ResourceRegistry::GetInstance().Get<RenderTexture>("downsampled_shadow");
+    auto downsample_tex = ResourceRegistry::GetInstance().Get<RenderTexture>(
+        "downsampled_shadow");
     auto horizontal_blur_object =
         CreatePostProcessObject(small_window, horizontal_blur_shader,
                                 horizontal_blur_tag, downsample_tex);
@@ -258,9 +262,9 @@ void Scene::BuildSceneObjects(StandardRenderGroup *cube_group,
   }
 
   {
-    auto vertical_blur_shader = 
+    auto vertical_blur_shader =
         ResourceRegistry::GetInstance().Get<IShader>("vertical_blur");
-    auto h_blur_tex = 
+    auto h_blur_tex =
         ResourceRegistry::GetInstance().Get<RenderTexture>("horizontal_blur");
     auto vertical_blur_object = CreatePostProcessObject(
         small_window, vertical_blur_shader, vertical_blur_tag, h_blur_tex);
@@ -269,8 +273,10 @@ void Scene::BuildSceneObjects(StandardRenderGroup *cube_group,
   }
 
   {
-    auto fullscreen_window = ResourceRegistry::GetInstance().Get<OrthoWindow>("fullscreen_window");
-    auto v_blur_tex = ResourceRegistry::GetInstance().Get<RenderTexture>("vertical_blur");
+    auto fullscreen_window =
+        ResourceRegistry::GetInstance().Get<OrthoWindow>("fullscreen_window");
+    auto v_blur_tex =
+        ResourceRegistry::GetInstance().Get<RenderTexture>("vertical_blur");
     auto up_sample_object = CreatePostProcessObject(
         fullscreen_window, texture_shader, up_sample_tag, v_blur_tex);
     up_sample_object->AddTag("skip_culling");
@@ -326,8 +332,7 @@ void Scene::BuildSceneObjects(StandardRenderGroup *cube_group,
 }
 
 // Helper methods implementation - use ResourceRegistry directly
-std::shared_ptr<Model>
-Scene::GetModelByName(const std::string &name) const {
+std::shared_ptr<Model> Scene::GetModelByName(const std::string &name) const {
   return ResourceRegistry::GetInstance().Get<Model>(name);
 }
 
@@ -336,13 +341,12 @@ Scene::GetPBRModelByName(const std::string &name) const {
   return ResourceRegistry::GetInstance().Get<PBRModel>(name);
 }
 
-std::shared_ptr<IShader>
-Scene::GetShaderByName(const std::string &name) const {
+std::shared_ptr<IShader> Scene::GetShaderByName(const std::string &name) const {
   Logger::SetModule("Scene");
   Logger::LogInfo("Attempting to get shader: " + name);
-  
+
   auto shader = ResourceRegistry::GetInstance().Get<IShader>(name);
-  
+
   if (!shader) {
     Logger::LogError("Shader not found in registry: " + name);
     // List all available shaders
@@ -353,7 +357,7 @@ Scene::GetShaderByName(const std::string &name) const {
     }
     Logger::LogInfo("Available shaders: " + available);
   }
-  
+
   return shader;
 }
 
@@ -517,8 +521,7 @@ bool Scene::BuildSceneObjectsFromJson(const nlohmann::json &j,
             obj_json.value("ortho_window", "small_window");
         std::string render_texture_name = obj_json.value("render_texture", "");
         auto ortho_window = GetOrthoWindowByName(ortho_window_name);
-        auto render_texture =
-            GetRenderTextureByName(render_texture_name);
+        auto render_texture = GetRenderTextureByName(render_texture_name);
 
         if (ortho_window && render_texture &&
             obj_json.find("tag") != obj_json.end()) {

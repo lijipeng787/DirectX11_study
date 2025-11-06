@@ -1,13 +1,13 @@
 #pragma once
 
+#include <any>
 #include <d3d11.h>
+#include <iostream>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <typeindex>
 #include <unordered_map>
-#include <any>
-#include <iostream>
 
 // Forward declarations
 class Model;
@@ -34,34 +34,27 @@ public:
   void Register(const std::string &id, std::shared_ptr<T> resource);
 
   // Generic retrieval with type safety
-  template <typename T>
-  std::shared_ptr<T> Get(const std::string &id) const;
+  template <typename T> std::shared_ptr<T> Get(const std::string &id) const;
 
   // Check existence
-  template <typename T>
-  bool Has(const std::string &id) const;
+  template <typename T> bool Has(const std::string &id) const;
 
   // Unregister (for hot-reload)
-  template <typename T>
-  bool Unregister(const std::string &id);
+  template <typename T> bool Unregister(const std::string &id);
 
   // Get all IDs of a specific type
-  template <typename T>
-  std::vector<std::string> GetAllIds() const;
+  template <typename T> std::vector<std::string> GetAllIds() const;
 
   // Statistics
   size_t GetTotalResourceCount() const;
-  template <typename T>
-  size_t GetResourceCount() const;
+  template <typename T> size_t GetResourceCount() const;
 
   // Reference counting
-  template <typename T>
-  int GetRefCount(const std::string &id) const;
+  template <typename T> int GetRefCount(const std::string &id) const;
 
   // Clear specific type
-  template <typename T>
-  void ClearType();
-  
+  template <typename T> void ClearType();
+
   void ClearAll();
 
   // Logging
@@ -79,8 +72,7 @@ private:
   ResourceRegistry &operator=(const ResourceRegistry &) = delete;
 
   // Type-erased storage: TypeIndex -> (ID -> any)
-  std::unordered_map<std::type_index,
-                     std::unordered_map<std::string, std::any>>
+  std::unordered_map<std::type_index, std::unordered_map<std::string, std::any>>
       resources_;
 
   // Device context
@@ -113,18 +105,19 @@ void ResourceRegistry::Register(const std::string &id,
 template <typename T>
 std::shared_ptr<T> ResourceRegistry::Get(const std::string &id) const {
   std::lock_guard<std::mutex> lock(mutex_);
-  
+
   auto type_it = resources_.find(std::type_index(typeid(T)));
   if (type_it == resources_.end()) {
     // Type not registered at all
-    std::cerr << "[ResourceRegistry] Type not found: " << typeid(T).name() << std::endl;
+    std::cerr << "[ResourceRegistry] Type not found: " << typeid(T).name()
+              << std::endl;
     return nullptr;
   }
 
   auto id_it = type_it->second.find(id);
   if (id_it == type_it->second.end()) {
     // ID not found for this type
-    std::cerr << "[ResourceRegistry] ID '" << id << "' not found for type " 
+    std::cerr << "[ResourceRegistry] ID '" << id << "' not found for type "
               << typeid(T).name() << std::endl;
     std::cerr << "  Available IDs for this type: ";
     for (const auto &[available_id, _] : type_it->second) {
@@ -137,15 +130,15 @@ std::shared_ptr<T> ResourceRegistry::Get(const std::string &id) const {
   try {
     return std::any_cast<std::shared_ptr<T>>(id_it->second);
   } catch (const std::bad_any_cast &) {
-    std::cerr << "[ResourceRegistry] Type mismatch for ID '" << id << "'" << std::endl;
+    std::cerr << "[ResourceRegistry] Type mismatch for ID '" << id << "'"
+              << std::endl;
     return nullptr;
   }
 }
 
-template <typename T>
-bool ResourceRegistry::Has(const std::string &id) const {
+template <typename T> bool ResourceRegistry::Has(const std::string &id) const {
   std::lock_guard<std::mutex> lock(mutex_);
-  
+
   auto type_it = resources_.find(std::type_index(typeid(T)));
   if (type_it == resources_.end()) {
     return false;
@@ -154,10 +147,9 @@ bool ResourceRegistry::Has(const std::string &id) const {
   return type_it->second.find(id) != type_it->second.end();
 }
 
-template <typename T>
-bool ResourceRegistry::Unregister(const std::string &id) {
+template <typename T> bool ResourceRegistry::Unregister(const std::string &id) {
   std::lock_guard<std::mutex> lock(mutex_);
-  
+
   auto type_it = resources_.find(std::type_index(typeid(T)));
   if (type_it == resources_.end()) {
     return false;
@@ -169,7 +161,7 @@ bool ResourceRegistry::Unregister(const std::string &id) {
 template <typename T>
 std::vector<std::string> ResourceRegistry::GetAllIds() const {
   std::lock_guard<std::mutex> lock(mutex_);
-  
+
   std::vector<std::string> ids;
   auto type_it = resources_.find(std::type_index(typeid(T)));
   if (type_it == resources_.end()) {
@@ -183,10 +175,9 @@ std::vector<std::string> ResourceRegistry::GetAllIds() const {
   return ids;
 }
 
-template <typename T>
-size_t ResourceRegistry::GetResourceCount() const {
+template <typename T> size_t ResourceRegistry::GetResourceCount() const {
   std::lock_guard<std::mutex> lock(mutex_);
-  
+
   auto type_it = resources_.find(std::type_index(typeid(T)));
   if (type_it == resources_.end()) {
     return 0;
@@ -200,8 +191,7 @@ int ResourceRegistry::GetRefCount(const std::string &id) const {
   return resource ? resource.use_count() : 0;
 }
 
-template <typename T>
-void ResourceRegistry::ClearType() {
+template <typename T> void ResourceRegistry::ClearType() {
   std::lock_guard<std::mutex> lock(mutex_);
   resources_.erase(std::type_index(typeid(T)));
 }

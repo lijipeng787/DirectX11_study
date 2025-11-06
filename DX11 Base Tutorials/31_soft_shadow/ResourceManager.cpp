@@ -1,9 +1,9 @@
 #include "ResourceManager.h"
 
-#include "Logger.h"
 #include "DepthShader.h"
 #include "FontShader.h"
 #include "HorizontalBlurShader.h"
+#include "Logger.h"
 #include "Model.h"
 #include "OrthoWindow.h"
 #include "PbrShader.h"

@@ -6,9 +6,9 @@
 #include "Interfaces.h"
 #include "RenderTexture.h"
 #include "ResourceManager.h"
+#include "ShaderBase.h"
 #include "ShaderParameterContainer.h"
 #include "ShaderParameterValidator.h"
-#include "ShaderBase.h"
 
 // do not remove these includes
 #include "DepthShader.h"
@@ -50,11 +50,12 @@ std::vector<std::string>
 GenerateParameterCandidates(const std::string &resource_name) {
   std::vector<std::string> candidates;
 
-  // Phase 1: Generate candidates from original resource name (preserve suffixes)
-  // This handles cases like "DepthMap" -> "depthMapTexture"
+  // Phase 1: Generate candidates from original resource name (preserve
+  // suffixes) This handles cases like "DepthMap" -> "depthMapTexture"
   std::string original_camel = ToCamelCase(resource_name);
-  candidates.push_back(original_camel + "Texture"); // depthMapTexture, shadowMapTexture
-  candidates.push_back(original_camel);              // depthMap, shadowMap
+  candidates.push_back(original_camel +
+                       "Texture");      // depthMapTexture, shadowMapTexture
+  candidates.push_back(original_camel); // depthMap, shadowMap
 
   // Phase 2: Remove common suffixes and generate candidates from base name
   std::string base = resource_name;
@@ -70,12 +71,12 @@ GenerateParameterCandidates(const std::string &resource_name) {
 
   // Generate candidate list from base name
   candidates.push_back(camel + "Texture"); // depthTexture, shadowTexture
-  candidates.push_back(camel + "Map");       // depthMap, shadowMap
-  candidates.push_back(camel);              // depth, shadow
-  
+  candidates.push_back(camel + "Map");     // depthMap, shadowMap
+  candidates.push_back(camel);             // depth, shadow
+
   // Phase 3: Common shader texture parameter names (used across many shaders)
-  candidates.push_back("shaderTexture");   // Most common naming convention
-  candidates.push_back("texture");         // Generic fallback
+  candidates.push_back("shaderTexture"); // Most common naming convention
+  candidates.push_back("texture");       // Generic fallback
 
   return candidates;
 }
@@ -84,7 +85,8 @@ GenerateParameterCandidates(const std::string &resource_name) {
 bool FindParameter(const std::vector<ReflectedParameter> &shader_params,
                    const std::string &param_name) {
   for (const auto &param : shader_params) {
-    if (param.name == param_name && param.type == ShaderParameterType::Texture) {
+    if (param.name == param_name &&
+        param.type == ShaderParameterType::Texture) {
       return true;
     }
   }
@@ -104,9 +106,9 @@ GetTextureParameterNames(const std::vector<ReflectedParameter> &shader_params) {
 }
 
 // Find parameter by fuzzy matching (contains keyword)
-std::string FindParameterByKeyword(
-    const std::vector<ReflectedParameter> &shader_params,
-    const std::string &keyword) {
+std::string
+FindParameterByKeyword(const std::vector<ReflectedParameter> &shader_params,
+                       const std::string &keyword) {
   std::string lower_keyword = keyword;
   std::transform(lower_keyword.begin(), lower_keyword.end(),
                  lower_keyword.begin(), ::tolower);
@@ -345,7 +347,7 @@ RenderGraphPassBuilder RenderGraph::AddPass(const std::string &name) {
 bool RenderGraph::Compile() {
   // Simple: execution order == declaration order.
   sorted_passes_ = passes_;
-  
+
   // Auto-register shader parameters using reflection if validator is available
   if (parameter_validator_) {
     for (auto &pass : sorted_passes_) {
@@ -356,17 +358,17 @@ bool RenderGraph::Compile() {
           if (!reflected_params.empty()) {
             // Auto-register - overrides any manual registration
             parameter_validator_->RegisterShader(shader_base->GetShaderName(),
-                                                reflected_params);
+                                                 reflected_params);
             Logger::SetModule("RenderGraph");
-            Logger::LogInfo("Auto-registered " +
-                          std::to_string(reflected_params.size()) +
-                          " parameters for shader: " + shader_base->GetShaderName());
+            Logger::LogInfo(
+                "Auto-registered " + std::to_string(reflected_params.size()) +
+                " parameters for shader: " + shader_base->GetShaderName());
           }
         }
       }
     }
   }
-  
+
   // Resolve resources and automatically bind to parameters if mapped.
   for (auto &pass : sorted_passes_) {
     // Get shader reflection if available
@@ -408,9 +410,8 @@ bool RenderGraph::Compile() {
               // Update mapping with matched parameter
               pass->resource_to_param_mapping_[in] = matched_param;
               Logger::SetModule("RenderGraph");
-              Logger::LogInfo("Pass '" + pass->GetName() +
-                            "': auto-matched '" + in + "' -> '" + matched_param +
-                            "'");
+              Logger::LogInfo("Pass '" + pass->GetName() + "': auto-matched '" +
+                              in + "' -> '" + matched_param + "'");
               break;
             }
           }
@@ -419,8 +420,8 @@ bool RenderGraph::Compile() {
             // No match found, report error with suggestions
             Logger::SetModule("RenderGraph");
             Logger::LogError("Pass '" + pass->GetName() +
-                          "': cannot match resource '" + in +
-                          "' to any shader parameter");
+                             "': cannot match resource '" + in +
+                             "' to any shader parameter");
             auto texture_params = GetTextureParameterNames(shader_params);
             if (!texture_params.empty()) {
               std::string available = "Available shader parameters: ";
@@ -431,7 +432,8 @@ bool RenderGraph::Compile() {
               }
               Logger::LogError(available);
             }
-            Logger::LogError("Suggestion: .ReadAsParameter(\"" + in + "\", \"<param_name>\")");
+            Logger::LogError("Suggestion: .ReadAsParameter(\"" + in +
+                             "\", \"<param_name>\")");
             return false;
           }
         } else {
@@ -439,9 +441,9 @@ bool RenderGraph::Compile() {
           matched_param = candidates[0];
           Logger::SetModule("RenderGraph");
           Logger::LogWarning("Pass '" + pass->GetName() +
-                          "': using fallback parameter name '" + matched_param +
-                          "' for resource '" + in +
-                          "' (no shader reflection available)");
+                             "': using fallback parameter name '" +
+                             matched_param + "' for resource '" + in +
+                             "' (no shader reflection available)");
         }
 
         // Bind to matched parameter
@@ -459,16 +461,17 @@ bool RenderGraph::Compile() {
             found_match = true;
           } else {
             // Parameter not found, try multiple matching strategies
-            // Strategy 1: Try fuzzy matching by keyword (e.g., "texture" matches "shaderTexture")
-            std::string fuzzy_match = FindParameterByKeyword(shader_params, param_name);
+            // Strategy 1: Try fuzzy matching by keyword (e.g., "texture"
+            // matches "shaderTexture")
+            std::string fuzzy_match =
+                FindParameterByKeyword(shader_params, param_name);
             if (!fuzzy_match.empty()) {
               final_param_name = fuzzy_match;
               found_match = true;
               Logger::SetModule("RenderGraph");
-              Logger::LogWarning("Pass '" + pass->GetName() +
-                              "': parameter '" + param_name +
-                              "' not found, fuzzy-matched → '" + final_param_name +
-                              "'");
+              Logger::LogWarning("Pass '" + pass->GetName() + "': parameter '" +
+                                 param_name + "' not found, fuzzy-matched → '" +
+                                 final_param_name + "'");
             }
 
             // Strategy 2: Try auto-matching with resource name candidates
@@ -480,34 +483,34 @@ bool RenderGraph::Compile() {
                   found_match = true;
                   Logger::SetModule("RenderGraph");
                   Logger::LogWarning("Pass '" + pass->GetName() +
-                                  "': parameter '" + param_name +
-                                  "' not found, auto-matched '" + in + "' → '" +
-                                  final_param_name + "'");
+                                     "': parameter '" + param_name +
+                                     "' not found, auto-matched '" + in +
+                                     "' → '" + final_param_name + "'");
                   break;
                 }
               }
             }
 
-            // Strategy 3: If only one texture parameter exists, use it as fallback
+            // Strategy 3: If only one texture parameter exists, use it as
+            // fallback
             if (!found_match) {
               auto texture_params = GetTextureParameterNames(shader_params);
               if (texture_params.size() == 1) {
                 final_param_name = texture_params[0];
                 found_match = true;
                 Logger::SetModule("RenderGraph");
-                Logger::LogWarning("Pass '" + pass->GetName() +
-                                "': parameter '" + param_name +
-                                "' not found, using single texture parameter '" +
-                                final_param_name + "'");
+                Logger::LogWarning(
+                    "Pass '" + pass->GetName() + "': parameter '" + param_name +
+                    "' not found, using single texture parameter '" +
+                    final_param_name + "'");
               }
             }
 
             if (!found_match) {
               // Still not found, report error with suggestions
               Logger::SetModule("RenderGraph");
-              Logger::LogError("Pass '" + pass->GetName() +
-                            "': parameter '" + param_name +
-                            "' not found in shader");
+              Logger::LogError("Pass '" + pass->GetName() + "': parameter '" +
+                               param_name + "' not found in shader");
               auto texture_params = GetTextureParameterNames(shader_params);
               if (!texture_params.empty()) {
                 std::string available = "Available shader parameters: ";
@@ -518,7 +521,7 @@ bool RenderGraph::Compile() {
                 }
                 Logger::LogError(available);
                 Logger::LogError("Suggestion: .ReadAsParameter(\"" + in +
-                               "\", \"" + texture_params[0] + "\")");
+                                 "\", \"" + texture_params[0] + "\")");
               }
               return false;
             }
