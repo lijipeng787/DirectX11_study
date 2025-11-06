@@ -679,7 +679,7 @@ void Graphics::SetupRenderPasses() {
   const auto &shadow_shader = shader_assets_.shadow;
   render_graph_.AddPass("ShadowPass")
       .SetShader(shadow_shader)
-      .ReadAsParameter("DepthMap", "depthMapTexture")
+      .ReadAsParameter("DepthMap")
       .Write("ShadowMap")
       .AddRenderTag(WRITE_SHADOW_TAG);
 
@@ -690,7 +690,7 @@ void Graphics::SetupRenderPasses() {
   const auto &texture_shader = shader_assets_.texture;
   render_graph_.AddPass("DownsamplePass")
       .SetShader(texture_shader)
-      .ReadAsParameter("ShadowMap", "texture")
+      .ReadAsParameter("ShadowMap")
       .Write("DownsampledShadow")
       .AddRenderTag(DOWN_SAMPLE_TAG)
       .DisableZBuffer(true)
@@ -702,7 +702,7 @@ void Graphics::SetupRenderPasses() {
   const auto &horizontal_blur_shader = shader_assets_.horizontal_blur;
   render_graph_.AddPass("HorizontalBlurPass")
       .SetShader(horizontal_blur_shader)
-      .ReadAsParameter("DownsampledShadow", "texture")
+      .ReadAsParameter("DownsampledShadow")
       .Write("HorizontalBlur")
       .AddRenderTag(HORIZONTAL_BLUR_TAG)
       .DisableZBuffer(true)
@@ -715,7 +715,7 @@ void Graphics::SetupRenderPasses() {
   const auto &vertical_blur_shader = shader_assets_.vertical_blur;
   render_graph_.AddPass("VerticalBlurPass")
       .SetShader(vertical_blur_shader)
-      .ReadAsParameter("HorizontalBlur", "texture")
+      .ReadAsParameter("HorizontalBlur")
       .Write("VerticalBlur")
       .AddRenderTag(VERTICAL_BLUR_TAG)
       .DisableZBuffer(true)
@@ -727,7 +727,7 @@ void Graphics::SetupRenderPasses() {
 
   render_graph_.AddPass("UpsamplePass")
       .SetShader(texture_shader)
-      .ReadAsParameter("VerticalBlur", "texture")
+      .ReadAsParameter("VerticalBlur")
       .Write("UpsampledShadow")
       .AddRenderTag(UP_SAMPLE_TAG)
       .DisableZBuffer(true)
@@ -990,14 +990,13 @@ void Graphics::RegisterShaderParameters() {
   if (!register_with_reflection(
           "TextureShader",
           std::static_pointer_cast<ShaderBase>(shader_assets_.texture), {}, {},
-          {{"shaderTexture", "texture"},
-           {"projectionMatrix", "orthoMatrix"}})) {
+          {{"projectionMatrix", "orthoMatrix"}})) {
     parameter_validator_.RegisterShader(
         "TextureShader",
         {{"deviceWorldMatrix", ShaderParameterType::Matrix, true},
          {"baseViewMatrix", ShaderParameterType::Matrix, true},
          {"orthoMatrix", ShaderParameterType::Matrix, true},
-         {"texture", ShaderParameterType::Texture, true}});
+         {"shaderTexture", ShaderParameterType::Texture, true}});
   }
 
   // Register HorizontalBlurShader parameters
@@ -1005,15 +1004,14 @@ void Graphics::RegisterShaderParameters() {
           "HorizontalBlurShader",
           std::static_pointer_cast<ShaderBase>(shader_assets_.horizontal_blur),
           {}, {},
-          {{"shaderTexture", "texture"},
-           {"projectionMatrix", "orthoMatrix"}})) {
+          {{"projectionMatrix", "orthoMatrix"}})) {
     parameter_validator_.RegisterShader(
         "HorizontalBlurShader",
         {{"worldMatrix", ShaderParameterType::Matrix, true},
          {"baseViewMatrix", ShaderParameterType::Matrix, true},
          {"orthoMatrix", ShaderParameterType::Matrix, true},
          {"screenWidth", ShaderParameterType::Float, true},
-         {"texture", ShaderParameterType::Texture, true}});
+         {"shaderTexture", ShaderParameterType::Texture, true}});
   }
 
   // Register VerticalBlurShader parameters
@@ -1021,15 +1019,14 @@ void Graphics::RegisterShaderParameters() {
           "VerticalBlurShader",
           std::static_pointer_cast<ShaderBase>(shader_assets_.vertical_blur),
           {}, {},
-          {{"shaderTexture", "texture"},
-           {"projectionMatrix", "orthoMatrix"}})) {
+          {{"projectionMatrix", "orthoMatrix"}})) {
     parameter_validator_.RegisterShader(
         "VerticalBlurShader",
         {{"worldMatrix", ShaderParameterType::Matrix, true},
          {"baseViewMatrix", ShaderParameterType::Matrix, true},
          {"orthoMatrix", ShaderParameterType::Matrix, true},
          {"screenHeight", ShaderParameterType::Float, true},
-         {"texture", ShaderParameterType::Texture, true}});
+         {"shaderTexture", ShaderParameterType::Texture, true}});
   }
 
   // Register SimpleLightShader parameters (diffuse lighting shader demo)

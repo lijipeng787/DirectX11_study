@@ -85,6 +85,11 @@ private:
   // Maps resource names (e.g., "DepthMap") to parameter names (e.g.,
   // "depthMapTexture")
   std::unordered_map<std::string, std::string> resource_to_param_mapping_;
+  
+  // Resource name to candidate parameter names for auto-matching
+  // When param_name is empty in ReadAsParameter(), stores candidate list
+  // for Compile() to match against shader reflection
+  std::unordered_map<std::string, std::vector<std::string>> resource_candidates_;
 };
 
 class RenderGraphPassBuilder {
