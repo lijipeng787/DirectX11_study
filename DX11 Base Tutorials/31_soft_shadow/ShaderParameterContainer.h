@@ -401,7 +401,7 @@ inline void ShaderParameterContainer::AssignValue(
           << "\" overridden: " << ParameterOriginToString(previous_origin)
           << " -> " << ParameterOriginToString(resolved_origin);
       Logger::SetModule("ShaderParameterContainer");
-      Logger::LogInfo(oss.str());
+      Logger::LogWarning(oss.str());
     }
 
     iter->second = value;

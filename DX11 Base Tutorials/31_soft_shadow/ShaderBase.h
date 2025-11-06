@@ -29,6 +29,10 @@ public:
     return reflected_parameters_;
   }
 
+  const std::string& GetShaderName() const {
+    return shader_name_;
+  }
+
 protected:
   // Protected utility methods for shader compilation and setup
   bool InitializeShaderFromFile(HWND hwnd, const std::wstring &vsFilename,
@@ -52,6 +56,7 @@ protected:
   Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_state_;
 
   std::vector<ReflectedParameter> reflected_parameters_;
+  std::string shader_name_;
 
 private:
   void OutputShaderErrorMessage(ID3D10Blob *errorMessage, HWND hwnd,

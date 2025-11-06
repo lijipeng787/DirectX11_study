@@ -6,6 +6,7 @@
 namespace Logger {
 namespace {
 std::string current_module_ = "[Unknown]";
+Level min_level_ = Level::Warning; // Default: only Warning and Error
 
 const char *GetLevelString(Level level) {
   switch (level) {
@@ -55,7 +56,14 @@ void SetModule(const std::string &module_name) {
 
 const std::string &GetModule() { return current_module_; }
 
+void SetMinLevel(Level level) { min_level_ = level; }
+
+Level GetMinLevel() { return min_level_; }
+
 void Log(Level level, const std::string &message) {
+  if (level > min_level_) {
+    return; // Skip messages below minimum level
+  }
   std::cerr << current_module_ << " " << GetLevelString(level) << " " << message
             << std::endl;
 }
@@ -73,6 +81,9 @@ void LogDebug(const std::string &message) {
 }
 
 void Log(Level level, const std::wstring &message) {
+  if (level > min_level_) {
+    return; // Skip messages below minimum level
+  }
   std::wcerr << current_module_.c_str() << L" " << GetLevelStringW(level)
              << L" " << message << std::endl;
 }

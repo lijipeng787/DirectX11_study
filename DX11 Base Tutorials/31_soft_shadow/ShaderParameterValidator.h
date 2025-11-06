@@ -48,8 +48,6 @@ public:
                       std::initializer_list<ShaderParameterInfo> parameters);
   void RegisterShader(const std::string &shader_name,
                       const std::vector<ReflectedParameter> &parameters);
-  // void RegisterShader(const std::string &shader_name,
-  //                     const std::vector<ReflectedParameter> &parameters);
 
   // Register global parameters (provided by Render() at runtime, not needed in
   // Pass)

@@ -14,6 +14,11 @@ void SetModule(const std::string &module_name);
 // Get current module name
 const std::string &GetModule();
 
+// Set minimum output level (default: Warning)
+// Only messages with level >= min_level will be output
+void SetMinLevel(Level level);
+Level GetMinLevel();
+
 // Log functions (narrow string)
 void Log(Level level, const std::string &message);
 void LogError(const std::string &message);

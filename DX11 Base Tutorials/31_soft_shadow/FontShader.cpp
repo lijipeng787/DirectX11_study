@@ -10,6 +10,7 @@ using namespace DirectX;
 
 bool FontShader::Initialize(HWND hwnd, ID3D11Device *device) {
 
+  shader_name_ = "FontShader";
   // Define input layout
   D3D11_INPUT_ELEMENT_DESC polygonLayout[2] = {
       {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,

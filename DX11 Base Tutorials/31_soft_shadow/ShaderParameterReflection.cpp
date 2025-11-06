@@ -271,14 +271,3 @@ ReflectShader(ID3D11Device *device, ID3D10Blob *vs_blob, ID3D10Blob *ps_blob) {
 
   return parameters;
 }
-
-void ShaderParameterValidator::RegisterShader(
-    const std::string &shader_name,
-    const std::vector<ReflectedParameter> &parameters) {
-  std::vector<ShaderParameterInfo> converted;
-  converted.reserve(parameters.size());
-  for (const auto &parameter : parameters) {
-    converted.emplace_back(parameter.name, parameter.type, parameter.required);
-  }
-  RegisterShader(shader_name, converted);
-}

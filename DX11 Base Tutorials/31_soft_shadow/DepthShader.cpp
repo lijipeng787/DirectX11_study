@@ -8,6 +8,7 @@ using namespace DirectX;
 
 bool DepthShader::Initialize(HWND hwnd, ID3D11Device *device) {
 
+  shader_name_ = "DepthShader";
   // Define the depth shader's input layout - only needs position
   D3D11_INPUT_ELEMENT_DESC polygonLayout[1] = {
       {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,

@@ -8,6 +8,7 @@ using namespace std;
 
 bool PbrShader::Initialize(HWND hwnd, ID3D11Device *device) {
 
+  shader_name_ = "PbrShader";
   // Define vertex input layout for PBR rendering
   D3D11_INPUT_ELEMENT_DESC polygonLayout[] = {
       {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,

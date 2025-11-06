@@ -345,6 +345,28 @@ RenderGraphPassBuilder RenderGraph::AddPass(const std::string &name) {
 bool RenderGraph::Compile() {
   // Simple: execution order == declaration order.
   sorted_passes_ = passes_;
+  
+  // Auto-register shader parameters using reflection if validator is available
+  if (parameter_validator_) {
+    for (auto &pass : sorted_passes_) {
+      if (pass->shader_) {
+        auto *shader_base = dynamic_cast<ShaderBase *>(pass->shader_.get());
+        if (shader_base) {
+          auto reflected_params = shader_base->GetReflectedParameters();
+          if (!reflected_params.empty()) {
+            // Auto-register - overrides any manual registration
+            parameter_validator_->RegisterShader(shader_base->GetShaderName(),
+                                                reflected_params);
+            Logger::SetModule("RenderGraph");
+            Logger::LogInfo("Auto-registered " +
+                          std::to_string(reflected_params.size()) +
+                          " parameters for shader: " + shader_base->GetShaderName());
+          }
+        }
+      }
+    }
+  }
+  
   // Resolve resources and automatically bind to parameters if mapped.
   for (auto &pass : sorted_passes_) {
     // Get shader reflection if available

@@ -338,7 +338,23 @@ Scene::GetPBRModelByName(const std::string &name) const {
 
 std::shared_ptr<IShader>
 Scene::GetShaderByName(const std::string &name) const {
-  return ResourceRegistry::GetInstance().Get<IShader>(name);
+  Logger::SetModule("Scene");
+  Logger::LogInfo("Attempting to get shader: " + name);
+  
+  auto shader = ResourceRegistry::GetInstance().Get<IShader>(name);
+  
+  if (!shader) {
+    Logger::LogError("Shader not found in registry: " + name);
+    // List all available shaders
+    auto all_shader_ids = ResourceRegistry::GetInstance().GetAllIds<IShader>();
+    std::string available = "";
+    for (const auto &id : all_shader_ids) {
+      available += "'" + id + "' ";
+    }
+    Logger::LogInfo("Available shaders: " + available);
+  }
+  
+  return shader;
 }
 
 std::shared_ptr<RenderTexture>
