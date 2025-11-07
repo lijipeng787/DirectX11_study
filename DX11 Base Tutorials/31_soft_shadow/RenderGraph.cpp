@@ -190,6 +190,13 @@ RenderGraphPassBuilder::SetParameter(const std::string &name,
   return *this;
 }
 RenderGraphPassBuilder &
+RenderGraphPassBuilder::LockFloatParameter(const std::string &name,
+                                           float value) {
+  pass_->pass_parameters_->SetFloatLocked(
+      name, value, ShaderParameterContainer::ParameterOrigin::Pass);
+  return *this;
+}
+RenderGraphPassBuilder &
 RenderGraphPassBuilder::SetTexture(const std::string &name,
                                    ID3D11ShaderResourceView *srv) {
   pass_->pass_parameters_->SetTexture(name, srv);
@@ -284,22 +291,21 @@ void RenderGraphPass::Execute(
       if (!draw)
         continue;
 
-      ShaderParameterContainer objParams =
-          ShaderParameterContainer::MergeWithPriority(
-              merged, r->GetObjectParameters(),
-              ShaderParameterContainer::ParameterOrigin::Unknown,
-              ShaderParameterContainer::ParameterOrigin::Object);
+      ShaderParameterContainer::BuildParametersInput inputs;
+      inputs.base_params = &merged;
 
-      objParams.SetMatrix("worldMatrix", r->GetWorldMatrix(),
-                          ShaderParameterContainer::ParameterOrigin::Object);
+      const auto &object_params = r->GetObjectParameters();
+      inputs.object_params = &object_params;
 
-      if (auto cb = r->GetParameterCallback()) {
-        auto origin_guard = objParams.OverrideDefaultOrigin(
-            ShaderParameterContainer::ParameterOrigin::Callback);
-        cb(objParams);
-      }
+      DirectX::XMMATRIX world_matrix = r->GetWorldMatrix();
+      inputs.world_matrix = &world_matrix;
 
-      r->Render(*shader_, objParams, device_context);
+      inputs.callback = r->GetParameterCallback();
+
+      ShaderParameterContainer final_params =
+          ShaderParameterContainer::BuildFinalParameters(inputs);
+
+      r->Render(*shader_, final_params, device_context);
     }
   }
 

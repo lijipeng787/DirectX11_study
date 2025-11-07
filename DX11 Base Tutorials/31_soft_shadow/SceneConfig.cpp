@@ -231,36 +231,7 @@ bool LoadFromJson(SceneConfiguration &config, const std::string &filepath) {
     // Parse constants
     if (j.find("constants") != j.end() && j["constants"].is_object()) {
       auto &constants = j["constants"];
-
-      // Parse constants using value() method for safe access
-      if (constants.find("water_plane_height") != constants.end()) {
-        config.constants.water_plane_height =
-            constants["water_plane_height"].get<float>();
-      }
-      if (constants.find("water_reflect_refract_scale") != constants.end()) {
-        config.constants.water_reflect_refract_scale =
-            constants["water_reflect_refract_scale"].get<float>();
-      }
-      if (constants.find("reflection_plane_height") != constants.end()) {
-        config.constants.reflection_plane_height =
-            constants["reflection_plane_height"].get<float>();
-      }
-      if (constants.find("refraction_scene_offset_x") != constants.end()) {
-        config.constants.refraction_scene_offset_x =
-            constants["refraction_scene_offset_x"].get<float>();
-      }
-      if (constants.find("refraction_scene_offset_y") != constants.end()) {
-        config.constants.refraction_scene_offset_y =
-            constants["refraction_scene_offset_y"].get<float>();
-      }
-      if (constants.find("refraction_scene_offset_z") != constants.end()) {
-        config.constants.refraction_scene_offset_z =
-            constants["refraction_scene_offset_z"].get<float>();
-      }
-      if (constants.find("refraction_ground_scale") != constants.end()) {
-        config.constants.refraction_ground_scale =
-            constants["refraction_ground_scale"].get<float>();
-      }
+      // Parse constants
     }
 
     Logger::SetModule("SceneConfig");

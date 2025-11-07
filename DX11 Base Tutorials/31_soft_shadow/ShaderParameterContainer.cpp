@@ -4,7 +4,10 @@
 // header to keep variant-based helpers available to all translation units.
 
 bool ShaderParameterContainer::type_mismatch_logging_enabled_ = true;
+
 bool ShaderParameterContainer::override_logging_enabled_ = false;
+
+bool ShaderParameterContainer::strict_validation_enabled_ = false;
 
 void ShaderParameterContainer::SetTypeMismatchLoggingEnabled(bool enabled) {
   type_mismatch_logging_enabled_ = enabled;

@@ -72,11 +72,10 @@ private:
 
   bool InitializeLight();
 
-  bool InitializeResources();
+  bool InitializeResources(HWND hwnd);
 
   bool InitializeRenderingPipeline();
 
-  // Split initialization methods for better organization and testability
   bool InitializeSceneModels();
 
   bool InitializeRenderTargets();

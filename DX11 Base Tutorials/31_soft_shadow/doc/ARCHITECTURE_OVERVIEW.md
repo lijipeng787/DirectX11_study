@@ -1,7 +1,7 @@
 # 🏗️ ARCHITECTURE_OVERVIEW
 
 > 统一的架构现状 / Review / 不足与风险清单（取代分散的多篇评审类文档）。
-> 更新时间：2025-11-06
+> 更新时间：2025-11-07 （本次增量：引入“参数锁定 + 严格验证”机制、统一前缀调试输出、集中合并入口已全面落地。）
 
 ---
 
@@ -73,6 +73,9 @@
 - 资源注册泛型化（`ResourceRegistry`）：为后续材质、光源、Prefab 统一接入打好入口。
 - RenderGraph 打印提供初步可视化（资源生产者/消费者/未使用输出），利于演化成编译诊断报告。
 - 动画配置已 JSON 化（旋转轴/初始角度/速度），具备向更丰富行为系统扩展的范式。
+- 参数锁定（Locked Parameters）+ 严格验证（Strict Validation） 已实现：可在 Pass 构建阶段声明不可被后续（Object / Callback）覆盖的关键参数；开启严格模式时非法覆盖直接抛出异常，保障渲染不变量（示例：反射 Pass 中 `shadowStrength` / `reflectionBlend` 强制为 0）。
+- 参数来源前缀调试视图：统一输出 `global_ / pass_ / object_ / cb_ / manual_ / unknown_` + `[locked]` 标记，快速定位覆盖链与锁定状态。
+- 最终参数构建集中入口 `BuildFinalParameters` 已消除历史多段 Merge 旁路，降低回归风险。
 
 ---
 
@@ -155,10 +158,27 @@ std::variant<XMMATRIX, XMFLOAT3, XMFLOAT4, float, ID3D11ShaderResourceView*>
 // 限制：Sampler/UAV/StructuredBuffer 待扩展
 ```
 
-**参数来源优先级**：
+**参数来源优先级与最终合并路径（最新）**：
 ```
 Global (最低) < Pass < Object < Callback (最高)
+
+执行合并入口（统一）:
+ShaderParameterContainer::BuildFinalParameters({
+  base = ChainMerge(Global, Pass),
+  + Object params,
+  + worldMatrix(Object origin),
+  + callback (ScopedOriginOverride → Callback origin)
+})
 ```
+说明：旧的在 RenderGraphPass / RenderPass / 自定义 Execute 中分散的多段合并逻辑已被替换为单一入口 `BuildFinalParameters`，避免回调结果被后续 Object 参数覆盖。`worldMatrix` 现在显式标记为 Object 来源。
+
+后续扩展计划（更新）：
+1. 严格模式增强：RAII `StrictValidationGuard`（局部开启/恢复） + 统计覆盖失败次数。
+2. `ParameterAuditTrail`：记录每个参数的覆盖序列（含被锁定阻止的尝试）。
+3. 锁定类型扩展：Matrix / Vector / Texture（当前仅 Float）。
+4. Sampler / UAV / StructuredBuffer 类型进入 variant 与验证层。
+5. 增量/脏标记策略：静态参数与动态参数分离，降低每帧复制成本。
+6. 可视化：基于前缀输出的每 Pass diff（before / after object / after callback）。
 
 ### 8.2 数据 & 资源流
 ```
@@ -167,11 +187,16 @@ Scene JSON ──▶ ResourceManager (Create) ──▶ ResourceRegistry (Regist
 
 ### 8.3 参数流
 ```
-Global(每帧构建) + Pass(构建期注入) + Object(渲染前世界矩阵) + Callback(最终覆盖)
-          │
-          ▼
-ShaderParameterContainer::ChainMerge() → 最终 Shader 调用集
+Global(每帧构建)
+  + Pass(编译期/执行前注入)
+    → base = ChainMerge(Global, Pass)
+      + Object(静态/实例参数 + worldMatrix)
+      + Callback(动态覆盖/材质临时参数)
+        → BuildFinalParameters()  // 单一最终合并点
+            ↓
+          Shader 调用最终参数集
 ```
+对比旧路径：旧实现存在 RenderableObject::Render 二次 MergeWithPriority 造成 Callback 覆盖被 Object 反转；现已移除并由集中构建函数保证顺序一致性。
 
 ### 8.4 渲染执行流
 ```
@@ -199,6 +224,38 @@ RenderGraph::Compile()
   → 读取 reflected_parameters_
   → 自动注册到 Validator (跳过已注册)
   → 应用别名/可选/忽略元数据
+
+### 8.6 参数锁定 & 严格验证流
+```
+// Pass 构建阶段：
+passBuilder.LockFloatParameter("shadowStrength", 0.0f);
+passBuilder.LockFloatParameter("reflectionBlend", 0.0f);
+
+// ShaderParameterContainer 内部：
+SetFloatLocked(name, value) →
+  - 写入值（若未存在或非锁定）
+  - 记录到 locked_parameters_ 集合
+
+// 后续 AssignValue 逻辑：
+if (IsLocked(name)) {
+    if (strict_validation_enabled_) throw;  // 严格模式：立即中断
+    else { log "override ignored (locked)"; return; }
+}
+
+// 调试输出（示例）
+global_shadowStrength [locked]
+pass_reflectionBlend [locked]
+object_worldMatrix
+cb_time
+```
+应用场景：
+- 反射 Pass 需要禁用递归阴影/反射混合 → 锁定对应参数统一入口而非在回调里重复置零。
+- 关键渲染质量/一致性参数（如阴影偏移、PCF 样本数）防止对象或材质局部“偷偷”修改导致帧间闪烁。
+
+演进方向：
+- RAII Guard：支持测试中临时开启严格模式（作用域结束自动恢复）。
+- 覆盖审计：统计被拒绝的覆盖次数，用于定位滥用回调。
+- 广义锁定：支持一组参数批量锁定（前缀或标签）。
 ```
 
 ---

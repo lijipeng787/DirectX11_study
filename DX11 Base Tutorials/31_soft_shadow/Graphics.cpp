@@ -70,7 +70,6 @@ static constexpr const char *FINAL_TAG = "final";
 static constexpr const char *REFLECTION_TAG = "reflection";
 static constexpr const char *DIFFUSE_LIGHTING_TAG = "diffuse_lighting";
 
-// 辅助函数：统一错误日志记录
 namespace {
 void LogGraphicsError(const std::wstring &message) {
   Logger::SetModule("Graphics");
@@ -111,7 +110,7 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   SceneConfig::LoadFromJson(scene_config_, "./data/scene_config.json");
 
   // Load all rendering resources (models, shaders, render targets, etc.)
-  if (!InitializeResources()) {
+  if (!InitializeResources(hwnd)) {
     return false;
   }
 
@@ -119,10 +118,6 @@ bool Graphics::Initialize(int screenWidth, int screenHeight, HWND hwnd) {
   if (!InitializeRenderingPipeline()) {
     return false;
   }
-
-  // Log resource statistics for debugging
-  auto &resource_manager = ResourceManager::GetInstance();
-  resource_manager.LogResourceStats();
 
   return true;
 }
@@ -139,23 +134,6 @@ bool Graphics::InitializeDevice(int screenWidth, int screenHeight, HWND hwnd) {
 
   this->screenWidth = screenWidth;
   this->screenHeight = screenHeight;
-
-  // Initialize ResourceManager for centralized resource management
-  auto &resource_manager = ResourceManager::GetInstance();
-  auto *device = directx11_device_->GetDevice();
-  auto *device_context = directx11_device_->GetDeviceContext();
-
-  if (!resource_manager.Initialize(device, device_context, hwnd)) {
-    LogGraphicsError("Could not initialize ResourceManager.");
-    return false;
-  }
-
-  // Initialize ResourceRegistry for unified resource access
-  auto &registry = ResourceRegistry::GetInstance();
-  if (!registry.Initialize(device, device_context, hwnd)) {
-    LogGraphicsError("Could not initialize ResourceRegistry.");
-    return false;
-  }
 
   return true;
 }
@@ -390,7 +368,26 @@ bool Graphics::InitializeOrthoWindows() {
   return true;
 }
 
-bool Graphics::InitializeResources() {
+bool Graphics::InitializeResources(HWND hwnd) {
+  auto *directx11_device_ = DirectX11Device::GetD3d11DeviceInstance();
+
+  // Initialize ResourceManager for centralized resource management
+  auto &resource_manager = ResourceManager::GetInstance();
+  auto *device = directx11_device_->GetDevice();
+  auto *device_context = directx11_device_->GetDeviceContext();
+
+  if (!resource_manager.Initialize(device, device_context, hwnd)) {
+    LogGraphicsError("Could not initialize ResourceManager.");
+    return false;
+  }
+
+  // Initialize ResourceRegistry for unified resource access
+  auto &registry = ResourceRegistry::GetInstance();
+  if (!registry.Initialize(device, device_context, hwnd)) {
+    LogGraphicsError("Could not initialize ResourceRegistry.");
+    return false;
+  }
+
   if (!InitializeSceneModels()) {
     return false;
   }
@@ -414,6 +411,9 @@ bool Graphics::InitializeResources() {
   // Object rotation is now JSON-driven, but groups are still needed
   cube_group_ = make_shared<StandardRenderGroup>();
   pbr_group_ = make_shared<StandardRenderGroup>();
+
+  // Log resource statistics for debugging
+  resource_manager.LogResourceStats();
 
   return true;
 }
@@ -581,8 +581,8 @@ bool Graphics::SetupRenderGraph() {
     return false;
   }
 
-  auto device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
-  auto context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
+  auto *device = DirectX11Device::GetD3d11DeviceInstance()->GetDevice();
+  auto *context = DirectX11Device::GetD3d11DeviceInstance()->GetDeviceContext();
 
   // Initialize RenderGraph
   render_graph_.Initialize(device, context);
@@ -591,9 +591,6 @@ bool Graphics::SetupRenderGraph() {
   RegisterShaderParameters();
   render_graph_.SetParameterValidator(&parameter_validator_);
   render_graph_.EnableParameterValidation(true);
-
-  // Setup render passes
-  SetupRenderPasses();
 
   // Register all resources to ResourceRegistry
   auto &registry = ResourceRegistry::GetInstance();
@@ -635,6 +632,9 @@ bool Graphics::SetupRenderGraph() {
     return false;
   }
 
+  // Setup render passes
+  SetupRenderPasses();
+
   // Compile render graph to validate dependencies and build execution order
   if (!render_graph_.Compile()) {
     LogGraphicsError("Failed to compile RenderGraph!");
@@ -649,49 +649,36 @@ bool Graphics::SetupRenderGraph() {
 
 void Graphics::SetupRenderPasses() {
   // Import existing textures into RenderGraph for pass dependencies
-  const auto &depth_tex = render_targets_.shadow_depth;
-  render_graph_.ImportTexture("DepthMap", depth_tex);
-
-  const auto &shadow_tex = render_targets_.shadow_map;
-  render_graph_.ImportTexture("ShadowMap", shadow_tex);
-
-  const auto &downsample_tex = render_targets_.downsampled_shadow;
-  render_graph_.ImportTexture("DownsampledShadow", downsample_tex);
-
-  const auto &h_blur_tex = render_targets_.horizontal_blur;
-  render_graph_.ImportTexture("HorizontalBlur", h_blur_tex);
-
-  const auto &v_blur_tex = render_targets_.vertical_blur;
-  render_graph_.ImportTexture("VerticalBlur", v_blur_tex);
-
-  const auto &upsample_tex = render_targets_.upsampled_shadow;
-  render_graph_.ImportTexture("UpsampledShadow", upsample_tex);
-
-  const auto &reflection_tex = render_targets_.reflection_map;
-  render_graph_.ImportTexture("ReflectionMap", reflection_tex);
+  render_graph_.ImportTexture("DepthMap", render_targets_.shadow_depth);
+  render_graph_.ImportTexture("ShadowMap", render_targets_.shadow_map);
+  render_graph_.ImportTexture("DownsampledShadow",
+                              render_targets_.downsampled_shadow);
+  render_graph_.ImportTexture("HorizontalBlur",
+                              render_targets_.horizontal_blur);
+  render_graph_.ImportTexture("VerticalBlur", render_targets_.vertical_blur);
+  render_graph_.ImportTexture("UpsampledShadow",
+                              render_targets_.upsampled_shadow);
+  render_graph_.ImportTexture("ReflectionMap", render_targets_.reflection_map);
 
   // Pass 1: Depth Pass - Render depth map from light's perspective
-  const auto &depth_shader = shader_assets_.depth;
   render_graph_.AddPass("DepthPass")
-      .SetShader(depth_shader)
+      .SetShader(shader_assets_.depth)
       .Write("DepthMap")
       .AddRenderTag(WRITE_DEPTH_TAG);
 
   // Pass 2: Shadow Pass - Generate shadow map using depth map
-  const auto &shadow_shader = shader_assets_.shadow;
   render_graph_.AddPass("ShadowPass")
-      .SetShader(shadow_shader)
+      .SetShader(shader_assets_.shadow)
       .ReadAsParameter("DepthMap")
       .Write("ShadowMap")
       .AddRenderTag(WRITE_SHADOW_TAG);
 
   // Pass 3: Downsample - Reduce shadow map resolution for blur processing
   XMMATRIX orthoMatrix;
-  downsample_tex->GetOrthoMatrix(orthoMatrix);
+  render_targets_.downsampled_shadow->GetOrthoMatrix(orthoMatrix);
 
-  const auto &texture_shader = shader_assets_.texture;
   render_graph_.AddPass("DownsamplePass")
-      .SetShader(texture_shader)
+      .SetShader(shader_assets_.texture)
       .ReadAsParameter("ShadowMap")
       .Write("DownsampledShadow")
       .AddRenderTag(DOWN_SAMPLE_TAG)
@@ -699,11 +686,10 @@ void Graphics::SetupRenderPasses() {
       .SetParameter("orthoMatrix", orthoMatrix);
 
   // Pass 4: Horizontal Blur - Apply horizontal Gaussian blur
-  h_blur_tex->GetOrthoMatrix(orthoMatrix);
+  render_targets_.horizontal_blur->GetOrthoMatrix(orthoMatrix);
 
-  const auto &horizontal_blur_shader = shader_assets_.horizontal_blur;
   render_graph_.AddPass("HorizontalBlurPass")
-      .SetShader(horizontal_blur_shader)
+      .SetShader(shader_assets_.horizontal_blur)
       .ReadAsParameter("DownsampledShadow")
       .Write("HorizontalBlur")
       .AddRenderTag(HORIZONTAL_BLUR_TAG)
@@ -712,11 +698,10 @@ void Graphics::SetupRenderPasses() {
       .SetParameter("screenWidth", static_cast<float>(DOWN_SAMPLE_WIDTH));
 
   // Pass 5: Vertical Blur - Apply vertical Gaussian blur (completes 2D blur)
-  v_blur_tex->GetOrthoMatrix(orthoMatrix);
+  render_targets_.vertical_blur->GetOrthoMatrix(orthoMatrix);
 
-  const auto &vertical_blur_shader = shader_assets_.vertical_blur;
   render_graph_.AddPass("VerticalBlurPass")
-      .SetShader(vertical_blur_shader)
+      .SetShader(shader_assets_.vertical_blur)
       .ReadAsParameter("HorizontalBlur")
       .Write("VerticalBlur")
       .AddRenderTag(VERTICAL_BLUR_TAG)
@@ -725,10 +710,10 @@ void Graphics::SetupRenderPasses() {
       .SetParameter("screenHeight", static_cast<float>(DOWN_SAMPLE_HEIGHT));
 
   // Pass 6: Upsample - Scale blurred shadow map back to original resolution
-  upsample_tex->GetOrthoMatrix(orthoMatrix);
+  render_targets_.upsampled_shadow->GetOrthoMatrix(orthoMatrix);
 
   render_graph_.AddPass("UpsamplePass")
-      .SetShader(texture_shader)
+      .SetShader(shader_assets_.texture)
       .ReadAsParameter("VerticalBlur")
       .Write("UpsampledShadow")
       .AddRenderTag(UP_SAMPLE_TAG)
@@ -736,35 +721,37 @@ void Graphics::SetupRenderPasses() {
       .SetParameter("orthoMatrix", orthoMatrix);
 
   // Pass 7: Reflection Scene Pass - Render scene from reflection camera view
-  const auto &soft_shadow_shader = shader_assets_.soft_shadow;
   render_graph_.AddPass("ReflectionScenePass")
-      .SetShader(soft_shadow_shader)
+      .SetShader(shader_assets_.soft_shadow)
       .ReadAsParameter("UpsampledShadow", "shadowTexture")
       .Write("ReflectionMap")
       .AddRenderTag(REFLECTION_TAG)
       .SetParameter("ambientColor", light_->GetAmbientColor())
       .SetParameter("diffuseColor", light_->GetDiffuseColor())
-      .SetParameter("reflectionBlend", 0.0f)
-      .SetParameter("shadowStrength", 0.0f)
+      // Lock these parameters so object callbacks cannot re-enable them.
+      .LockFloatParameter("reflectionBlend", 0.0f)
+      .LockFloatParameter("shadowStrength", 0.0f)
       .Execute([this](RenderPassContext &ctx) {
         if (!ctx.shader)
           return;
 
-        ShaderParameterContainer merged = ShaderParameterContainer::ChainMerge(
-            *ctx.global_params, *ctx.pass_params);
+        ShaderParameterContainer base_params =
+            ShaderParameterContainer::ChainMerge(*ctx.global_params,
+                                                 *ctx.pass_params);
 
         // Override view matrix with reflection matrix if available
         if (ctx.global_params->HasParameter("reflectionMatrix")) {
-          merged.SetMatrix("viewMatrix",
-                           ctx.global_params->GetMatrix("reflectionMatrix"),
-                           ShaderParameterContainer::ParameterOrigin::Pass);
+          base_params.SetMatrix(
+              "viewMatrix", ctx.global_params->GetMatrix("reflectionMatrix"),
+              ShaderParameterContainer::ParameterOrigin::Pass);
         }
 
         // Ensure projection matrix is set
         if (ctx.global_params->HasParameter("projectionMatrix")) {
-          merged.SetMatrix("projectionMatrix",
-                           ctx.global_params->GetMatrix("projectionMatrix"),
-                           ShaderParameterContainer::ParameterOrigin::Pass);
+          base_params.SetMatrix(
+              "projectionMatrix",
+              ctx.global_params->GetMatrix("projectionMatrix"),
+              ShaderParameterContainer::ParameterOrigin::Pass);
         }
 
         // Render only objects tagged for reflection
@@ -772,36 +759,27 @@ void Graphics::SetupRenderPasses() {
           if (!renderable->HasTag(REFLECTION_TAG))
             continue;
 
+          ShaderParameterContainer::BuildParametersInput inputs;
+          inputs.base_params = &base_params;
+
+          const auto &object_params = renderable->GetObjectParameters();
+          inputs.object_params = &object_params;
+
+          DirectX::XMMATRIX world_matrix = renderable->GetWorldMatrix();
+          inputs.world_matrix = &world_matrix;
+
+          inputs.callback = renderable->GetParameterCallback();
+
           ShaderParameterContainer objParams =
-              ShaderParameterContainer::MergeWithPriority(
-                  merged, renderable->GetObjectParameters(),
-                  ShaderParameterContainer::ParameterOrigin::Unknown,
-                  ShaderParameterContainer::ParameterOrigin::Object);
+              ShaderParameterContainer::BuildFinalParameters(inputs);
 
-          objParams.SetMatrix(
-              "worldMatrix", renderable->GetWorldMatrix(),
-              ShaderParameterContainer::ParameterOrigin::Object);
-
-          if (auto callback = renderable->GetParameterCallback()) {
-            auto origin_guard = objParams.OverrideDefaultOrigin(
-                ShaderParameterContainer::ParameterOrigin::Callback);
-            callback(objParams);
-          }
-
-          {
-            auto origin_guard = objParams.OverrideDefaultOrigin(
-                ShaderParameterContainer::ParameterOrigin::Callback);
-            // Disable shadowing and recursive reflection for reflection pass
-            objParams.SetFloat("shadowStrength", 0.0f);
-            objParams.SetFloat("reflectionBlend", 0.0f);
-          }
           renderable->Render(*ctx.shader, objParams, ctx.device_context);
         }
       });
 
   // Pass 8: Final Pass - Render main scene with soft shadows and reflections
   render_graph_.AddPass("FinalPass")
-      .SetShader(soft_shadow_shader)
+      .SetShader(shader_assets_.soft_shadow)
       .ReadAsParameter("UpsampledShadow", "shadowTexture")
       .ReadAsParameter("ReflectionMap", "reflectionTexture")
       .AddRenderTag(FINAL_TAG)
@@ -811,20 +789,17 @@ void Graphics::SetupRenderPasses() {
       .SetParameter("shadowStrength", 1.0f);
 
   // Pass 9: PBR Pass - Render physically-based rendered objects
-  const auto &sphere_pbr_model = scene_assets_.pbr_sphere;
-  const auto &pbr_shader = shader_assets_.pbr;
   render_graph_.AddPass("PBRPass")
-      .SetShader(pbr_shader)
+      .SetShader(shader_assets_.pbr)
       .AddRenderTag(PBR_TAG)
-      .SetTexture("diffuseTexture", sphere_pbr_model->GetTexture(0))
-      .SetTexture("normalMap", sphere_pbr_model->GetTexture(1))
-      .SetTexture("rmTexture", sphere_pbr_model->GetTexture(2));
+      .SetTexture("diffuseTexture", scene_assets_.pbr_sphere->GetTexture(0))
+      .SetTexture("normalMap", scene_assets_.pbr_sphere->GetTexture(1))
+      .SetTexture("rmTexture", scene_assets_.pbr_sphere->GetTexture(2));
 
   // Pass 10: Diffuse Lighting Pass - Render objects with simple diffuse
   // lighting
-  const auto &diffuse_lighting_shader = shader_assets_.diffuse_lighting;
   render_graph_.AddPass("DiffuseLightingPass")
-      .SetShader(diffuse_lighting_shader)
+      .SetShader(shader_assets_.diffuse_lighting)
       .AddRenderTag(DIFFUSE_LIGHTING_TAG)
       .SetParameter("ambientColor", light_->GetAmbientColor())
       .SetParameter("diffuseColor", light_->GetDiffuseColor())
@@ -838,8 +813,8 @@ void Graphics::SetupRenderPasses() {
           return;
         }
 
-        auto dx = DirectX11Device::GetD3d11DeviceInstance();
-        dx->SetBackBufferRenderTarget();
+        auto *dx = DirectX11Device::GetD3d11DeviceInstance();
+        // dx->SetBackBufferRenderTarget();
         dx->ResetViewport();
         dx->TurnOnAlphaBlending();
 
@@ -868,12 +843,15 @@ void Graphics::RegisterShaderParameters() {
   parameter_validator_.RegisterGlobalParameter("projectionMatrix");
   parameter_validator_.RegisterGlobalParameter("baseViewMatrix");
   parameter_validator_.RegisterGlobalParameter("deviceWorldMatrix");
+
   parameter_validator_.RegisterGlobalParameter("lightViewMatrix");
   parameter_validator_.RegisterGlobalParameter("lightProjectionMatrix");
   parameter_validator_.RegisterGlobalParameter("lightPosition");
   parameter_validator_.RegisterGlobalParameter("lightDirection");
+
   parameter_validator_.RegisterGlobalParameter("cameraPosition");
   parameter_validator_.RegisterGlobalParameter("reflectionMatrix");
+
   parameter_validator_.RegisterGlobalParameter("ambientColor");
   parameter_validator_.RegisterGlobalParameter("diffuseColor");
 

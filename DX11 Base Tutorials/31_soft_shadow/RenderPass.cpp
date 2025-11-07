@@ -45,23 +45,21 @@ void RenderPass::Execute(
 
   for (const auto &renderable : renderables) {
     if (ShouldRenderObject(*renderable)) {
-      ShaderParameterContainer objectParams =
-          ShaderParameterContainer::MergeWithPriority(
-              globalFramePassParams, renderable->GetObjectParameters(),
-              ShaderParameterContainer::ParameterOrigin::Unknown,
-              ShaderParameterContainer::ParameterOrigin::Object);
+      ShaderParameterContainer::BuildParametersInput inputs;
+      inputs.base_params = &globalFramePassParams;
 
-      objectParams.SetMatrix("worldMatrix", renderable->GetWorldMatrix(),
-                             ShaderParameterContainer::ParameterOrigin::Object);
+      const auto &object_params = renderable->GetObjectParameters();
+      inputs.object_params = &object_params;
 
-      auto callback = renderable->GetParameterCallback();
-      if (callback) {
-        auto origin_guard = objectParams.OverrideDefaultOrigin(
-            ShaderParameterContainer::ParameterOrigin::Callback);
-        callback(objectParams);
-      }
+      DirectX::XMMATRIX world_matrix = renderable->GetWorldMatrix();
+      inputs.world_matrix = &world_matrix;
 
-      renderable->Render(*shader_, objectParams, deviceContext);
+      inputs.callback = renderable->GetParameterCallback();
+
+      ShaderParameterContainer final_params =
+          ShaderParameterContainer::BuildFinalParameters(inputs);
+
+      renderable->Render(*shader_, final_params, deviceContext);
     }
   }
 

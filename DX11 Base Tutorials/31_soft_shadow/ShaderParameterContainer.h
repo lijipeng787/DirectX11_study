@@ -12,6 +12,7 @@
 #include <string>
 #include <type_traits>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -123,11 +124,24 @@ public:
     ShaderParameterType type;
   };
 
+  struct BuildParametersInput {
+    const ShaderParameterContainer *base_params = nullptr;
+    const ShaderParameterContainer *global_params = nullptr;
+    const ShaderParameterContainer *pass_params = nullptr;
+    const ShaderParameterContainer *object_params = nullptr;
+    const DirectX::XMMATRIX *world_matrix = nullptr;
+    std::function<void(ShaderParameterContainer &)> callback;
+  };
+
   ShaderParameterContainer() = default;
+
   ShaderParameterContainer(const ShaderParameterContainer &) = default;
+
   ShaderParameterContainer(ShaderParameterContainer &&) noexcept = default;
+
   ShaderParameterContainer &
   operator=(const ShaderParameterContainer &) = default;
+
   ShaderParameterContainer &
   operator=(ShaderParameterContainer &&) noexcept = default;
 
@@ -136,33 +150,50 @@ public:
 
   void SetFloat(const std::string &name, float value,
                 ParameterOrigin origin = ParameterOrigin::Manual);
+
   void SetGlobalDynamicMatrix(const std::string &name,
                               const DirectX::XMMATRIX &matrix);
+
   void SetMatrix(const std::string &name, const DirectX::XMMATRIX &matrix,
                  ParameterOrigin origin = ParameterOrigin::Manual);
+
   void SetGlobalDynamicVector3(const std::string &name,
                                const DirectX::XMFLOAT3 &vector);
+
   void SetVector3(const std::string &name, const DirectX::XMFLOAT3 &vector,
                   ParameterOrigin origin = ParameterOrigin::Manual);
+
   void SetVector4(const std::string &name, const DirectX::XMFLOAT4 &vector,
                   ParameterOrigin origin = ParameterOrigin::Manual);
+
   void SetTexture(const std::string &name, ID3D11ShaderResourceView *texture,
                   ParameterOrigin origin = ParameterOrigin::Manual);
 
+  void SetFloatLocked(const std::string &name, float value,
+                      ParameterOrigin origin = ParameterOrigin::Manual);
+
   template <typename T> T Get(const std::string &name) const;
+
   template <typename T> bool TryGet(const std::string &name, T &out) const;
 
   float GetFloat(const std::string &name) const;
+
   DirectX::XMMATRIX GetMatrix(const std::string &name) const;
+
   DirectX::XMFLOAT3 GetVector3(const std::string &name) const;
+
   DirectX::XMFLOAT4 GetVector4(const std::string &name) const;
+
   ID3D11ShaderResourceView *GetTexture(const std::string &name) const;
 
   bool HasParameter(const std::string &name) const;
+
   ShaderParameterType GetType(const std::string &name) const;
+
   std::optional<ParamValue> TryGet(const std::string &name) const;
 
   std::vector<ParameterEntry> GetAllParameterEntries() const;
+
   std::vector<std::string> GetAllParameterNames() const;
 
   static ShaderParameterContainer
@@ -170,30 +201,133 @@ public:
                     const ShaderParameterContainer &higher,
                     ParameterOrigin lower_origin = ParameterOrigin::Unknown,
                     ParameterOrigin higher_origin = ParameterOrigin::Unknown);
+
   static ShaderParameterContainer
   ChainMerge(const ShaderParameterContainer &global,
              const ShaderParameterContainer &pass,
              const ShaderParameterContainer *object = nullptr,
              const ShaderParameterContainer *callback = nullptr);
 
+  static ShaderParameterContainer
+  BuildFinalParameters(const BuildParametersInput &input);
+
   static void SetTypeMismatchLoggingEnabled(bool enabled);
+
   static void SetOverrideLoggingEnabled(bool enabled);
 
   ScopedOriginOverride OverrideDefaultOrigin(ParameterOrigin origin);
 
+  bool IsLocked(const std::string &name) const;
+  // Debug helper: produce a map of prefixed-name -> original name for current
+  // parameters. Prefixes: global_, pass_, object_, cb_, manual_, unknown_
+  // std::vector<std::pair<std::string, std::string>> GetPrefixedNamePairs()
+  // const; std::string DumpWithOriginPrefixes() const; // Human-readable dump
+
+  inline std::vector<std::pair<std::string, std::string>>
+  GetPrefixedNamePairs() const {
+    std::vector<std::pair<std::string, std::string>> out;
+    out.reserve(typed_parameters_.size());
+    auto prefixFor = [](ParameterOrigin o) -> const char * {
+      switch (o) {
+      case ParameterOrigin::Global:
+        return "global_";
+      case ParameterOrigin::Pass:
+        return "pass_";
+      case ParameterOrigin::Object:
+        return "object_";
+      case ParameterOrigin::Callback:
+        return "cb_";
+      case ParameterOrigin::Manual:
+        return "manual_";
+      default:
+        return "unknown_";
+      }
+    };
+    for (const auto &kv : typed_parameters_) {
+      auto origin_it = parameter_origins_.find(kv.first);
+      ParameterOrigin origin = origin_it == parameter_origins_.end()
+                                   ? ParameterOrigin::Unknown
+                                   : origin_it->second;
+      std::string prefixed = std::string(prefixFor(origin)) + kv.first;
+      if (IsLocked(kv.first)) {
+        prefixed += "[locked]";
+      }
+      out.emplace_back(std::move(prefixed), kv.first);
+    }
+    return out;
+  }
+
+  inline std::string DumpWithOriginPrefixes() const {
+    std::ostringstream oss;
+    oss << "ShaderParameterContainer Debug Dump (with prefixes)\n";
+    for (const auto &p : GetPrefixedNamePairs()) {
+      const auto &prefixed = p.first;
+      const auto &original = p.second;
+      oss << "  " << prefixed << " = ";
+      auto it = typed_parameters_.find(original);
+      if (it != typed_parameters_.end()) {
+        switch (DeduceType(it->second)) {
+        case ShaderParameterType::Float:
+          oss << std::get<float>(it->second);
+          break;
+        case ShaderParameterType::Vector3: {
+          auto v = std::get<DirectX::XMFLOAT3>(it->second);
+          oss << "(" << v.x << "," << v.y << "," << v.z << ")";
+          break;
+        }
+        case ShaderParameterType::Vector4: {
+          auto v = std::get<DirectX::XMFLOAT4>(it->second);
+          oss << "(" << v.x << "," << v.y << "," << v.z << "," << v.w << ")";
+          break;
+        }
+        case ShaderParameterType::Matrix:
+          oss << "<matrix>";
+          break;
+        case ShaderParameterType::Texture:
+          oss << "<texture>";
+          break;
+        default:
+          oss << "<unknown>";
+          break;
+        }
+      }
+      oss << "\n";
+    }
+    return oss.str();
+  }
+
 private:
   void AssignValue(const std::string &name, const ParamValue &value,
                    ParameterOrigin origin = ParameterOrigin::Manual);
+
   void ApplyOverrides(const ShaderParameterContainer &other,
                       ParameterOrigin origin = ParameterOrigin::Unknown);
+
   static ShaderParameterType DeduceType(const ParamValue &value);
+
   static const char *ParameterOriginToString(ParameterOrigin origin);
 
+  void LockParameter(const std::string &name);
+
   std::unordered_map<std::string, ParamValue> typed_parameters_;
+
   std::unordered_map<std::string, ParameterOrigin> parameter_origins_;
+
   ParameterOrigin default_origin_ = ParameterOrigin::Manual;
+
+  std::unordered_set<std::string> locked_parameters_;
+
   static bool type_mismatch_logging_enabled_;
+
   static bool override_logging_enabled_;
+
+  static bool strict_validation_enabled_;
+
+public:
+  static void SetStrictValidationEnabled(bool enabled) {
+    strict_validation_enabled_ = enabled;
+  }
+  static bool IsStrictValidationEnabled() { return strict_validation_enabled_; }
 };
 
 // ============================================================================
@@ -402,6 +536,38 @@ ShaderParameterContainer::ChainMerge(const ShaderParameterContainer &global,
   return result;
 }
 
+inline ShaderParameterContainer ShaderParameterContainer::BuildFinalParameters(
+    const BuildParametersInput &input) {
+  ShaderParameterContainer result;
+
+  if (input.base_params) {
+    result = *input.base_params;
+  } else {
+    if (input.global_params) {
+      result.ApplyOverrides(*input.global_params, ParameterOrigin::Global);
+    }
+    if (input.pass_params) {
+      result.ApplyOverrides(*input.pass_params, ParameterOrigin::Pass);
+    }
+  }
+
+  if (input.object_params) {
+    result.ApplyOverrides(*input.object_params, ParameterOrigin::Object);
+  }
+
+  if (input.world_matrix) {
+    result.SetMatrix("worldMatrix", *input.world_matrix,
+                     ParameterOrigin::Object);
+  }
+
+  if (input.callback) {
+    auto origin_guard = result.OverrideDefaultOrigin(ParameterOrigin::Callback);
+    input.callback(result);
+  }
+
+  return result;
+}
+
 inline ShaderParameterContainer::ScopedOriginOverride
 ShaderParameterContainer::OverrideDefaultOrigin(ParameterOrigin origin) {
   return ScopedOriginOverride(*this, origin);
@@ -416,6 +582,24 @@ inline void ShaderParameterContainer::AssignValue(const std::string &name,
     effective_origin = default_origin_;
   }
   auto iter = typed_parameters_.find(name);
+  if (locked_parameters_.find(name) != locked_parameters_.end() &&
+      iter != typed_parameters_.end()) {
+    if (override_logging_enabled_) {
+      std::ostringstream oss;
+      oss << "Parameter \"" << name
+          << "\" locked; ignoring override attempt from "
+          << ParameterOriginToString(origin) << ".";
+      Logger::SetModule("ShaderParameterContainer");
+      Logger::LogWarning(oss.str());
+    }
+    if (strict_validation_enabled_) {
+      throw std::runtime_error(
+          std::string(
+              "StrictValidation: attempt to override locked parameter: ") +
+          name);
+    }
+    return;
+  }
   if (iter != typed_parameters_.end()) {
     const auto previous_origin_iter = parameter_origins_.find(name);
     const ParameterOrigin previous_origin =
@@ -481,6 +665,9 @@ ShaderParameterContainer::ApplyOverrides(const ShaderParameterContainer &other,
       }
     }
     AssignValue(kv.first, kv.second, resolved_origin);
+    if (other.IsLocked(kv.first)) {
+      LockParameter(kv.first);
+    }
   }
 }
 
@@ -521,4 +708,19 @@ ShaderParameterContainer::ParameterOriginToString(ParameterOrigin origin) {
   default:
     return "Unknown";
   }
+}
+
+inline void ShaderParameterContainer::SetFloatLocked(const std::string &name,
+                                                     float value,
+                                                     ParameterOrigin origin) {
+  SetFloat(name, value, origin);
+  LockParameter(name);
+}
+
+inline bool ShaderParameterContainer::IsLocked(const std::string &name) const {
+  return locked_parameters_.find(name) != locked_parameters_.end();
+}
+
+inline void ShaderParameterContainer::LockParameter(const std::string &name) {
+  locked_parameters_.insert(name);
 }

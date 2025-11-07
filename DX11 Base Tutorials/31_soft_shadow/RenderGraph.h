@@ -108,6 +108,8 @@ public:
                                        const DirectX::XMFLOAT3 &value);
   RenderGraphPassBuilder &SetParameter(const std::string &name,
                                        const DirectX::XMFLOAT4 &value);
+  RenderGraphPassBuilder &LockFloatParameter(const std::string &name,
+                                             float value);
   RenderGraphPassBuilder &SetTexture(const std::string &name,
                                      ID3D11ShaderResourceView *srv);
   // Read resource and automatically bind it to a shader parameter
