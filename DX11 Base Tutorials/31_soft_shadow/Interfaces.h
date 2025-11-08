@@ -7,7 +7,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "ShaderParameterContainer.h"
+#include "ShaderParameter.h"
 
 // ============================================================================
 // Render Interfaces

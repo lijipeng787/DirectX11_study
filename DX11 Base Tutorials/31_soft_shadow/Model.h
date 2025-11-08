@@ -2,7 +2,7 @@
 
 #include "BoundingVolume.h"
 #include "Interfaces.h"
-#include "ShaderParameterContainer.h"
+#include "ShaderParameter.h"
 #include "Texture.h"
 
 #include <d3d11.h>

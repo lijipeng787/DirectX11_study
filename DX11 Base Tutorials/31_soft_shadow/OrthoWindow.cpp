@@ -2,7 +2,7 @@
 
 #include "../CommonFramework2/DirectX11Device.h"
 #include "Interfaces.h"
-#include "ShaderParameterContainer.h"
+#include "ShaderParameter.h"
 
 using namespace std;
 using namespace DirectX;

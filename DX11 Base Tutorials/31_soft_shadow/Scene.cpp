@@ -11,7 +11,7 @@
 #include "RenderTexture.h"
 #include "RenderableObject.h"
 #include "ResourceRegistry.h"
-#include "ShaderParameterContainer.h"
+#include "ShaderParameter.h"
 
 #include <nlohmann/json.hpp>
 

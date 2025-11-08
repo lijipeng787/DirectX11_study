@@ -1,6 +1,6 @@
 #include "ShadowShader.h"
 
-#include "ShaderParameterContainer.h"
+#include "ShaderParameter.h"
 
 #include <fstream>
 

@@ -33,13 +33,7 @@ void ShaderParameterValidator::RegisterShader(
 void ShaderParameterValidator::RegisterShader(
     const std::string &shader_name,
     const std::vector<ReflectedParameter> &parameters) {
-  std::vector<ShaderParameterInfo> param_infos;
-  param_infos.reserve(parameters.size());
-  for (const auto &reflected : parameters) {
-    param_infos.emplace_back(reflected.name, reflected.type,
-                             reflected.required);
-  }
-  shader_parameters_[shader_name] = param_infos;
+  shader_parameters_[shader_name].assign(parameters.begin(), parameters.end());
 }
 
 void ShaderParameterValidator::RegisterGlobalParameter(

@@ -1,7 +1,7 @@
 #include "ShaderParameterContainerTests.h"
 
 #include "Logger.h"
-#include "ShaderParameterContainer.h"
+#include "ShaderParameter.h"
 
 #include <DirectXMath.h>
 

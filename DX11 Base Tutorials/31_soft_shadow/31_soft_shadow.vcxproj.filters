@@ -8,7 +8,6 @@
     <ClCompile Include="OrthoWindow.cpp" />
     <ClCompile Include="Position.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
-    <ClCompile Include="ShaderParameterContainer.cpp" />
     <ClCompile Include="ShadowShader.cpp" />
     <ClCompile Include="SoftShadowShader.cpp" />
     <ClCompile Include="System.cpp" />
@@ -38,7 +37,7 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="ConfigValidator.cpp" />
     <ClCompile Include="ShaderParameterContainerTests.cpp" />
-    <ClCompile Include="ShaderParameterReflection.cpp" />
+    <ClCompile Include="ShaderParameter.cpp" />
     <ClCompile Include="ResourceRegistry.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -51,7 +50,7 @@
     <ClInclude Include="OrthoWindow.h" />
     <ClInclude Include="Position.h" />
     <ClInclude Include="RenderTexture.h" />
-    <ClInclude Include="ShaderParameterContainer.h" />
+    <ClInclude Include="ShaderParameter.h" />
     <ClInclude Include="ShadowShader.h" />
     <ClInclude Include="SoftShadowShader.h" />
     <ClInclude Include="System.h" />

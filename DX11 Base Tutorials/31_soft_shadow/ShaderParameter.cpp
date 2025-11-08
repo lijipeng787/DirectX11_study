@@ -1,6 +1,4 @@
-#include "ShaderParameterValidator.h"
-
-#include "Logger.h"
+#include "ShaderParameter.h"
 
 #include <algorithm>
 #include <d3d11shader.h>
@@ -8,9 +6,31 @@
 #include <sstream>
 #include <unordered_map>
 
+bool ShaderParameterContainer::type_mismatch_logging_enabled_ = true;
+
+bool ShaderParameterContainer::override_logging_enabled_ = false;
+
+bool ShaderParameterContainer::strict_validation_enabled_ = false;
+
+void ShaderParameterContainer::SetTypeMismatchLoggingEnabled(bool enabled) {
+  type_mismatch_logging_enabled_ = enabled;
+}
+
+void ShaderParameterContainer::SetOverrideLoggingEnabled(bool enabled) {
+  override_logging_enabled_ = enabled;
+}
+
 namespace {
 
-// Map a reflected shader variable type to our ShaderParameterType enum.
+ShaderStageMask StageToMask(ShaderStage stage) {
+  return static_cast<ShaderStageMask>(stage);
+}
+
+void MergeStageMask(ReflectedParameter &parameter, ShaderStage stage) {
+  parameter.stage_mask =
+      static_cast<ShaderStageMask>(parameter.stage_mask | StageToMask(stage));
+}
+
 ShaderParameterType MapShaderType(const D3D11_SHADER_TYPE_DESC &type_desc) {
   switch (type_desc.Class) {
   case D3D_SVC_MATRIX_ROWS:
@@ -36,15 +56,6 @@ ShaderParameterType MapShaderType(const D3D11_SHADER_TYPE_DESC &type_desc) {
 }
 
 using ReflectionCache = std::unordered_map<std::string, ReflectedParameter>;
-
-ShaderStageMask StageToMask(ShaderStage stage) {
-  return static_cast<ShaderStageMask>(stage);
-}
-
-void MergeStageMask(ReflectedParameter &parameter, ShaderStage stage) {
-  parameter.stage_mask =
-      static_cast<ShaderStageMask>(parameter.stage_mask | StageToMask(stage));
-}
 
 void AddOrUpdateParameter(ReflectionCache &cache, const std::string &name,
                           ShaderParameterType type, ShaderStage stage,

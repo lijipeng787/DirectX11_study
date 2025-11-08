@@ -2,7 +2,7 @@
 
 #include <d3dcompiler.h>
 
-#include "ShaderParameterContainer.h"
+#include "ShaderParameter.h"
 
 using namespace DirectX;
 

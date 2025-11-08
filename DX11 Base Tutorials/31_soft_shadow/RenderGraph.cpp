@@ -7,7 +7,7 @@
 #include "RenderTexture.h"
 #include "ResourceManager.h"
 #include "ShaderBase.h"
-#include "ShaderParameterContainer.h"
+#include "ShaderParameter.h"
 #include "ShaderParameterValidator.h"
 
 // do not remove these includes

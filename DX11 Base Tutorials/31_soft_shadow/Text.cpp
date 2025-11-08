@@ -3,7 +3,7 @@
 #include "../CommonFramework2/DirectX11Device.h"
 #include "Font.h"
 #include "FontShader.h"
-#include "ShaderParameterContainer.h"
+#include "ShaderParameter.h"
 
 #include <DirectXMath.h>
 #include <cstring>

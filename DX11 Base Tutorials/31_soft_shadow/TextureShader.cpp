@@ -1,6 +1,6 @@
 #include "TextureShader.h"
 
-#include "ShaderParameterContainer.h"
+#include "ShaderParameter.h"
 
 #include <d3dcompiler.h>
 #include <fstream>
