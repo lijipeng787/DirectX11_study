@@ -20,7 +20,7 @@ bool FontShader::Initialize(HWND hwnd, ID3D11Device *device) {
 
   // Initialize base shader components
   if (!InitializeShaderFromFile(
-          hwnd, L"./font.hlsl", "FontVertexShader", L"./font.hlsl",
+    hwnd, L"./shaders/font.hlsl", "FontVertexShader", L"./shaders/font.hlsl",
           "FontPixelShader", polygonLayout, _countof(polygonLayout), device)) {
     return false;
   }

@@ -90,8 +90,9 @@ private:
   bool SetupRenderGraph();
 
   void SetupRenderPasses();
-
-  void RegisterShaderParameters();
+  // Register all shader parameters using runtime reflection only.
+  // Returns false if any shader fails reflection-based registration.
+  bool RegisterShaderParameters();
 
   // Frustum culling helper
   bool IsObjectVisible(std::shared_ptr<IRenderable> renderable,

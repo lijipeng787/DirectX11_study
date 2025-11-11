@@ -46,4 +46,3 @@ PixelInputType WaterVertexShader(VertexInputType input)
 
     return output;
 }
-

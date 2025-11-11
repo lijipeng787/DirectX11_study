@@ -31,7 +31,6 @@ public:
 
   virtual ~RenderableObject() = default;
 
-public:
   void Render(const IShader &shader, const ShaderParameterContainer &parameters,
               ID3D11DeviceContext *deviceContext) const override;
 
@@ -43,7 +42,6 @@ public:
 
   const ShaderParameterContainer &GetObjectParameters() const override;
 
-public:
   void SetObjectParameters(const ShaderParameterContainer &params);
 
   void SetWorldMatrix(const DirectX::XMMATRIX &worldMatrix);

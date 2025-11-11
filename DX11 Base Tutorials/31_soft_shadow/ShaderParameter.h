@@ -61,7 +61,9 @@ inline auto ShaderParameterTypeToString(ShaderParameterType type) -> const
 // required)
 struct ShaderParameterInfo {
   std::string name;
+
   ShaderParameterType type = ShaderParameterType::Unknown;
+  
   bool required = true; // Whether this parameter is required (default: true)
 
   ShaderParameterInfo() = default;
@@ -129,6 +131,7 @@ public:
     }
 
     ScopedOriginOverride(const ScopedOriginOverride &) = delete;
+
     ScopedOriginOverride &operator=(const ScopedOriginOverride &) = delete;
 
     ScopedOriginOverride(ScopedOriginOverride &&other) noexcept
@@ -141,6 +144,7 @@ public:
 
   private:
     ShaderParameterContainer *container_;
+    
     ParameterOrigin previous_origin_;
   };
 

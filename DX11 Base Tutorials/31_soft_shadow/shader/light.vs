@@ -36,4 +36,3 @@ PixelInputType LightVertexShader(VertexInputType input)
 
     return output;
 }
-

@@ -20,8 +20,10 @@ public:
   // Register shader required parameters
   void RegisterShader(const std::string &shader_name,
                       const std::vector<ShaderParameterInfo> &parameters);
+
   void RegisterShader(const std::string &shader_name,
                       std::initializer_list<ShaderParameterInfo> parameters);
+
   void RegisterShader(const std::string &shader_name,
                       const std::vector<ReflectedParameter> &parameters);
 
@@ -77,6 +79,7 @@ public:
 
   // Set validation mode
   void SetValidationMode(ValidationMode mode) { validation_mode_ = mode; }
+
   ValidationMode GetValidationMode() const { return validation_mode_; }
 
 private:
@@ -88,7 +91,9 @@ private:
     bool HasErrors() const {
       return !missing.empty() || !type_mismatches.empty();
     }
+
     bool HasWarnings() const { return !unknown.empty(); }
+    
     bool HasIssues() const { return HasErrors() || HasWarnings(); }
   };
 
@@ -103,9 +108,11 @@ private:
 
   // Helper methods for enhanced reporting
   std::string GetTypeName(ShaderParameterType type) const;
+
   std::string
   FindSimilarParameter(const std::string &param_name,
                        const std::vector<ShaderParameterInfo> &params) const;
+                       
   int CalculateLevenshteinDistance(const std::string &source,
                                    const std::string &target) const;
 

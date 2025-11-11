@@ -15,8 +15,8 @@ bool RefractionShader::Initialize(HWND hwnd, ID3D11Device *device) {
       {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
        D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}};
 
-  if (!InitializeShaderFromFile(hwnd, L"./refraction.vs",
-                                "RefractionVertexShader", L"./refraction.ps",
+  if (!InitializeShaderFromFile(hwnd, L"./shaders/refraction.vs",
+                                "RefractionVertexShader", L"./shaders/refraction.ps",
                                 "RefractionPixelShader", polygonLayout,
                                 _countof(polygonLayout), device)) {
     return false;

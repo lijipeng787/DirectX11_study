@@ -14,7 +14,7 @@ bool WaterShader::Initialize(HWND hwnd, ID3D11Device *device) {
        D3D11_INPUT_PER_VERTEX_DATA, 0}};
 
   if (!InitializeShaderFromFile(
-          hwnd, L"./water.vs", "WaterVertexShader", L"./water.ps",
+    hwnd, L"./shaders/water.vs", "WaterVertexShader", L"./shaders/water.ps",
           "WaterPixelShader", polygonLayout, _countof(polygonLayout), device)) {
     return false;
   }

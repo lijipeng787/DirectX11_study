@@ -9,8 +9,8 @@ using namespace DirectX;
 bool HorizontalBlurShader::Initialize(HWND hwnd, ID3D11Device *device) {
   shader_name_ = "HorizontalBlurShader";
   return InitializeBlurShader(
-      hwnd, L"./horizontalblur.vs", "HorizontalBlurVertexShader",
-      L"./horizontalblur.ps", "HorizontalBlurPixelShader", device);
+    hwnd, L"./shaders/horizontalblur.vs", "HorizontalBlurVertexShader",
+    L"./shaders/horizontalblur.ps", "HorizontalBlurPixelShader", device);
 }
 
 bool HorizontalBlurShader::Render(int indexCount,

@@ -16,7 +16,7 @@ bool DepthShader::Initialize(HWND hwnd, ID3D11Device *device) {
 
   // Initialize shader files and create base shader components
   if (!InitializeShaderFromFile(
-          hwnd, L"./depth.vs", "DepthVertexShader", L"./depth.ps",
+    hwnd, L"./shaders/depth.vs", "DepthVertexShader", L"./shaders/depth.ps",
           "DepthPixelShader", polygonLayout, _countof(polygonLayout), device)) {
     return false;
   }

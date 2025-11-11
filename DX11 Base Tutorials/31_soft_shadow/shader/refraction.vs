@@ -44,4 +44,3 @@ PixelInputType RefractionVertexShader(VertexInputType input)
 
     return output;
 }
-

@@ -587,8 +587,11 @@ bool Graphics::SetupRenderGraph() {
   // Initialize RenderGraph
   render_graph_.Initialize(device, context);
 
-  // Setup parameter validation system
-  RegisterShaderParameters();
+  // Setup parameter validation system (reflection-only)
+  if (!RegisterShaderParameters()) {
+    LogGraphicsError(L"Failed to register shader parameters via reflection.");
+    return false;
+  }
   render_graph_.SetParameterValidator(&parameter_validator_);
   render_graph_.EnableParameterValidation(true);
 
@@ -828,7 +831,7 @@ void Graphics::SetupRenderPasses() {
       });
 }
 
-void Graphics::RegisterShaderParameters() {
+auto Graphics::RegisterShaderParameters() -> bool {
   // Set validation mode to Warning (report issues but don't block execution)
   parameter_validator_.SetValidationMode(ValidationMode::Warning);
   ShaderParameterContainer::SetOverrideLoggingEnabled(true);
@@ -855,22 +858,32 @@ void Graphics::RegisterShaderParameters() {
   parameter_validator_.RegisterGlobalParameter("ambientColor");
   parameter_validator_.RegisterGlobalParameter("diffuseColor");
 
+  // Try to register shader parameters using runtime reflection
+  // Returns true if reflection data was available and registration succeeded
+  // Returns false if reflection failed
   const auto register_with_reflection =
       [this](const std::string &shader_name,
              const std::shared_ptr<ShaderBase> &shader,
              std::initializer_list<const char *> optional_parameters = {},
              std::initializer_list<const char *> ignored_parameters = {},
              std::initializer_list<std::pair<const char *, const char *>>
-                 alias_parameters = {}) {
+                 alias_parameters = {}) -> bool {
+        // Shader must be valid to attempt reflection
         if (!shader) {
+          cout << "[RegisterShaderParameters] " << shader_name 
+               << ": shader is null, fallback to manual registration" << endl;
           return false;
         }
 
+        // Get reflected parameters from shader (via HLSL reflection)
         const auto &reflected = shader->GetReflectedParameters();
         if (reflected.empty()) {
+          cout << "[RegisterShaderParameters] " << shader_name 
+               << ": no reflection data available, fallback to manual registration" << endl;
           return false;
         }
 
+        // Build sets/maps for processing
         std::unordered_set<std::string> optional;
         for (const auto &name : optional_parameters) {
           optional.emplace(name);
@@ -886,166 +899,130 @@ void Graphics::RegisterShaderParameters() {
           aliases.emplace(pair.first, pair.second);
         }
 
+        // Process and adjust reflected parameters
         std::vector<ReflectedParameter> adjusted;
         adjusted.reserve(reflected.size());
         std::unordered_set<std::string> seen_names;
+        
         for (const auto &parameter : reflected) {
+          // Skip parameters marked as ignored
           if (ignored.find(parameter.name) != ignored.end()) {
             continue;
           }
 
           ReflectedParameter entry = parameter;
+          
+          // Apply alias if exists
           const auto alias_it = aliases.find(entry.name);
           if (alias_it != aliases.end()) {
             entry.name = alias_it->second;
           }
 
+          // Mark as optional if specified
           if (optional.find(entry.name) != optional.end() ||
               optional.find(parameter.name) != optional.end()) {
             entry.required = false;
           }
 
+          // Skip duplicates (can happen after aliasing)
           if (!seen_names.insert(entry.name).second) {
             continue;
           }
+          
           adjusted.push_back(entry);
         }
 
+        // If all parameters were filtered out
         if (adjusted.empty()) {
+          cout << "[RegisterShaderParameters] " << shader_name 
+               << ": all reflected parameters filtered out, fallback to manual registration" << endl;
           return false;
         }
 
+        // Register using reflected parameters
+        cout << "[RegisterShaderParameters] " << shader_name 
+             << ": registered " << adjusted.size() 
+             << " parameters via reflection" << endl;
         parameter_validator_.RegisterShader(shader_name, adjusted);
         return true;
       };
 
-  // Register DepthShader parameters
+  bool all_ok = true;
+
   if (!register_with_reflection(
-          "DepthShader",
-          std::static_pointer_cast<ShaderBase>(shader_assets_.depth))) {
-    parameter_validator_.RegisterShader(
-        "DepthShader",
-        {{"worldMatrix", ShaderParameterType::Matrix, true},
-         {"lightViewMatrix", ShaderParameterType::Matrix, true},
-         {"lightProjectionMatrix", ShaderParameterType::Matrix, true}});
+      "DepthShader",
+      std::static_pointer_cast<ShaderBase>(shader_assets_.depth))) {
+    LogGraphicsError(L"Reflection failed for DepthShader.");
+    all_ok = false;
   }
 
-  // Register ShadowShader parameters
   if (!register_with_reflection(
-          "ShadowShader",
-          std::static_pointer_cast<ShaderBase>(shader_assets_.shadow))) {
-    parameter_validator_.RegisterShader(
-        "ShadowShader",
-        {{"worldMatrix", ShaderParameterType::Matrix, true},
-         {"viewMatrix", ShaderParameterType::Matrix, true},
-         {"projectionMatrix", ShaderParameterType::Matrix, true},
-         {"lightViewMatrix", ShaderParameterType::Matrix, true},
-         {"lightProjectionMatrix", ShaderParameterType::Matrix, true},
-         {"lightPosition", ShaderParameterType::Vector3, true},
-         {"depthMapTexture", ShaderParameterType::Texture, true}});
+      "ShadowShader",
+      std::static_pointer_cast<ShaderBase>(shader_assets_.shadow))) {
+    LogGraphicsError(L"Reflection failed for ShadowShader.");
+    all_ok = false;
   }
 
-  // Register SoftShadowShader parameters
-  // Note: "texture" is set via object callbacks, not at Pass level
   if (!register_with_reflection(
-          "SoftShadowShader",
-          std::static_pointer_cast<ShaderBase>(shader_assets_.soft_shadow),
-          {"texture", "reflectionTexture", "reflectionBlend", "shadowStrength"},
-          {}, {{"shaderTexture", "texture"}})) {
-    parameter_validator_.RegisterShader(
-        "SoftShadowShader",
-        {{"worldMatrix", ShaderParameterType::Matrix, true},
-         {"viewMatrix", ShaderParameterType::Matrix, true},
-         {"projectionMatrix", ShaderParameterType::Matrix, true},
-         {"texture", ShaderParameterType::Texture, false},
-         {"shadowTexture", ShaderParameterType::Texture, true},
-         {"ambientColor", ShaderParameterType::Vector4, true},
-         {"diffuseColor", ShaderParameterType::Vector4, true},
-         {"lightPosition", ShaderParameterType::Vector3, true},
-         {"reflectionMatrix", ShaderParameterType::Matrix, true},
-         {"reflectionTexture", ShaderParameterType::Texture, false},
-         {"reflectionBlend", ShaderParameterType::Float, false},
-         {"shadowStrength", ShaderParameterType::Float, false}});
+      "SoftShadowShader",
+      std::static_pointer_cast<ShaderBase>(shader_assets_.soft_shadow),
+      {"texture", "reflectionTexture", "reflectionBlend", "shadowStrength"},
+      {}, {{"shaderTexture", "texture"}})) {
+    LogGraphicsError(L"Reflection failed for SoftShadowShader.");
+    all_ok = false;
   }
 
-  // Register PbrShader parameters
   if (!register_with_reflection(
-          "PbrShader",
-          std::static_pointer_cast<ShaderBase>(shader_assets_.pbr))) {
-    parameter_validator_.RegisterShader(
-        "PbrShader", {{"worldMatrix", ShaderParameterType::Matrix, true},
-                      {"viewMatrix", ShaderParameterType::Matrix, true},
-                      {"projectionMatrix", ShaderParameterType::Matrix, true},
-                      {"diffuseTexture", ShaderParameterType::Texture, true},
-                      {"normalMap", ShaderParameterType::Texture, true},
-                      {"rmTexture", ShaderParameterType::Texture, true},
-                      {"lightDirection", ShaderParameterType::Vector3, true},
-                      {"cameraPosition", ShaderParameterType::Vector3, true}});
+      "PbrShader",
+      std::static_pointer_cast<ShaderBase>(shader_assets_.pbr))) {
+    LogGraphicsError(L"Reflection failed for PbrShader.");
+    all_ok = false;
   }
 
-  // Register TextureShader parameters
   if (!register_with_reflection(
-          "TextureShader",
-          std::static_pointer_cast<ShaderBase>(shader_assets_.texture), {}, {},
-          {{"projectionMatrix", "orthoMatrix"}})) {
-    parameter_validator_.RegisterShader(
-        "TextureShader",
-        {{"deviceWorldMatrix", ShaderParameterType::Matrix, true},
-         {"baseViewMatrix", ShaderParameterType::Matrix, true},
-         {"orthoMatrix", ShaderParameterType::Matrix, true},
-         {"shaderTexture", ShaderParameterType::Texture, true}});
+      "TextureShader",
+      std::static_pointer_cast<ShaderBase>(shader_assets_.texture), {}, {},
+      {{"projectionMatrix", "orthoMatrix"}})) {
+    LogGraphicsError(L"Reflection failed for TextureShader.");
+    all_ok = false;
   }
 
-  // Register HorizontalBlurShader parameters
   if (!register_with_reflection(
-          "HorizontalBlurShader",
-          std::static_pointer_cast<ShaderBase>(shader_assets_.horizontal_blur),
-          {}, {}, {{"projectionMatrix", "orthoMatrix"}})) {
-    parameter_validator_.RegisterShader(
-        "HorizontalBlurShader",
-        {{"worldMatrix", ShaderParameterType::Matrix, true},
-         {"baseViewMatrix", ShaderParameterType::Matrix, true},
-         {"orthoMatrix", ShaderParameterType::Matrix, true},
-         {"screenWidth", ShaderParameterType::Float, true},
-         {"shaderTexture", ShaderParameterType::Texture, true}});
+      "HorizontalBlurShader",
+      std::static_pointer_cast<ShaderBase>(shader_assets_.horizontal_blur),
+      {}, {}, {{"projectionMatrix", "orthoMatrix"}})) {
+    LogGraphicsError(L"Reflection failed for HorizontalBlurShader.");
+    all_ok = false;
   }
 
-  // Register VerticalBlurShader parameters
   if (!register_with_reflection(
-          "VerticalBlurShader",
-          std::static_pointer_cast<ShaderBase>(shader_assets_.vertical_blur),
-          {}, {}, {{"projectionMatrix", "orthoMatrix"}})) {
-    parameter_validator_.RegisterShader(
-        "VerticalBlurShader",
-        {{"worldMatrix", ShaderParameterType::Matrix, true},
-         {"baseViewMatrix", ShaderParameterType::Matrix, true},
-         {"orthoMatrix", ShaderParameterType::Matrix, true},
-         {"screenHeight", ShaderParameterType::Float, true},
-         {"shaderTexture", ShaderParameterType::Texture, true}});
+      "VerticalBlurShader",
+      std::static_pointer_cast<ShaderBase>(shader_assets_.vertical_blur),
+      {}, {}, {{"projectionMatrix", "orthoMatrix"}})) {
+    LogGraphicsError(L"Reflection failed for VerticalBlurShader.");
+    all_ok = false;
   }
 
-  // Register SimpleLightShader parameters (diffuse lighting shader demo)
   if (!register_with_reflection(
-          "SimpleLightShader",
-          std::static_pointer_cast<ShaderBase>(shader_assets_.diffuse_lighting),
-          {"texture"}, {}, {{"shaderTexture", "texture"}})) {
-    parameter_validator_.RegisterShader(
-        "SimpleLightShader",
-        {{"worldMatrix", ShaderParameterType::Matrix, true},
-         {"viewMatrix", ShaderParameterType::Matrix, true},
-         {"projectionMatrix", ShaderParameterType::Matrix, true},
-         {"texture", ShaderParameterType::Texture, false},
-         {"ambientColor", ShaderParameterType::Vector4, true},
-         {"diffuseColor", ShaderParameterType::Vector4, true},
-         {"lightDirection", ShaderParameterType::Vector3, true}});
+      "SimpleLightShader",
+      std::static_pointer_cast<ShaderBase>(shader_assets_.diffuse_lighting),
+      {"texture"}, {}, {{"shaderTexture", "texture"}})) {
+    LogGraphicsError(L"Reflection failed for SimpleLightShader.");
+    all_ok = false;
   }
 
-  cout << "[Graphics] Registered shader parameters for validation" << endl;
+  if (!all_ok) {
+    LogGraphicsError(L"One or more shaders failed reflection-based parameter registration.");
+    return false;
+  }
+
+  cout << "[Graphics] All shader parameters registered via reflection." << endl;
+  return true;
 }
 
 // Helper function to check if a renderable object is visible in the frustum
-bool Graphics::IsObjectVisible(std::shared_ptr<IRenderable> renderable,
-                               const FrustumClass &frustum) const {
+auto Graphics::IsObjectVisible(std::shared_ptr<IRenderable> renderable,
+                               const FrustumClass &frustum) const -> bool {
   if (!renderable) {
     return true; // If object is null, skip it
   }

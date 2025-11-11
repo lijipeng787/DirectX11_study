@@ -23,7 +23,6 @@ public:
 
   ~FontShader() = default;
 
-public:
   bool Initialize(HWND hwnd, ID3D11Device *device) override;
 
   bool Render(int indexCount, const ShaderParameterContainer &parameters,
@@ -37,7 +36,7 @@ private:
                            const DirectX::XMFLOAT4 &pixelColor,
                            ID3D11DeviceContext *deviceContext) const;
 
-private:
   Microsoft::WRL::ComPtr<ID3D11Buffer> matrix_buffer_;
+  
   Microsoft::WRL::ComPtr<ID3D11Buffer> pixel_buffer_;
 };
