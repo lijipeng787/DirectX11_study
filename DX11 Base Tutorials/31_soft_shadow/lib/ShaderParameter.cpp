@@ -6,18 +6,19 @@
 #include <sstream>
 #include <unordered_map>
 
-bool ShaderParameterContainer::type_mismatch_logging_enabled_ = true;
+// Static member initialization - use atomic for thread safety
+std::atomic<bool> ShaderParameterContainer::type_mismatch_logging_enabled_{true};
 
-bool ShaderParameterContainer::override_logging_enabled_ = false;
+std::atomic<bool> ShaderParameterContainer::override_logging_enabled_{false};
 
-bool ShaderParameterContainer::strict_validation_enabled_ = false;
+std::atomic<bool> ShaderParameterContainer::strict_validation_enabled_{false};
 
 void ShaderParameterContainer::SetTypeMismatchLoggingEnabled(bool enabled) {
-  type_mismatch_logging_enabled_ = enabled;
+  type_mismatch_logging_enabled_.store(enabled, std::memory_order_relaxed);
 }
 
 void ShaderParameterContainer::SetOverrideLoggingEnabled(bool enabled) {
-  override_logging_enabled_ = enabled;
+  override_logging_enabled_.store(enabled, std::memory_order_relaxed);
 }
 
 namespace {

@@ -5,6 +5,7 @@
 
 #include "Logger.h"
 
+#include <atomic>
 #include <cstdint>
 #include <functional>
 #include <optional>
@@ -339,17 +340,20 @@ private:
 
   std::unordered_set<std::string> locked_parameters_;
 
-  static bool type_mismatch_logging_enabled_;
+  // Use atomic for thread-safe global configuration flags
+  static std::atomic<bool> type_mismatch_logging_enabled_;
 
-  static bool override_logging_enabled_;
+  static std::atomic<bool> override_logging_enabled_;
 
-  static bool strict_validation_enabled_;
+  static std::atomic<bool> strict_validation_enabled_;
 
 public:
   static void SetStrictValidationEnabled(bool enabled) {
-    strict_validation_enabled_ = enabled;
+    strict_validation_enabled_.store(enabled, std::memory_order_relaxed);
   }
-  static bool IsStrictValidationEnabled() { return strict_validation_enabled_; }
+  static bool IsStrictValidationEnabled() { 
+    return strict_validation_enabled_.load(std::memory_order_relaxed); 
+  }
 };
 
 // ============================================================================
@@ -606,7 +610,7 @@ inline void ShaderParameterContainer::AssignValue(const std::string &name,
   auto iter = typed_parameters_.find(name);
   if (locked_parameters_.find(name) != locked_parameters_.end() &&
       iter != typed_parameters_.end()) {
-    if (override_logging_enabled_) {
+    if (override_logging_enabled_.load(std::memory_order_relaxed)) {
       std::ostringstream oss;
       oss << "Parameter \"" << name
           << "\" locked; ignoring override attempt from "
@@ -614,7 +618,7 @@ inline void ShaderParameterContainer::AssignValue(const std::string &name,
       Logger::SetModule("ShaderParameterContainer");
       Logger::LogWarning(oss.str());
     }
-    if (strict_validation_enabled_) {
+    if (strict_validation_enabled_.load(std::memory_order_relaxed)) {
       throw std::runtime_error(
           std::string(
               "StrictValidation: attempt to override locked parameter: ") +
@@ -643,14 +647,15 @@ inline void ShaderParameterContainer::AssignValue(const std::string &name,
       oss << "Parameter \"" << name << "\" type mismatch: existing="
           << ShaderParameterTypeToString(existing_type)
           << ", incoming=" << ShaderParameterTypeToString(incoming_type);
-      if (type_mismatch_logging_enabled_) {
+      if (type_mismatch_logging_enabled_.load(std::memory_order_relaxed)) {
         Logger::SetModule("ShaderParameterContainer");
         Logger::LogError(oss.str());
       }
       throw std::runtime_error(oss.str());
     }
 
-    if (override_logging_enabled_ && previous_origin != resolved_origin &&
+    if (override_logging_enabled_.load(std::memory_order_relaxed) && 
+        previous_origin != resolved_origin &&
         resolved_origin != ParameterOrigin::Unknown &&
         previous_origin != ParameterOrigin::Unknown) {
       std::ostringstream oss;

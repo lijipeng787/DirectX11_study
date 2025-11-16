@@ -2,7 +2,7 @@
 
 #include "Logger.h"
 
-#include "../CommonFramework2/DirectX11Device.h"
+#include "../../CommonFramework2/DirectX11Device.h"
 #include "Interfaces.h"
 #include "RenderTexture.h"
 #include "ResourceManager.h"

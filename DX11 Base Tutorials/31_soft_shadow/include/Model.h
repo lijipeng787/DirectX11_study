@@ -16,15 +16,19 @@ class Model : public IRenderable {
 public:
   Model() = default;
 
+  // Delete copy operations (models should not be copied)
   Model(const Model &) = delete;
-
   Model &operator=(const Model &) = delete;
+
+  // Enable move operations for efficient transfer of ownership
+  Model(Model &&) noexcept = default;
+  Model &operator=(Model &&) noexcept = default;
 
   ~Model();
 
 public:
-  bool Initialize(const std::string &modelFilename,
-                  const std::wstring &textureFilename, ID3D11Device *device);
+  [[nodiscard]] bool Initialize(const std::string &modelFilename,
+                                const std::wstring &textureFilename, ID3D11Device *device);
 
   void Shutdown();
 
@@ -124,13 +128,19 @@ private:
 public:
   PBRModel() = default;
 
-  PBRModel(const Model &) = delete;
+  // Delete copy operations (PBR models should not be copied)
+  PBRModel(const PBRModel &) = delete;
+  PBRModel &operator=(const PBRModel &) = delete;
+
+  // Enable move operations for efficient transfer of ownership
+  PBRModel(PBRModel &&) noexcept = default;
+  PBRModel &operator=(PBRModel &&) noexcept = default;
 
   ~PBRModel() = default;
 
 public:
-  bool Initialize(const char *, const std::string &, const std::string &,
-                  const std::string &, ID3D11Device *device);
+  [[nodiscard]] bool Initialize(const char *, const std::string &, const std::string &,
+                                const std::string &, ID3D11Device *device);
 
   void Shutdown();
 

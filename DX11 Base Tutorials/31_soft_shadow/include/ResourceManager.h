@@ -33,43 +33,43 @@ public:
   static ResourceManager &GetInstance();
 
   // Initialization
-  bool Initialize(ID3D11Device *device, ID3D11DeviceContext *context,
-                  HWND hwnd);
+  [[nodiscard]] bool Initialize(ID3D11Device *device, ID3D11DeviceContext *context,
+                                HWND hwnd);
 
   void Shutdown();
 
   // Model management
-  std::shared_ptr<Model> GetModel(const std::string &name,
-                                  const std::string &modelPath,
-                                  const std::wstring &texturePath);
+  [[nodiscard]] std::shared_ptr<Model> GetModel(const std::string &name,
+                                                const std::string &modelPath,
+                                                const std::wstring &texturePath);
 
-  std::shared_ptr<PBRModel> GetPBRModel(const std::string &name,
-                                        const std::string &modelPath,
-                                        const std::string &albedoPath,
-                                        const std::string &normalPath,
-                                        const std::string &rmPath);
+  [[nodiscard]] std::shared_ptr<PBRModel> GetPBRModel(const std::string &name,
+                                                      const std::string &modelPath,
+                                                      const std::string &albedoPath,
+                                                      const std::string &normalPath,
+                                                      const std::string &rmPath);
 
   // Shader management - template specializations
   template <typename T> std::shared_ptr<T> GetShader(const std::string &name);
 
   // Texture management
-  std::shared_ptr<DDSTexture> GetTexture(const std::wstring &path);
+  [[nodiscard]] std::shared_ptr<DDSTexture> GetTexture(const std::wstring &path);
 
-  std::shared_ptr<TGATexture> GetTGATexture(const std::string &path);
+  [[nodiscard]] std::shared_ptr<TGATexture> GetTGATexture(const std::string &path);
 
   // RenderTexture management (creates new each time)
-  std::shared_ptr<RenderTexture> CreateRenderTexture(const std::string &name,
-                                                     int width, int height,
-                                                     float depth,
-                                                     float nearPlane);
+  [[nodiscard]] std::shared_ptr<RenderTexture> CreateRenderTexture(const std::string &name,
+                                                                   int width, int height,
+                                                                   float depth,
+                                                                   float nearPlane);
 
   // Get cached RenderTexture by name
-  std::shared_ptr<RenderTexture>
+  [[nodiscard]] std::shared_ptr<RenderTexture>
   GetRenderTexture(const std::string &name) const;
 
   // OrthoWindow management
-  std::shared_ptr<OrthoWindow> GetOrthoWindow(const std::string &name,
-                                              int width, int height);
+  [[nodiscard]] std::shared_ptr<OrthoWindow> GetOrthoWindow(const std::string &name,
+                                                            int width, int height);
 
   // Resource statistics
   void LogResourceStats() const;
@@ -85,7 +85,7 @@ public:
   bool HasShader(const std::string &name) const;
 
   // Error information system
-  const std::string &GetLastError() const { return last_error_; }
+  [[nodiscard]] const std::string &GetLastError() const { return last_error_; }
   void ClearError() { last_error_.clear(); }
 
   // Reference counting and memory management

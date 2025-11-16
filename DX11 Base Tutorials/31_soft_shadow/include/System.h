@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../CommonFramework2/SystemBase.h"
+#include "../../CommonFramework2/SystemBase.h"
 #include "Graphics.h"
 #include "Position.h"
 
@@ -15,11 +15,11 @@ public:
   virtual ~System() = default;
 
 public:
-  virtual bool Initialize() override;
+  [[nodiscard]] virtual bool Initialize() override;
 
   virtual void Shutdown() override;
 
-  virtual bool Frame() override;
+  [[nodiscard]] virtual bool Frame() override;
 
 private:
   bool HandleInput(float frame_time);

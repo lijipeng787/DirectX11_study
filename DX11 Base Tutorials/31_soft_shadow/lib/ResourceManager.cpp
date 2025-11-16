@@ -29,6 +29,9 @@ ResourceManager &ResourceManager::GetInstance() {
 
 bool ResourceManager::Initialize(ID3D11Device *device,
                                  ID3D11DeviceContext *context, HWND hwnd) {
+  // Thread-safe initialization check with mutex protection
+  lock_guard<mutex> lock(cache_mutex_);
+
   if (initialized_) {
     return true; // Already initialized
   }
@@ -73,17 +76,31 @@ std::shared_ptr<T> ResourceManager::GetCachedResource(
     std::unordered_map<std::string, std::shared_ptr<T>> &cache,
     std::function<std::shared_ptr<T>()> loader) {
 
-  lock_guard<mutex> lock(cache_mutex_);
-
-  // Check if already cached
-  auto it = cache.find(key);
-  if (it != cache.end()) {
-    return it->second;
+  // First check: lock only for cache lookup (fast path)
+  {
+    lock_guard<mutex> lock(cache_mutex_);
+    auto it = cache.find(key);
+    if (it != cache.end()) {
+      return it->second;
+    }
   }
 
-  // Load new resource
+  // Load resource WITHOUT holding lock (slow I/O operations)
+  // This allows other threads to access the cache while loading
   auto resource = loader();
+
+  // Second check and insert: lock only for cache modification
   if (resource) {
+    lock_guard<mutex> lock(cache_mutex_);
+    
+    // Double-check: another thread might have loaded the same resource
+    auto it = cache.find(key);
+    if (it != cache.end()) {
+      // Another thread beat us to it, use their resource
+      return it->second;
+    }
+    
+    // We're the first, insert our loaded resource
     cache[key] = resource;
   }
 
@@ -98,11 +115,11 @@ ResourceManager::GetModel(const std::string &name, const std::string &modelPath,
     return nullptr;
   }
 
-  return GetCachedResource<Model>(name, model_cache_, [&]() {
+  return GetCachedResource<Model>(name, model_cache_, [&]() -> std::shared_ptr<Model> {
     auto model = make_shared<Model>();
     if (!model->Initialize(modelPath, texturePath, device_)) {
       SetError("Failed to initialize model '" + name + "' from " + modelPath);
-      return shared_ptr<Model>();
+      return nullptr;  // Consistent error return
     }
     cout << "Loaded model: " << name << endl;
     return model;
@@ -118,12 +135,12 @@ std::shared_ptr<PBRModel> ResourceManager::GetPBRModel(
     return nullptr;
   }
 
-  return GetCachedResource<PBRModel>(name, pbr_model_cache_, [&]() {
+  return GetCachedResource<PBRModel>(name, pbr_model_cache_, [&]() -> std::shared_ptr<PBRModel> {
     auto model = make_shared<PBRModel>();
     if (!model->Initialize(modelPath.c_str(), albedoPath, normalPath, rmPath,
                            device_)) {
       SetError("Failed to load PBR model '" + name + "' from " + modelPath);
-      return shared_ptr<PBRModel>();
+      return nullptr;  // Consistent error return
     }
     cout << "Loaded PBR model: " << name << endl;
     return model;
@@ -138,20 +155,35 @@ ResourceManager::GetTexture(const std::wstring &path) {
     return nullptr;
   }
 
-  lock_guard<mutex> lock(cache_mutex_);
-
-  auto it = texture_cache_.find(path);
-  if (it != texture_cache_.end()) {
-    return it->second;
+  // First check: lock only for cache lookup
+  {
+    lock_guard<mutex> lock(cache_mutex_);
+    auto it = texture_cache_.find(path);
+    if (it != texture_cache_.end()) {
+      return it->second;
+    }
   }
 
+  // Load texture WITHOUT holding lock (slow I/O operation)
   auto texture = make_shared<DDSTexture>();
   if (!texture->Initialize(path.c_str(), device_)) {
     Logger::LogError(L"Failed to load texture: " + path);
     return nullptr;
   }
 
-  texture_cache_[path] = texture;
+  // Second check and insert: lock only for cache modification
+  {
+    lock_guard<mutex> lock(cache_mutex_);
+    
+    // Double-check: another thread might have loaded it
+    auto it = texture_cache_.find(path);
+    if (it != texture_cache_.end()) {
+      return it->second;
+    }
+    
+    texture_cache_[path] = texture;
+  }
+
   wcout << L"Loaded texture: " << path << endl;
   return texture;
 }
@@ -164,20 +196,35 @@ ResourceManager::GetTGATexture(const std::string &path) {
     return nullptr;
   }
 
-  lock_guard<mutex> lock(cache_mutex_);
-
-  auto it = tga_texture_cache_.find(path);
-  if (it != tga_texture_cache_.end()) {
-    return it->second;
+  // First check: lock only for cache lookup
+  {
+    lock_guard<mutex> lock(cache_mutex_);
+    auto it = tga_texture_cache_.find(path);
+    if (it != tga_texture_cache_.end()) {
+      return it->second;
+    }
   }
 
+  // Load texture WITHOUT holding lock (slow I/O operation)
   auto texture = make_shared<TGATexture>();
   if (!texture->Initialize(path.c_str(), device_)) {
     Logger::LogError("Failed to load TGA texture: " + path);
     return nullptr;
   }
 
-  tga_texture_cache_[path] = texture;
+  // Second check and insert: lock only for cache modification
+  {
+    lock_guard<mutex> lock(cache_mutex_);
+    
+    // Double-check: another thread might have loaded it
+    auto it = tga_texture_cache_.find(path);
+    if (it != tga_texture_cache_.end()) {
+      return it->second;
+    }
+    
+    tga_texture_cache_[path] = texture;
+  }
+
   cout << "Loaded TGA texture: " << path << endl;
   return texture;
 }
@@ -274,11 +321,11 @@ ResourceManager::GetOrthoWindow(const std::string &name, int width,
     return nullptr;
   }
 
-  return GetCachedResource<OrthoWindow>(name, ortho_window_cache_, [&]() {
+  return GetCachedResource<OrthoWindow>(name, ortho_window_cache_, [&]() -> std::shared_ptr<OrthoWindow> {
     auto window = make_shared<OrthoWindow>();
     if (!window->Initialize(width, height)) {
       Logger::LogError("Failed to create OrthoWindow: " + name);
-      return shared_ptr<OrthoWindow>();
+      return nullptr;  // Consistent error return
     }
     cout << "Created OrthoWindow: " << name << " (" << width << "x" << height
          << ")" << endl;

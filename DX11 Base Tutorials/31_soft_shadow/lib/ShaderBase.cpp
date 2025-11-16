@@ -1,6 +1,6 @@
 #include "ShaderBase.h"
 
-#include "../CommonFramework2/DirectX11Device.h"
+#include "../../CommonFramework2/DirectX11Device.h"
 #include "Logger.h"
 #include <d3dcompiler.h>
 #include <fstream>
@@ -135,7 +135,13 @@ void ShaderBase::OutputShaderErrorMessage(ID3D10Blob *errorMessage, HWND hwnd,
   Logger::SetModule("ShaderBase");
   Logger::LogError(
       "Error compiling shader. Check shader-error.txt for message.");
-  Logger::LogError(std::string(shaderFilename.begin(), shaderFilename.end()));
+  // Convert wstring to string properly to avoid warning
+  std::string filenameStr;
+  filenameStr.reserve(shaderFilename.length());
+  for (wchar_t wc : shaderFilename) {
+    filenameStr.push_back(static_cast<char>(wc));
+  }
+  Logger::LogError(filenameStr);
 }
 
 bool BlurShaderBase::InitializeBlurShader(HWND hwnd,

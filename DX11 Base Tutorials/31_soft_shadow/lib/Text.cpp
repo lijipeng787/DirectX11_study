@@ -1,6 +1,6 @@
 #include "Text.h"
 
-#include "../CommonFramework2/DirectX11Device.h"
+#include "../../CommonFramework2/DirectX11Device.h"
 #include "Font.h"
 #include "FontShader.h"
 #include "ShaderParameter.h"

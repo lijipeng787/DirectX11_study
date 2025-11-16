@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "../CommonFramework2/Camera.h"
-#include "../CommonFramework2/GraphicsBase.h"
+#include "../../CommonFramework2/Camera.h"
+#include "../../CommonFramework2/GraphicsBase.h"
 #include "Frustum.h"
 #include "Light.h"
 #include "RenderGraph.h"
@@ -44,7 +44,7 @@ public:
   virtual ~Graphics() = default;
 
 public:
-  virtual bool Initialize(int, int, HWND) override;
+  [[nodiscard]] virtual bool Initialize(int, int, HWND) override;
 
   virtual void Shutdown() override;
 
@@ -150,6 +150,12 @@ private:
   // Diffuse lighting demo rotation
   float diffuse_lighting_rotation_ = 0.0f;
 
+  // Light animation state (moved from static local to member for thread safety)
+  float light_position_x_ = -5.0f;
+
+  // Debug timer state (moved from static local to member for thread safety)
+  float debug_timer_ = 0.0f;
+
   unsigned int screenWidth = 0, screenHeight = 0;
 
   std::unique_ptr<Camera> camera_;
@@ -180,4 +186,7 @@ private:
 
   // Scene configuration (loaded from JSON or default)
   SceneConfig::SceneConfiguration scene_config_;
+
+  // Shutdown flag to ensure idempotent shutdown
+  bool is_shutdown_ = false;
 };

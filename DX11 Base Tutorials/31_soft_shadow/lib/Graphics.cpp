@@ -7,8 +7,8 @@
 #include <utility>
 #include <vector>
 
-#include "../CommonFramework2/DirectX11Device.h"
-#include "../CommonFramework2/TypeDefine.h"
+#include "../../CommonFramework2/DirectX11Device.h"
+#include "../../CommonFramework2/TypeDefine.h"
 
 #include "BoundingVolume.h"
 #include "DepthShader.h"
@@ -427,6 +427,12 @@ bool Graphics::InitializeRenderingPipeline() {
 }
 
 void Graphics::Shutdown() {
+  // Idempotent shutdown: safe to call multiple times
+  if (is_shutdown_) {
+    return;
+  }
+  is_shutdown_ = true;
+
   auto &resource_manager = ResourceManager::GetInstance();
 
   // Display resource usage before shutdown
@@ -471,17 +477,16 @@ void Graphics::Shutdown() {
 
 void Graphics::Frame(float deltaTime) {
 
-  static float lightPositionX = -5.0f;
-
   camera_->SetPosition(pos_x_, pos_y_, pos_z_);
   camera_->SetRotation(rot_x_, rot_y_, rot_z_);
 
   // Update light position: moves horizontally at constant speed
-  lightPositionX += LIGHT_MOVE_SPEED * deltaTime;
-  if (lightPositionX > LIGHT_X_MAX) {
-    lightPositionX = LIGHT_X_MIN;
+  // Using member variable instead of static for thread safety
+  light_position_x_ += LIGHT_MOVE_SPEED * deltaTime;
+  if (light_position_x_ > LIGHT_X_MAX) {
+    light_position_x_ = LIGHT_X_MIN;
   }
-  light_->SetPosition(lightPositionX, LIGHT_Y_POSITION, LIGHT_Z_POSITION);
+  light_->SetPosition(light_position_x_, LIGHT_Y_POSITION, LIGHT_Z_POSITION);
 
   // Update animations based on animation config from JSON
   const auto &scene_objects = scene_.GetRenderables();
@@ -551,10 +556,10 @@ void Graphics::Frame(float deltaTime) {
 
 #ifdef _DEBUG
   // Periodically log resource usage for debugging
-  static float debug_timer = 0.0f;
-  debug_timer += deltaTime;
-  if (debug_timer >= DEBUG_RESOURCE_LOG_INTERVAL) {
-    debug_timer = 0.0f;
+  // Using member variable instead of static for thread safety
+  debug_timer_ += deltaTime;
+  if (debug_timer_ >= DEBUG_RESOURCE_LOG_INTERVAL) {
+    debug_timer_ = 0.0f;
     auto &resource_manager = ResourceManager::GetInstance();
     cout << "\n[DEBUG] Resource Usage:" << endl;
     cout << "  Cube model ref count: "

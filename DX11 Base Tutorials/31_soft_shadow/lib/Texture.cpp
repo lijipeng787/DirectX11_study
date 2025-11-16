@@ -1,6 +1,6 @@
 #include "Texture.h"
 
-#include "../CommonFramework2/DirectX11Device.h"
+#include "../../CommonFramework2/DirectX11Device.h"
 
 #include <DDSTextureLoader.h>
 #include <d3d11.h>

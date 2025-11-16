@@ -87,7 +87,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;..\..\..\DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StructMemberAlignment>16Bytes</StructMemberAlignment>
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -107,7 +107,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\DirectXTK\Inc;..\..\thirdparty\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;..\..\DirectXTK\Inc;..\..\thirdparty\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StructMemberAlignment>16Bytes</StructMemberAlignment>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -126,7 +126,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;..\..\..\DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StructMemberAlignment>16Bytes</StructMemberAlignment>
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -146,7 +146,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;..\..\DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StructMemberAlignment>16Bytes</StructMemberAlignment>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
@@ -159,84 +159,84 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BoundingVolume.h" />
-    <ClInclude Include="ConfigValidator.h" />
-    <ClInclude Include="DepthShader.h" />
-    <ClInclude Include="Font.h" />
-    <ClInclude Include="FontShader.h" />
-    <ClInclude Include="Frustum.h" />
-    <ClInclude Include="Graphics.h" />
-    <ClInclude Include="HorizontalBlurShader.h" />
-    <ClInclude Include="Interfaces.h" />
-    <ClInclude Include="Light.h" />
-    <ClInclude Include="Logger.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="OrthoWindow.h" />
-    <ClInclude Include="PbrShader.h" />
-    <ClInclude Include="Position.h" />
-    <ClInclude Include="RenderableObject.h" />
-    <ClInclude Include="RenderGraph.h" />
-    <ClInclude Include="RenderPass.h" />
-    <ClInclude Include="RenderTexture.h" />
-    <ClInclude Include="RefractionShader.h" />
-    <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="ResourceRegistry.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="SceneLightShader.h" />
-    <ClInclude Include="SceneConfig.h" />
-    <ClInclude Include="ShaderBase.h" />
-  <ClInclude Include="ShaderParameter.h" />
-    <ClInclude Include="ShaderParameterValidator.h" />
-    <ClInclude Include="ShaderParameterContainerTests.h" />
-    <ClInclude Include="ShadowShader.h" />
-    <ClInclude Include="SimpleLightShader.h" />
-    <ClInclude Include="SoftShadowShader.h" />
-    <ClInclude Include="System.h" />
-    <ClInclude Include="Text.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="TextureShader.h" />
-    <ClInclude Include="VerticalBlurShader.h" />
-    <ClInclude Include="WaterShader.h" />
+    <ClInclude Include="include\BoundingVolume.h" />
+    <ClInclude Include="include\ConfigValidator.h" />
+    <ClInclude Include="include\DepthShader.h" />
+    <ClInclude Include="include\Font.h" />
+    <ClInclude Include="include\FontShader.h" />
+    <ClInclude Include="include\Frustum.h" />
+    <ClInclude Include="include\Graphics.h" />
+    <ClInclude Include="include\HorizontalBlurShader.h" />
+    <ClInclude Include="include\Interfaces.h" />
+    <ClInclude Include="include\Light.h" />
+    <ClInclude Include="include\Logger.h" />
+    <ClInclude Include="include\Model.h" />
+    <ClInclude Include="include\OrthoWindow.h" />
+    <ClInclude Include="include\PbrShader.h" />
+    <ClInclude Include="include\Position.h" />
+    <ClInclude Include="include\RenderableObject.h" />
+    <ClInclude Include="include\RenderGraph.h" />
+    <ClInclude Include="include\RenderPass.h" />
+    <ClInclude Include="include\RenderTexture.h" />
+    <ClInclude Include="include\RefractionShader.h" />
+    <ClInclude Include="include\ResourceManager.h" />
+    <ClInclude Include="include\ResourceRegistry.h" />
+    <ClInclude Include="include\Scene.h" />
+    <ClInclude Include="include\SceneLightShader.h" />
+    <ClInclude Include="include\SceneConfig.h" />
+    <ClInclude Include="include\ShaderBase.h" />
+    <ClInclude Include="include\ShaderParameter.h" />
+    <ClInclude Include="include\ShaderParameterValidator.h" />
+    <ClInclude Include="include\ShaderParameterContainerTests.h" />
+    <ClInclude Include="include\ShadowShader.h" />
+    <ClInclude Include="include\SimpleLightShader.h" />
+    <ClInclude Include="include\SoftShadowShader.h" />
+    <ClInclude Include="include\System.h" />
+    <ClInclude Include="include\Text.h" />
+    <ClInclude Include="include\Texture.h" />
+    <ClInclude Include="include\TextureShader.h" />
+    <ClInclude Include="include\VerticalBlurShader.h" />
+    <ClInclude Include="include\WaterShader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BoundingVolume.cpp" />
-    <ClCompile Include="ConfigValidator.cpp" />
-    <ClCompile Include="DepthShader.cpp" />
-    <ClCompile Include="Font.cpp" />
-    <ClCompile Include="FontShader.cpp" />
-    <ClCompile Include="Frustum.cpp" />
-    <ClCompile Include="Graphics.cpp" />
-    <ClCompile Include="HorizontalBlurShader.cpp" />
-    <ClCompile Include="Light.cpp" />
-    <ClCompile Include="Logger.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="OrthoWindow.cpp" />
-    <ClCompile Include="PbrShader.cpp" />
-    <ClCompile Include="Position.cpp" />
-    <ClCompile Include="RenderableObject.cpp" />
-    <ClCompile Include="RenderGraph.cpp" />
-    <ClCompile Include="RenderPass.cpp" />
-    <ClCompile Include="RenderTexture.cpp" />
-    <ClCompile Include="RefractionShader.cpp" />
-    <ClCompile Include="ResourceManager.cpp" />
-    <ClCompile Include="ResourceRegistry.cpp" />
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="SceneLightShader.cpp" />
-    <ClCompile Include="SceneConfig.cpp" />
-    <ClCompile Include="ShaderBase.cpp" />
-  <ClCompile Include="ShaderParameter.cpp" />
-  <ClCompile Include="ShaderParameterValidator.cpp" />
-    <ClCompile Include="ShaderParameterContainerTests.cpp" />
-    <ClCompile Include="ShadowShader.cpp" />
-    <ClCompile Include="SimpleLightShader.cpp" />
-    <ClCompile Include="SoftShadowShader.cpp" />
-    <ClCompile Include="System.cpp" />
-    <ClCompile Include="Text.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="TextureShader.cpp" />
-    <ClCompile Include="VerticalBlurShader.cpp" />
-    <ClCompile Include="WaterShader.cpp" />
+    <ClCompile Include="lib\BoundingVolume.cpp" />
+    <ClCompile Include="lib\ConfigValidator.cpp" />
+    <ClCompile Include="lib\DepthShader.cpp" />
+    <ClCompile Include="lib\Font.cpp" />
+    <ClCompile Include="lib\FontShader.cpp" />
+    <ClCompile Include="lib\Frustum.cpp" />
+    <ClCompile Include="lib\Graphics.cpp" />
+    <ClCompile Include="lib\HorizontalBlurShader.cpp" />
+    <ClCompile Include="lib\Light.cpp" />
+    <ClCompile Include="lib\Logger.cpp" />
+    <ClCompile Include="lib\main.cpp" />
+    <ClCompile Include="lib\Model.cpp" />
+    <ClCompile Include="lib\OrthoWindow.cpp" />
+    <ClCompile Include="lib\PbrShader.cpp" />
+    <ClCompile Include="lib\Position.cpp" />
+    <ClCompile Include="lib\RenderableObject.cpp" />
+    <ClCompile Include="lib\RenderGraph.cpp" />
+    <ClCompile Include="lib\RenderPass.cpp" />
+    <ClCompile Include="lib\RenderTexture.cpp" />
+    <ClCompile Include="lib\RefractionShader.cpp" />
+    <ClCompile Include="lib\ResourceManager.cpp" />
+    <ClCompile Include="lib\ResourceRegistry.cpp" />
+    <ClCompile Include="lib\Scene.cpp" />
+    <ClCompile Include="lib\SceneLightShader.cpp" />
+    <ClCompile Include="lib\SceneConfig.cpp" />
+    <ClCompile Include="lib\ShaderBase.cpp" />
+    <ClCompile Include="lib\ShaderParameter.cpp" />
+    <ClCompile Include="lib\ShaderParameterValidator.cpp" />
+    <ClCompile Include="lib\ShaderParameterContainerTests.cpp" />
+    <ClCompile Include="lib\ShadowShader.cpp" />
+    <ClCompile Include="lib\SimpleLightShader.cpp" />
+    <ClCompile Include="lib\SoftShadowShader.cpp" />
+    <ClCompile Include="lib\System.cpp" />
+    <ClCompile Include="lib\Text.cpp" />
+    <ClCompile Include="lib\Texture.cpp" />
+    <ClCompile Include="lib\TextureShader.cpp" />
+    <ClCompile Include="lib\VerticalBlurShader.cpp" />
+    <ClCompile Include="lib\WaterShader.cpp" />
   </ItemGroup>
   <ItemGroup>
   <None Include="shader\font.hlsl" />

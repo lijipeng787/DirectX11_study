@@ -1,7 +1,7 @@
 #include "System.h"
 
-#include "../CommonFramework2/Input.h"
-#include "../CommonFramework2/Timer.h"
+#include "../../CommonFramework2/Input.h"
+#include "../../CommonFramework2/Timer.h"
 
 #include "Graphics.h"
 #include "Position.h"
@@ -133,15 +133,19 @@ bool System::HandleInput(float frameTime) {
 }
 
 void System::Shutdown() {
+  // Idempotent shutdown: safe to call multiple times
+  // Reset smart pointers in reverse order of initialization
+  
+  // Position has no Shutdown method, just release the resource
+  position_.reset();
+  
+  // Graphics has Shutdown logic, call it if still valid
   if (graphics_) {
     graphics_->Shutdown();
     graphics_.reset();
   }
 
-  if (position_) {
-    position_.reset();
-  }
-
+  // Finally, shutdown the base system
   SystemBase::Shutdown();
 }
 

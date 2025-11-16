@@ -1,6 +1,6 @@
 #include "RenderPass.h"
 
-#include "../CommonFramework2/DirectX11Device.h"
+#include "../../CommonFramework2/DirectX11Device.h"
 
 RenderPass::RenderPass(const std::string &name, std::shared_ptr<IShader> shader)
     : pass_name_(name), shader_(shader) {}

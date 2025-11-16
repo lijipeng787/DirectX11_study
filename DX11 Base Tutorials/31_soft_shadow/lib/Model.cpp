@@ -1,6 +1,6 @@
 #include "Model.h"
 
-#include "../CommonFramework2/DirectX11Device.h"
+#include "../../CommonFramework2/DirectX11Device.h"
 #include "BoundingVolume.h"
 #include "Interfaces.h"
 #include "ShaderParameter.h"
@@ -38,10 +38,15 @@ void Model::Render(const IShader &shader,
   shader.Render(GetIndexCount(), parameterContainer, deviceContext);
 }
 
-void Model::SetParameterCallback(ShaderParameterCallback callback) {}
+void Model::SetParameterCallback(ShaderParameterCallback callback) {
+  // Model doesn't use parameter callbacks by default
+  // Derived classes can override if needed
+}
 
 ShaderParameterCallback Model::GetParameterCallback() const {
-  return [this](ShaderParameterContainer &params) { assert(0); };
+  // Return empty callback - Model uses default parameter behavior
+  // This is safe and allows objects to render without custom parameter logic
+  return nullptr;
 }
 
 ID3D11ShaderResourceView *Model::GetTexture() const {
@@ -49,6 +54,18 @@ ID3D11ShaderResourceView *Model::GetTexture() const {
 }
 
 bool Model::InitializeBuffers(ID3D11Device *device) {
+  // Check for overflow in buffer size calculation
+  // Use (max)() to avoid Windows.h max macro conflict
+  constexpr UINT MAX_BUFFER_SIZE = (std::numeric_limits<UINT>::max)();
+  if (vertex_count_ > MAX_BUFFER_SIZE / sizeof(Vertex)) {
+    std::cerr << "Error: Vertex count too large, would overflow buffer size calculation" << std::endl;
+    return false;
+  }
+  if (index_count_ > MAX_BUFFER_SIZE / sizeof(unsigned long)) {
+    std::cerr << "Error: Index count too large, would overflow buffer size calculation" << std::endl;
+    return false;
+  }
+
   std::vector<Vertex> vertices(vertex_count_);
   std::vector<unsigned long> indices(index_count_);
 
@@ -61,7 +78,7 @@ bool Model::InitializeBuffers(ID3D11Device *device) {
 
   D3D11_BUFFER_DESC vertexBufferDesc = {};
   vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-  vertexBufferDesc.ByteWidth = sizeof(Vertex) * vertex_count_;
+  vertexBufferDesc.ByteWidth = static_cast<UINT>(sizeof(Vertex) * vertex_count_);
   vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
   D3D11_SUBRESOURCE_DATA vertexData = {};
@@ -75,7 +92,7 @@ bool Model::InitializeBuffers(ID3D11Device *device) {
 
   D3D11_BUFFER_DESC indexBufferDesc = {};
   indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-  indexBufferDesc.ByteWidth = sizeof(unsigned long) * index_count_;
+  indexBufferDesc.ByteWidth = static_cast<UINT>(sizeof(unsigned long) * index_count_);
   indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
   D3D11_SUBRESOURCE_DATA indexData = {};
@@ -117,26 +134,61 @@ bool Model::LoadModel(const std::string &filename) {
   }
 
   char input;
-  fin.get(input);
-  while (input != ':') {
-    fin.get(input);
+  // Add safety limit to prevent infinite loops on malformed files
+  constexpr int MAX_PARSE_ITERATIONS = 10000;
+  int iterations = 0;
+
+  // Search for first delimiter with bounds checking
+  while (fin.get(input) && input != ':' && ++iterations < MAX_PARSE_ITERATIONS) {
+    // Continue searching
+  }
+  
+  if (iterations >= MAX_PARSE_ITERATIONS || !fin) {
+    std::cerr << "Error: Model file format error - first delimiter not found or file corrupted: " 
+              << filename << std::endl;
+    return false;
   }
 
   fin >> vertex_count_;
+  
+  // Validate vertex count to prevent excessive memory allocation or overflow
+  constexpr int MAX_VERTEX_COUNT = 1000000; // Reasonable maximum
+  if (vertex_count_ <= 0 || vertex_count_ > MAX_VERTEX_COUNT) {
+    std::cerr << "Error: Invalid vertex count (" << vertex_count_ 
+              << ") in model file: " << filename << std::endl;
+    return false;
+  }
+  
   index_count_ = vertex_count_;
   model_.resize(vertex_count_);
 
-  fin.get(input);
-  while (input != ':') {
-    fin.get(input);
+  // Search for second delimiter with bounds checking
+  iterations = 0;
+  while (fin.get(input) && input != ':' && ++iterations < MAX_PARSE_ITERATIONS) {
+    // Continue searching
   }
+  
+  if (iterations >= MAX_PARSE_ITERATIONS || !fin) {
+    std::cerr << "Error: Model file format error - second delimiter not found: " 
+              << filename << std::endl;
+    return false;
+  }
+  
   fin.get(input);
   fin.get(input);
 
+  // Read vertex data with stream state checking
   for (int i = 0; i < vertex_count_; i++) {
     fin >> model_[i].x >> model_[i].y >> model_[i].z;
     fin >> model_[i].tu >> model_[i].tv;
     fin >> model_[i].nx >> model_[i].ny >> model_[i].nz;
+    
+    // Check for read errors after each vertex
+    if (fin.fail()) {
+      std::cerr << "Error: Failed to read vertex data at index " << i 
+                << " in model file: " << filename << std::endl;
+      return false;
+    }
   }
 
   fin.close();
@@ -216,12 +268,24 @@ ID3D11ShaderResourceView *PBRModel::GetTexture(int index) {
 
 bool PBRModel::InitializeBuffers(ID3D11Device *device) {
 
+  // Check for overflow in buffer size calculation
+  // Use (max)() to avoid Windows.h max macro conflict
+  constexpr UINT MAX_BUFFER_SIZE = (std::numeric_limits<UINT>::max)();
+  if (vertex_count_ > MAX_BUFFER_SIZE / sizeof(VertexType)) {
+    std::cerr << "Error: PBR vertex count too large, would overflow buffer size calculation" << std::endl;
+    return false;
+  }
+  if (index_count_ > MAX_BUFFER_SIZE / sizeof(unsigned long)) {
+    std::cerr << "Error: PBR index count too large, would overflow buffer size calculation" << std::endl;
+    return false;
+  }
+
   D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
   D3D11_SUBRESOURCE_DATA vertexData, indexData;
 
-  auto vertices = new VertexType[vertex_count_];
-
-  auto indices = new unsigned long[index_count_];
+  // Use std::vector for automatic memory management and exception safety
+  std::vector<VertexType> vertices(vertex_count_);
+  std::vector<unsigned long> indices(index_count_);
 
   for (int i = 0; i < vertex_count_; i++) {
     vertices[i].position = XMFLOAT3(model_[i].x, model_[i].y, model_[i].z);
@@ -234,13 +298,13 @@ bool PBRModel::InitializeBuffers(ID3D11Device *device) {
   }
 
   vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-  vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertex_count_;
+  vertexBufferDesc.ByteWidth = static_cast<UINT>(sizeof(VertexType) * vertex_count_);
   vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
   vertexBufferDesc.CPUAccessFlags = 0;
   vertexBufferDesc.MiscFlags = 0;
   vertexBufferDesc.StructureByteStride = 0;
 
-  vertexData.pSysMem = vertices;
+  vertexData.pSysMem = vertices.data();
   vertexData.SysMemPitch = 0;
   vertexData.SysMemSlicePitch = 0;
 
@@ -251,13 +315,13 @@ bool PBRModel::InitializeBuffers(ID3D11Device *device) {
   }
 
   indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-  indexBufferDesc.ByteWidth = sizeof(unsigned long) * index_count_;
+  indexBufferDesc.ByteWidth = static_cast<UINT>(sizeof(unsigned long) * index_count_);
   indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
   indexBufferDesc.CPUAccessFlags = 0;
   indexBufferDesc.MiscFlags = 0;
   indexBufferDesc.StructureByteStride = 0;
 
-  indexData.pSysMem = indices;
+  indexData.pSysMem = indices.data();
   indexData.SysMemPitch = 0;
   indexData.SysMemSlicePitch = 0;
 
@@ -266,19 +330,21 @@ bool PBRModel::InitializeBuffers(ID3D11Device *device) {
     return false;
   }
 
-  delete[] vertices;
-  vertices = 0;
-
-  delete[] indices;
-  indices = 0;
+  // No need to manually delete - std::vector handles cleanup automatically
+  // Memory is exception-safe and will be freed even if an exception is thrown
 
   return true;
 }
 
-void PBRModel::SetParameterCallback(ShaderParameterCallback callback) {}
+void PBRModel::SetParameterCallback(ShaderParameterCallback callback) {
+  // PBRModel doesn't use parameter callbacks by default
+  // Derived classes can override if needed
+}
 
 ShaderParameterCallback PBRModel::GetParameterCallback() const {
-  return [this](ShaderParameterContainer &params) { assert(0); };
+  // Return empty callback - PBRModel uses default parameter behavior
+  // This is safe and allows objects to render without custom parameter logic
+  return nullptr;
 }
 
 void PBRModel::RenderBuffers(ID3D11DeviceContext *deviceContext) const {
@@ -330,14 +396,31 @@ bool PBRModel::LoadModel(const char *filename) {
     return false;
   }
 
-  // Read up to the value of vertex count.
-  fin.get(input);
-  while (input != ':') {
-    fin.get(input);
+  // Add safety limit to prevent infinite loops on malformed files
+  constexpr int MAX_PARSE_ITERATIONS = 10000;
+  int iterations = 0;
+
+  // Read up to the value of vertex count with bounds checking
+  while (fin.get(input) && input != ':' && ++iterations < MAX_PARSE_ITERATIONS) {
+    // Continue searching
+  }
+
+  if (iterations >= MAX_PARSE_ITERATIONS || !fin) {
+    std::cerr << "Error: PBR model file format error - first delimiter not found: " 
+              << filename << std::endl;
+    return false;
   }
 
   // Read in the vertex count.
   fin >> vertex_count_;
+
+  // Validate vertex count to prevent excessive memory allocation or overflow
+  constexpr int MAX_VERTEX_COUNT = 1000000; // Reasonable maximum
+  if (vertex_count_ <= 0 || vertex_count_ > MAX_VERTEX_COUNT) {
+    std::cerr << "Error: Invalid vertex count (" << vertex_count_ 
+              << ") in PBR model file: " << filename << std::endl;
+    return false;
+  }
 
   // Set the number of indices to be the same as the vertex count.
   index_count_ = vertex_count_;
@@ -345,19 +428,33 @@ bool PBRModel::LoadModel(const char *filename) {
   // Create the model using the vertex count that was read in.
   model_.resize(vertex_count_);
 
-  // Read up to the beginning of the data.
-  fin.get(input);
-  while (input != ':') {
-    fin.get(input);
+  // Read up to the beginning of the data with bounds checking
+  iterations = 0;
+  while (fin.get(input) && input != ':' && ++iterations < MAX_PARSE_ITERATIONS) {
+    // Continue searching
   }
+
+  if (iterations >= MAX_PARSE_ITERATIONS || !fin) {
+    std::cerr << "Error: PBR model file format error - second delimiter not found: " 
+              << filename << std::endl;
+    return false;
+  }
+
   fin.get(input);
   fin.get(input);
 
-  // Read in the vertex data.
+  // Read in the vertex data with stream state checking
   for (int i = 0; i < vertex_count_; i++) {
     fin >> model_[i].x >> model_[i].y >> model_[i].z;
     fin >> model_[i].tu >> model_[i].tv;
     fin >> model_[i].nx >> model_[i].ny >> model_[i].nz;
+
+    // Check for read errors after each vertex
+    if (fin.fail()) {
+      std::cerr << "Error: Failed to read vertex data at index " << i 
+                << " in PBR model file: " << filename << std::endl;
+      return false;
+    }
   }
 
   // Close the model file.
