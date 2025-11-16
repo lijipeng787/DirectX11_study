@@ -8,8 +8,8 @@ using namespace DirectX;
 
 bool VerticalBlurShader::Initialize(HWND hwnd, ID3D11Device *device) {
   shader_name_ = "VerticalBlurShader";
-  return InitializeBlurShader(hwnd, L"./shaders/verticalblur.vs",
-                              "VerticalBlurVertexShader", L"./shaders/verticalblur.ps",
+  return InitializeBlurShader(hwnd, L"./shader/verticalblur.vs",
+                              "VerticalBlurVertexShader", L"./shader/verticalblur.ps",
                               "VerticalBlurPixelShader", device);
 }
 

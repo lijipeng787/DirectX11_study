@@ -1,108 +1,319 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="HorizontalBlurShader.cpp" />
-    <ClCompile Include="Light.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="OrthoWindow.cpp" />
-    <ClCompile Include="Position.cpp" />
-    <ClCompile Include="RenderTexture.cpp" />
-    <ClCompile Include="ShadowShader.cpp" />
-    <ClCompile Include="SoftShadowShader.cpp" />
-    <ClCompile Include="System.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="TextureShader.cpp" />
-    <ClCompile Include="VerticalBlurShader.cpp" />
-    <ClCompile Include="DepthShader.cpp" />
-    <ClCompile Include="Graphics.cpp" />
-    <ClCompile Include="RenderPass.cpp" />
-    <ClCompile Include="RenderableObject.cpp" />
-    <ClCompile Include="PbrShader.cpp" />
-    <ClCompile Include="ShaderBase.cpp" />
-    <ClCompile Include="RenderGraph.cpp" />
-    <ClCompile Include="ResourceManager.cpp" />
-    <ClCompile Include="ShaderParameterValidator.cpp" />
-    <ClCompile Include="RefractionShader.cpp" />
-    <ClCompile Include="SceneLightShader.cpp" />
-    <ClCompile Include="WaterShader.cpp" />
-    <ClCompile Include="Font.cpp" />
-    <ClCompile Include="FontShader.cpp" />
-    <ClCompile Include="Frustum.cpp" />
-    <ClCompile Include="Text.cpp" />
-    <ClCompile Include="SimpleLightShader.cpp" />
-    <ClCompile Include="Logger.cpp" />
-    <ClCompile Include="BoundingVolume.cpp" />
-    <ClCompile Include="SceneConfig.cpp" />
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="ConfigValidator.cpp" />
-    <ClCompile Include="ShaderParameterContainerTests.cpp" />
-    <ClCompile Include="ShaderParameter.cpp" />
-    <ClCompile Include="ResourceRegistry.cpp" />
+    <Filter Include="include">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>hlsl;ps;vs</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DepthShader.h" />
-    <ClInclude Include="Graphics.h" />
-    <ClInclude Include="HorizontalBlurShader.h" />
-    <ClInclude Include="Interfaces.h" />
-    <ClInclude Include="Light.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="OrthoWindow.h" />
-    <ClInclude Include="Position.h" />
-    <ClInclude Include="RenderTexture.h" />
-    <ClInclude Include="ShaderParameter.h" />
-    <ClInclude Include="ShadowShader.h" />
-    <ClInclude Include="SoftShadowShader.h" />
-    <ClInclude Include="System.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="TextureShader.h" />
-    <ClInclude Include="VerticalBlurShader.h" />
-    <ClInclude Include="RenderPass.h" />
-    <ClInclude Include="RenderableObject.h" />
-    <ClInclude Include="PbrShader.h" />
-    <ClInclude Include="ShaderBase.h" />
-    <ClInclude Include="RenderGraph.h" />
-    <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="ShaderParameterValidator.h" />
-    <ClInclude Include="RefractionShader.h" />
-    <ClInclude Include="SceneLightShader.h" />
-    <ClInclude Include="WaterShader.h" />
-    <ClInclude Include="Font.h" />
-    <ClInclude Include="FontShader.h" />
-    <ClInclude Include="Frustum.h" />
-    <ClInclude Include="Text.h" />
-    <ClInclude Include="SimpleLightShader.h" />
-    <ClInclude Include="Logger.h" />
-    <ClInclude Include="BoundingVolume.h" />
-    <ClInclude Include="SceneConfig.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="ConfigValidator.h" />
-    <ClInclude Include="ShaderParameterContainerTests.h" />
-    <ClInclude Include="ResourceRegistry.h" />
+    <ClCompile Include="BoundingVolume.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigValidator.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthShader.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="FontShader.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="Frustum.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="HorizontalBlurShader.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="OrthoWindow.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="PbrShader.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="Position.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="RefractionShader.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderableObject.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderGraph.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderPass.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTexture.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceRegistry.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneConfig.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneLightShader.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderBase.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderParameter.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderParameterContainerTests.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderParameterValidator.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowShader.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleLightShader.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="SoftShadowShader.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="System.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="Text.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureShader.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="VerticalBlurShader.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="WaterShader.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="depth.ps" />
-    <None Include="depth.vs" />
-    <None Include="horizontalblur.ps" />
-    <None Include="horizontalblur.vs" />
-    <None Include="shadow.ps" />
-    <None Include="shadow.vs" />
-    <None Include="softshadow.ps" />
-    <None Include="softshadow.vs" />
-    <None Include="texture.ps" />
-    <None Include="texture.vs" />
-    <None Include="verticalblur.ps" />
-    <None Include="verticalblur.vs" />
-    <None Include="pbr.ps" />
-    <None Include="pbr.vs" />
-    <None Include="light.ps" />
-    <None Include="light.vs" />
-    <None Include="refraction.ps" />
-    <None Include="refraction.vs" />
-    <None Include="water.ps" />
-    <None Include="water.vs" />
-    <None Include="font.hlsl" />
-    <None Include="simplelight.ps" />
-    <None Include="simplelight.vs" />
+    <ClInclude Include="BoundingVolume.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigValidator.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthShader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="FontShader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Frustum.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="HorizontalBlurShader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="OrthoWindow.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="PbrShader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Position.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="RefractionShader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderableObject.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderGraph.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderPass.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTexture.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceRegistry.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneConfig.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneLightShader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderBase.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderParameter.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderParameterContainerTests.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderParameterValidator.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowShader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleLightShader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="SoftShadowShader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureShader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="VerticalBlurShader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="WaterShader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\depth.ps">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\depth.vs">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\font.hlsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\horizontalblur.ps">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\horizontalblur.vs">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\light.ps">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\light.vs">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\pbr.ps">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\pbr.vs">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\refraction.ps">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\refraction.vs">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\shadow.ps">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\shadow.vs">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\simplelight.ps">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\simplelight.vs">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\softshadow.ps">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\softshadow.vs">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\texture.ps">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\texture.vs">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\verticalblur.ps">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\verticalblur.vs">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\water.ps">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\water.vs">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -16,7 +16,7 @@ bool SceneLightShader::Initialize(HWND hwnd, ID3D11Device *device) {
        D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}};
 
   if (!InitializeShaderFromFile(
-    hwnd, L"./shaders/light.vs", "LightVertexShader", L"./shaders/light.ps",
+    hwnd, L"./shader/light.vs", "LightVertexShader", L"./shader/light.ps",
           "LightPixelShader", polygonLayout, _countof(polygonLayout), device)) {
     return false;
   }

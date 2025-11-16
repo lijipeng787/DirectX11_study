@@ -19,8 +19,8 @@ bool SoftShadowShader::Initialize(HWND hwnd, ID3D11Device *device) {
        D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}};
 
   // Initialize base shader components
-  if (!InitializeShaderFromFile(hwnd, L"./shaders/softshadow.vs",
-                                "SoftShadowVertexShader", L"./shaders/softshadow.ps",
+  if (!InitializeShaderFromFile(hwnd, L"./shader/softshadow.vs",
+                                "SoftShadowVertexShader", L"./shader/softshadow.ps",
                                 "SoftShadowPixelShader", polygonLayout,
                                 _countof(polygonLayout), device)) {
     return false;

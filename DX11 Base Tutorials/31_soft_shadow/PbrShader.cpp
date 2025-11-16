@@ -23,8 +23,8 @@ bool PbrShader::Initialize(HWND hwnd, ID3D11Device *device) {
        D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}};
 
   // Initialize base shader components
-  if (!InitializeShaderFromFile(hwnd, L"./shaders/pbr.vs", "PbrVertexShader",
-                                L"./shaders/pbr.ps", "PbrPixelShader", polygonLayout,
+  if (!InitializeShaderFromFile(hwnd, L"./shader/pbr.vs", "PbrVertexShader",
+                                L"./shader/pbr.ps", "PbrPixelShader", polygonLayout,
                                 _countof(polygonLayout), device)) {
     return false;
   }

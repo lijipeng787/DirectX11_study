@@ -20,8 +20,8 @@ bool TextureShader::Initialize(HWND hwnd, ID3D11Device *device) {
        D3D11_INPUT_PER_VERTEX_DATA, 0}};
 
   // Initialize base shader components
-  if (!InitializeShaderFromFile(hwnd, L"./shaders/texture.vs", "TextureVertexShader",
-                                L"./shaders/texture.ps", "TexturePixelShader",
+  if (!InitializeShaderFromFile(hwnd, L"./shader/texture.vs", "TextureVertexShader",
+                                L"./shader/texture.ps", "TexturePixelShader",
                                 polygonLayout, _countof(polygonLayout),
                                 device)) {
     return false;
